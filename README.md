@@ -1,78 +1,107 @@
-# Replication of Hagedorn (2026), "A Demand Theory of the Price Level" (IER)
+# Replication package — Hagedorn (2026), "A Demand Theory of the Price Level" (IER)
 
-This package reproduces the **mechanism** of Marcus Hagedorn, "A Demand Theory of
-the Price Level," International Economic Review, 2026 (DOI 10.1111/iere.70064),
-posthumously submitted by I. Manovskii, handled by D. Krueger.
+MATLAB replication of the **mechanism, comparative statics, and schematic
+figures** of Marcus Hagedorn, *A Demand Theory of the Price Level*,
+International Economic Review, 2026.
 
-## Core idea reproduced
-In Bewley–Imrohoroglu–Huggett–Aiyagari incomplete-markets models the steady-state
-price level is pinned down by **asset-market clearing**:
-    S(1+r) = B/P          (Eq. 13/14)
-with the real rate pinned by policy through the Fisher relation
-    1+r_ss = (1+i_ss)/(1+pi_ss)   (Eq. 17)
-and long-run inflation pinned by nominal fiscal policy
-    pi_ss = (B'-B)/B = (T'-T)/T   (Eq. 18)
-hence
-    P* = B / S((1+i_ss)/(1+pi_ss))   (Eq. 22).
-In complete markets (1+r_ss)=1/beta is independent of B/P, so P is indeterminate
-(Eq. 24, Fig. 2b).
+The paper is primarily **theoretical**. This package therefore implements a
+transparent *benchmark* incomplete-markets economy that reproduces the paper's
+logic, and it clearly separates **what is exactly implemented from the paper**
+from **what is a numerical illustration chosen by the replicator** (see
+`REPLICATION_NOTES.md`).
+
+## The core result
+
+In a Huggett-style heterogeneous-agent incomplete-markets endowment economy with
+uninsurable idiosyncratic income risk and nominal government bonds, the
+steady-state price level is pinned down by **asset-market clearing**:
+
+```
+S(1+r^ss) = B / P*            =>   P* = B / S(1+r^ss)
+1 + r^ss  = (1+i^ss)/(1+pi^ss)      (Fisher; monetary + fiscal policy)
+1 + pi^ss = B_{t+1}/B_t              (nominal debt growth = inflation)
+```
+
+- **Monetary policy** sets the nominal rate `i^ss`.
+- **Fiscal policy** sets nominal debt growth, hence steady-state inflation `pi^ss`.
+- Together they pin the **real rate** `r^ss`, at which the heterogeneous-agent
+  block delivers a **finite** aggregate real asset demand `S(1+r^ss)`.
+- Given nominal liabilities `B`, the **price level** adjusts so real bond supply
+  `B/P` equals asset demand. This yields a **unique finite** `P*`.
+
+In **complete markets / representative agent** the real rate is pinned by
+preferences (`1+r = 1/beta`) independent of `B/P`, asset-market clearing is
+redundant (Ricardian equivalence), and the price level is **indeterminate**.
+
+## Folder structure
+
+```
+main_run_all.m                     orchestrator (clear, seed, paths, run, save, summary)
+main_baseline_DTPL.m               baseline steady state + checks
+main_figures.m                     Figures 1-2
+main_policy_rules.m                nominal & real tax rules + Figure 3
+main_extensions_money_capital_G.m  capital, money, nominal-G + Figure 4
+main_counterexamples.m             complete-markets, hand-to-mouth, FTPL contrast
+main_empirical_figure5_optional.m  Figure 5 (only if data provided)
+src/                               all model + numerical + plotting modules
+output/figures/                    Figure{1..5}.{fig,png,pdf}
+output/tables/                     summary tables
+output/logs/                       run_log.txt (diary)
+data/                              optional OECD CSV for Figure 5
+REPLICATION_NOTES.md               detailed notes
+```
 
 ## How to run
+
 Open MATLAB in this folder and run:
-    >> main_run_all
-It creates output/, figures/ and writes validation_report.txt.
+
+```matlab
+>> main_run_all
+```
+
+This clears the workspace, sets the seed, adds `src/` to the path, runs all
+sections, writes figures/tables/logs to `output/`, saves `output/results.mat`,
+and prints a concise replication summary. For a quick smoke test set
+`FAST = true;` in the workspace before running (uses `na = 100`).
+
+Each `main_*.m` section can also be run standalone (it creates `params` if
+needed).
 
 ## Requirements
-- MATLAB R2018b+ (uses discretize, griddedInterpolant, sparse, fzero).
-  exportgraphics (R2020a+) used if present; otherwise print()/saveas() fallback.
-- No toolboxes strictly required. Statistics/Optimization toolboxes are NOT needed.
-- Dynare is NOT required (the paper is solved with global heterogeneous-agent
-  methods; Dynare's perturbation is inappropriate for this object).
+
+- **MATLAB R2018b+**. No toolboxes are required. `exportgraphics` (R2020a+) is
+  used for figures if present, otherwise `print`/`saveas` is used as a fallback.
+- **Dynare is not used**: the central object is a *global* heterogeneous-agent
+  steady-state asset-demand function, not a perturbation solution.
 
 ## Data (Figure 5 only)
-Place a CSV at  data/oecd_inflation_govexp.csv  with columns:
-    country, infl, govexp_growth
-("infl" = average annual CPI inflation, percent; "govexp_growth" = average annual
-growth of nominal government expenditure / real GDP, percent), per the paper's
-note (NIPA Table 3.1 lines 21,39,41,42 analogue; OECD CPI all items; 34 OECD
-countries). If the file is absent the code generates a CLEARLY LABELLED
-illustrative placeholder and prints a warning -- it is NOT the paper's data.
 
-## Outputs
-- figures/Figure1..Figure5 (.png/.pdf/.fig)
-- output/results.mat
-- validation_report.txt (numerical checks + replication status matrix)
+Figure 5 is optional. Place a CSV at `data/oecd_inflation_govexp.csv`. Two
+layouts are supported (see `src/load_oecd_data.m`):
 
-## Calibration disclaimer
-The paper is theoretical and reports no household calibration. All structural
-numbers in parameters_baseline.m are ILLUSTRATIVE benchmark values, explicitly
-labelled. The policy example matches the paper's endnote 14. Figures 1-4 are
-qualitative in the paper; we reproduce them quantitatively from the computed S(1+r).
+- **Pre-aggregated**: `country, infl, govexp_growth` (percent, already averaged).
+- **Raw panel**: `country, year, cpi, real_gdp` plus either `gov_exp_nominal`
+  or the paper's components `final_consumption, gross_capital_formation,
+  acquisitions_less_disposals, consumption_fixed_capital`.
 
-## Known limitations
-See validation_report.txt and the "Replication status matrix". Money-demand and
-some present-value-identity demonstrations are implemented at the steady-state-
-equation level with documented approximations (separable MIU).
+If no usable data file is present, the script prints a message and **skips**
+Figure 5. No OECD data are fabricated.
 
-## Data (Figure 5) — downloaded live from the internet
-Figure 5 data are fetched automatically from the **World Bank WDI REST API**
-(`load_oecd_data.m`) for the 34 OECD countries in the paper's endnote 33:
-- Inflation, consumer prices (annual %): `FP.CPI.TOTL.ZG`
-- General government final consumption expenditure, current LCU: `NE.CON.GOVT.CN`
-- GDP, constant LCU (real): `NY.GDP.MKTP.KN`
+## Core function signatures
 
-The code computes, per country: average CPI inflation, and the average annual
-growth of (nominal government expenditure / real GDP). Results are cached to
-`data/oecd_inflation_govexp.csv` and reused offline on later runs.
-
-Requirements: an internet connection on first run; `webread` (base MATLAB).
-To force offline use, set `par.use_web_data = false` in `parameters_baseline.m`.
-
-PROXY CAVEAT: the World Bank government measure (final consumption) is **not**
-the paper's exact NIPA Table 3.1 construction (final consumption GP3P + gross
-capital formation GP5_K2P − consumption of fixed capital GK1R). It is a
-reproducible web proxy, clearly labelled in the figure title, the source
-footnote, and `validation_report.txt`. The computed correlation may therefore
-differ from the paper's 0.93. To match the paper exactly, drop a CSV with
-columns `country, infl, govexp_growth` at `data/oecd_inflation_govexp.csv` and
-set `par.use_web_data = false`.
+```matlab
+params = setup_params();
+[eGrid, Pi, stationary_e] = make_income_process(params);
+[V, polA_idx, polA, polC, hhdiag] = solve_household_vfi(r, tau, params);
+[dist, distdiag] = stationary_distribution(polA_idx, Pi, params);
+[S, out] = aggregate_asset_demand(r, params);
+[ss, out] = solve_steady_state_DTPL(params, i_ss, pi_ss, B);
+[ss, out] = solve_nominal_tax_rule(params, omega1, omega2, i_ss, B);
+[roots, out] = solve_real_tax_rule(params, tau_star, gamma, i_ss, B);
+out = solve_complete_markets_counterexample(params);
+out = solve_hand_to_mouth_counterexample(params);
+out = solve_capital_extension(params);
+out = solve_money_extension(params);
+out = solve_nominal_G_extension(params);
+checks(ss, out, params);
+```

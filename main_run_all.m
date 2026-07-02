@@ -1,55 +1,97 @@
-function R = main_run_all()
-% MAIN_RUN_ALL  Master script: full replication of Hagedorn (2026), "A Demand
-% Theory of the Price Level" (IER). Runs from start to finish without manual input.
+% MAIN_RUN_ALL  Master script for the replication of Hagedorn (2026),
+% "A Demand Theory of the Price Level" (IER).
 %
-% Pipeline:
-%   1. parameters         (parameters_baseline)
-%   2. asset-demand curve S(1+r)               (Section 2.4, Eq.12; Fig.1)
-%   3. baseline price level P*=B/S             (Section 3.1-3.3, Eq.22)
-%   4. complete-markets indeterminacy          (Section 3.4, Fig.2b)
-%   5. nominal & real tax rules                (Section 3.5, Fig.3)
-%   6. DTPL vs FTPL                            (Section 3.5/App.B)
-%   7. capital, money, nominal-G extensions    (Sections 3.6-3.8, Fig.4)
-%   8. reproduce all figures                   (Fig.1-5)
-%   9. validation report + status matrix
-%  10. save output/results.mat
+% It clears the workspace, sets the random seed, adds paths, runs all model
+% sections, saves the figures and a log, and prints a concise replication
+% summary. Individual sections can also be run standalone (each creates params
+% if needed).
+%
+% USAGE
+%   >> main_run_all            % baseline: na = 500 (accurate, slower)
+%   Set FAST = true below (or in the workspace) for na = 100 (quick test).
+%
+% OUTPUTS
+%   output/figures/*.{fig,png,pdf}   figures 1-5
+%   output/tables/*.txt              summary tables
+%   output/logs/run_log.txt          full console log (diary)
+%   output/results.mat               all results struct RES
 
-    t0 = tic;
-    fprintf('==============================================================\n');
-    fprintf(' Hagedorn (2026) "A Demand Theory of the Price Level" -- replication\n');
-    fprintf('==============================================================\n');
+clear; close all; clc;
+rng(20260101, 'twister');            % reproducible seed
 
-    par = parameters_baseline();
-    
-    % --- Ensure all output directories exist before anything writes to them -----
-    for d = {par.outdir, par.figdir, par.datadir}
-        if ~isempty(d{1}) && ~isfolder(d{1}), mkdir(d{1}); end
-    end
-    if ~exist(par.outdir,'dir'), mkdir(par.outdir); end
-    if ~exist(par.figdir,'dir'), mkdir(par.figdir); end
-    if ~exist(par.datadir,'dir'), mkdir(par.datadir); end
+t_start = tic;
 
-    % --- core object: steady-state asset-demand curve ---
-    ad = asset_demand_curve(par);
+% ----- paths -----
+thisdir = fileparts(mfilename('fullpath'));
+if isempty(thisdir), thisdir = pwd; end
+cd(thisdir);
+addpath(genpath(fullfile(thisdir, 'src')));
 
-    % --- main results ---
-    R.par = par;
-    R.ad  = ad;
-    R.baseline = compute_price_level_nominal_bonds(par, ad);
-    R.cm       = complete_markets_comparison(par, ad);
-    R.ntr      = nominal_tax_rules(par, ad);
-    R.rtr      = real_tax_rules(par, ad);
-    R.ftpl     = ftpl_comparison(par, ad);
-    R.cap      = capital_extension(par);
-    R.money    = money_demand_extension(par, ad);
-    R.gov      = nominal_government_expenditure_extension(par, ad);
-
-    % --- figures and validation ---
-    reproduce_figures(par, ad, R);
-    validation_report(par, ad, R);
-
-    % --- save ---
-    save(fullfile(par.outdir,'results.mat'), 'R', '-v7.3');
-
-    fprintf('\nDONE in %.1f s. Outputs in %s/ and %s/.\n', toc(t0), par.outdir, par.figdir);
+% ----- params (baseline; optionally fast) -----
+if ~exist('FAST','var'), FAST = false; end
+params = setup_params();
+if FAST
+    params.na    = params.na_fast;
+    params.aGrid = params.abar*(-1) + (params.amax + params.abar) * ...
+                   (linspace(0,1,params.na)'.^params.acurv);
+    params.aGrid(1) = -params.abar; params.aGrid(end) = params.amax;
+    params.nr = 20; params.nP = 200;
+    fprintf('*** FAST mode: na=%d ***\n', params.na);
 end
+
+% ----- logging -----
+if ~isfolder(params.logdir), mkdir(params.logdir); end
+logfile = fullfile(params.logdir, 'run_log.txt');
+diary off; if exist(logfile,'file'), delete(logfile); end
+diary(logfile); diary on;
+
+fprintf('==========================================================\n');
+fprintf(' Replication: Hagedorn (2026) - A Demand Theory of the\n');
+fprintf('              Price Level (IER)\n');
+fprintf(' Date: run under seed 20260101,  method = %s,  na = %d\n', ...
+        params.hh_method, params.na);
+fprintf('==========================================================\n');
+
+RES = struct();
+
+% ----- run all sections (scripts share this workspace) -----
+main_baseline_DTPL;
+main_figures;
+main_policy_rules;
+main_extensions_money_capital_G;
+main_counterexamples;
+main_empirical_figure5_optional;
+
+% ----- save results -----
+save(fullfile('output','results.mat'), 'RES', 'params');
+
+% ----- concise replication summary -----
+ss = RES.baseline.ss;
+fprintf('\n================ REPLICATION SUMMARY ================\n');
+fprintf(' BASELINE DTPL steady state (incomplete markets):\n');
+fprintf('   beta=%.3f  sigma=%.2f  abar=%.2f\n', params.beta, params.sigma, params.abar);
+fprintf('   i_ss=%.3f  pi_ss=%.3f  r_ss=%.4f  beta*(1+r)=%.3f\n', ...
+        ss.i_ss, ss.pi_ss, ss.r_ss, ss.betaR);
+fprintf('   Bnom=%.3f  S(1+r_ss)=%.4f  P*=%.4f  tau_ss=%.4f\n', ...
+        ss.Bnom, ss.S_assets, ss.Pstar, ss.tau_ss);
+fprintf('   existence conditions satisfied: %d\n', ss.exists);
+if isfield(RES,'counter') && isfield(RES.counter,'complete')
+    fprintf(' COMPLETE MARKETS: P indeterminate (unique=%d)\n', RES.counter.complete.unique);
+end
+if isfield(RES,'counter') && isfield(RES.counter,'ftpl')
+    fprintf(' DTPL vs FTPL price gap: %.4f\n', RES.counter.ftpl.gap);
+end
+if isfield(RES,'fig5')
+    if RES.fig5.ok
+        fprintf(' Figure 5 (empirical): correlation=%.3f\n', RES.fig5.rho);
+    else
+        fprintf(' Figure 5 (empirical): SKIPPED (no data).\n');
+    end
+end
+fprintf('   Interpretation: with policy pinning r_ss, private asset demand\n');
+fprintf('   and asset-market clearing pin the unique price level P*=B/S(1+r).\n');
+fprintf(' Elapsed: %.1f s\n', toc(t_start));
+fprintf('====================================================\n');
+
+diary off;
+fprintf('Log saved to %s\n', logfile);
