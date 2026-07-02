@@ -86,6 +86,25 @@ function out = solve_nominal_G_extension(params)
         out.case1 = pack_case(roots1, Pgrid, resid1, ...
             resid1 + Breal, Breal * ones(size(Pgrid)), tau1, ...
             sprintf('real bonds Breal=%.3f, nominal G=%.2f (S=Breal)', Breal, Gnom));
+
+        % Demand-curve FAMILY for Figure 4(a): S(1+r, tau(P)) traced over the
+        % real rate for three price levels (below / at / above the equilibrium
+        % normalization). Higher P => lower real spending G/P => lower real
+        % taxes => the whole demand curve shifts RIGHT (paper Result 1).
+        % P below 0.75*P_target is omitted: its implied tax would exceed the
+        % feasibility bound under the scaled endowment.
+        Pfam = P_target * [0.75, 1.0, 2.0];
+        rfam = linspace(params.r_min, min(params.r_max, 0.026), 9);
+        Sfam = nan(numel(Pfam), numel(rfam));
+        for a = 1:numel(Pfam)
+            taua = tau1(Pfam(a));
+            for b = 1:numel(rfam)
+                Sfam(a, b) = S_at_tau(rfam(b), taua, p1);
+            end
+            fprintf('  [fig4 demand curve %d/%d] P=%.2f (tau=%+.3f) done\n', ...
+                    a, numel(Pfam), Pfam(a), taua);
+        end
+        out.case1.family = struct('P', Pfam, 'rgrid', rfam, 'S', Sfam);
     end
 
     % =================================================================

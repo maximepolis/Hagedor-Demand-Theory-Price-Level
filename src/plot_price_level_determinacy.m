@@ -1,15 +1,20 @@
 function fh = plot_price_level_determinacy(ad, ss, cm, params)
 % PLOT_PRICE_LEVEL_DETERMINACY  Figure 2 replication: determinacy in incomplete
-% markets versus indeterminacy in complete markets.
+% markets versus indeterminacy in complete markets, drawn in the same
+% (assets, interest-rate) space as Figure 1:
+%   x-axis: real assets / bonds,  y-axis: gross real interest rate 1+r.
+%   BLUE  = government bond supply B/P (vertical line),
+%   RED   = household asset demand.
 %
-% LEFT  : impose r^ss = (1+i^ss)/(1+pi^ss)-1, evaluate S(1+r^ss), and show the
-%         UNIQUE price level P* = B/S(1+r^ss). The asset-demand curve S(1+r) is
-%         a genuine function of r, so once policy fixes r^ss there is one S and
-%         one P*.
-% RIGHT : complete markets. The real rate is pinned at 1+r = 1/beta INDEPENDENT
-%         of B/P, so the "asset-demand curve" is a vertical line at 1/beta and
-%         ANY real bond value B/P is consistent — the price level is
-%         indeterminate. We plot a continuum of admissible (1+r, B/P) points.
+% LEFT  : incomplete markets. Policy pins 1+r^ss = (1+i^ss)/(1+pi^ss); the
+%         upward-sloping demand curve gives a single asset level S(1+r^ss), so
+%         the bond-supply line B/P must pass through that point: UNIQUE
+%         P* = B/S(1+r^ss).
+% RIGHT : complete markets / representative agent. The demand "curve" is a
+%         HORIZONTAL line at 1+r = 1/beta: the household absorbs ANY quantity
+%         of real bonds at that rate. Every bond-supply line B/P*_j intersects
+%         it, so a continuum of price levels P*_1, P*_2, P*_3, ... satisfies
+%         all equilibrium conditions: P is INDETERMINATE.
 %
 % INPUTS
 %   ad     : asset-demand interpolant (incomplete markets).
@@ -20,74 +25,63 @@ function fh = plot_price_level_determinacy(ad, ss, cm, params)
 % OUTPUT
 %   fh : figure handle (saved as Figure2_determinacy.{fig,png,pdf}).
 %
-% PAPER SECTION: Figure 2.
+% PAPER SECTION: Figure 2 (Sections 3.1, 3.4, Eq. 23-24).
+
+    BLUE = [0.10 0.30 0.75];
+    RED  = [0.85 0.20 0.15];
 
     conv = ad.converged;
     r    = ad.rgrid(conv);
     S    = ad.Sgrid(conv);
     gr   = 1 + r;
+    grc  = 1 + cm.r_complete;                    % 1/beta
+    yl   = [min(gr) - 0.002, max(max(gr), grc) + 0.004];
+    xmax = 1.05 * max(S);
 
     fh = figure('Name','Figure 2: Determinacy vs indeterminacy', ...
                 'Color','w','Position',[100 100 1000 420]);
 
     % ---------- LEFT: incomplete markets, unique P* ----------
     subplot(1,2,1); hold on; box on;
-    plot(gr, S, '-', 'LineWidth',2, 'Color',[0.10 0.30 0.75]);
+    plot(S, gr, '-', 'LineWidth', 2, 'Color', RED);
     if isfield(ss,'exists') && ss.exists
-        plot([1+ss.r_ss 1+ss.r_ss], [min(S) max(S)], '--','Color',[0.6 0.6 0.6]);
-        plot([min(gr) max(gr)], [ss.S_assets ss.S_assets], '-.', ...
-             'Color',[0.85 0.20 0.15],'LineWidth',1.5);
-        plot(1+ss.r_ss, ss.S_assets, 'o','MarkerFaceColor',[0.85 0.2 0.15], ...
-             'MarkerEdgeColor','k','MarkerSize',9);
-        title(sprintf('(a) Incomplete markets: UNIQUE P* = %.3f', ss.Pstar));
-        text(1+ss.r_ss, ss.S_assets, sprintf('  S=B/P*=%.3f', ss.S_assets),'FontSize',9);
+        Breal = ss.Bnom / ss.Pstar;              % = S(1+r_ss)
+        plot([Breal Breal], yl, '-', 'LineWidth', 2, 'Color', BLUE);
+        plot([0 xmax], [1+ss.r_ss, 1+ss.r_ss], '--', 'Color', [0.6 0.6 0.6]);
+        plot(Breal, 1+ss.r_ss, 'o', 'MarkerFaceColor','k', ...
+             'MarkerEdgeColor','k', 'MarkerSize', 8);
+        text(Breal, 1+ss.r_ss, sprintf('  B/P^*, P^*=%.3f', ss.Pstar), ...
+             'FontSize', 9);
+        title(sprintf('(a) Incomplete markets: UNIQUE P^* = %.3f', ss.Pstar));
     else
         title('(a) Incomplete markets');
     end
-    xlabel('gross real rate  1+r'); ylabel('S(1+r)  and  B/P^*');
-    legend({'HA asset demand','r^{ss} from policy','B/P^*'}, 'Location','northwest');
+    ylim(yl); xlim([0, xmax]);
+    xlabel('real assets / bonds'); ylabel('gross real interest rate  1+r');
+    legend({'HA asset demand  S(1+r)', 'Government bonds  B/P^*', ...
+            'policy-pinned  1+r^{ss}'}, 'Location','southeast');
 
     % ---------- RIGHT: complete markets, indeterminate P ----------
     subplot(1,2,2); hold on; box on;
-    grc = 1 + cm.r_complete;
-    Br  = cm.Breal_grid;              % continuum of B/P values
-    % vertical asset-demand "curve" at 1/beta
-    plot([grc grc], [min(Br) max(Br)], '-', 'LineWidth',2.5, 'Color',[0.10 0.30 0.75]);
-    % admissible points: any B/P at that rate
-    plot(grc*ones(size(Br)), Br, '.', 'Color',[0.85 0.20 0.15], 'MarkerSize',6);
-    % three example price levels P*_1 < P*_2 < P*_3, as labeled in the paper
-    Bex = quantile_local(Br, [0.75 0.45 0.15]);
+    % horizontal demand line: any asset quantity absorbed at 1+r = 1/beta
+    plot([0 xmax], [grc grc], '-', 'LineWidth', 2.5, 'Color', RED);
+    % three example bond-supply lines B/P*_1 < B/P*_2 < B/P*_3
+    Bex = xmax * [0.25, 0.50, 0.75];
+    shades = [0.45 0.62 0.95; 0.25 0.45 0.85; 0.08 0.25 0.65];
+    labs = cell(1,3);
     for k = 1:3
-        plot(grc, Bex(k), 'o', 'MarkerFaceColor',[0.85 0.20 0.15], ...
-             'MarkerEdgeColor','k', 'MarkerSize',8);
-        text(grc, Bex(k), sprintf('  B/P^*_%d', k), 'FontSize',9);
+        plot([Bex(k) Bex(k)], yl, '-', 'LineWidth', 1.8, 'Color', shades(k,:));
+        plot(Bex(k), grc, 'o', 'MarkerFaceColor','k', 'MarkerEdgeColor','k', ...
+             'MarkerSize', 7);
+        labs{k} = sprintf('B/P^*_%d', k);
     end
-    xline_span(grc, sprintf('1+r = 1/\\beta = %.3f', grc));
-    xlabel('gross real rate  1+r'); ylabel('real bond value  B/P');
-    xlim([min(gr) max([max(gr), grc*1.01])]);
-    title('(b) Complete markets: P INDETERMINATE');
-    legend({'Complete-mkt asset demand (vertical)','admissible B/P (continuum)'}, ...
-           'Location','northeast');
+    text(0.02*xmax, grc, sprintf('  1+r = 1/\\beta = %.3f', grc), ...
+         'FontSize', 9, 'Color', RED, 'VerticalAlignment','bottom');
+    ylim(yl); xlim([0, xmax]);
+    xlabel('real assets / bonds'); ylabel('gross real interest rate  1+r');
+    title('(b) Complete markets: P INDETERMINATE (continuum of P^*_j)');
+    legend([{'RA asset demand (any quantity at 1/\beta)'}, labs], ...
+           'Location','southeast');
 
     save_all_figs(fh, 'Figure2_determinacy', params);
-end
-
-% -------------------------------------------------------------------------
-function xline_span(xval, txt)
-    yl = ylim;
-    text(xval, yl(1) + 0.9*(yl(2)-yl(1)), ['  ' txt], 'FontSize',9, ...
-         'Color',[0.10 0.30 0.75]);
-end
-
-% -------------------------------------------------------------------------
-function q = quantile_local(x, p)
-% Toolbox-free quantiles of a vector (linear interpolation on sorted values).
-    x = sort(x(:));
-    n = numel(x);
-    q = zeros(size(p));
-    for k = 1:numel(p)
-        idx  = 1 + p(k)*(n-1);
-        lo   = floor(idx); hi = ceil(idx); w = idx - lo;
-        q(k) = (1-w)*x(lo) + w*x(hi);
-    end
 end

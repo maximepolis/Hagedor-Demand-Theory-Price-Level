@@ -246,27 +246,38 @@ Standalone sections (each builds `params` if absent):
 
 ## 9. Interpretation of each figure
 
-- **Figure 1 — Asset market.** (a) The upward-sloping heterogeneous-agent asset
-  demand `S(1+r)` and the real bond supply `B/P^*`; their intersection is the
-  steady state. (b) For different hypothetical price levels `P1,P2,P3`, the real
-  supplies `B/P_j` cut the demand curve at different real rates — showing that a
-  policy block (Fisher relation) is needed to select `r^ss` and hence `P^*`.
-- **Figure 2 — Determinacy vs indeterminacy.** (a) Incomplete markets: once
-  policy fixes `r^ss`, there is a single `S` and a unique `P* = B/S(1+r^ss)`.
-  (b) Complete markets: the asset-demand "curve" is vertical at `1+r = 1/beta`,
-  so any `B/P` is admissible — the price level is indeterminate.
-- **Figure 3 — Real tax rule.** Drawn in **price–asset space** as in the paper:
-  the transformed asset-demand curve `S(r(P))` (with `1+pi(P) = 1+i − τ*P/B`)
-  and real bond supply `B/P`, both against `P`; intersections are equilibria.
-  Panel (a), `τ* > 0`: demand increases in `P`, supply decreases — unique
-  equilibrium. Panel (b), `τ* < 0`: demand also decreases in `P` — two
-  steady-state price levels are possible (the solver returns all roots found).
-- **Figure 4 — Nominal government expenditure.** Also in price–asset space.
-  Panel (a), real bonds: asset demand `S(1+r^ss, τ(P))` is increasing in `P`
-  (higher `P` lowers real spending `G/P`, hence real taxes, hence raises
-  precautionary asset demand — paper Result 1), while supply is fixed at
-  `B^{real}`; the crossing pins `P*` even though bonds are price-indexed.
-  Panel (b), nominal bonds plus small nominal `G`: demand vs `B/P`.
+All asset-market figures use the convention: **real assets/bonds on the
+x-axis**; the y-axis is the **gross real rate 1+r** (Figures 1, 2, 4a) or the
+**price level P** (Figures 3, 4b). Government bond supply is drawn in **blue**,
+household asset demand in **red**.
+
+- **Figure 1 — Asset market.** (a) The heterogeneous-agent demand curve
+  `S(1+r)` (red, upward in the rate) and the vertical bond-supply line `B/P^*`
+  (blue); their intersection is the steady state. (b) Three hypothetical price
+  levels `P1>P2>P3` give three supply lines `B/P_j` cutting the demand curve at
+  three different real rates — one equation, two unknowns; the policy block
+  (Fisher relation) is needed to select `r^ss` and hence `P^*`.
+- **Figure 2 — Determinacy vs indeterminacy.** (a) Incomplete markets: policy
+  pins `1+r^ss`; the demand curve then delivers a single asset level, so the
+  supply line must pass through it — unique `P* = B/S(1+r^ss)`. (b) Complete
+  markets: demand is a *horizontal* line at `1+r = 1/beta` (the representative
+  agent absorbs any quantity at that rate), so every supply line `B/P*_j`
+  intersects it — a continuum of price levels; `P` is indeterminate.
+- **Figure 3 — Real tax rule.** Price–asset space: demand `S(r(P))` (red) and
+  supply `B/P` (blue) traced over `P` on the y-axis. Panel (a), `τ* > 0`:
+  demand shifts right as `P` rises while supply falls — unique intersection.
+  Panel (b), `τ* = −0.015 < 0`: both curves fall with `P` — **two**
+  intersections, each annotated with its own steady-state inflation rate
+  (= nominal debt growth) `π_j = i^ss − τ* P*_j / B`.
+- **Figure 4 — Nominal government expenditure (price-indexed debt).**
+  (a) Demand-curve family in (assets, 1+r) space: raising `P` lowers real
+  spending `G/P` and real taxes, shifting the demand curve right (Result 1);
+  only one `P` puts the curve through `(B^{real}, 1+r^ss)` — that is `P*`.
+  (b) Equilibrium determination in (assets, P) space: demand
+  `S(1+r^ss, τ(P))` (red, increasing in `P`) against the fixed supply
+  `B^{real}` (blue vertical); the crossing is the unique `P*` even though
+  bonds are price-indexed. The nominal-bond case 2 is computed and reported in
+  the console/results struct.
 - **Figure 5 — Empirical (optional).** Cross-country scatter of average CPI
   inflation against average growth of nominal government expenditure / real GDP,
   with the 45-degree line, an OLS fit, and the cross-country correlation. Runs
