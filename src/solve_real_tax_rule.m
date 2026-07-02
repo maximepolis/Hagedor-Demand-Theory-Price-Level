@@ -35,8 +35,17 @@ function [roots, out] = solve_real_tax_rule(params, tau_star, gamma, i_ss, Bnom)
     if nargin < 4 || isempty(i_ss), i_ss = params.i_ss; end
     if nargin < 5 || isempty(Bnom), Bnom = params.Bnom; end
 
-    % Precompute S(r) interpolant on a real-rate grid.
-    ad = asset_demand_interp(params);
+    % Precompute S(r) interpolant. Under a real tax rule the real rate moves
+    % with P; a NEGATIVE surplus tau*<0 (the paper's multiplicity case, panel b
+    % of Figure 3) pushes r far BELOW the baseline sweep range as P rises, so
+    % the default grid extends to strongly negative rates. Callers running
+    % several cases can pass a precomputed interpolant via params.ad_cache.
+    if isfield(params, 'ad_cache') && ~isempty(params.ad_cache)
+        ad = params.ad_cache;
+    else
+        rgrid = linspace(-0.30, params.r_max, 45);
+        ad = asset_demand_interp(params, rgrid);
+    end
 
     % inflation as a function of P:  1+pi(P) = 1 + i_ss - (P/B) tau^*
     gross_pi = @(P) (1 + i_ss) - (P ./ Bnom) * tau_star;
@@ -80,6 +89,10 @@ function [roots, out] = solve_real_tax_rule(params, tau_star, gamma, i_ss, Bnom)
     out = struct();
     out.Pgrid        = Pgrid;
     out.resid        = Fvals;
+    % Curves for the paper-style Figure 3 in price-asset space:
+    % transformed asset demand S(r(P)) and real bond supply B/P against P.
+    out.S_curve      = Fvals + Bnom ./ Pgrid;   % S(r(P)) (NaN where infeasible)
+    out.BoverP       = Bnom ./ Pgrid;           % real bond supply
     out.ad           = ad;
     out.r_at_root    = r_at;
     out.pi_at_root   = pi_at;

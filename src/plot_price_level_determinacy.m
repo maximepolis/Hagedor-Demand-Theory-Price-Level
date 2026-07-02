@@ -55,6 +55,13 @@ function fh = plot_price_level_determinacy(ad, ss, cm, params)
     plot([grc grc], [min(Br) max(Br)], '-', 'LineWidth',2.5, 'Color',[0.10 0.30 0.75]);
     % admissible points: any B/P at that rate
     plot(grc*ones(size(Br)), Br, '.', 'Color',[0.85 0.20 0.15], 'MarkerSize',6);
+    % three example price levels P*_1 < P*_2 < P*_3, as labeled in the paper
+    Bex = quantile_local(Br, [0.75 0.45 0.15]);
+    for k = 1:3
+        plot(grc, Bex(k), 'o', 'MarkerFaceColor',[0.85 0.20 0.15], ...
+             'MarkerEdgeColor','k', 'MarkerSize',8);
+        text(grc, Bex(k), sprintf('  B/P^*_%d', k), 'FontSize',9);
+    end
     xline_span(grc, sprintf('1+r = 1/\\beta = %.3f', grc));
     xlabel('gross real rate  1+r'); ylabel('real bond value  B/P');
     xlim([min(gr) max([max(gr), grc*1.01])]);
@@ -70,4 +77,17 @@ function xline_span(xval, txt)
     yl = ylim;
     text(xval, yl(1) + 0.9*(yl(2)-yl(1)), ['  ' txt], 'FontSize',9, ...
          'Color',[0.10 0.30 0.75]);
+end
+
+% -------------------------------------------------------------------------
+function q = quantile_local(x, p)
+% Toolbox-free quantiles of a vector (linear interpolation on sorted values).
+    x = sort(x(:));
+    n = numel(x);
+    q = zeros(size(p));
+    for k = 1:numel(p)
+        idx  = 1 + p(k)*(n-1);
+        lo   = floor(idx); hi = ceil(idx); w = idx - lo;
+        q(k) = (1-w)*x(lo) + w*x(hi);
+    end
 end

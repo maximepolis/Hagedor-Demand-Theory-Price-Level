@@ -41,6 +41,7 @@ function [S, out] = aggregate_asset_demand(r, params)
         divv      = false(1, nr);
         betaRv    = params.beta * (1 + r);
         p         = params;
+        p.quiet_divergence = true;       % status line below replaces warnings
         lastS     = params.S_guess;      % warm-start each rate at the previous S
         for m = 1:nr
             p.S_guess = lastS;
@@ -83,15 +84,21 @@ function [S, out] = solve_one_rate(r, params)
     out.betaR    = params.beta * (1 + r);
     out.diverged = false;
 
+    % In vector sweeps the caller prints a DIVERGED status line per rate, so
+    % expected divergences are reported quietly (no warning stack traces).
+    quiet = isfield(params, 'quiet_divergence') && params.quiet_divergence;
+
     % Existence guard: asset demand unbounded as beta(1+r) -> 1.
     if out.betaR >= params.betaR_max
         S = Inf;
         out.S = Inf; out.tau = NaN; out.C = NaN; out.meanE = NaN;
         out.converged = false; out.diverged = true;
         out.fp_iter = 0; out.fp_err = NaN;
-        warning('aggregate_asset_demand:asymptote', ...
-            'beta*(1+r)=%.4f >= betaR_max=%.4f: asset demand diverges (r=%.4f).', ...
-            out.betaR, params.betaR_max, r);
+        if ~quiet
+            warning('aggregate_asset_demand:asymptote', ...
+                'beta*(1+r)=%.4f >= betaR_max=%.4f: asset demand diverges (r=%.4f).', ...
+                out.betaR, params.betaR_max, r);
+        end
         return;
     end
 
@@ -118,10 +125,12 @@ function [S, out] = solve_one_rate(r, params)
         tau = r * S;                                    % tau_ss = r_ss * S_ss
         if tau > tau_feasmax
             diverged = true;
-            warning('aggregate_asset_demand:infeasible_tau', ...
-                ['tau=r*S=%.4f exceeds the feasibility bound %.4f (minimum ' ...
-                 'income at the constraint): treating S(1+r) as divergent ' ...
-                 'at r=%.4f.'], tau, tau_feasmax, r);
+            if ~quiet
+                warning('aggregate_asset_demand:infeasible_tau', ...
+                    ['tau=r*S=%.4f exceeds the feasibility bound %.4f (minimum ' ...
+                     'income at the constraint): treating S(1+r) as divergent ' ...
+                     'at r=%.4f.'], tau, tau_feasmax, r);
+            end
             break;
         end
         [~, polA_idx, polA, polC, hhdiag] = solver(r, tau, params);
