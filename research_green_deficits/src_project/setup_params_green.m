@@ -35,6 +35,31 @@ function pg = setup_params_green()
     pg.phi_D      = 0.50;
     pg.sig_eps0   = pg.sig_eps;    % root benchmark innovation s.d.
 
+    % Damage-incidence gradient (paper Eq. "incidence"; Kaenzig 2023 / Fried-
+    % Novan-Peterman evidence): y(e;D) = (1 - D*chi(e))*e with
+    % chi(e) = e^(-psi)/E[e^(1-psi)]. psi_inc = 0 (default) = uniform damages,
+    % preserving the original benchmark; the extended experiments sweep it.
+    pg.psi_inc = 0;
+
+    % ------------------------------------------------------------------
+    % Climate version 2: carbon-stock sector (climate_block2)
+    %   A = 1-exp(-theta_g*Kg); E = eps0*(1-alpha_A*A)*(1-D);
+    %   X = E/delta_x;          D = Dmax*(1-exp(-gamma_x*X)).
+    % Calibrated so no-abatement damages roughly match D0 = 0.10 above.
+    % ------------------------------------------------------------------
+    pg.climate_version = 1;       % 1 = reduced form; 2 = carbon stock
+    pg.Dmax    = 0.25;
+    pg.eps0    = 1.00;
+    pg.delta_x = 0.05;
+    pg.gamma_x = 0.028;
+    pg.alpha_A = 0.90;
+
+    % Extended-experiment settings (main_project_extended)
+    pg.psi_sweep   = [0, 1, 2];   % incidence gradients for the sunspot probe
+    pg.Gg_big      = 0.024;       % doubled program for the multiplicity search
+    pg.green_csv   = fullfile(fileparts(srcdir), '..', 'data', ...
+                              'green_budget_panel.csv');  % E2 data (optional)
+
     % ------------------------------------------------------------------
     % Green program and policy (nominal budget regime is the default)
     % ------------------------------------------------------------------

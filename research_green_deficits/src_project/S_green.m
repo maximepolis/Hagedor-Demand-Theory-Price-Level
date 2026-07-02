@@ -38,7 +38,29 @@ function [S, out] = S_green(r, tau, D, pg)
     end
 
     % ---- damage level channel: scale endowments ----
-    p.eGrid = (1 - D) * p.eGrid;
+    % With an incidence gradient psi_inc > 0 (paper Eq. "incidence"), damages
+    % fall disproportionately on low-endowment households:
+    %   y(e;D) = (1 - D*chi(e))*e,  chi(e) = e^(-psi)/E[e^(1-psi)],
+    % normalized so the population-average damage share equals D. psi_inc = 0
+    % recovers the uniform scaling (1-D)*e.
+    psi = 0;
+    if isfield(pg, 'psi_inc') && ~isempty(pg.psi_inc), psi = pg.psi_inc; end
+    if psi > 0
+        ev   = p.eGrid(:);
+        wst  = p.stationary_e(:);
+        cnorm = wst' * (ev.^(1 - psi));           % E[e^(1-psi)]
+        chi   = (ev.^(-psi)) / cnorm;             % E[chi(e) e] = 1
+        scale = 1 - D * chi;
+        if any(scale < 0.05)
+            % cap extreme incidence so effective income stays positive
+            scale = max(scale, 0.05);
+            warning('S_green:incidence_cap', ...
+                'Incidence gradient capped at scale=0.05 for some states (D=%.3f, psi=%.2f).', D, psi);
+        end
+        p.eGrid = (scale .* ev)';
+    else
+        p.eGrid = (1 - D) * p.eGrid;
+    end
 
     % ---- lump-sum feasibility: poorest at the constraint must afford c>0 ----
     if tau >= min(p.eGrid) + r*(-p.abar) - 1e-6
