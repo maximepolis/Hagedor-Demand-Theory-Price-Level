@@ -27,6 +27,30 @@ if isempty(thisdir), thisdir = pwd; end
 cd(thisdir);
 addpath(genpath(fullfile(thisdir, 'src')));
 
+% ----- path hygiene: fail fast if stale copies shadow the src/ functions -----
+% Older prototypes of this package shipped flat root-level .m files (e.g. a
+% 2-argument stationary_distribution.m). If such stale files linger in the
+% current folder or elsewhere on the MATLAB path, they SHADOW the src/ versions
+% and produce wrong signatures ("Too many input arguments"). Detect and report.
+srcdir   = fullfile(thisdir, 'src');
+srcfiles = dir(fullfile(srcdir, '*.m'));
+shadowed = {};
+for k = 1:numel(srcfiles)
+    fname    = srcfiles(k).name(1:end-2);
+    resolved = which(fname);
+    expected = fullfile(srcdir, srcfiles(k).name);
+    if ~isempty(resolved) && ~strcmpi(resolved, expected)
+        shadowed{end+1} = sprintf('    %-34s resolves to: %s', fname, resolved); %#ok<SAGROW>
+    end
+end
+if ~isempty(shadowed)
+    error('main_run_all:shadowed', ...
+        ['Stale files shadow this package''s src/ functions:\n%s\n' ...
+         'Delete or rename these files (leftovers from an older version of the\n' ...
+         'package), or remove their folders from the MATLAB path, then rerun.'], ...
+        strjoin(shadowed, '\n'));
+end
+
 % ----- params (baseline; optionally fast) -----
 if ~exist('FAST','var'), FAST = false; end
 params = setup_params();

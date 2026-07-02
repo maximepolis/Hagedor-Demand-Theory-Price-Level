@@ -93,7 +93,7 @@ function [S, out] = solve_one_rate(r, params)
         it = it + 1;
         tau = r * S;                                    % tau_ss = r_ss * S_ss
         [~, polA_idx, polA, polC, hhdiag] = solver(r, tau, params);
-        [dist, distdiag] = stationary_distribution(polA_idx, params.Pi, params);
+        [dist, distdiag] = compute_stationary_distribution(polA_idx, params.Pi, params);
 
         Stilde = params.aGrid(:)' * sum(dist, 2);       % E[a]
         if ~isfinite(Stilde) || abs(Stilde) > 1e6

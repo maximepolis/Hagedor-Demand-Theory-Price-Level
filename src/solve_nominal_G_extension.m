@@ -85,7 +85,7 @@ function S = S_at_tau(r, tau, params)
     end
     [~, polA_idx, ~, ~, hd] = solve_household_vfi(r, tau, params);
     if ~hd.converged, S = NaN; return; end
-    [dist, dd] = stationary_distribution(polA_idx, params.Pi, params);
+    [dist, dd] = compute_stationary_distribution(polA_idx, params.Pi, params);
     if ~dd.converged, S = NaN; return; end
     S = params.aGrid(:)' * sum(dist, 2);
 end
