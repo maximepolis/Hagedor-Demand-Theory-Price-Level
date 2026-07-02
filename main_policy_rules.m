@@ -57,8 +57,14 @@ outA.roots = rootsA;
 fprintf('  Case A (tau*=%+.2f): %s\n', tau_star_A, outA.msg);
 
 % Case B: tau* < 0 => S(r(P)) ALSO decreasing in P => two intersections with
-% B/P are possible (paper Figure 3, panel b).
-tau_star_B = -0.05;
+% B/P are possible (paper Figure 3, panel b). The magnitude matters: the
+% demand curve S(r(P)) must EXCEED the supply hyperbola B/P over some price
+% range for the two curves to cross twice. With tau*=-0.05 the implied real
+% rate falls so fast in P that demand dies before supply does (no steady
+% state at all); tau*=-0.015 keeps demand above B/P on an intermediate range,
+% delivering the paper's two-equilibrium configuration, each with its own
+% steady-state inflation rate pi_j = i^ss - tau* P*_j / B.
+tau_star_B = -0.015;
 [rootsB, outB] = solve_real_tax_rule(params, tau_star_B, 0.5, i_ss, Bnom);
 outB.roots = rootsB;
 fprintf('  Case B (tau*=%+.2f): %s\n', tau_star_B, outB.msg);
