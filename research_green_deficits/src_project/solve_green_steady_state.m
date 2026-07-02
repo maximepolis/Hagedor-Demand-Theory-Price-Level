@@ -51,7 +51,12 @@ function [eqs, out] = solve_green_steady_state(pg, policy, ad2)
             error('solve_green_steady_state:regime', 'Unknown regime %s.', ...
                   policy.regime);
     end
-    D_of_P   = @(P) climate_block(g_of_P(P), pgl);
+    % climate version: 1 = reduced form D0*exp(-theta*Kg); 2 = carbon stock
+    if isfield(pgl,'climate_version') && pgl.climate_version == 2
+        D_of_P = @(P) climate_block2(g_of_P(P), pgl);
+    else
+        D_of_P = @(P) climate_block(g_of_P(P), pgl);
+    end
     tau_of_P = @(P) r_ss * B ./ P + g_of_P(P);
 
     Phi = @(P) ad2.S_of(tau_of_P(P), D_of_P(P)) - B ./ P;
@@ -83,7 +88,11 @@ function [eqs, out] = solve_green_steady_state(pg, policy, ad2)
                  'breal',{},'resid_exact',{},'W',{},'gini_a',{},'gini_y',{});
     for k = 1:numel(roots)
         P = roots(k);
-        [Dk, Kgk] = climate_block(g_of_P(P), pgl);
+        if isfield(pgl,'climate_version') && pgl.climate_version == 2
+            [Dk, Kgk] = climate_block2(g_of_P(P), pgl);
+        else
+            [Dk, Kgk] = climate_block(g_of_P(P), pgl);
+        end
         tk        = tau_of_P(P);
         [Sk, ok]  = S_green(r_ss, tk, Dk, pgl);
         eqs(k).P      = P;

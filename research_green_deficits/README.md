@@ -25,28 +25,53 @@ PROPOSAL.md              research question, motivation, introduction, literature
 MODEL_AND_THEORY.md      formal model; Definitions 1-3; Lemmas 1-3;
                          Propositions 1-5; Corollaries 1-3; proof sketches;
                          theory-to-code map
-main_project_run_all.m   runs everything, writes figures/tables/log
+paper/
+  green_deficits_price_level.tex   FULL JOURNAL-ARTICLE DRAFT (top-journal
+                         format): abstract, introduction, literature review,
+                         model with in-depth climate sector (carbon stock,
+                         emissions, damages with incidence gradient), all
+                         lemmas/propositions/corollaries WITH PROOFS,
+                         quantitative section using the benchmark run's
+                         numbers, empirical section (E1-E3), appendices
+  references.bib         bibliography (verified references only)
+main_project_run_all.m   baseline experiments (Props 1-5, PFig1-4)
+main_project_extended.m  EXTENDED experiments: carbon-stock sector +
+                         incidence gradient, sunspot frontier over (psi, Gg),
+                         extended self-financing, empirical anchor (PFig5-6)
 src_project/
   setup_params_green.m   project calibration (extends root setup_params)
-  climate_block.m        D = D0*exp(-theta_g*Kg), Kg = g_g/delta_g
-  S_green.m              S(1+r; tau, D) + welfare + Ginis (wraps root VFI)
+  climate_block.m        version 1: D = D0*exp(-theta_g*Kg)
+  climate_block2.m       version 2: carbon stock X = E/delta_x, emissions,
+                         damages D = Dmax*(1-exp(-gamma_x*X)) (fixed point)
+  S_green.m              S(1+r; tau, D) + welfare + Ginis; damage-incidence
+                         gradient chi(e) = e^(-psi)/E[e^(1-psi)]
   build_S_interp_green.m S on a (tau,D) grid -> bilinear interpolant
-  solve_green_steady_state.m  all roots of Phi(P)=0, eps_S(P) diagnostic
+  solve_green_steady_state.m  all roots of Phi(P)=0, eps_S(P) diagnostic,
+                         climate version switch
   self_financing_decomposition.m  nu decomposition + theta_g sweep
   optimal_policy_green.m W(mu) and the optimal accommodation mu*
   plot_green_figures.m   PFig1-PFig4
+  empirical_anchor.m     E1: OLS + HC1 robust SEs, Wald test of slope=1
+                         on the repo's OECD data (PFig5); no fabricated data
+  load_green_budget_data.m  E2 loader: documented CSV schema for the
+                         green-budget panel; skips gracefully if absent
 output/                  figures/, tables/, logs/ (generated)
 ```
 
 ## How to run
 
-From MATLAB, with this folder as the working directory (the script adds the
-repo root `src/` to the path itself):
+From MATLAB, with this folder as the working directory (the scripts add the
+repo root `src/` to the path themselves):
 
 ```matlab
->> main_project_run_all              % full (na=500, ~30-45 min)
->> FAST = true; main_project_run_all % quick pass (na=100, ~5 min)
+>> main_project_run_all               % baseline experiments (na=500)
+>> main_project_extended              % extended sector + empirics (na=500)
+>> FAST = true; main_project_run_all  % quick pass (na=100)
 ```
+
+To compile the article: `pdflatex green_deficits_price_level`, `bibtex`,
+then `pdflatex` twice, inside `paper/` (figures are pulled from
+`../output/figures/`; missing ones are skipped automatically).
 
 ## The five results (see MODEL_AND_THEORY.md for exact statements)
 
