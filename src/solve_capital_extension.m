@@ -30,8 +30,13 @@ function out = solve_capital_extension(params)
 %
 % PAPER SECTION: capital extension.
 
-    if isfield(params,'alpha') && ~isempty(params.alpha), alpha = params.alpha; else, alpha = 0.36; end
-    if isfield(params,'delta') && ~isempty(params.delta), delta = params.delta; else, delta = 0.08; end
+    % Defaults chosen so that K* = (alpha/(r^ss+delta))^(1/(1-alpha)) stays
+    % BELOW household asset demand S(1+r^ss) at the benchmark real rate
+    % (r^ss ~ 0.02): with alpha=0.36, delta=0.08 the implied K* ~ 7.4 exceeds
+    % S ~ 4.6 and no positive price level exists (the module then reports
+    % exactly that). These values are illustrative, not calibrated moments.
+    if isfield(params,'alpha') && ~isempty(params.alpha), alpha = params.alpha; else, alpha = 0.33; end
+    if isfield(params,'delta') && ~isempty(params.delta), delta = params.delta; else, delta = 0.12; end
 
     i_ss  = params.i_ss;
     pi_ss = params.pi_ss;

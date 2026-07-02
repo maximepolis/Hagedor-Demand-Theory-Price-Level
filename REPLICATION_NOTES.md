@@ -88,16 +88,40 @@ the local slope `dS/dr` as a diagnostic only.)
   the paper's logic (endogenous `M`, asset market pins `P`) at low cost.
 - The **capital extension** uses a consolidated tax that finances the real
   interest on government bonds only, `tau = r(S − K^*)`; production is
-  Cobb-Douglas `Y = K^alpha` with `alpha=0.36`, `delta=0.08` (illustrative).
+  Cobb-Douglas `Y = K^alpha` with `alpha=0.33`, `delta=0.12`. These values are
+  chosen so that `K^* < S(1+r^ss)` at the benchmark real rate (with
+  `alpha=0.36, delta=0.08` the implied `K^* ≈ 7.4` exceeds asset demand
+  `≈ 4.6` and the module correctly reports that no positive price level
+  exists — an existence failure, not a code failure).
+- The **nominal-G extension (Figure 4, case 1)** follows the paper's
+  Eq. (66)–(69): real bonds `Breal`, nominal spending `G`, and a linear
+  endowment tax `omega` (households keep `(1−omega)e`), so real taxes are
+  `tau(P) = G/P − omega + r·Breal`. Replicator's **normalization**:
+  `omega = G/P_target` with `P_target = 1`, and `Breal` is computed as the
+  model's own asset demand at `r^ss` under the scaled endowment — so `P* = 1`
+  is an equilibrium by construction and the figure cleanly displays the
+  mechanism (demand increasing in `P`, supply fixed at `Breal`). Case 2 uses a
+  small nominal `G2 = 0.02` relative to `Bnom = 1`: large nominal `G` pushes
+  real taxes at the market-clearing price level above minimum income, and no
+  equilibrium exists (the module reports this rather than forcing a root).
+- The **nominal tax rule demo** uses `omega2 = −0.03` (≈3% baseline debt
+  growth at `omega1 = 1`) and `omega1 ∈ {1, 0.5, 1.25}`. The `omega1 > 1` case
+  is 1.25 rather than a larger value because at this `i^ss` larger `omega1`
+  drives the real rate into the region where asset demand diverges; the solver
+  then correctly reports "no steady state," which is informative but not a
+  useful comparative static.
 - The **FTPL price** uses a constant-surplus present value `B/P = s/r`; the
   surplus `s` defaults to the DTPL steady-state tax for a like-for-like contrast.
 - The **schematic figures** reproduce the paper's *qualitative* geometry; exact
   curve shapes depend on the benchmark calibration.
-- For the real tax rule, the shipped calibration produces a **unique** root in
-  each panel of Figure 3 given the monotone sign structure of the benchmark; the
-  solver is nevertheless **multi-root capable** (it scans for all sign changes
-  and refines each with `fzero`) so genuine multiplicity is detected whenever a
-  calibration produces it. This is flagged, not hidden.
+- For the real tax rule (Figure 3), the paper's non-uniqueness case arises for
+  a **negative primary surplus** `tau* < 0` (or a downward-sloping `S`): the
+  transformed demand curve `S(r(P))` is then decreasing in `P` alongside the
+  supply hyperbola `B/P`, so two intersections are possible. Panel (a) uses
+  `tau* = +0.02` (unique), panel (b) `tau* = −0.05`. Whether two roots actually
+  materialize in panel (b) depends on the benchmark's curvature; the solver
+  scans for **all** sign changes and refines each with `fzero`, and reports
+  exactly how many roots it found. This is flagged, not hidden.
 
 ---
 
@@ -231,14 +255,18 @@ Standalone sections (each builds `params` if absent):
   policy fixes `r^ss`, there is a single `S` and a unique `P* = B/S(1+r^ss)`.
   (b) Complete markets: the asset-demand "curve" is vertical at `1+r = 1/beta`,
   so any `B/P` is admissible — the price level is indeterminate.
-- **Figure 3 — Real tax rule.** The market-clearing residual `F(P) = S(r(P)) −
-  B/P` versus `P`, where inflation (hence `r`) depends on `P`. Zero crossings are
-  equilibrium price levels: one panel with a unique equilibrium, one where
-  multiplicity can arise (the solver returns all roots found).
-- **Figure 4 — Nominal government expenditure.** Market-clearing residuals for
-  (a) real bonds `S(1+r, G/P) = B^{real}` and (b) nominal bonds plus nominal
-  spending `S(1+r, G/P) = B/P`. Nominal `G` can determine `P` through the
-  aggregate-demand channel even when bonds are real.
+- **Figure 3 — Real tax rule.** Drawn in **price–asset space** as in the paper:
+  the transformed asset-demand curve `S(r(P))` (with `1+pi(P) = 1+i − τ*P/B`)
+  and real bond supply `B/P`, both against `P`; intersections are equilibria.
+  Panel (a), `τ* > 0`: demand increases in `P`, supply decreases — unique
+  equilibrium. Panel (b), `τ* < 0`: demand also decreases in `P` — two
+  steady-state price levels are possible (the solver returns all roots found).
+- **Figure 4 — Nominal government expenditure.** Also in price–asset space.
+  Panel (a), real bonds: asset demand `S(1+r^ss, τ(P))` is increasing in `P`
+  (higher `P` lowers real spending `G/P`, hence real taxes, hence raises
+  precautionary asset demand — paper Result 1), while supply is fixed at
+  `B^{real}`; the crossing pins `P*` even though bonds are price-indexed.
+  Panel (b), nominal bonds plus small nominal `G`: demand vs `B/P`.
 - **Figure 5 — Empirical (optional).** Cross-country scatter of average CPI
   inflation against average growth of nominal government expenditure / real GDP,
   with the 45-degree line, an OLS fit, and the cross-country correlation. Runs
