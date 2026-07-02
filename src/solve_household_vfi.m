@@ -56,6 +56,16 @@ function [V, polA_idx, polA, polC, hhdiag] = solve_household_vfi(r, tau, params)
     err = Inf;
     it  = 0;
 
+    % Forced-consumption floor for states with NO feasible choice (c <= 0 even
+    % at a' = amin, e.g. when tau exceeds the lowest income at the constraint).
+    % Such states get a' = amin and utility u(c_floor): a very negative but
+    % FINITE value, so V never contains -Inf and the sup-norm error can never
+    % turn into NaN (-Inf minus -Inf). The caller treats widespread infeasibility
+    % as economic non-existence (see aggregate_asset_demand feasibility guard).
+    c_floor  = 1e-8;
+    u_floor  = utility(c_floor, sigma);
+    n_forced = 0;
+
     while it < maxit
         it = it + 1;
 
@@ -63,16 +73,22 @@ function [V, polA_idx, polA, polC, hhdiag] = solve_household_vfi(r, tau, params)
         EV = beta * (V * Pi');                   % na x ne
 
         Vnew = zeros(na, ne);
+        n_forced = 0;
         for j = 1:ne
             coh = (1+r) * aGrid + eGrid(j) - tau;  % na x 1 cash-on-hand
             % consumption matrix C(i,k) = coh(i) - aGrid(k)
             C = coh - aGrid';                      % na x na
             U = utility(C, sigma);                 % -Inf where C <= 0
-            if ~anyInfeasible && all(~isfinite(U(1,:)))
-                anyInfeasible = true;              % lowest state fully infeasible
-            end
             M = U + EV(:, j)';                     % add EV(k,j) across columns
             [Vj, kidx] = max(M, [], 2);
+            % states where EVERY choice is infeasible: force a'=amin, c=c_floor
+            forced = ~isfinite(Vj);
+            if any(forced)
+                anyInfeasible = true;
+                n_forced      = n_forced + sum(forced);
+                kidx(forced)  = 1;                 % aGrid(1) = amin
+                Vj(forced)    = u_floor + EV(1, j);
+            end
             Vnew(:, j)     = Vj;
             polA_idx(:, j) = kidx;
         end
@@ -84,12 +100,14 @@ function [V, polA_idx, polA, polC, hhdiag] = solve_household_vfi(r, tau, params)
         end
 
         % ---- Howard policy-improvement sweeps (hold policy fixed) ----
+        % Consumption under the fixed policy is clamped at c_floor so forced
+        % states keep a finite (very negative) value here as well.
         for h = 1:n_howard
             EVh = beta * (V * Pi');
             for j = 1:ne
                 coh  = (1+r) * aGrid + eGrid(j) - tau;
                 idx  = polA_idx(:, j);
-                cH   = coh - aGrid(idx);
+                cH   = max(coh - aGrid(idx), c_floor);
                 V(:, j) = utility(cH, sigma) + EVh(idx, j);
             end
         end
@@ -103,7 +121,7 @@ function [V, polA_idx, polA, polC, hhdiag] = solve_household_vfi(r, tau, params)
     end
     if any(polC(:) <= 0)
         anyInfeasible = true;
-        polC = max(polC, 1e-12);
+        polC = max(polC, c_floor);
     end
 
     % ----- Euler-equation residuals -----
@@ -139,6 +157,7 @@ function [V, polA_idx, polA, polC, hhdiag] = solve_household_vfi(r, tau, params)
     hhdiag.euler_mean_log10 = euler_mean_log10;
     hhdiag.frac_constrained = frac_constrained;
     hhdiag.anyInfeasible    = anyInfeasible;
+    hhdiag.n_infeasible     = n_forced;   % states forced to c_floor (last iter)
     hhdiag.method           = 'vfi';
 
     if ~hhdiag.converged

@@ -40,13 +40,26 @@ function [S, out] = aggregate_asset_demand(r, params)
         convv     = false(1, nr);
         divv      = false(1, nr);
         betaRv    = params.beta * (1 + r);
+        p         = params;
+        lastS     = params.S_guess;      % warm-start each rate at the previous S
         for m = 1:nr
-            [Sm, om] = solve_one_rate(r(m), params);
+            p.S_guess = lastS;
+            [Sm, om] = solve_one_rate(r(m), p);
             S(m)     = Sm;
             tauv(m)  = om.tau;
             Cv(m)    = om.C;
             convv(m) = om.converged;
             divv(m)  = om.diverged;
+            if om.converged && isfinite(Sm)
+                lastS = Sm;
+                status = 'ok';
+            elseif om.diverged
+                status = 'DIVERGED (treated as S=Inf)';
+            else
+                status = 'NO CONVERGENCE';
+            end
+            fprintf('  [S(1+r) sweep %2d/%2d] r=%+.4f  S=%9.4f  %s\n', ...
+                    m, nr, r(m), Sm, status);
         end
         out = struct();
         out.r         = r;
@@ -84,6 +97,17 @@ function [S, out] = solve_one_rate(r, params)
 
     solver = pick_solver(params);
 
+    % Lump-sum tax feasibility bound: the poorest household at the borrowing
+    % constraint (a = amin, e = e_min) has maximum consumption
+    %   c_max = r*amin + e_min - tau   (choosing a' = amin),
+    % so the economy only exists when tau < e_min + r*amin. Since tau = r*S and
+    % S(1+r) blows up as beta(1+r) -> 1, the implied tax crosses this bound
+    % BEFORE the asymptote; when it does we declare divergence (economic
+    % non-existence at this r) instead of iterating on an infeasible problem.
+    amin        = -params.abar;
+    e_min       = min(params.eGrid);
+    tau_feasmax = e_min + r*amin - 1e-6;
+
     S   = params.S_guess;
     err = Inf; it = 0;
     diverged = false;
@@ -92,6 +116,14 @@ function [S, out] = solve_one_rate(r, params)
     while it < params.maxit_S
         it = it + 1;
         tau = r * S;                                    % tau_ss = r_ss * S_ss
+        if tau > tau_feasmax
+            diverged = true;
+            warning('aggregate_asset_demand:infeasible_tau', ...
+                ['tau=r*S=%.4f exceeds the feasibility bound %.4f (minimum ' ...
+                 'income at the constraint): treating S(1+r) as divergent ' ...
+                 'at r=%.4f.'], tau, tau_feasmax, r);
+            break;
+        end
         [~, polA_idx, polA, polC, hhdiag] = solver(r, tau, params);
         [dist, distdiag] = compute_stationary_distribution(polA_idx, params.Pi, params);
 
