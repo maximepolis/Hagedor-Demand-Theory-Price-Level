@@ -33,6 +33,16 @@ In **complete markets / representative agent** the real rate is pinned by
 preferences (`1+r = 1/beta`) independent of `B/P`, asset-market clearing is
 redundant (Ricardian equivalence), and the price level is **indeterminate**.
 
+## Research project built on this package
+
+`research_green_deficits/` contains a standalone research project — *"Can Green
+Deficits Finance Themselves? Climate Investment, Asset Demand, and
+Self-Fulfilling Price Levels in Incomplete-Markets Economies"* — that combines
+this paper's DTPL mechanism with Angeletos-Lian-Wolf (self-financing deficits),
+Acharya-Challe-Dogra (optimal monetary policy in HANK) and Acharya-Benhabib
+(self-fulfilling fluctuations in HANK), plus a climate block. See
+`research_green_deficits/README.md`; run `research_green_deficits/main_project_run_all.m`.
+
 ## Folder structure
 
 ```
