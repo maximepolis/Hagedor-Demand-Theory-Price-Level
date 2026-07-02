@@ -64,12 +64,22 @@ function out = solve_capital_extension(params)
         warning('solve_capital_extension:asymptote','%s', out.msg); return;
     end
 
+    % lump-sum feasibility bound with wage income w*e (see aggregate_asset_demand)
+    tau_feasmax = min(p.eGrid) + r_ss*(-p.abar) - 1e-6;
+
     S = max(params.S_guess, Kstar + 0.5);
     err = Inf; it = 0; dist=[]; polC=[];
     while it < params.maxit_S
         it = it + 1;
         b   = S - Kstar;                     % real bond holdings
         tau = r_ss * b;                      % taxes finance bond interest
+        if tau > tau_feasmax
+            warning('solve_capital_extension:infeasible_tau', ...
+                ['tau=%.4f exceeds feasibility bound %.4f: asset demand ' ...
+                 'divergent at r=%.4f.'], tau, tau_feasmax, r_ss);
+            S = Inf;
+            break;
+        end
         [~, polA_idx, polA, polC, ~] = solve_household_vfi(r_ss, tau, p);
         [dist, ~] = compute_stationary_distribution(polA_idx, p.Pi, p);
         Stilde = p.aGrid(:)' * sum(dist, 2);

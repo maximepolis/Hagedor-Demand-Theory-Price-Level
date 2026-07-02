@@ -136,8 +136,20 @@ Extensions add `alpha=0.36, delta=0.08` (capital), `chi=0.05, eta=2` (money),
   transition matrix (`tol_dist = 1e-12`). **No Monte-Carlo simulation.**
 - **Asset demand** (`aggregate_asset_demand`): outer fixed point over
   `(tau, S)` with `tau = r S` and damping `lambda_S = 0.5`, `tol_S = 1e-8`.
-  Accepts scalar or vector `r`. Refuses `beta(1+r) >= betaR_max` and flags
-  divergence rather than crashing.
+  Accepts scalar or vector `r` (vector sweeps warm-start each rate at the
+  previous converged `S` and print per-rate progress). Refuses
+  `beta(1+r) >= betaR_max` and flags divergence rather than crashing.
+- **Lump-sum tax feasibility bound**: with a lump-sum tax, the poorest
+  household at the borrowing constraint can afford positive consumption only if
+  `tau < e_min + r·a_min`. Because `tau = r·S` and `S(1+r)` blows up as
+  `beta(1+r) → 1`, the implied tax crosses this bound *before* the asymptote.
+  When it does, the solver declares `S(1+r)` **divergent at that rate**
+  (economic non-existence of the stationary equilibrium with lump-sum taxes)
+  instead of iterating on an infeasible household problem. This bounds the
+  plotted range of the asset-demand curve from above. As a defensive layer, the
+  VFI also assigns a finite forced-floor value (`c_floor = 1e-8`, `a' = a_min`)
+  to any state with no feasible choice, so the value function never contains
+  `-Inf` and iteration errors can never become `NaN`.
 - **Price-level root finding** (real tax rule, nominal G): scan a positive
   `P`-grid for sign changes, then refine each bracket with `fzero`
   (`tol_root = 1e-8`). All roots are returned. A precomputed `S(r)` (or

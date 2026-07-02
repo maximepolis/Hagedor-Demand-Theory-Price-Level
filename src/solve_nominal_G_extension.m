@@ -45,9 +45,13 @@ function out = solve_nominal_G_extension(params)
     out.Gnom = Gnom; out.Breal = Breal; out.Bnom = Bnom; out.r_ss = r_ss;
 
     % ---- Precompute S(tau) at fixed r^ss (only tau varies with P) ----
-    % tau range: from small (large P) to large (small P). Cover generously.
+    % tau range: from small (large P) to large (small P). The upper end is
+    % clamped at the lump-sum feasibility bound tau < e_min + r*amin (the
+    % poorest household at the constraint must afford c > 0); for smaller P the
+    % implied tax is infeasible and S is reported as NaN (no equilibrium there).
+    tau_feasmax = min(params.eGrid) + r_ss*(-params.abar) - 1e-4;
     tau_lo = -0.5;
-    tau_hi = r_ss*max(Bnom,Breal) + Gnom/params.P_min + 0.5;
+    tau_hi = min(r_ss*max(Bnom,Breal) + Gnom/params.P_min + 0.5, tau_feasmax);
     taugrid = linspace(tau_lo, tau_hi, max(25, round(params.nr)));
     Stau = nan(size(taugrid));
     for m = 1:numel(taugrid)
@@ -82,6 +86,10 @@ function S = S_at_tau(r, tau, params)
 % Aggregate asset holdings at EXOGENOUS (r, tau): one household solve + dist.
     if params.beta*(1+r) >= params.betaR_max
         S = Inf; return;
+    end
+    % lump-sum feasibility: poorest at the constraint must afford c > 0
+    if tau >= min(params.eGrid) + r*(-params.abar) - 1e-6
+        S = NaN; return;
     end
     [~, polA_idx, ~, ~, hd] = solve_household_vfi(r, tau, params);
     if ~hd.converged, S = NaN; return; end
