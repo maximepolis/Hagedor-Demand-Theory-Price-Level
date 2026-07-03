@@ -34,8 +34,8 @@ to MODEL_STATUS.md (block-level labels) and referee_memo/REFEREE_MEMO.md.*
 | # | Task | Est. effort | Blocks |
 |---|---|---|---|
 | U1 | ~~Rerun extended package post-fix; fill paper placeholders (frontier, X1, E1 CI)~~ **DONE** (master run: baseline 73.2 s + extended 48.3 s; frontier table, accommodation-neutrality result, and E1 inference now in the paper) | — | — |
-| U2 | Consumption-equivalent welfare + welfare by wealth/income quintile (`welfare_by_group.m`) | days | none |
-| U3 | Calibration appendix execution: low/med/high damages (DICE / DJO-BHM / Bilal-Känzig), theta_g from IEA abatement costs, psi from Känzig incidence; wealth-moment targeting for (rho, sig_eps, beta) | 1–2 weeks | data access |
+| U2 | Consumption-equivalent welfare by wealth quintile — **machinery DONE** (`welfare_by_group.m`, wired into `main_project_calibrated` C4 with PFig8); numbers pending the C4 rerun | run pending | — |
+| U3 | ~~Calibration execution~~ **DONE for beta / program scale / damage columns** (beta*=0.9296 to debt/GDP=1.10; program 2% of income; nu = 0.15 / 0.56 / 2.01 across LOW/MED/HIGH damages — verified run, 147 s). Remaining within U3: theta_g from IEA abatement costs; psi from Känzig incidence; wealth-moment targeting of (rho, sig_eps) | partial | data access |
 | U4 | Carbon-tax financing + transfer-rebate + mixed regimes; distortionary labor tax (Barrage template) | 1–2 weeks | U3 helpful |
 | U5 | Debt maturity (geometric-coupon bond) — bounds the revaluation channel honestly | ~1 week | none |
 | U6 | Transition dynamics tier 1: RANK-NK perfect-foresight paths in `dynare/green_rank_nk.mod` (skeleton committed; calibrate + shock design) | ~1 week | — |

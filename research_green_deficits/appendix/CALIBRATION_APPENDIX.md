@@ -52,6 +52,24 @@ replaced), **DERIVED** (implied by other parameters).*
 | E2 green-budget panel | ABSENT (schema specified) | IMF GFS/COFOG 05 + budget-law indexation classification |
 | E3 event study | DESIGN ONLY | EU ETS/Green Deal, IRA announcement windows; Känzig-style shocks |
 
+## Calibrated-pass results (U3 EXECUTED — verified run, na=500, 147 s)
+
+- **beta\* = 0.9296** (bisection converged: S = 1.1033 vs target 1.10) —
+  status of beta upgraded to **CALIBRATED** (target: debt/GDP = 1.10).
+- **Gg_cal = 0.01818** (2.0% of mean income at P0_med = 0.9091) — program
+  scale **CALIBRATED** to net-zero public-investment paths.
+- Damage columns (all unique equilibria):
+
+| Column | D0 | nu | reval | damage | full financing at theta_g | W0 → W1 |
+|---|---|---|---|---|---|---|
+| LOW (DICE) | 0.02 | 0.149 | −0.060 | 0.210 | never (0.32 at 2.5) | −3.22 → −3.72 |
+| MEDIUM (DJO–BHM) | 0.06 | 0.563 | −0.064 | 0.628 | ≈ 2.35 | −4.09 → −4.42 |
+| HIGH (Bilal–Känzig) | 0.20 | **2.007** | −0.068 | 2.076 | ≈ 0.57 | −7.82 → **−7.23** |
+
+- Green disinflation robust at calibrated scale: reval ≈ −0.06 and a
+  bondholder windfall of 7–9% of annual mean income in every column; the
+  HIGH column raises steady-state welfare outright.
+
 ## Calibrated-pass machinery (U3) — implemented, awaiting run
 
 `main_project_calibrated.m` executes the three re-targets:

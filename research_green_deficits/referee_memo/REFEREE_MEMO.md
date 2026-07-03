@@ -16,14 +16,15 @@ IMPLEMENTED) with paths for debt, P, inflation, Kg, emissions, damages,
 consumption, taxes, welfare.
 
 **R2. "The climate calibration is arbitrary."**
-(a) True at benchmark: D0, theta_g, delta_g, phi_D, psi are ILLUSTRATIVE and
-labeled so in every document.
-(b) The results reported as robust are reported as *functions* of these
-parameters (nu(theta_g); the multiplicity frontier over (psi, Gg)), not at a
-point.
-(c) Calibration appendix plan: LOW = DICE/Nordhaus; MEDIUM = Dell-Jones-Olken
-/ Burke-Hsiang-Miguel; HIGH = Bilal-Känzig; theta_g from abatement-cost
-curves (IEA); psi from Känzig's incidence estimates.
+(a) PARTIALLY CLOSED by the executed calibrated pass: beta is now calibrated
+to debt/GDP = 1.10 (beta* = 0.9296), the program to 2% of income, and the
+damage level takes three externally disciplined values (DICE 0.02 /
+DJO-BHM 0.06 / Bilal-Känzig 0.20). The headline is stated as a conditional
+across those columns (nu = 0.15 / 0.56 / 2.01), never at a single point.
+(b) Still illustrative and reported as sweeps: theta_g (awaiting the
+IEA abatement-cost mapping), phi_D, psi, and the (i, mu) anchors.
+(c) Remaining plan: theta_g from marginal-abatement-cost curves; psi from
+Känzig's incidence estimates; (rho, sig_eps) to wealth moments.
 
 **R3. "Lump-sum taxes make the fiscal result mechanical."**
 (a) Correct concern; lump-sum is the transparent benchmark and is labeled a
