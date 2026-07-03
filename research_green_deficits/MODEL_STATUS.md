@@ -124,3 +124,13 @@ that crashed at X2 and is fixed as of this commit), not from the paper draft.*
   complete). Per standard #10, multiplicity is demoted in the text to a
   sufficient-condition theorem: the calibrated benchmark does NOT generate
   it, and the paper says so.
+- Calibrated pass `main_project_calibrated` (na=500): completed in 147 s.
+  beta* = 0.9296 (bisection to debt/GDP = 1.10, converged); program 2% of
+  income (Gg_cal = 0.01818). Self-financing by damage column: LOW (DICE
+  0.02) nu = 0.149; MEDIUM (DJO-BHM 0.06) nu = 0.563; HIGH (Bilal-Kaenzig
+  0.20) nu = 2.007 (fully self-financing). Revaluation ~ -0.06 in every
+  column (green disinflation robust at calibrated scale); HIGH column
+  raises steady-state welfare outright (-7.82 -> -7.23). Written into the
+  paper as Table "calibrated" with the conditional headline. Section C4
+  (welfare incidence by wealth quintile, welfare_by_group.m + PFig8) added
+  after this run -- numbers pending the C4 rerun.

@@ -129,6 +129,47 @@ for c = 1:numel(D0_cols)
 end
 RCAL.cols = cols;
 
+% =====================================================================
+% C4. Welfare incidence by wealth group (roadmap U2)
+% =====================================================================
+fprintf('\n===== [C4] Welfare incidence by wealth group =====\n');
+wgs = cell(1, numel(D0_cols));
+for c = 1:numel(D0_cols)
+    if isempty(RCAL.dec{c}) || ~RCAL.dec{c}.ok
+        fprintf('  column %s skipped (no equilibrium pair).\n', col_names{c});
+        continue;
+    end
+    pgcc = pgc;
+    pgcc.climate_version = 1;
+    pgcc.D0 = D0_cols(c);
+    wg = welfare_by_group(r_cal, RCAL.dec{c}.base, RCAL.dec{c}.prog, pgcc);
+    wgs{c} = wg;
+    if wg.ok
+        fprintf('  %-22s %s\n', col_names{c}, wg.msg);
+    end
+end
+RCAL.welfare_groups = wgs;
+
+% PFig8: CE gains by quintile across damage columns
+have = find(cellfun(@(w) ~isempty(w) && w.ok, wgs));
+if ~isempty(have)
+    fh8 = figure('Name','PFig8: Welfare incidence by wealth quintile', ...
+                 'Color','w','Position',[80 80 680 480]); hold on; box on;
+    M = nan(numel(have), 5);
+    for k = 1:numel(have), M(k, :) = 100 * wgs{have(k)}.lambda_q; end
+    bh = bar(1:5, M', 'grouped');
+    shades = [0.55 0.65 0.85; 0.45 0.70 0.45; 0.85 0.35 0.30];
+    for k = 1:numel(have), set(bh(k), 'FaceColor', shades(min(k,3),:)); end
+    plot([0.5 5.5], [0 0], 'k-', 'LineWidth', 0.8);
+    set(gca, 'XTick', 1:5, 'XTickLabel', {'Q1 (poorest)','Q2','Q3','Q4','Q5 (richest)'});
+    ylabel('consumption-equivalent gain (%)');
+    title('Who gains from the green program? (by baseline wealth quintile)');
+    legend(cellfun(@(c) col_names{c}, num2cell(have), 'UniformOutput', false), ...
+           'Location', 'best');
+    save_all_figs(fh8, 'PFig8_welfare_incidence', pg);
+    fprintf('  [saved] PFig8_welfare_incidence\n');
+end
+
 % ----- PFig7: nu by damage column -----
 fh7 = figure('Name','PFig7: Calibrated self-financing by damage column', ...
              'Color','w','Position',[80 80 640 480]); hold on; box on;
@@ -161,6 +202,11 @@ if fid > 0
         fprintf(fid, '%-22s D0=%.2f: nu=%.3f (reval %+.3f, damage %.3f), P0=%.4f P1=%.4f, roots=%d\n', ...
             cols(c).name, cols(c).D0, cols(c).nu, cols(c).nu_reval, ...
             cols(c).nu_damage, cols(c).P0, cols(c).P1, cols(c).n_roots);
+    end
+    for c = 1:numel(D0_cols)
+        if ~isempty(wgs{c}) && wgs{c}.ok
+            fprintf(fid, 'welfare %-14s %s\n', col_names{c}, wgs{c}.msg);
+        end
     end
     fclose(fid);
     fprintf('  [saved] %s\n', sf);

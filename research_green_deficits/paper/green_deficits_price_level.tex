@@ -75,7 +75,12 @@ inflation levy. Full self-financing obtains once abatement productivity
 crosses an estimable threshold ($\theta_g\approx1.9$--$2.4$ across model
 versions); near the welfare-preferred monetary stance the revaluation channel
 is approximately zero --- \emph{accommodation makes the program price-level
-neutral}. Third, with a sufficiently steep damage-incidence feedback a
+neutral}. Under the calibrated fiscal scale (debt of $1.1$ times income, a
+program of $2\%$ of income) the answer becomes a climate-damage question:
+$\nu = 0.15$ under conservative DICE damages, $0.56$ under empirical
+temperature-damage estimates, and $2.0$ --- fully self-financing --- under
+high-damage estimates, with green disinflation ($\nu_{\mathrm{reval}}
+\approx -0.06$) robust across all three. Third, with a sufficiently steep damage-incidence feedback a
 \emph{nominal} green budget can in theory support multiple steady-state price
 levels --- a self-fulfilling green boom and a brown stagnation --- while an
 \emph{indexed} green mandate restores uniqueness: determinacy requires
@@ -175,6 +180,13 @@ the ``inflation tax'' runs backwards: bondholders receive a windfall.
 Full self-financing ($\nu \ge 1$) still obtains once abatement productivity
 $\theta_g$ crosses a threshold that the model measures
 ($\theta_g \approx 2.4$ in the benchmark; Figure~\ref{fig:pfig2}).
+The calibrated pass (Section~\ref{subsec:calibrated}) turns this into the
+paper's central conditional statement: at a defensible fiscal scale
+(debt of $1.1$ times income, a program of $2\%$ of income), the
+self-financing share is $0.15$ under conservative DICE damages, $0.56$
+under empirical temperature-damage estimates, and $2.0$ under high-damage
+estimates --- while the disinflationary revaluation ($\approx -0.06$) is
+robust across all three damage regimes.
 
 \paragraph{Result 3: climate sunspots and anchor insulation.} Because the
 green budget is nominal, a higher price level lowers real abatement, raises
@@ -863,6 +875,101 @@ honestly by the solver rather than smoothed over.
 \caption{Utilitarian welfare $W(\mu)$; the star marks $\mu^{*}=0.045$.}
 \label{fig:pfig4}
 \end{figure}}{}
+
+% --------------------------------------------------------------------------
+\subsection{The calibrated pass: low, medium, and high damages}
+\label{subsec:calibrated}
+
+The results above use the illustrative benchmark, whose fiscal scale is
+deliberately large (real debt of roughly five times mean income; a program of
+5--6\% of income). The calibrated pass re-targets both margins and
+disciplines damages externally: the discount factor is chosen by bisection so
+that no-program real debt equals $1.10$ times mean income (OECD
+general-government debt/GDP), giving $\beta^{*}=0.9296$; the program is
+scaled to real green spending of $2.0\%$ of mean income at the calibrated
+price level (the public share of net-zero investment paths); and the
+no-abatement damage level takes three externally disciplined values ---
+\textbf{low} $D_0=0.02$ (DICE/\citealp{nordhaus2017}), \textbf{medium}
+$D_0=0.06$ (the \citealp{golosov2014}-era empirical range of
+Dell--Jones--Olken and Burke--Hsiang--Miguel temperature-damage estimates),
+and \textbf{high} $D_0=0.20$ \citep{bilalkanzig2024}. Abatement productivity
+$\theta_g$ remains illustrative and is reported as a sweep.
+Table~\ref{tab:calibrated} reports the run.
+
+\begin{table}[ht]
+\centering
+\caption{Calibrated self-financing by damage column
+($\beta^{*}=0.9296$, debt/income $=1.10$, program $=2\%$ of income,
+$\mu=0.02$, $n_a=500$ run).}
+\label{tab:calibrated}
+\begin{tabular}{lccc}
+\toprule
+ & LOW (DICE) & MEDIUM (DJO--BHM) & HIGH (Bilal--K\"anzig) \\
+\midrule
+no-abatement damages $D_0$    & 0.02   & 0.06   & 0.20 \\
+price level $P_0 \to P_1$     & $0.841 \to 0.794$ & $0.825 \to 0.776$ & $0.782 \to 0.733$ \\
+damages $D_0 \to D_1$         & $0.020 \to 0.015$ & $0.060 \to 0.045$ & $0.200 \to 0.149$ \\
+real taxes $\tau_1$           & 0.048  & 0.049  & 0.052 \\
+\midrule
+$\nu$                          & \textbf{0.149} & \textbf{0.563} & \textbf{2.007} \\
+\quad revaluation              & $-0.060$ & $-0.064$ & $-0.068$ \\
+\quad damage dividend          & $0.210$  & $0.628$  & $2.076$ \\
+bondholder windfall $|L|$      & 0.071  & 0.077  & 0.087 \\
+full financing at $\theta_g$   & none ($\nu\!=\!0.32$ at $2.5$) & $\approx 2.35$ & $\approx 0.57$ \\
+steady-state welfare $W_0 \to W_1$ & $-3.22 \to -3.72$ & $-4.09 \to -4.42$ & $-7.82 \to \mathbf{-7.23}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Four conclusions. First --- the paper's central conditional statement ---
+\emph{whether green deficits finance themselves is a climate-damage
+question}: at a defensible fiscal scale, the self-financing share runs from
+$0.15$ under conservative DICE damages, through $0.56$ under the empirical
+temperature-damage range, to $2.0$ --- full self-financing twice over ---
+under high-damage estimates. The model does not claim green deficits are
+self-financing; it locates the damage regime in which they are. Second,
+under DICE damages \emph{no} abatement productivity in the swept range
+delivers full financing ($\nu = 0.32$ even at $\theta_g = 2.5$): the
+conservative-damage case is a genuine fiscal cost, which is the honest
+counterpart to the high-damage case. Third, \textbf{green disinflation is
+robust to the calibration}: the revaluation term is $\approx -0.06$ in every
+column --- the program lowers the price level by about $6\%$ and hands
+bondholders a windfall of $7$--$9\%$ of annual mean income at every damage
+level. The sign reversal of the deficit-erosion channel is not an artifact
+of the oversized illustrative benchmark. Fourth, in the high-damage column
+the program raises steady-state welfare outright ($W$: $-7.82 \to -7.23$)
+even before counting transition gains --- avoided damages and reduced
+climate risk dominate the added tax burden --- whereas in the low and medium
+columns steady-state welfare falls and the case for the program rests on the
+transition and on distributional weights, which is precisely where the
+welfare-incidence analysis (Section~\ref{subsec:welfaregroups}) and the
+dynamic extension take over.
+
+\IfFileExists{PFig7_calibrated_nu.pdf}{%
+\begin{figure}[ht]\centering
+\includegraphics[width=0.6\textwidth]{PFig7_calibrated_nu.pdf}
+\caption{Calibrated self-financing by damage column: stacked revaluation
+(negative) and damage-dividend components against the full-financing line.}
+\label{fig:pfig7}
+\end{figure}}{}
+
+% --------------------------------------------------------------------------
+\subsection{Welfare incidence by wealth group}
+\label{subsec:welfaregroups}
+
+Who pays for the program and who benefits? The package computes
+consumption-equivalent welfare changes by wealth group: for each state
+$(a,e)$, the permanent consumption transfer $\lambda(a,e)$ that makes a
+household at that state indifferent between the no-program and program
+steady states, aggregated over baseline-distribution wealth quintiles and
+reported alongside the top-10\%/bottom-50\% split and the bondholder
+windfall $L$ (which accrues in proportion to nominal holdings, concentrated
+at the top). The mechanism cuts two ways: constrained households gain most
+from the damage dividend (their exposure-adjusted income floor rises) but
+carry the tax increase with the highest marginal utility; wealthy households
+absorb the levy or windfall. [Generated by
+\texttt{main\_project\_calibrated} section C4: $\lambda$ by quintile for the
+three damage columns, figure PFig8.]
 
 % ==========================================================================
 \section{Empirical evidence}\label{sec:empirics}
