@@ -52,6 +52,26 @@ replaced), **DERIVED** (implied by other parameters).*
 | E2 green-budget panel | ABSENT (schema specified) | IMF GFS/COFOG 05 + budget-law indexation classification |
 | E3 event study | DESIGN ONLY | EU ETS/Green Deal, IRA announcement windows; Känzig-style shocks |
 
+## Calibrated-pass machinery (U3) — implemented, awaiting run
+
+`main_project_calibrated.m` executes the three re-targets:
+
+- **C1** `calibrate_beta.m`: bisection on beta so no-program real debt hits
+  **debt/GDP = 1.10** (OECD general government) at the policy real rate,
+  evaluated at the medium damage column. Replaces illustrative beta = 0.96.
+- **C2** program scale: nominal green budget set so real green spending is
+  **2.0% of mean income** at the calibrated no-program price level
+  (public share of net-zero investment paths, IEA/IMF/NGFS).
+- **C3** damage columns: **LOW D0 = 0.02** (DICE/Nordhaus), **MEDIUM
+  D0 = 0.06** (Dell–Jones–Olken / Burke–Hsiang–Miguel), **HIGH D0 = 0.20**
+  (Bilal–Känzig). Per-column nu decomposition, PFig7, and
+  `output/tables/calibrated_summary.txt`.
+
+Remaining ILLUSTRATIVE after this pass: theta_g and delta_g (await the
+abatement-cost mapping), phi_D and psi (await climate-risk and incidence
+estimates), i_ss and mu (anchored to a 4%/2% convention rather than
+estimated). These are reported as sweeps, not point claims.
+
 ## Known calibration tensions (to resolve, not hide)
 
 1. **Debt scale**: b/Y ≈ 5 at the benchmark (B=1 against mean income 1 with
