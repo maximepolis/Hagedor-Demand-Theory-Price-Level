@@ -25,8 +25,8 @@ that crashed at X2 and is fixed as of this commit), not from the paper draft.*
 
 | Component | Status | Notes |
 |---|---|---|
-| Production sector at all | **NOT YET IMPLEMENTED** in the HA block | endowment economy by design (transparency); root package has Hagedorn's capital extension as a template |
-| Sticky prices (NK) | **PARTIALLY IMPLEMENTED** | `dynare/green_rank_nk.mod`: Rotemberg RANK skeleton for transitions only |
+| Production sector | **PARTIALLY IMPLEMENTED** | Stage-1 aggregate layer `production_block_green.m` (Y=(1-D)A(Kg)N, tax-base split, Bom-Ligthart-checkable elasticity) exists but is NOT joined to the HA household block, which remains an endowment economy by design (transparency); clean/dirty CES + Pigouvian margin (U8) NOT YET IMPLEMENTED |
+| Sticky prices (NK) | **PARTIALLY IMPLEMENTED** | `dynare/green_rank_nk.mod` (RANK, run VERIFIED: all four regimes converged) + `dynare/green_hank.mod` (tier-1 HANK, run completed, numeric summary pending) -- transition tiers only, NOT the DTPL mechanism |
 | Clean/dirty sectors, energy input, brown-capital stranding | **NOT YET IMPLEMENTED** | design in ROADMAP.md |
 | Climate damages to productivity | **PARTIALLY IMPLEMENTED** | damages hit endowments (HA block) / TFP (Dynare skeleton) |
 
@@ -36,10 +36,10 @@ that crashed at X2 and is fixed as of this commit), not from the paper draft.*
 |---|---|---|
 | Nominal debt, nominal growth rule, passive lump-sum taxes | **IMPLEMENTED** | the DTPL backbone |
 | Nominal green budget vs real-indexed green mandate | **IMPLEMENTED** | both regimes in `solve_green_steady_state.m` |
-| Carbon taxes | **NOT YET IMPLEMENTED** | required for regime comparison (ROADMAP step Q9) |
+| Proportional levy with carbon-tax-STYLE incidence (R2-PROP-LEVY) | **IMPLEMENTED** | `solve_regime_equilibrium.m` + `S_green.m` vartheta; a true Pigouvian carbon tax (production/emissions margin) remains **NOT YET IMPLEMENTED** (needs U8) |
 | Distortionary labor/capital taxes | **NOT YET IMPLEMENTED** | referee risk #3; lump-sum is the transparent benchmark, labeled as such |
-| Targeted transfers | **NOT YET IMPLEMENTED** | |
-| Debt maturity structure | **NOT YET IMPLEMENTED** | referee risk #9; single-period debt currently |
+| Lump-sum rebate of levy revenue (R3-PROP-LEVY-REBATE) | **IMPLEMENTED** | negative tau_ls in the regime solver; TARGETED (state-contingent) transfers remain **NOT YET IMPLEMENTED** |
+| Debt maturity / indexation / holder composition | **IMPLEMENTED (arithmetic + bounds tier)** | `debt_maturity_revaluation.m` (U5): level-jump equivalence, indexation leakage, foreign holders, geometric-coupon duration, q_g sweep; a full long-bond PRICING equilibrium (Hurtado-Nuno-Thomas style) remains **NOT YET IMPLEMENTED** |
 | Debt-stabilizing fiscal rules | **PARTIALLY IMPLEMENTED** | root package has nominal/real tax rules; not yet joined to the climate block |
 
 ## 4. Climate
@@ -78,8 +78,8 @@ that crashed at X2 and is fixed as of this commit), not from the paper draft.*
 | Component | Status | Notes |
 |---|---|---|
 | Utilitarian steady-state welfare | **IMPLEMENTED** | value function under invariant distribution |
-| Consumption-equivalent units | **PROPOSED** | trivial transformation `((W1/W0))^(1/(1-sigma))-1` under CRRA with care for the -1/(1-sigma) constant; to add |
-| Welfare by wealth/income quintile | **PROPOSED** | distribution and V are stored; a `welfare_by_group.m` is a small addition |
+| Consumption-equivalent units | **IMPLEMENTED** | `welfare_by_group.m` (with the sigma>1 validity guard; a sign bug in the transform was found and fixed before any reported numbers) |
+| Welfare by wealth/income/bondholding quintile, constrained status, high-MPC proxy, exposure terciles | **IMPLEMENTED** | `welfare_by_group.m` (wealth; run verified) + `welfare_groups_extended.m` (income/bond/constrained/MPC/exposure; run pending via `main_project_channels`) |
 | Bondholder levy | **IMPLEMENTED** | one-time L in the decomposition (found NEGATIVE: windfall) |
 | Energy-exposure / sector-exposure groups | **NOT YET IMPLEMENTED** | requires energy good / sectors |
 
@@ -89,11 +89,11 @@ that crashed at X2 and is fixed as of this commit), not from the paper draft.*
 |---|---|
 | Nominal debt revaluation | **IMPLEMENTED** (sign found negative at benchmark: green disinflation) |
 | Avoided-damage dividend | **IMPLEMENTED** |
-| Endogenous safe-asset-demand channel | **IMPLEMENTED** (it is what flips the revaluation sign; separately reportable from the S(tau,D) nodes) |
-| Output/tax-base expansion | **PARTIALLY IMPLEMENTED** (in an endowment economy the "output" channel IS the damage dividend; separate identification needs production) |
+| Endogenous safe-asset-demand channel | **IMPLEMENTED and separately reported** | `decompose_safe_asset_channel.m`: exact GE counterfactuals split ln P1 - ln P0 into tax / damage level+incidence / risk / interaction + financing swap (run pending via `main_project_channels`) |
+| Output/tax-base expansion | **PARTIALLY IMPLEMENTED** | Stage-1 production layer `production_block_green.m` (Y=(1-D)A(Kg)N) splits nu_taxbase from nu_damage at the AGGREGATE level; STYLIZED (no labor margin, not yet joined to the HA block) |
 | Liquidity / convenience yield | **PROPOSED** (requires a convenience-yield wedge or two-asset structure) |
-| Debt-maturity / term-structure valuation | **NOT YET IMPLEMENTED** |
-| Distributional transfer/incidence effects | **PARTIALLY IMPLEMENTED** (levy incidence + Ginis; group-level welfare PROPOSED) |
+| Debt-maturity / term-structure valuation | **IMPLEMENTED (arithmetic + accommodation-duration bounds, U5)**; full pricing equilibrium NOT YET IMPLEMENTED |
+| Distributional transfer/incidence effects | **IMPLEMENTED** (levy incidence + Ginis + group-level welfare by wealth quintile [run verified] and extended groups [run pending]) |
 
 ## 9. Empirics
 
@@ -148,3 +148,18 @@ that crashed at X2 and is fixed as of this commit), not from the paper draft.*
   paper as Table "calibrated" with the conditional headline. Section C4
   (welfare incidence by wealth quintile, welfare_by_group.m + PFig8) added
   after this run -- numbers pending the C4 rerun.
+
+- U6 RANK transitions (user machine, Dynare 8-unstable): ALL FOUR regimes
+  CONVERGED after the ramp-in redesign. WEAK/TAYLOR/AGGRESSIVE: impact
+  inflation -0.04%/-0.52%/-0.24% annualized, peak < +1.6% annualized;
+  kg(40q)=0.349 and d: 0.0972->0.0925 IDENTICAL across active regimes
+  (monetary-regime independence of the real green path); GREENACCOM
+  (large experiment, ~7.2pp annualized initial cut) +22.6% annualized
+  impact inflation, same kg, slightly higher damages (0.0933). Recorded
+  in appendix/TRANSITION_VALIDATION.md; in the paper as Section
+  "Transition diagnostics" + PFig13.
+- U7 tier-1 HANK (green_hank.mod): run completed on the user machine,
+  PFig14 produced (four regimes); numeric summary
+  (hank_irfs_summary.txt / hank_tier1_validation.txt) PENDING
+  transcription -- the paper's tier-1 subsection reports figure + scope
+  only, no numbers.

@@ -101,3 +101,55 @@ half +1.23% vs -2.42% under deficit financing). In the paper as Tables
 "incidence" and "regimes" plus PFig8-9.
 (b) Remaining: income-quintile split (trivial addition), and energy- and
 sector-exposure groups after the corresponding blocks exist (U8).
+
+**R11. "Your carbon tax is not a carbon tax."**
+(a) Correct, and the paper says so in the required words: in the endowment
+HA-DTPL block the levy is a *proportional financing instrument with
+carbon-tax-style incidence*; there is no dirty input or emissions-price
+margin, so no Pigouvian claim is made. The regimes are named accordingly
+(R2-PROP-LEVY, not R2-CARBON) in code, tables, and text.
+(b) The Pigouvian margin is reserved for the clean/dirty production
+extension (U8); Stage-1 of the production layer
+(`production_block_green.m`) already exists to split the tax-base channel.
+
+**R12. "Your HANK transition is not the same as your DTPL mechanism."**
+(a) Correct, and stated wherever the tiers appear: the U6 block is a
+RANK/NK TRANSITION DIAGNOSTIC; the U7 tier-1 block gives LINEARIZED
+sequence-space HANK IRFs with Fisher redistribution. Neither implements
+price-level determination by asset demand, and the paper's transition
+section opens with exactly that sentence.
+(b) The nonlinear HANK-DTPL transition is specified in
+appendix/HANK_TRANSITION_PLAN.md (tier 2) and remains NOT YET IMPLEMENTED;
+the steady-state DTPL results are the paper's quantitative contribution.
+
+**R13. "Your high-damage case drives full self-financing."**
+(a) Correct, and it is the paper's own framing, not a concession: the
+headline is the MEDIUM column (nu = 0.56, partial self-financing); the
+HIGH column (nu = 2.0) is presented as a conditional frontier, never as
+the central estimate. The abstract, calibrated-pass table, and conclusion
+all state the conditionality.
+
+**R14. "Your revaluation channel is negative, so why call it
+self-financing?"**
+(a) Because nu is the SUM of revaluation, damage dividend, safe-asset
+demand, and fiscal-design channels — and the negative revaluation is
+itself a finding, not an embarrassment: productive green programs RAISE
+safe-asset demand, LOWER the price level, and hand bondholders a windfall
+rather than levying an inflation tax. That sign reversal (relative to the
+Angeletos–Lian–Wolf erosion channel) is the paper's sharpest result, is
+robust across all damage columns, and is a DESIGN CHOICE: the
+levy-plus-rebate regime flips it positive.
+(b) The new safe-asset-channel decomposition
+(`decompose_safe_asset_channel.m`, PFig15) reports exactly which margin
+(taxes vs damages vs risk) produces the negative sign.
+
+**R15. "Debt maturity is only arithmetic."**
+(a) Acknowledged and labeled: U5 provides level-jump equivalence,
+indexation leakage, holder-composition incidence, and geometric-coupon
+duration bounds — accounting discipline, not a pricing equilibrium.
+(b) The bounds direction is conservative for the headline: with the
+revaluation channel negative, maturity/indexation frictions SHRINK a
+channel that already runs against the fisc.
+(c) A full long-bond pricing equilibrium can be added on the
+Hurtado–Nuño–Thomas sovereign-debt template (cited in the paper) if
+demanded; it is scoped in the roadmap, not promised in the text.
