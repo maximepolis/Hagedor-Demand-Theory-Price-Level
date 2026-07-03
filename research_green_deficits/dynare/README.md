@@ -1,6 +1,6 @@
 # Dynare block — transition dynamics
 
-**Status: PARTIALLY IMPLEMENTED (tier 1 of roadmap step U6).**
+**Status: IMPLEMENTED at the RANK tier (roadmap U6); run pending on the user's machine.**
 
 `green_rank_nk.mod` is a representative-agent New Keynesian skeleton
 (Rotemberg pricing, inertial Taylor rule, real debt with a debt-stabilizing
@@ -30,8 +30,10 @@ R1 ("only steady state").
   `steady` as calibration issues in this skeleton, not as statements about
   the paper's model.
 
-**Planned monetary-regime comparison in this block (roadmap U6):**
-nominal-rate peg (`rho_i=1, phi_pi=0` variant), standard Taylor (committed
-calibration), aggressive inflation targeting (`phi_pi=3`), and a temporary
-green-accommodation rule (`i` responds to `gg` for the program's first
-years) — the four regimes required by the research-program specification.
+**Four-regime comparison (implemented):** `run_green_transitions.m` runs
+the .mod under PEG / TAYLOR / AGGRESSIVE / GREENACCOM (temporary
+accommodation tied to the green-capital gap, fading as kg converges),
+collects the perfect-foresight paths, and produces PFig13 plus
+`transitions_summary.txt`. Steady states are computed exactly for any
+program size by `green_rank_nk_steadystate.m` (fixed point over damages,
+bisection on labor) -- no hand-tuned initval.
