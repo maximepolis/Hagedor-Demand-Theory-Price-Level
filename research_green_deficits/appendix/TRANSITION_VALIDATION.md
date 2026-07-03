@@ -55,18 +55,37 @@ calls; every path passed the kg-law check).
   the deficit-financing experiments live in the steady-state MATLAB block
   and the HANK tier.
 
-## U7 tier-1 HANK run
+## Verified U7 tier-1 HANK run (user machine)
 
-`run_green_hank` completed on the user machine and produced
-PFig14_hank_green_irfs (all four regimes plotted). The numeric summary
-(`hank_irfs_summary.txt`, `hank_tier1_validation.txt`) has not yet been
-transcribed into the repository — PENDING; the paper's tier-1 subsection
-therefore reports the figure and scope only, no numbers.
+All four regimes SOLVED (IRF horizon 200; calibrated beta = 0.979640,
+B = 3.96 targeting debt/annual-GDP = 1.10 at the damaged steady state).
+IRFs to a one-std e_g shock (0.009 ≈ 1% of output, rho_g = 0.995,
+deficit-financed on impact, phi_b = 0.10):
 
-Known calibration caveats (also printed in the validation file):
-- income process is the Dynare-example 3-state Rouwenhorst
-  (rho_e = 0.966, sig_e = 0.5), NOT the quantitative model's 7-state
-  process — alignment is future work;
-- B = 3.96 targets debt/annual-GDP = 1.10 at the damaged steady state;
-- beta, vphi recalibrated per regime by the framework (values in the
-  validation file once transcribed).
+| regime | pi impact (ann.) | Y impact | b(40q) | kg(40q) | d(40q) |
+|---|---|---|---|---|---|
+| WEAK       | +2.18% | +0.0042 | +0.1023 | +0.2048 | −0.0039 |
+| TAYLOR     | +0.31% | +0.0044 | +0.1023 | +0.2048 | −0.0039 |
+| AGGRESSIVE | +0.07% | +0.0045 | +0.1022 | +0.2048 | −0.0039 |
+| GREENACCOM | +0.53% | +0.0044 | +0.1023 | +0.2048 | −0.0039 |
+
+**Interpretation.**
+- DEFICIT financing flips the impact-inflation sign relative to the
+  tax-financed U6 diagnostics (+ across all rules here vs − there); the
+  size of the inflation impact is almost entirely a monetary-rule choice
+  (+2.18% → +0.07% across rules).
+- The real green path is again rule-independent (kg, d identical to three
+  decimals across regimes) — the U6 finding survives heterogeneity and
+  Fisher redistribution.
+- Debt rises 0.102 (~2.6% of the stock) by 40 quarters vs a flat debt
+  path in tax-financed U6.
+
+Caveats (also printed in the validation file): income process is the
+Dynare-example 3-state Rouwenhorst (rho_e = 0.966, sig_e = 0.5), NOT the
+quantitative model's 7-state process — magnitudes indicative; alignment
+is future work.
+
+**New regime pending:** TAYLORBAL (PHIB = 0.75, near-balanced-budget
+financing of the same program under the Taylor rule) has been added to
+`run_green_hank.m`; the TAYLOR-vs-TAYLORBAL gap isolates the
+deficit-financing component within the HANK tier itself. RUN PENDING.

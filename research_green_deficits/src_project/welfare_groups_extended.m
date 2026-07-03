@@ -67,14 +67,23 @@ function wx = welfare_groups_extended(r, eq0, eq1, pg)
     end
 
     % ---- 2. income-state quintiles (stationary marginal over e) ----
-    we  = sum(dist0, 1)'; cwe = cumsum(we) / sum(we);
+    % EXACT fractional split: with only ne=7 states a quintile boundary can
+    % fall inside a state; each state's mass is apportioned to the bins it
+    % overlaps, so every quintile is populated (the first run produced a
+    % NaN at Q3 with the coarser cut -- fixed here).
+    we  = sum(dist0, 1)'; cwe = [0; cumsum(we) / sum(we)];
     lambda_income_q = nan(1,5);
-    prev = 0;
     for q = 1:5
-        hi = find(cwe >= q/5 - 1e-12, 1, 'first'); if isempty(hi), hi = ne; end
-        mask = false(na, ne); mask(:, prev+1:hi) = true;
-        if hi > prev, lambda_income_q(q) = gmean(mask); end
-        prev = max(prev, hi);
+        lo = (q-1)/5; hi = q/5;
+        wq = zeros(1, ne);
+        for j = 1:ne
+            ov = max(0, min(cwe(j+1), hi) - max(cwe(j), lo));
+            wq(j) = ov / max(cwe(j+1) - cwe(j), eps);
+        end
+        Wm = dist0 .* wq;
+        if sum(Wm(:)) > 0
+            lambda_income_q(q) = sum(sum(lam .* Wm)) / sum(Wm(:));
+        end
     end
 
     % ---- 3. constrained vs unconstrained ----
@@ -103,14 +112,18 @@ function wx = welfare_groups_extended(r, eq0, eq1, pg)
     if isfield(pg, 'psi_inc') && ~isempty(pg.psi_inc), psi = pg.psi_inc; end
     lambda_exposure = struct('active', psi > 0, 'hi', NaN, 'mid', NaN, 'lo', NaN);
     if psi > 0
-        % chi(e) decreasing in e => high exposure = low-e states
-        cuts = [1/3, 2/3, 1];
-        prev = 0; vals = nan(1,3);
+        % chi(e) decreasing in e => high exposure = low-e states; exact
+        % fractional split as for the income quintiles
+        vals = nan(1,3);
         for t = 1:3
-            hi = find(cwe >= cuts(t) - 1e-12, 1, 'first'); if isempty(hi), hi = ne; end
-            mask = false(na, ne); mask(:, prev+1:hi) = true;
-            if hi > prev, vals(t) = gmean(mask); end
-            prev = max(prev, hi);
+            lo = (t-1)/3; hi = t/3;
+            wq = zeros(1, ne);
+            for j = 1:ne
+                ov = max(0, min(cwe(j+1), hi) - max(cwe(j), lo));
+                wq(j) = ov / max(cwe(j+1) - cwe(j), eps);
+            end
+            Wm = dist0 .* wq;
+            if sum(Wm(:)) > 0, vals(t) = sum(sum(lam .* Wm)) / sum(Wm(:)); end
         end
         lambda_exposure.hi = vals(1);   % lowest e = highest chi
         lambda_exposure.mid = vals(2);

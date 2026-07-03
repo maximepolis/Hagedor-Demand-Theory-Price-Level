@@ -1088,16 +1088,37 @@ channel), and an interaction term reported explicitly rather than absorbed.
 Each counterfactual is a well-posed economy whose own budget identity
 holds, so no node relies on off-equilibrium objects; the financing
 contribution is the levy-versus-lump-sum swap at the same program.
-[Machinery IMPLEMENTED in \texttt{decompose\_safe\_asset\_channel.m}, run
-via \texttt{main\_project\_channels}; numbers to be inserted from
-\texttt{safe\_asset\_channel\_summary.txt} once the user executes the run.]
-The prediction from the theory (Lemma~\ref{lem:S} and
-Proposition~\ref{prop:selffinancing}) is that the tax-burden node
-\emph{raises} asset demand (lump-sum taxes push constraint-adjacent
-households toward precautionary saving; $P$ falls), the damage and risk
-nodes \emph{lower} it (better-insured households hold fewer bonds; $P$
-rises), and green disinflation at the benchmark reflects the tax node
-dominating --- the run will report the exact split.
+[STEADY STATE; verified run, $n_a = 500$, medium damages, calibrated
+scale.]
+
+The verified run decomposes the total green disinflation of
+$\ln P_1 - \ln P_0 = -5.72\%$ (from $P_0 = 0.8246$ to $P_1 = 0.7788$)
+into:
+\[
+\underbrace{-7.68\%}_{\text{tax burden}}
+\;\underbrace{-\,1.59\%}_{\text{damage level/incid.}}
+\;\underbrace{+\,2.31\%}_{\text{risk}}
+\;\underbrace{+\,1.24\%}_{\text{interaction}},
+\]
+with partial-equilibrium asset demand moving from $S(\tau_0, D_0) = 1.213$
+to $S(\tau_1, D_0) = 1.305$ (taxes), $S(\tau_0, D_1^{\mathrm{lev}}) =
+1.230$ (damage level), and $S(\tau_0, D_1^{\mathrm{risk}}) = 1.186$
+(risk). Two lessons, one expected and one not. The expected one: the tax
+burden dominates --- lump-sum taxes push constraint-adjacent households
+toward precautionary saving, asset demand rises, and the price level
+falls, which is the core of green disinflation. The unexpected one: the
+\emph{two climate channels have opposite signs}. Avoided damages are
+themselves disinflationary ($-1.59\%$): richer households save more in
+levels, so the damage dividend \emph{amplifies} the bondholder windfall
+rather than offsetting it. Only the risk channel works toward inflation
+($+2.31\%$): with less climate-driven income risk, precautionary demand
+falls. Green disinflation is therefore not a tax artifact --- it survives
+even at zero program cost through the damage-level node --- and its only
+countervailing force is the insurance content of climate policy. The
+financing swap confirms the regime section at the level of asset demand:
+moving the same program from lump-sum to levy financing moves the price
+level by $+8.74$ log points, larger than the entire program effect
+itself.
 
 \pfigguard{PFig15_safe_asset_decomposition.pdf}{%
 \begin{figure}[ht]\centering
@@ -1161,22 +1182,33 @@ columns (deficit financing).}
 \label{fig:pfig8}
 \end{figure}}
 
-\paragraph{Extended groups.} The replication package additionally reports
-incidence by income-state quintile, by bondholding quintile (in the
-one-asset economy the only asset \emph{is} the government bond, so wealth
-and bondholding quintiles coincide --- a fact worth stating rather than
-hiding), for constrained versus unconstrained households, and for a
-high-MPC proxy group (the top quartile of the consumption-policy slope
-$dC/dA$ measured on the baseline policy; a proxy, labeled as such)
-[machinery IMPLEMENTED in \texttt{welfare\_groups\_extended.m}, run via
-\texttt{main\_project\_channels}; numbers to be inserted from
-\texttt{welfare\_groups\_extended\_summary.txt} once the user executes the
-run]. The paper's welfare claim, stated conditionally: welfare incidence
-is regressive under pure deficit finance in the low and medium damage
-calibrations, rebate financing reverses bottom-half losses
-(Section~\ref{subsec:regimes}), and in the high-damage column all groups
-gain --- but full self-financing remains conditional on the high-damage,
-high-effectiveness region.
+\paragraph{Extended groups.} The package additionally reports incidence by
+income-state quintile, by bondholding quintile (in the one-asset economy
+the only asset \emph{is} the government bond, so wealth and bondholding
+quintiles coincide --- a fact worth stating rather than hiding), for
+constrained versus unconstrained households, and for a high-MPC proxy
+group (the top quartile of the consumption-policy slope $dC/dA$ on the
+baseline policy; a proxy, labeled as such). [STEADY STATE; verified run,
+medium damages, calibrated scale.] Under \textsc{r1-deficit}, every cut of
+the population points the same way: income-state quintiles lose
+monotonically ($-2.79\%$ at the bottom to $-1.04\%$ at the top),
+constrained households ($16.6\%$ of the population) lose $-2.98\%$ against
+$-1.77\%$ for the unconstrained, and the high-MPC quartile loses $-2.54\%$
+against $-1.77\%$ for the rest --- the program under deficit finance is
+paid for precisely by the households with the least self-insurance
+capacity. Under \textsc{r3-prop-levy-rebate} every one of those
+orderings \emph{reverses}: the bottom income quintile gains $+1.72\%$
+(top: $-0.48\%$), the constrained gain $+1.89\%$ against $+0.50\%$, and
+the high-MPC group $+1.35\%$ against $+0.51\%$, at an aggregate gain of
+$+0.73\%$ against the deficit regime's $-1.97\%$. Stated conditionally:
+incidence is regressive under pure deficit finance in the low and medium
+damage calibrations, rebate financing reverses bottom-half losses, and in
+the high-damage column all groups gain --- but full self-financing remains
+conditional on the high-damage, high-effectiveness region. (The
+middle income quintile in the archived first run coincided with a state
+boundary of the seven-state income process; the exact fractional split is
+now implemented and the cell fills on the next run --- the reported
+quintiles are unaffected.)
 
 \pfigguard{PFig16_extended_welfare_groups.pdf}{%
 \begin{figure}[ht]\centering
@@ -1446,6 +1478,27 @@ deliver price-\emph{level} determination by asset demand.
 Figure~\ref{fig:pfig14} reports the responses of output, inflation, real
 debt, green capital, damages, and the ex-post real return under the same
 four monetary regimes.
+
+The verified run (all four regimes solved; calibrated
+$\beta = 0.9796$; one-percent-of-output program) delivers the tier's key
+message. Because the program here is \emph{deficit-financed on impact},
+the impact-inflation sign flips relative to the tax-financed RANK
+diagnostics: $+2.18\%$ annualized under \textsc{weak}, $+0.31\%$ under
+\textsc{taylor}, $+0.07\%$ under \textsc{aggressive}, $+0.53\%$ under
+\textsc{greenaccom}, with output up $+0.44\%$ on impact and real debt up
+$0.102$ ($2.6\%$ of the stock) after 40 quarters --- against impact
+deflation and a flat debt path when the same program is tax-financed in
+Section~\ref{subsec:ranktrans}. The comparison across the two tiers thus
+isolates, within the NK family itself, how much of the nominal response
+is \emph{financing} rather than \emph{program}: deficit financing is
+mildly inflationary on impact, and how mildly depends almost entirely on
+the monetary rule ($+2.18\%$ to $+0.07\%$ across rules), while the real
+green path is again rule-independent (green capital $+0.205$ and damages
+$-0.0039$ after 40 quarters, identical to three decimals across all four
+regimes). These magnitudes are indicative, not calibrated results: the
+income process is the framework's three-state benchmark. [TIER-1
+LINEARIZED HANK IRF; validation table
+\texttt{hank\_tier1\_validation.txt}.]
 
 \pfigguard{PFig14_hank_green_irfs.pdf}{%
 \begin{figure}[ht]\centering
