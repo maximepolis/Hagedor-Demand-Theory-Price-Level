@@ -106,11 +106,21 @@ that crashed at X2 and is fixed as of this commit), not from the paper draft.*
 
 ## Verified run record
 
-- Baseline `main_project_run_all` (na=500): completed in 68.4 s; unique green
-  steady state P*=0.1897, D=0.0468; nu=0.600 (reval −0.241 + damage 0.841);
-  mu*=0.045 interior; no multiplicity for theta_g ≤ 2.5 at psi=0.
-- Extended `main_project_extended` (na=500): first run crashed at X2
-  (min-of-empty assignment) after revealing (i) infeasible high-(tau,D)
-  interpolant corners under psi>0 and (ii) systematic equilibrium
-  NON-EXISTENCE at mu=0.02 with incidence (fiscal-space collapse). All three
-  addressed in this commit; rerun pending.
+- Baseline `main_project_run_all` (na=500): 68.4 s / 73.2 s (master rerun);
+  unique green steady state P*=0.1897, D=0.0468; nu=0.600 (reval −0.241 +
+  damage 0.841); mu*=0.045 interior; no multiplicity for theta_g ≤ 2.5 at
+  psi=0; NO equilibrium at mu=0.015 (existence failure, boundary-sign
+  verified).
+- Extended `main_project_extended` (na=500, via master): completed in
+  48.3 s after fixes. X1 (carbon stock, psi=1, mu_ext=0.03): unique
+  P*=0.2826, D=0.0709, tau=0.0768. X2 frontier over (psi,Gg) at mu_ext:
+  min eps_S ∈ [−0.49, −0.33] — SUNSPOT REGION EMPTY at this calibration;
+  at (psi=2, Gg=0.024) NO equilibrium under either regime (fiscal-space
+  collapse; Phi>0 at all feasible P). X3: nu=0.659 with reval −0.005
+  (ACCOMMODATION NEUTRALITY: near-zero revaluation at the accommodative
+  stance); full self-financing threshold theta_g≈1.9. X4/E1: beta=1.004
+  (HC1 se 0.257), Wald test of beta=1: p=0.988, n=34.
+- Paper placeholders filled from these runs (illustrative-draft pass, U1
+  complete). Per standard #10, multiplicity is demoted in the text to a
+  sufficient-condition theorem: the calibrated benchmark does NOT generate
+  it, and the paper says so.
