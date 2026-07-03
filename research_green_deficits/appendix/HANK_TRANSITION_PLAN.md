@@ -1,11 +1,26 @@
 # HANK transition plan (roadmap U7)
 
-*Status: **PLAN ONLY — NOT YET IMPLEMENTED.** This document specifies the
-full heterogeneous-agent transition computation so that the Dynare RANK
-block is never mistaken for it (project standard: do not present RANK/NK
-paths as HANK results). Method: sequence-space Jacobians (Auclert–Bardóczy–
-Rognlie–Straub 2021) around the steady states already computed by the
-MATLAB package.*
+*Status update: **TIER 1 IMPLEMENTED, TIER 2 STILL PLAN ONLY.***
+
+- **Tier 1 (implemented, run pending):** `dynare/green_hank.mod` +
+  `dynare/run_green_hank.m` — a native-Dynare heterogeneity-framework HANK
+  (one liquid asset, borrowing constraint, Rouwenhorst income) with the
+  climate block and a nominal-rate/ex-post-Fisher pair, delivering
+  **linearized sequence-space IRFs** to a quasi-permanent deficit-financed
+  green-investment shock under four monetary regimes. Surprise inflation
+  revalues household asset positions there — the redistribution channel,
+  linearized. Built on the framework verified to run by
+  `heterogeneity/hank_one_asset_steady_state.log`.
+- **Tier 2 (this document; NOT YET IMPLEMENTED):** the *nonlinear* DTPL
+  price-level transition below — P\* pinned by asset-market clearing, the
+  unknown sequence being the price-level path itself. This remains the
+  full answer; the tier-1 NK-HANK must never be presented as it (project
+  standard: inflation there comes from the Phillips curve + policy rule,
+  not from asset demand).
+
+*The remainder specifies tier 2. Method: sequence-space Jacobians
+(Auclert–Bardóczy–Rognlie–Straub 2021) around the steady states already
+computed by the MATLAB package.*
 
 ## 1. Objects
 

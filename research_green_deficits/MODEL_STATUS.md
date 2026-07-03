@@ -70,7 +70,7 @@ that crashed at X2 and is fixed as of this commit), not from the paper draft.*
 | Component | Status | Notes |
 |---|---|---|
 | Stationary equilibrium, all roots of Phi(P), elasticity diagnostic | **IMPLEMENTED** | `solve_green_steady_state.m` |
-| Steady-state vs transition vs aggregate-risk separation | **IMPLEMENTED (labels)** | ALL quantitative results to date are STEADY STATE ONLY; transitions: Dynare RANK skeleton (PARTIAL); HANK sequence-space transitions NOT YET IMPLEMENTED; aggregate risk NOT YET IMPLEMENTED |
+| Steady-state vs transition vs aggregate-risk separation | **IMPLEMENTED (labels)** | ALL quantitative results to date are STEADY STATE ONLY; transitions: Dynare RANK block (U6, IMPLEMENTED, run pending) + native-Dynare HANK tier-1 (`dynare/green_hank.mod`, U7, IMPLEMENTED, run pending — linearized IRFs, NOT the nonlinear DTPL P* transition); nonlinear HANK P* transition NOT YET IMPLEMENTED (plan only); aggregate risk NOT YET IMPLEMENTED |
 | Exact re-solve at roots, interpolation-residual reporting | **IMPLEMENTED** | |
 
 ## 7. Welfare and incidence

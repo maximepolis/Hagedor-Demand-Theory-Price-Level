@@ -1,6 +1,23 @@
 # Dynare block — transition dynamics
 
-**Status: IMPLEMENTED at the RANK tier (roadmap U6); run pending on the user's machine.**
+**Status: IMPLEMENTED at the RANK tier (U6) and at the HANK tier-1
+(U7, native heterogeneity framework); both runs pending on the user's
+machine.**
+
+## Files
+
+| file | tier | what it produces |
+|---|---|---|
+| `green_rank_nk.mod` + `run_green_transitions.m` | U6 RANK | nonlinear perfect-foresight **transition paths** for the permanent program, four regimes, PFig13 |
+| `green_hank.mod` + `run_green_hank.m` | U7 tier 1 HANK | **linearized sequence-space IRFs** to a quasi-permanent green-investment shock, four regimes, PFig14 (requires the Dynare heterogeneity framework — the version that ran `heterogeneity/hank_one_asset_steady_state.mod`) |
+| `green_rank_nk_steadystate.m` | U6 | exact steady states for any program size |
+
+The HANK tier-1 model carries the paper's *redistribution* channel in
+linearized form (nominal policy rate + ex-post Fisher equation, so surprise
+inflation revalues household asset positions across the wealth
+distribution) but **not** the DTPL price-*level* mechanism; the nonlinear
+P\* transition is tier 2 (appendix/HANK_TRANSITION_PLAN.md, NOT YET
+IMPLEMENTED).
 
 `green_rank_nk.mod` is a representative-agent New Keynesian skeleton
 (Rotemberg pricing, inertial Taylor rule, real debt with a debt-stabilizing
