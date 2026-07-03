@@ -1,0 +1,46 @@
+function [g1, T_order, T] = dynamic_het1_g1(y, x, params, steady_state, yh, xh, paramsh, sparse_rowval, sparse_colval, sparse_colptr, T_order, T)
+if nargin < 12
+    T_order = -1;
+    T = NaN(24, 1);
+end
+[T_order, T] = hank_two_assets_steady_state.dynamic_het1_g1_tt(y, x, params, steady_state, yh, xh, paramsh, T_order, T);
+g1_v = NaN(37, 1);
+    g1_v(1)=1+y(25);
+    g1_v(2)=T(1)*T(3)*T(17);
+    g1_v(3)=1+y(26)-(T(9)*T(7)*T(12)*T(18)+T(8)*(1+y(26))*T(19));
+    g1_v(4)=(-(T(1)*(1+y(26))*(-(T(7)*(T(2)*(-params(18))*T(17)+(1-params(18))*T(15)*T(20))))));
+    g1_v(5)=(-1);
+    g1_v(6)=yh(15);
+    g1_v(7)=T(1)*T(3)*T(16)*T(21);
+    g1_v(8)=(-(T(9)*T(7)*T(2)*T(18)))-1;
+    g1_v(9)=(-(T(1)*(1+y(26))*(-(T(7)*(T(2)*(-params(18))*T(16)*T(21)+(1-params(18))*T(20)*T(21))))));
+    g1_v(10)=yh(16);
+    g1_v(11)=T(22);
+    g1_v(12)=(1+T(3)*T(6))*T(22);
+    g1_v(13)=(-1);
+    g1_v(14)=(-(xh(1)*T(22)));
+    g1_v(15)=(-(T(11)*T(22)));
+    g1_v(16)=(-((1+y(25))*T(22)));
+    g1_v(17)=1;
+    g1_v(18)=1;
+    g1_v(19)=1;
+    g1_v(20)=(-1);
+    g1_v(21)=yh(9);
+    g1_v(22)=(-1);
+    g1_v(23)=yh(10);
+    g1_v(24)=(-(params(20)+x(4)));
+    g1_v(25)=(-(params(20)+x(4)));
+    g1_v(26)=(1-y(27))*y(32)*y(33);
+    g1_v(27)=(-T(1));
+    g1_v(28)=yh(1);
+    g1_v(29)=(-T(1));
+    g1_v(30)=T(1)*T(3)*T(24);
+    g1_v(31)=yh(2)-(T(9)*T(7)*T(18)*T(2)*(-yh(2))+T(8)*yh(2)*T(19));
+    g1_v(32)=(-(T(1)*(T(10)+(1+y(26))*(-(T(7)*(T(2)*(-params(18))*T(24)+(1-params(18))*T(20)*T(23)))))));
+    g1_v(33)=xh(1)*y(33)*(-y(32));
+    g1_v(34)=xh(1)*(1-y(27))*y(33);
+    g1_v(35)=(1-y(27))*y(32)*xh(1);
+    g1_v(36)=(-yh(21));
+    g1_v(37)=(-yh(20));
+g1 = sparse(sparse_rowval, sparse_colval, g1_v, 8, 98);
+end

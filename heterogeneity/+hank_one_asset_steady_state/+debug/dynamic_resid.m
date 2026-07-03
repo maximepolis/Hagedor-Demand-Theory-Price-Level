@@ -1,0 +1,27 @@
+function [lhs, rhs] = dynamic_resid(y, x, params, steady_state, yagg)
+T = NaN(2, 1);
+lhs = NaN(10, 1);
+rhs = NaN(10, 1);
+T(1) = params(5)/(params(5)-1)/(2*params(6));
+T(2) = T(1)*log(1+y(14))^2;
+lhs(1) = y(12)-y(11)/params(8);
+rhs(1) = 0;
+lhs(2) = y(15)-(y(11)-y(12)*y(13)-y(11)*T(2));
+rhs(2) = 0;
+lhs(3) = (params(7)*y(4)+1+params(10)+y(10))/(1+y(14))-1-y(17);
+rhs(3) = 0;
+lhs(4) = y(16)-y(17)*params(9)-x(1);
+rhs(4) = 0;
+lhs(5) = params(6)*(y(13)/params(8)-1/params(5))+y(21)/y(11)*log(1+y(24))/(1+y(27))+x(2)-log(1+y(14));
+rhs(5) = 0;
+lhs(6) = y(18)-params(9);
+rhs(6) = 0;
+lhs(7) = y(19)-y(12);
+rhs(7) = 0;
+lhs(8) = y(18);
+rhs(8) = yagg(1);
+lhs(9) = y(19);
+rhs(9) = yagg(2);
+lhs(10) = y(20);
+rhs(10) = x(3);
+end

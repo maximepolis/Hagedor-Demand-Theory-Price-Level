@@ -1,0 +1,52 @@
+function foc_i1Budget=foc_i1Budget(V,Vs,Vtau,s,tau,i1,time,policy_counter,tipping_counter,breakthrough_counter)
+
+global pref production temperature NET
+
+if breakthrough_counter==1
+
+    f1=0;
+    f2=0;
+    g1=((production.b(1,end)*cost_scaling(breakthrough_counter,s))./(production.eta(1)*production.A(1).*pref.kappa(1,1).^(production.eta(1)/pref.rho(1)).*D(tau,policy_counter,tipping_counter))).^(1/(production.eta(1)-1));
+    chi1=production.A(1).*(pref.kappa(1,1).*g1.^pref.rho(1)).^(production.eta(1)/pref.rho(1)).*D(tau,policy_counter,tipping_counter)-i1-(production.b(1,end)*cost_scaling(breakthrough_counter,s)).*g1;
+
+    if pref.rho(2)>0
+        i2=(1-((1-pref.gamma).*V-Vs.*s)./((1-pref.gamma).*V+Vs.*(1-s)).*(1-production.phi(1).*i1))./production.phi(2);
+        g2=((production.b(1,end)*cost_scaling(breakthrough_counter,s))./(production.eta(2)*production.A(2).*pref.kappa(1,2).^(production.eta(2)/pref.rho(2)-1).*D(tau,policy_counter,tipping_counter))).^(1/(production.eta(2)-1));
+        chi2=production.A(2).*(pref.kappa(1,2).*g2.^pref.rho(2)).^(production.eta(2)/pref.rho(2)).*D(tau,policy_counter,tipping_counter)-i2-(production.b(1,end)*cost_scaling(breakthrough_counter,s)).*g2;
+    else
+        i2=0;
+        g2=0;
+        chi2=0;
+    end
+    c=max(0.001, (1-s).*chi1+s.*chi2);
+    foc_i1Budget=((1-pref.gamma).*V-Vs.*s).*(1-production.phi(1).*i1)-pref.delta*(1-pref.gamma).*V.^(1-1./pref.theta).*c.^(-1./pref.psi);
+
+else
+    d=max(0,log(max(0, ...
+        (-Vtau.*temperature.tcre*tcre_scaling(tipping_counter)./(((1-pref.gamma).*V-Vs.*s).*(1-production.phi(1).*i1))-NET.a(1)*max(NET.zeta,s).^NET.a(2))./(NET.a(3)*NET.a(4)*max(NET.zeta,s).^NET.a(5))))/(NET.a(3)*max(NET.zeta,s).^NET.a(6)));
+    if d==0
+        NET_costs=0;
+    else
+        NET_costs           =NET.a(1)*max(NET.zeta,s).^NET.a(2)*d+NET.a(4)*s.^(NET.a(5)-NET.a(6)).*exp(NET.a(3)*max(NET.zeta,s).^NET.a(6)*d);
+        NET_marginalcosts   =NET.a(1)*max(NET.zeta,s).^NET.a(2)  +NET.a(3)*NET.a(4)*max(NET.zeta,s).^NET.a(5)  .*exp(NET.a(3)*max(NET.zeta,s).^NET.a(6)*d);
+    end
+
+    f1=0;
+    f2=0;
+    g1=((production.b(1,end)*cost_scaling(breakthrough_counter,s))./(production.eta(1)*production.A(1).*pref.kappa(1,1).^(production.eta(1)/pref.rho(1)).*D(tau,policy_counter,tipping_counter))).^(1/(production.eta(1)-1));
+    chi1=production.A(1).*(pref.kappa(1,1).*g1.^pref.rho(1)).^(production.eta(1)/pref.rho(1)).*D(tau,policy_counter,tipping_counter)-i1-(production.b(1,end)*cost_scaling(breakthrough_counter,s)).*g1-NET_costs;
+
+
+    if pref.rho(2)>0
+        i2=(1-((1-pref.gamma).*V-Vs.*s)./((1-pref.gamma).*V+Vs.*(1-s)).*(1-production.phi(1).*i1))./production.phi(2);
+        g2=((production.b(1,end)*cost_scaling(breakthrough_counter,s))./(production.eta(2)*production.A(2).*pref.kappa(1,2).^(production.eta(2)/pref.rho(2)-1).*D(tau,policy_counter,tipping_counter))).^(1/(production.eta(2)-1));
+        chi2=production.A(2).*(pref.kappa(1,2).*g2.^pref.rho(2)).^(production.eta(2)/pref.rho(2)).*D(tau,policy_counter,tipping_counter)-i2-(production.b(1,end)*cost_scaling(breakthrough_counter,s)).*g2-NET_costs;
+    else
+        i2=0;
+        g2=0;
+        chi2=0;
+    end
+    c=max(0.001, (1-s).*chi1+s.*chi2);
+    foc_i1Budget=((1-pref.gamma).*V-Vs.*s).*(1-production.phi(1).*i1)-pref.delta*(1-pref.gamma).*V.^(1-1./pref.theta).*c.^(-1./pref.psi);
+
+end
