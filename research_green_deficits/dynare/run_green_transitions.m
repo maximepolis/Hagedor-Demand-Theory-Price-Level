@@ -3,11 +3,14 @@
 % the perfect-foresight transition paths, and produces the regime-comparison
 % figure PFig13 plus a summary table.
 %
-%   PEG          near-frozen nominal rate       (RHOI=0.999, PHIPI=0)
-%   TAYLOR       standard inertial Taylor rule  (RHOI=0.8,   PHIPI=1.5)
-%   AGGRESSIVE   strict inflation targeting     (RHOI=0.0,   PHIPI=3.0)
+%   QUASIPEG     near-peg: minimally active rule (RHOI=0.0, PHIPI=1.01);
+%                a pure peg violates the Taylor principle and made the
+%                stacked perfect-foresight system fail to converge
+%   TAYLOR       standard inertial Taylor rule   (RHOI=0.8, PHIPI=1.5)
+%   AGGRESSIVE   strict inflation targeting      (RHOI=0.0, PHIPI=3.0)
 %   GREENACCOM   Taylor + temporary green accommodation tied to the
-%                green-capital gap              (PSIG=0.5)
+%                green-capital gap (PSIG=0.05, ~120bp annualized at the
+%                program's start, fading with the gap)
 %
 % REQUIREMENTS: Dynare (5.x/6.x) on the MATLAB path; run from this folder.
 % HONEST SCOPE: these are RANK/NK transition DIAGNOSTICS -- they carry the
@@ -36,14 +39,23 @@ if exist('dynare', 'file') ~= 2
            'addpath <dynare>/matlab, then rerun.']);
 end
 
+% Regime notes (post-diagnosis of the first run):
+% * QUASIPEG replaces the pure peg: phi_pi = 1.01 barely satisfies the
+%   Taylor principle, approximating a peg while keeping the stacked
+%   perfect-foresight system regular (a pure peg made Newton fail and the
+%   driver silently accepted the unconverged path -- both fixed below).
+% * GREENACCOM uses psi_g = 0.05: with a peak kg-gap of 0.6 this delivers
+%   roughly a 120bp ANNUALIZED accommodation at the start of the program,
+%   fading with the gap. The first run's psi_g = 0.5 implied an absurd
+%   ~30pp annualized cut and never converged.
 regimes = struct( ...
-    'name',  {'PEG', 'TAYLOR', 'AGGRESSIVE', 'GREENACCOM'}, ...
-    'defs',  {'-DRHOI=0.999 -DPHIPI=0.0 -DPSIG=0.0', ...
-              '-DRHOI=0.8   -DPHIPI=1.5 -DPSIG=0.0', ...
-              '-DRHOI=0.0   -DPHIPI=3.0 -DPSIG=0.0', ...
-              '-DRHOI=0.8   -DPHIPI=1.5 -DPSIG=0.5'});
+    'name',  {'QUASIPEG', 'TAYLOR', 'AGGRESSIVE', 'GREENACCOM'}, ...
+    'defs',  {'-DRHOI=0.0 -DPHIPI=1.01 -DPSIG=0.0', ...
+              '-DRHOI=0.8 -DPHIPI=1.5  -DPSIG=0.0', ...
+              '-DRHOI=0.0 -DPHIPI=3.0  -DPSIG=0.0', ...
+              '-DRHOI=0.8 -DPHIPI=1.5  -DPSIG=0.05'});
 
-vars_keep = {'y','ppi','b','kg','d','tau','c','i'};
+vars_keep = {'y','ppi','b','kg','d','tau','c','i','gg'};
 RES = struct();
 ok  = false(1, numel(regimes));
 
@@ -51,12 +63,35 @@ for rgm = 1:numel(regimes)
     fprintf('\n===== regime %s =====\n', regimes(rgm).name);
     try
         eval(sprintf('dynare green_rank_nk %s noclearall nolog', regimes(rgm).defs));
+        % HARD convergence check: perfect_foresight_solver signals failure
+        % via a status flag WITHOUT throwing (first run accepted garbage).
+        if isfield(oo_, 'deterministic_simulation') && ...
+           isfield(oo_.deterministic_simulation, 'status') && ...
+           ~oo_.deterministic_simulation.status                   %#ok<NODEF>
+            warning('run_green_transitions:noconv', ...
+                'Regime %s: perfect-foresight solver DID NOT CONVERGE; path discarded.', ...
+                regimes(rgm).name);
+            continue;
+        end
         % collect paths by variable name (rows of oo_.endo_simul follow M_.endo_names)
-        sim = oo_.endo_simul;                                     %#ok<NODEF>
+        sim = oo_.endo_simul;
         paths = struct();
         for v = 1:numel(vars_keep)
             idx = find(strcmp(cellstr(M_.endo_names), vars_keep{v}), 1); %#ok<NODEF>
             if ~isempty(idx), paths.(vars_keep{v}) = sim(idx, :); end
+        end
+        % mechanical validation: kg_t = (1-delta_g)*kg_{t-1} + gg_t must hold
+        % on any converged path, REGARDLESS of the monetary regime.
+        if isfield(paths,'kg') && isfield(paths,'gg')
+            kgres = max(abs(paths.kg(2:end) - ...
+                (1-M_.params(strcmp(cellstr(M_.param_names),'delta_g'))) ...
+                * paths.kg(1:end-1) - paths.gg(2:end)));
+            if kgres > 1e-6
+                warning('run_green_transitions:kglaw', ...
+                    'Regime %s: kg accumulation law violated (%.2e); path discarded.', ...
+                    regimes(rgm).name, kgres);
+                continue;
+            end
         end
         RES.(regimes(rgm).name) = paths;
         ok(rgm) = true;
@@ -105,11 +140,12 @@ if fid > 0
     fprintf(fid, 'U6 RANK/NK TRANSITIONS (perfect foresight, permanent program)\n');
     fprintf(fid, 'HONEST SCOPE: RANK diagnostics, not the DTPL price-level mechanism.\n');
     for rgm = 1:numel(regimes)
-        if ~ok(rgm), fprintf(fid, '%-11s FAILED\n', regimes(rgm).name); continue; end
+        if ~ok(rgm), fprintf(fid, '%-11s FAILED (not converged; discarded)\n', regimes(rgm).name); continue; end
         s = RES.(regimes(rgm).name);
-        fprintf(fid, ['%-11s pi impact %+.4f, pi peak %+.4f, debt peak %.3f, ' ...
-            'kg(40q) %.3f, d(40q) %.4f\n'], regimes(rgm).name, ...
-            s.ppi(2), max(s.ppi), max(s.b), s.kg(min(41,end)), s.d(min(41,end)));
+        fprintf(fid, ['%-11s CONVERGED  pi impact %+.4f (annualized %+.2f%%), ' ...
+            'pi peak %+.4f, debt peak %.3f, kg(40q) %.3f, d(40q) %.4f\n'], ...
+            regimes(rgm).name, s.ppi(2), 400*s.ppi(2), max(s.ppi), max(s.b), ...
+            s.kg(min(41,end)), s.d(min(41,end)));
     end
     fclose(fid);
     fprintf('  [saved] %s\n', sf);
