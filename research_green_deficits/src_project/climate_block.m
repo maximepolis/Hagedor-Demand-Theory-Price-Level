@@ -18,6 +18,12 @@ function [D, Kg] = climate_block(g_real, pg)
 % is increasing in P -- the climate-fiscal feedback loop.
 
     g  = max(g_real, 0);
-    Kg = g ./ pg.delta_g;
+    % implementation efficiency q_g in (0,1]: planning delays, procurement
+    % frictions and project-selection quality mean only a fraction of real
+    % spending becomes effective abatement capital (Leeper-Walker-Yang
+    % implementation lags; IMF Climate-PIMA discipline). Default 1.
+    qg = 1;
+    if isfield(pg, 'q_g') && ~isempty(pg.q_g), qg = pg.q_g; end
+    Kg = qg .* g ./ pg.delta_g;
     D  = pg.D0 .* exp(-pg.theta_g .* Kg);
 end

@@ -57,56 +57,33 @@ and flagged as such throughout.}}
 
 \begin{abstract}
 \noindent
-The green transition is, in fiscal terms, a large and persistent increase in
-\emph{nominal} government expenditure financed at the margin by \emph{nominal}
-debt. We study its price-level and fiscal consequences in a
-Bewley--Huggett--Aiyagari economy in which the price level clears the asset
-market, as in the Demand Theory of the Price Level: households hold nominal
-bonds for precautionary reasons, fiscal policy sets nominal growth, monetary
-policy sets the nominal rate, and $P^{*}=B/\Sfun(1+r^{ss})$. We add a climate
-sector --- a carbon stock fed by emissions, abatement capital maintained by the
-real value of the nominal green budget, damages that scale endowments with a
-\emph{regressive incidence gradient} and raise idiosyncratic risk. Four
-results. First, green determinacy: abatement adds real equations but the asset
-market still prices nominal debt. Second, a green deficit is partially
-self-financing through an exact decomposition
-$\nu=\nu_{\mathrm{reval}}+\nu_{\mathrm{dam}}$; in our benchmark $\nu=0.60$,
-\emph{all of it and more} coming from the damage dividend
-($\nu_{\mathrm{dam}}=0.84$), because --- contrary to the deficit-financing
-intuition --- the program is \emph{disinflationary}
-($\nu_{\mathrm{reval}}=-0.24$): green investment raises asset demand, the
-price level falls, and bondholders enjoy a windfall rather than paying an
-inflation levy. Full self-financing obtains once abatement productivity
-crosses an estimable threshold ($\theta_g\approx1.9$--$2.4$ across model
-versions); near the welfare-preferred monetary stance the revaluation channel
-is approximately zero --- \emph{accommodation makes the program price-level
-neutral}. Under the calibrated fiscal scale (debt of $1.1$ times income, a
-program of $2\%$ of income) the answer becomes a climate-damage question:
-$\nu = 0.15$ under conservative DICE damages, $0.56$ under empirical
-temperature-damage estimates, and $2.0$ --- fully self-financing --- under
-high-damage estimates, with green disinflation ($\nu_{\mathrm{reval}}
-\approx -0.06$) robust across all three. Third, with a sufficiently steep damage-incidence feedback a
-\emph{nominal} green budget can in theory support multiple steady-state price
-levels --- a self-fulfilling green boom and a brown stagnation --- while an
-\emph{indexed} green mandate restores uniqueness: determinacy requires
-insulating the nominal anchor from the climate loop. At the illustrative
-benchmark the measured demand elasticity stays far from the multiplicity
-threshold; what strong regressive incidence produces instead is
-\emph{equilibrium non-existence} --- a collapse of the fiscal space on which
-the stationary equilibrium rests, which monetary accommodation (not
-indexation) repairs. Fourth, the welfare-maximizing nominal growth
-rate is interior and strictly positive ($\mu^{*}=0.045$ in the benchmark):
-some inflation is an efficient component of green finance. Fifth, the sign
-of the revaluation channel is itself a fiscal-design choice: financing the
-identical real program with a carbon levy plus lump-sum rebate --- instead
-of deficit/lump-sum financing --- flips green disinflation into mild
-inflation, raises the self-financing share by a fifth ($0.57 \to 0.76$),
-and turns a regressive program into a progressive one (bottom-half welfare
-$-2.4\% \to +1.2\%$) at almost no cost to the top decile: a near-Pareto
-dominance delivered purely by asset-demand incidence. Cross-country
-evidence on the co-movement of long-run inflation with nominal
-government-expenditure growth (slope $\approx 1$) supports the nominal-anchor
-mechanism the theory is built on.
+The climate transition requires public investment on a scale that standard
+fiscal analysis books as a direct addition to public debt unless it is
+contemporaneously taxed. We show that this arithmetic is incomplete in
+economies with incomplete markets and nominal public liabilities. Green
+public investment changes future climate damages and the idiosyncratic risk
+households face; that shifts the precautionary demand for nominal safe
+assets, and with it the price level, the real value of outstanding debt,
+and the distribution of nominal wealth. We derive an exact decomposition of
+the self-financing share of a permanent green program into nominal-debt
+revaluation, an avoided-damage dividend, indexation and holder-composition
+leakages, and distributional incidence, and we quantify it in a calibrated
+heterogeneous-agent economy (debt of $1.1$ times income; a program of
+$2\%$ of income). The answer is conditional: green deficits are partially
+self-financing under conservative and medium damage calibrations
+($\nu = 0.15$ under DICE damages, $0.56$ under empirical temperature-damage
+estimates) and become fully self-financing only under high-damage,
+high-effectiveness assumptions ($\nu = 2.0$). The revaluation channel runs
+\emph{against} the fisc under conventional financing --- productive green
+programs are disinflationary because they raise safe-asset demand, handing
+bondholders a windfall --- but its sign is itself a design choice: a carbon
+levy with a lump-sum rebate flips the channel, raises the self-financing
+share by a fifth, and converts a regressive program into a progressive one
+at identical aggregate cost. Monetary accommodation near the
+welfare-preferred stance renders the program approximately price-level
+neutral. The results imply that green fiscal rules should specify not only
+the scale of spending but its nominal indexation, its financing mix, and
+the maturity and indexation structure of the debt that funds it.
 \end{abstract}
 
 \bigskip
@@ -265,6 +242,22 @@ climate. Relative to \citet{acharyabenhabib2024}: multiplicity concerns the
 \emph{price level across steady states} rather than dynamics around one, with
 an institutional (indexation) rather than interest-rate-rule resolution.
 
+\paragraph{Hierarchy of results.} Three results are central and the rest are
+supporting. The paper stands on (i) climate-state-dependent asset demand as
+a price-level theory (Proposition~\ref{prop:determinacy} with the climate
+block; the deviation from Hagedorn is that green public capital, damages
+and damage-driven risk \emph{shift the asset-demand schedule itself});
+(ii) the exact self-financing decomposition and its calibrated,
+maturity- and indexation-bounded magnitudes
+(Proposition~\ref{prop:selffinancing} and the bounds of
+Section~\ref{subsec:maturity}); and (iii) the rule-design results ---
+anchor insulation (Proposition~\ref{prop:insulation}) and financing-design
+control of the revaluation channel
+(Proposition~\ref{prop:financingdesign}). Multiplicity
+(Proposition~\ref{prop:sunspots}) is an extension: the calibrated benchmark
+does not generate it and the paper says so; optimal accommodation
+(Proposition~\ref{prop:optimalmu}) supports the rule-design analysis.
+
 The rest of the paper: Section~\ref{sec:literature} reviews the literature;
 Section~\ref{sec:model} lays out the model; Section~\ref{sec:theory} contains
 the theoretical results; Section~\ref{sec:quant} the quantitative analysis;
@@ -340,6 +333,43 @@ policy burdens fall disproportionately on poor households, and
 estimates suggest. These three papers discipline, respectively, our incidence
 gradient $\psi$, its fiscal interpretation, and the level of $D$.
 
+
+
+\paragraph{Nominal-wealth redistribution and the limits of inflating away
+debt (tools).} \citet{doepkeschneider2006} map inflation episodes into
+redistribution of nominal wealth across households and sectors;
+\citet{auclert2019} decomposes policy redistribution into earnings, Fisher
+and interest-rate-exposure channels; \citet{hallsargent2011} provide the
+maturity-adjusted debt accounting; \citet{hilscher2022} show empirically
+that maturity and holder composition leave little room to inflate away
+U.S.\ debt. We import all four as discipline for
+Section~\ref{subsec:maturity} --- with the twist that our calibrated
+revaluation runs toward bondholders, so these limits \emph{help} the fisc.
+
+\paragraph{Productive public capital (tools).} \citet{baxterking1993}
+distinguish government consumption from productive public investment;
+\citet{leeperwalkeryang2010} show implementation delays reshape the fiscal
+transmission of public investment; \citet{bomligthart2014} meta-estimate
+the output elasticity of public capital. They discipline our green-capital
+block and the efficiency parameter $q_g$.
+
+\paragraph{Heterogeneous-household climate policy (competitors).}
+\citet{douennehummelpedroni} study optimal carbon and income taxation with
+heterogeneous households, and \citet{ddhp} climate policy under incomplete
+markets and fiscal constraints --- the closest climate-policy work to our
+environment. Our differentiation is the nominal side: neither models
+nominal public liabilities or price-level determination, which is where
+every result in this paper lives.
+
+\paragraph{Green finance and sovereign risk (tools).}
+\citet{gigliokellystroebel2021} survey climate-risk pricing;
+\citet{bakergreenbonds} document green-bond pricing and ownership;
+\citet{bis2025sovereign} price transition risk in sovereign yields; and
+\citet{hurtado2023sovereign} model inflation as state-contingent partial
+default on long-term sovereign debt. These discipline the planned
+green-bond (greenium) and sovereign-risk margins and the E3 event-study
+design; we do not assume green investment improves sovereign risk.
+
 % ==========================================================================
 \section{Model}\label{sec:model}
 % ==========================================================================
@@ -386,7 +416,13 @@ The climate sector has four objects: abatement capital, emissions, the carbon
 stock, and damages with distributional incidence.
 
 \paragraph{Abatement capital.} Public green capital $K_g$ depreciates at rate
-$\delta_g$ and is maintained by real green investment $g_g$:
+$\delta_g$ and is maintained by real green investment $g_g$, of which only a
+fraction $q_g \in (0,1]$ becomes effective capital --- implementation
+efficiency capturing planning delays, procurement frictions and project
+selection \citep[in the spirit of][and the IMF's Climate-PIMA
+framework]{leeperwalkeryang2010}, so $K_g = q_g\, g_g/\delta_g$ (benchmark
+$q_g = 1$, swept in Section~\ref{subsec:maturity}). With $q_g$ suppressed
+for notation:
 \begin{equation}
 K_g = \frac{g_g}{\delta_g}, \qquad g_g = \frac{G_g}{P}
 \ \ \text{(nominal budget regime)} \quad\text{or}\quad g_g\ \text{fixed
@@ -1135,6 +1171,43 @@ incidence, bottom 50\% versus top 10\%.}
 \label{fig:pfig9}
 \end{figure}}
 
+% --------------------------------------------------------------------------
+\subsection{Bounding the revaluation channel: maturity, indexation, holders}
+\label{subsec:maturity}
+
+The inflating-away literature disciplines how much fiscal room nominal-debt
+revaluation can really provide: \citet{hilscher2022} show that maturity,
+holder composition and the persistence of inflation sharply limit it;
+\citet{hallsargent2011} supply the maturity-adjusted accounting;
+\citet{doepkeschneider2006} and \citet{auclert2019} the redistribution
+mapping. Our framework adds a clarifying twist. In steady-state comparisons
+at unchanged $(i,\mu)$, the program moves the price level once --- a
+\emph{level jump} --- and a level jump revalues all nominal promises
+proportionally \emph{regardless of maturity}: duration neither shields nor
+amplifies it. The binding limits are instead (i) \emph{indexation leakage}
+--- a share $\alpha_I$ of indexed debt does not revalue, so the fiscal
+component scales by $(1-\alpha_I)$; and (ii) \emph{holder composition} ---
+a share $\alpha_F$ of foreign-held nominal debt leaves the fiscal gain
+unchanged but reallocates the domestic incidence by
+$(1-\alpha_I)(1-\alpha_F)$. Because our calibrated revaluation channel is
+\emph{negative} (green disinflation), these leakages work in the
+government's favor: indexed debt shrinks the fiscal loss, and foreign
+holders absorb part of the bondholder windfall that would otherwise accrue
+to wealthy domestic households. Duration proper enters only where the real
+rate moves --- the accommodation experiments --- through the repricing of
+legacy long bonds (geometric-coupon price $q = 1/(1+r-\delta_m)$). The
+module \texttt{debt\_maturity\_revaluation.m} reports the maturity-adjusted
+share $\nu^{M} = (1-\alpha_I)\,\nu_{\mathrm{reval}} + \nu_{\mathrm{dam}}$
+over $\alpha_I \in \{0, 0.10, 0.25\}$, the domestic-incidence table over
+$\alpha_F \in \{0, 0.30, 0.50\}$, and the duration term for the
+$\mu = 0.02 \to 0.045$ accommodation move at durations of one, five and ten
+years; the implementation-efficiency sweep $q_g \in \{0.6, 0.8, 1.0\}$
+(planning delays and procurement frictions in the spirit of
+\citealp{leeperwalkeryang2010}, disciplined by \citealp{bomligthart2014}
+and the IMF's climate public-investment framework) scales the damage
+dividend correspondingly. [Generated by \texttt{main\_project\_maturity}:
+$\nu^M$ tables and figures PFig10--PFig11.]
+
 % ==========================================================================
 \section{Empirical evidence}\label{sec:empirics}
 % ==========================================================================
@@ -1175,6 +1248,20 @@ a classification of appropriation type (indexed mandate versus nominal cash
 budget --- readable from budget-law texts), CPI, and real GDP. The module
 \texttt{load\_green\_budget\_data.m} documents the exact CSV schema and the
 script skips gracefully when the file is absent: we do not fabricate data.
+
+\paragraph{E4: the anchor at scale, and climate-fiscal descriptives
+(machinery shipped; runs on any machine with internet).} The module
+\texttt{download\_data.m} pulls a World Bank country-year panel (CPI
+inflation, nominal government consumption, real GDP, central-government
+debt, CO$_2$ per capita, 1995--2024) via MATLAB's \texttt{webread} and
+never fabricates missing observations; \texttt{empirical\_panel.m} then
+(E4a) re-estimates the anchor slope on the full panel --- with the caveat,
+reported alongside the result, that WB government \emph{consumption} is
+narrower than the paper's expenditure concept --- and (E4b) reports
+descriptive climate-fiscal correlations (debt/GDP against CO$_2$ per
+capita) as context for the fiscal-space discussion, explicitly labeled
+descriptive. [Generated by \texttt{download\_data} +
+\texttt{empirical\_panel}: E4a slope and PFig12.]
 
 \paragraph{E3: the sign of the revaluation channel (diagnosable).}
 Result~\ref{res:disinflation} ties the inflationary or disinflationary effect
