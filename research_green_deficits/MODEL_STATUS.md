@@ -182,3 +182,18 @@ that crashed at X2 and is fixed as of this commit), not from the paper draft.*
   path rule-independent. In the paper (transition section) and
   appendix/TRANSITION_VALIDATION.md. New TAYLORBAL regime (PHIB=0.75)
   added to isolate the financing component within HANK -- run pending.
+
+- TAYLORBAL run (VERIFIED): balanced financing of the same program gives
+  b(40q) +0.012 vs +0.102 deficit-financed, pi impact +0.23% vs +0.31% --
+  in the linearized HANK, deficit financing buys the debt path, not the
+  inflation path (in the paper, transition section). Corrected welfare
+  quintiles (exact fractional split): DEFICIT income-q
+  [-3.05 -2.26 -1.83 -1.52 -1.20], REBATE [+2.01 +1.11 +0.58 +0.18 -0.25]
+  (in the paper).
+- U7 tier 1b: TWO-ASSET green HANK IMPLEMENTED (green_hank2.mod, from
+  the verified hank_two_assets example: liquid bonds vs illiquid equity,
+  sticky wages+prices, capital/Tobin-Q/equity pricing, ENDOGENOUS debt
+  with PHIB financing speed, liquid supply lamB*bg, climate block on TFP;
+  run_green_hank2.m driver, PFig17). RUN PENDING. E4 estimates now
+  persisted by empirical_panel.m to empirical_panel_summary.txt (the
+  first run printed to console only -- re-run or paste the console line).

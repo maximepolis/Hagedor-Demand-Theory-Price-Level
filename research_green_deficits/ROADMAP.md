@@ -48,22 +48,24 @@ to MODEL_STATUS.md (block-level labels) and referee_memo/REFEREE_MEMO.md.*
 | U4 | ~~Financing regimes~~ **DONE** (run verified, 31.3 s: revaluation-sign flip across regimes; rebate design near-Pareto-dominates deficit financing; in the paper as Table "regimes", Result 5, Proposition 6 + PFig9). Remaining within U4: distortionary labor tax with an hours margin (Barrage template) — the levy's Pigouvian margin belongs to U8 | partial | — |
 | U5 | ~~Debt maturity~~ **DONE** (run verified, 42.6 s: level-jump equivalence; indexation RAISES nu^M (0.563->0.579) because the channel is negative; foreign holders absorb the windfall (-0.058->-0.029); duration amplifies accommodation gains (+2.4%/+12.5%/+25.6% repricing at 1y/5y/10y); q_g sweep nu=0.563/0.449/0.329 -- all in the paper) | — | — |
 | U6 | ~~RANK transitions~~ **DONE — run VERIFIED** (all four regimes CONVERGED after the ramp-in redesign; price-stable under active rules, regime-independent real green path, accommodation buys inflation not green capital; in the paper as Section "Transition diagnostics" + PFig13; validation in appendix/TRANSITION_VALIDATION.md and rank_transition_validation.txt) | — | — |
-| U7 | HANK transitions — **TIER 1 DONE, run VERIFIED and in the paper** (deficit financing flips impact inflation positive, +2.18% WEAK to +0.07% AGGRESSIVE; real green path rule-independent; beta=0.9796). Extension queued: TAYLORBAL (PHIB=0.75) isolates the financing component — run pending. Tier 2 (nonlinear DTPL P* transition) remains PLAN ONLY | TAYLORBAL run; tier 2 weeks | — |
+| U7 | HANK transitions — **TIER 1 DONE incl. TAYLORBAL, runs VERIFIED and in the paper** (five regimes; TAYLOR-vs-TAYLORBAL: deficit financing buys the debt path (+0.102 vs +0.012 at 40q), not the inflation path (+0.31% vs +0.23%)). **TIER 1b machinery DONE** (`green_hank2.mod` + `run_green_hank2.m`: two-asset HANK, liquid bonds vs illiquid equity, sticky wages+prices, endogenous debt, liquid supply = lamB*bg, climate block; PFig17) — RUN PENDING. Tier 2 (nonlinear DTPL P* transition) remains PLAN ONLY | tier-1b run; tier 2 weeks | Dynare het build |
 | U8 | Production economy with clean/dirty sectors + energy share heterogeneity (unlocks tax-base channel and energy-incidence welfare groups) | weeks | U4 |
 | U9 | Empirics: E2 data collection (schema ready); E3 event-study around EU Green Deal / IRA surprises (Känzig-style identification); sovereign-yield validation | parallel track | data |
 | U10 | Paper rewrite to the final structure — **PARTIALLY DONE** (transition section, safe-asset subsection, extended-welfare paragraph, conditional abstract, regime renaming, lit-review upgrade in place); mechanism diagram still to add. Literature verification pass **DONE** (10 items web-verified 2026-07-03, appendix/LITERATURE_VERIFICATION.md; 3 items remain [u] and stay out of the draft) | mostly done | — |
 | S4 | ~~Safe-asset-channel decomposition~~ **DONE — run VERIFIED** (dlnP = −5.72% = tax −7.68% + damage −1.59% + risk +2.31% + interaction +1.24%; financing swap +8.74%; the two climate channels have OPPOSITE signs — in the paper as subsection "Why the price level moves" + PFig15) | — | — |
-| S5 | ~~Extended welfare groups~~ **DONE — run VERIFIED** (deficit regressive on every cut: constrained −2.98%, high-MPC −2.54%; rebate reverses every ordering: constrained +1.89%, bottom income +1.72%; in the paper + PFig16). Residual: income-q middle cell (state-boundary artifact, fractional split now coded, re-run fills it) | re-run (fast) | — |
+| S5 | ~~Extended welfare groups~~ **DONE — re-run VERIFIED with exact fractional split** (deficit income-q [-3.05 .. -1.20] monotone regressive, constrained −2.98%, high-MPC −2.54%; rebate reverses every ordering: income-q [+2.01 .. −0.25], constrained +1.89%; all in the paper + PFig16) | — | — |
 | S10 | Production Stage 1 — **machinery DONE** (`production_block_green.m`: tax-base/damage split, Bom–Ligthart-checkable elasticity; STYLIZED, not joined to HA block). Stage 2 (clean/dirty CES, Pigouvian margin) NOT YET IMPLEMENTED (=U8) | Stage 2 weeks | U8 |
 | S2 | Master reproducibility — **DONE** (`run_green_deficits_master.m` runs all 6 MATLAB + 2 Dynare stages with failure tracking; `export_master_status.m` writes the full machine record). Full master RUN PENDING | run pending | — |
 
 ## Submission decision rule
 
-U1–U7 and S2/S4/S5 are now run-verified: the steady-state paper with
-credible calibration, maturity bounds, the safe-asset decomposition, the
-extended welfare cuts, AND two tiers of transition diagnostics is
-assembled. Remaining before submission: the TAYLORBAL run + fast channels
-re-run (fills two cells), the full master reproducibility pass, the E4
-estimates, and a final [u]-reference sweep. U8 (production/Pigouvian) and
-U7 tier 2 (nonlinear HANK-DTPL transition) are the revision-round
-artillery, not preconditions.
+U1–U7 (incl. TAYLORBAL) and S2/S4/S5 are run-verified: the steady-state
+paper with credible calibration, maturity bounds, the safe-asset
+decomposition, the extended welfare cuts, and two tiers of transition
+diagnostics is assembled. Remaining before submission: transcribe the E4
+estimates (empirical_panel now persists them to
+empirical_panel_summary.txt), the full master reproducibility pass, the
+tier-1b two-asset run (nice-to-have, not a precondition), and a final
+[u]-reference sweep. U8 (production/Pigouvian) and U7 tier 2 (nonlinear
+HANK-DTPL transition) are the revision-round artillery, not
+preconditions.

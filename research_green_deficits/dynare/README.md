@@ -9,7 +9,8 @@ machine.**
 | file | tier | what it produces |
 |---|---|---|
 | `green_rank_nk.mod` + `run_green_transitions.m` | U6 RANK | nonlinear perfect-foresight **transition paths** for the permanent program, four regimes, PFig13 |
-| `green_hank.mod` + `run_green_hank.m` | U7 tier 1 HANK | **linearized sequence-space IRFs** to a quasi-permanent green-investment shock, four regimes, PFig14 (requires the Dynare heterogeneity framework — the version that ran `heterogeneity/hank_one_asset_steady_state.mod`) |
+| `green_hank.mod` + `run_green_hank.m` | U7 tier 1 HANK | **linearized sequence-space IRFs** to a quasi-permanent green-investment shock, five regimes incl. the TAYLORBAL financing comparator, PFig14 (requires the Dynare heterogeneity framework — the version that ran `heterogeneity/hank_one_asset_steady_state.mod`) |
+| `green_hank2.mod` + `run_green_hank2.m` | U7 tier 1b HANK (two-asset) | liquid nominal bonds vs illiquid equity/capital (KMV/ABRS structure, from the verified `hank_two_assets` example), sticky wages+prices, Tobin-Q investment, ENDOGENOUS government debt with the PHIB financing-speed margin, liquid-bond supply = lamB·bg, climate block on TFP; four regimes, PFig17. Slower solves (3 calibrated params, 3D household state); grids coarse (ne=3, nb=10, na=20) — magnitudes indicative |
 | `green_rank_nk_steadystate.m` | U6 | exact steady states for any program size |
 
 The HANK tier-1 model carries the paper's *redistribution* channel in

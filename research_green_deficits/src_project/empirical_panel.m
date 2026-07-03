@@ -99,6 +99,31 @@ function ep = empirical_panel(pg)
     legend({'countries','45^\circ','OLS'}, 'Location','northwest');
     save_all_figs(fh, 'PFig12_anchor_wb_panel', pg);
     fprintf('  [saved] PFig12_anchor_wb_panel\n');
+
+    % ---- persist the estimates (previously console-only, so a completed
+    % run left no artifact to transcribe into the paper) ----
+    sf = fullfile(pg.tabdir, 'empirical_panel_summary.txt');
+    fid = fopen(sf, 'w');
+    if fid > 0
+        fprintf(fid, 'E4 WORLD BANK PANEL -- anchor at scale + climate-fiscal descriptives\n');
+        fprintf(fid, 'HONEST SCOPE: cross-country correlations; no causal claim.\n\n');
+        if res_full.ok
+            fprintf(fid, ['E4a full:    n=%d  beta=%.3f  (HC1 %.3f)  alpha=%.3f  ' ...
+                'test beta=1: p=%.3f\n'], res_full.n, res_full.beta, ...
+                res_full.se, res_full.alpha, res_full.p_beta1);
+            fprintf(fid, ['E4a trimmed: n=%d  beta=%.3f  (HC1 %.3f)  alpha=%.3f  ' ...
+                'test beta=1: p=%.3f   (countries with avg inflation < 30%%)\n'], ...
+                res_trim.n, res_trim.beta, res_trim.se, res_trim.alpha, ...
+                res_trim.p_beta1);
+        end
+        if isfield(ep, 'desc')
+            fprintf(fid, ['\nE4b descriptives (country averages): ' ...
+                'corr(debt/GDP, CO2pc) = %.3f; corr(infl, CO2pc) = %.3f\n'], ...
+                ep.desc.corr_debt_co2, ep.desc.corr_infl_co2);
+        end
+        fclose(fid);
+        fprintf('  [saved] %s\n', sf);
+    end
 end
 
 % -------------------------------------------------------------------------
