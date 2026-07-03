@@ -66,8 +66,9 @@ households face; that shifts the precautionary demand for nominal safe
 assets, and with it the price level, the real value of outstanding debt,
 and the distribution of nominal wealth. We derive an exact decomposition of
 the self-financing share of a permanent green program into nominal-debt
-revaluation, an avoided-damage dividend, indexation and holder-composition
-leakages, and distributional incidence, and we quantify it in a calibrated
+revaluation, an avoided-damage dividend, an endogenous safe-asset-demand
+channel, maturity and indexation effects, holder-composition leakages, and
+distributional incidence, and we quantify it in a calibrated
 heterogeneous-agent economy (debt of $1.1$ times income; a program of
 $2\%$ of income). The answer is conditional: green deficits are partially
 self-financing under conservative and medium damage calibrations
@@ -76,14 +77,15 @@ estimates) and become fully self-financing only under high-damage,
 high-effectiveness assumptions ($\nu = 2.0$). The revaluation channel runs
 \emph{against} the fisc under conventional financing --- productive green
 programs are disinflationary because they raise safe-asset demand, handing
-bondholders a windfall --- but its sign is itself a design choice: a carbon
-levy with a lump-sum rebate flips the channel, raises the self-financing
-share by a fifth, and converts a regressive program into a progressive one
-at identical aggregate cost. Monetary accommodation near the
-welfare-preferred stance renders the program approximately price-level
-neutral. The results imply that green fiscal rules should specify not only
-the scale of spending but its nominal indexation, its financing mix, and
-the maturity and indexation structure of the debt that funds it.
+bondholders a windfall --- but its sign is itself a design choice: a
+proportional levy with a lump-sum rebate flips the channel, raises the
+self-financing share by a fifth, improves bottom-half welfare, and converts
+a regressive program into a progressive one at identical aggregate cost.
+Monetary accommodation near the welfare-preferred stance renders the
+program approximately price-level neutral. The results imply that green
+fiscal rules should specify not only the scale of spending but its nominal
+indexation, its financing mix, its distributional rebates, and the maturity
+and indexation structure of the debt that funds it.
 \end{abstract}
 
 \bigskip
@@ -1044,6 +1046,45 @@ dynamic extension take over.
 \end{figure}}
 
 % --------------------------------------------------------------------------
+\subsection{Why the price level moves: the safe-asset channel isolated}
+\label{subsec:safeasset}
+
+The green disinflation result invites an obvious question: \emph{which}
+part of the program moves the price level --- the taxes that pay for it,
+the damages it avoids, the income risk it removes, or the instrument that
+finances it? The steady-state equilibrium condition $P^{*} = B/S(1+r^{ss})$
+makes this answerable by exact counterfactuals: we re-solve the economy
+switching on one margin at a time and decompose
+$\ln P_1 - \ln P_0$ into a tax-burden contribution (program cost, no
+climate benefits), a damage level-and-incidence contribution (damages at
+the program level, risk held fixed), a risk contribution (income-risk
+level at the program value, endowments held fixed --- the $\phi_D$
+channel), and an interaction term reported explicitly rather than absorbed.
+Each counterfactual is a well-posed economy whose own budget identity
+holds, so no node relies on off-equilibrium objects; the financing
+contribution is the levy-versus-lump-sum swap at the same program.
+[Machinery IMPLEMENTED in \texttt{decompose\_safe\_asset\_channel.m}, run
+via \texttt{main\_project\_channels}; numbers to be inserted from
+\texttt{safe\_asset\_channel\_summary.txt} once the user executes the run.]
+The prediction from the theory (Lemma~\ref{lem:S} and
+Proposition~\ref{prop:selffinancing}) is that the tax-burden node
+\emph{raises} asset demand (lump-sum taxes push constraint-adjacent
+households toward precautionary saving; $P$ falls), the damage and risk
+nodes \emph{lower} it (better-insured households hold fewer bonds; $P$
+rises), and green disinflation at the benchmark reflects the tax node
+dominating --- the run will report the exact split.
+
+\pfigguard{PFig15_safe_asset_decomposition.pdf}{%
+\begin{figure}[ht]\centering
+\includegraphics[width=0.95\textwidth]{PFig15_safe_asset_decomposition.pdf}
+\caption{The safe-asset channel isolated: (a) exact log contributions of
+the tax-burden, damage, risk, and interaction margins to
+$\ln P_1 - \ln P_0$ (GE counterfactuals); (b) partial-equilibrium asset
+demand at the fixed-$(\tau, D)$ nodes.}
+\label{fig:pfig15}
+\end{figure}}
+
+% --------------------------------------------------------------------------
 \subsection{Welfare incidence by wealth group}
 \label{subsec:welfaregroups}
 
@@ -1095,25 +1136,54 @@ columns (deficit financing).}
 \label{fig:pfig8}
 \end{figure}}
 
+\paragraph{Extended groups.} The replication package additionally reports
+incidence by income-state quintile, by bondholding quintile (in the
+one-asset economy the only asset \emph{is} the government bond, so wealth
+and bondholding quintiles coincide --- a fact worth stating rather than
+hiding), for constrained versus unconstrained households, and for a
+high-MPC proxy group (the top quartile of the consumption-policy slope
+$dC/dA$ measured on the baseline policy; a proxy, labeled as such)
+[machinery IMPLEMENTED in \texttt{welfare\_groups\_extended.m}, run via
+\texttt{main\_project\_channels}; numbers to be inserted from
+\texttt{welfare\_groups\_extended\_summary.txt} once the user executes the
+run]. The paper's welfare claim, stated conditionally: welfare incidence
+is regressive under pure deficit finance in the low and medium damage
+calibrations, rebate financing reverses bottom-half losses
+(Section~\ref{subsec:regimes}), and in the high-damage column all groups
+gain --- but full self-financing remains conditional on the high-damage,
+high-effectiveness region.
+
+\pfigguard{PFig16_extended_welfare_groups.pdf}{%
+\begin{figure}[ht]\centering
+\includegraphics[width=0.95\textwidth]{PFig16_extended_welfare_groups.pdf}
+\caption{Extended welfare groups (deficit vs.\ levy-plus-rebate financing):
+income-state and wealth(=bondholding) quintiles; constrained and high-MPC
+households.}
+\label{fig:pfig16}
+\end{figure}}
+
 % --------------------------------------------------------------------------
-\subsection{Financing regimes: deficit, carbon-levy, rebate, mixed}
+\subsection{Financing regimes: deficit, proportional levy, rebate, mixed}
 \label{subsec:regimes}
 
 Green spending is not carbon policy, and financing design is a choice. The
 package compares four ways of financing the \emph{same} real program at the
-calibrated medium-damage column: (R1) lump-sum/deficit financing (the
-baseline); (R2) a carbon-tax-style proportional levy on effective endowments
-that funds the program; (R3) the levy at twice the program with half rebated
-lump-sum (the progressive rebate design suggested by the incidence evidence
-in \citealp{kanzig2023carbon}); and (R4) an even deficit/levy mix. All four
-satisfy the same aggregate budget identity
+calibrated medium-damage column: (\textsc{r1-deficit}) lump-sum/deficit
+financing (the baseline); (\textsc{r2-prop-levy}) a proportional levy on
+effective endowments that funds the program; (\textsc{r3-prop-levy-rebate})
+the levy at twice the program with half rebated lump-sum (the progressive
+rebate design suggested by the incidence evidence in
+\citealp{kanzig2023carbon}); and (\textsc{r4-mixed-deficit-levy}) an even
+deficit/levy mix. All four satisfy the same aggregate budget identity
 $\tau_{ls} + \vartheta\,(1-D) = r^{ss} b + g_g$, so aggregate resources are
 identical: the regimes differ only in \emph{incidence} --- proportional
 versus lump-sum --- transmitted through precautionary asset demand to the
-price level, the self-financing share, and group welfare. Honest scope: in
-the endowment economy neither instrument distorts a margin and the levy
-carries no Pigouvian abatement incentive (abatement is public); the
-emissions-price margin belongs to the production extension. What this
+price level, the self-financing share, and group welfare. In the endowment
+HA-DTPL block, the levy should be interpreted as a \emph{proportional
+financing instrument with carbon-tax-style incidence}. The Pigouvian
+carbon-tax margin requires the clean/dirty production extension and is not
+claimed in this section: neither instrument distorts a margin here and the
+levy carries no abatement incentive (abatement is public). What this
 comparison isolates is the pure incidence-and-price-level content of
 financing design --- which, given that the revaluation channel is an
 incidence object, is exactly where the DTPL mechanism has bite.
@@ -1132,10 +1202,10 @@ $\lambda_{t10}$: consumption-equivalent gains of the bottom 50\% and top
 Regime & $P^{*}$ & $\nu$ & $\nu_{\mathrm{reval}}$ & $\nu_{\mathrm{dam}}$ &
 $\lambda_{b50}$ & $\lambda_{t10}$ \\
 \midrule
-R1 deficit (lump-sum)  & 0.779 & 0.568 & $-0.060$ & 0.628 & $-2.42\%$ & $-1.15\%$ \\
-R2 carbon levy         & 0.850 & 0.668 & $+0.033$ & 0.635 & $-0.41\%$ & $-0.58\%$ \\
-R3 levy $+$ rebate     & 0.916 & \textbf{0.759} & $\mathbf{+0.119}$ & 0.641 & $\mathbf{+1.23\%}$ & $-0.13\%$ \\
-R4 mixed               & 0.816 & 0.620 & $-0.012$ & 0.632 & $-1.35\%$ & $-0.84\%$ \\
+\textsc{r1-deficit} (lump-sum)      & 0.779 & 0.568 & $-0.060$ & 0.628 & $-2.42\%$ & $-1.15\%$ \\
+\textsc{r2-prop-levy}               & 0.850 & 0.668 & $+0.033$ & 0.635 & $-0.41\%$ & $-0.58\%$ \\
+\textsc{r3-prop-levy-rebate}        & 0.916 & \textbf{0.759} & $\mathbf{+0.119}$ & 0.641 & $\mathbf{+1.23\%}$ & $-0.13\%$ \\
+\textsc{r4-mixed-deficit-levy}      & 0.816 & 0.620 & $-0.012$ & 0.632 & $-1.35\%$ & $-0.84\%$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1245,6 +1315,126 @@ indexation; (b) domestic incidence under foreign holdings.}
 \end{figure}}
 
 % ==========================================================================
+\section{Transition diagnostics}\label{sec:transitions}
+% ==========================================================================
+
+All quantitative results so far are \emph{steady-state} comparisons. This
+section reports two tiers of dynamics, each labeled by what it is and ---
+more importantly --- by what it is not. \textbf{These are RANK/NK
+transition diagnostics and tier-1 linearized HANK impulse responses. They
+do not implement the nonlinear DTPL price-level mechanism}: in both blocks
+inflation dynamics come from a Phillips curve and a policy rule, not from
+asset-market clearing of the nominal debt stock. The nonlinear
+heterogeneous-agent transition in which the price-level \emph{path} is the
+unknown pinned by asset demand remains future work (the computation is
+specified in the replication package's HANK transition plan). We report
+these tiers because they answer two questions the steady-state analysis
+cannot: does the announced program destabilize the nominal block on the
+way to the new steady state, and how does the answer depend on the
+monetary regime?
+
+\subsection{RANK/NK transitions under four monetary regimes}
+\label{subsec:ranktrans}
+
+[RANK/NK TRANSITION DIAGNOSTIC; IMPLEMENTED, run verified.] A
+representative-agent New Keynesian economy with Rotemberg pricing carries
+the same climate block as the quantitative model (green public capital
+$K_g$, carbon stock $X$, TFP damages $D$; identical parameters). A
+permanent green-investment program of the calibrated steady-state scale
+phases in linearly over twelve quarters (implementation delays in the
+spirit of \citet{leeperwalkeryang2010}) and is financed \emph{contemporaneously by
+taxes} under a debt-stabilizing fiscal rule --- by design, so that the
+exercise isolates the real/nominal transition shape from the deficit
+question studied everywhere else in the paper. Perfect-foresight paths
+(300 quarters) are computed under four regimes: a weakly active rule
+(\textsc{weak}: $\phi_\pi=1.1$, $\rho_i=0.5$, the closest numerically
+regular stand-in for a peg), an inertial Taylor rule (\textsc{taylor}:
+$\phi_\pi=1.5$, $\rho_i=0.8$), strict inflation targeting
+(\textsc{aggressive}: $\phi_\pi=3$), and a temporary green accommodation
+(\textsc{greenaccom}: Taylor plus a rate cut proportional to the
+green-capital gap, $\psi_g=0.03$, fading as $K_g$ accumulates --- a
+deliberately large experiment, roughly a $7$ percentage-point annualized
+cut at the program's start).
+
+Three findings, all verified by the converged runs (solver residuals
+$\sim 10^{-14}$; the $K_g$ accumulation identity holds to $10^{-9}$ on
+every reported path):
+
+\begin{enumerate}
+\item \emph{The tax-financed program is essentially price-stable under any
+active rule.} Impact inflation is $-0.04$\% (annualized) under
+\textsc{weak}, $-0.52$\% under \textsc{taylor}, $-0.24$\% under
+\textsc{aggressive}; peak inflation along the entire transition stays
+below $+1.6$\% annualized in all three. A ramped green program of
+realistic scale is not, by itself, an inflationary event in the NK block.
+\item \emph{The real green transition is monetary-regime independent.}
+Green capital reaches $0.349$ (58\% of its terminal level) after 40
+quarters and damages fall from $0.0972$ to $0.0925$ in all three active
+regimes --- identical to three decimals. The monetary regime redistributes
+the nominal path, not the green capital path.
+\item \emph{Accommodation buys inflation, not green capital.} The large
+\textsc{greenaccom} experiment produces a $+22.6$\% annualized
+impact-inflation spike, yet after 40 quarters green capital is the same
+($0.349$) and damages are slightly \emph{higher} ($0.0933$): the
+demand boom raises output and hence emissions along the way. In the NK
+block, tying rate cuts to the green-capital gap is a pure nominal
+intervention --- a transition-dynamics counterpart of the steady-state
+accommodation-neutrality result of Section~\ref{sec:quant}, and further
+motivation for the anchor-insulation design of
+Proposition~\ref{prop:insulation}.
+\end{enumerate}
+
+\pfigguard{PFig13_rank_transitions.pdf}{%
+\begin{figure}[ht]\centering
+\includegraphics[width=0.95\textwidth]{PFig13_rank_transitions.pdf}
+\caption{RANK/NK transition diagnostics: perfect-foresight paths for a
+permanent tax-financed green program (12-quarter ramp-in) under four
+monetary regimes. Scope: these paths do not implement the DTPL
+price-level mechanism.}
+\label{fig:pfig13}
+\end{figure}}
+
+\subsection{Tier-1 HANK impulse responses}\label{subsec:hanktier1}
+
+[TIER-1 LINEARIZED HANK IRF; IMPLEMENTED, run completed on the user
+machine; figure below.] The second tier restores household heterogeneity:
+a one-asset HANK (borrowing constraint, idiosyncratic efficiency risk)
+solved with sequence-space Jacobians in Dynare's heterogeneity framework,
+carrying the same climate block, a \emph{nominal} policy rate together
+with the ex-post Fisher equation --- so that surprise inflation revalues
+household asset positions state by state, the linearized counterpart of
+the paper's redistribution channel --- and a slow debt-stabilizing tax
+rule, so that a quasi-permanent green-investment expansion (persistence
+$0.995$, one percent of steady-state output) is \emph{deficit-financed on
+impact}. Discount factor and labor disutility are calibrated to clear the
+asset and labor markets at a damaged steady state with debt at the
+calibration target of Section~\ref{sec:quant}; the income process is the
+three-state benchmark of the framework's reference implementation rather
+than the seven-state process of the quantitative model, so magnitudes
+here are indicative, not calibrated results.
+
+Its role is deliberately limited: it is the bridge between the RANK
+diagnostics and the full nonlinear HANK-DTPL transition, showing that the
+qualitative transition shapes survive heterogeneity and Fisher
+redistribution. It does not --- and in a linearized NK setting cannot ---
+deliver price-\emph{level} determination by asset demand.
+Figure~\ref{fig:pfig14} reports the responses of output, inflation, real
+debt, green capital, damages, and the ex-post real return under the same
+four monetary regimes.
+
+\pfigguard{PFig14_hank_green_irfs.pdf}{%
+\begin{figure}[ht]\centering
+\includegraphics[width=0.95\textwidth]{PFig14_hank_green_irfs.pdf}
+\caption{Tier-1 HANK: linearized sequence-space impulse responses to a
+quasi-permanent deficit-financed green-investment shock (one percent of
+steady-state output, persistence $0.995$) under four monetary regimes.
+The ex-post real return panel is the linearized Fisher revaluation
+channel. Scope: linearized IRFs, not the nonlinear DTPL price-level
+transition.}
+\label{fig:pfig14}
+\end{figure}}
+
+% ==========================================================================
 \section{Empirical evidence}\label{sec:empirics}
 % ==========================================================================
 
@@ -1327,13 +1517,17 @@ is a determinacy instrument: nominal appropriations expose the economy to
 self-fulfilling brown stagnation when damage incidence is regressive enough,
 while indexed mandates insulate the nominal anchor at no fiscal cost. The
 financing mix is a price-level instrument: replacing lump-sum deficit
-financing with a carbon levy plus rebate flips the revaluation channel's
-sign, raises the self-financing share, and converts a regressive program
-into a progressive one at identical aggregate cost. And a moderate
+financing with a proportional levy plus rebate flips the revaluation
+channel's sign, raises the self-financing share, and converts a regressive
+program into a progressive one at identical aggregate cost. And a moderate
 steady-state inflation rate is part of the optimal financing mix.
-The next steps are dynamic: transition paths between the green and brown
-steady states (sequence-space methods; \citealp{auclert2021}), production
-with brown capital and a carbon price \citep{barrage2020}, and the empirical
+The RANK and tier-1 HANK transition diagnostics of
+Section~\ref{sec:transitions} indicate that the announced program does not
+destabilize the nominal block on the way to the new steady state; the
+nonlinear heterogeneous-agent transition in which the price-level path is
+itself pinned by asset demand remains the main open computation
+(sequence-space methods; \citealp{auclert2021}), alongside production with
+brown capital and a carbon price \citep{barrage2020} and the empirical
 program E2--E3.
 
 % ==========================================================================

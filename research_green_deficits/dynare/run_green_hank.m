@@ -52,6 +52,7 @@ regimes = struct( ...
 
 vars_keep = {'Y','pi','i','r','b','tau','gg','kg','d'};
 RES = struct();
+CAL = struct();
 ok  = false(1, numel(regimes));
 
 for rgm = 1:numel(regimes)
@@ -100,6 +101,15 @@ for rgm = 1:numel(regimes)
         end
         RES.(regimes(rgm).name) = paths;
         ok(rgm) = true;
+        % record calibrated parameters for the validation table
+        if exist('M_', 'var')
+            bidx = strcmp(cellstr(M_.param_names), 'beta');
+            vidx = strcmp(cellstr(M_.param_names), 'vphi');
+            Bidx = strcmp(cellstr(M_.param_names), 'B');
+            CAL.(regimes(rgm).name) = struct( ...
+                'beta', M_.params(bidx), 'vphi', M_.params(vidx), ...
+                'B', M_.params(Bidx));
+        end
         fprintf('  [%s solved: IRF horizon %d]\n', regimes(rgm).name, numel(paths.Y));
     catch ME
         warning('run_green_hank:fail', 'Regime %s failed: %s', ...
@@ -155,5 +165,43 @@ if fid > 0
     end
     fclose(fid);
     fprintf('  [saved] %s\n', sf);
+end
+
+% ---- validation table (audit requirement: hank_tier1_validation.txt) ----
+vf = fullfile(pg.tabdir, 'hank_tier1_validation.txt');
+fid = fopen(vf, 'w');
+if fid > 0
+    fprintf(fid, 'U7 TIER-1 HANK VALIDATION\n');
+    fprintf(fid, 'Scope label: TIER-1 LINEARIZED HANK IRF (sequence-space, Dynare heterogeneity\n');
+    fprintf(fid, 'framework, truncation horizon 300). Contains the Fisher revaluation channel\n');
+    fprintf(fid, '(nominal rate + ex-post real return on nominal assets) but NOT nonlinear\n');
+    fprintf(fid, 'DTPL price-level determination -- a bridge to the tier-2 transition, not it.\n\n');
+    fprintf(fid, 'Income process: rho_e=0.966, sig_e=0.5, 3 states (DYNARE-EXAMPLE calibration,\n');
+    fprintf(fid, 'NOT the MATLAB package''s 7-state process -- alignment is future work).\n');
+    fprintf(fid, 'Debt: B targets debt/annual-GDP = 1.10 at the damaged steady state (U3 target).\n');
+    fprintf(fid, 'Steady-state market-clearing residuals: see the Dynare log of each regime\n');
+    fprintf(fid, '(heterogeneity_compute_steady_state prints them; tol 1e-4).\n\n');
+    fprintf(fid, '%-11s %-8s %-8s %-10s %-10s %-11s %-11s %-11s %-11s\n', ...
+        'regime', 'solved', 'horizon', 'beta*', 'B', ...
+        'pi impact', 'Y impact', 'b(40q)', 'd(40q)');
+    for rgm = 1:numel(regimes)
+        if ~ok(rgm)
+            fprintf(fid, '%-11s %-8s\n', regimes(rgm).name, 'NO');
+            continue;
+        end
+        s = RES.(regimes(rgm).name);
+        bstar = NaN; Bv = NaN;
+        if isfield(CAL, regimes(rgm).name)
+            bstar = CAL.(regimes(rgm).name).beta;
+            Bv    = CAL.(regimes(rgm).name).B;
+        end
+        fprintf(fid, '%-11s %-8s %-8d %-10.6f %-10.3f %+-11.5f %+-11.5f %+-11.5f %+-11.6f\n', ...
+            regimes(rgm).name, 'yes', numel(s.Y), bstar, Bv, ...
+            s.pi(1), s.Y(1), s.b(min(40,end)), s.d(min(40,end)));
+    end
+    fprintf(fid, '\nIRFs are deviations from steady state to a ONE-STD e_g shock (0.009,\n');
+    fprintf(fid, '~1%% of steady-state output) with persistence rho_g=0.995 (quasi-permanent).\n');
+    fclose(fid);
+    fprintf('  [saved] %s\n', vf);
 end
 fprintf('Elapsed: %.1f s\n', toc(t0));

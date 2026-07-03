@@ -30,9 +30,14 @@ function [S, out] = S_green(r, tau, D, pg)
     end
 
     % ---- rebuild the income process if the risk channel is active ----
+    % pg.D_risk (optional) lets the caller evaluate the RISK channel at a
+    % different damage level than the endowment level/incidence channel --
+    % used by decompose_safe_asset_channel to isolate the two. Default: D.
     p = pg;
     if pg.phi_D > 0
-        p.sig_eps = pg.sig_eps0 * (1 + pg.phi_D * D);
+        Drisk = D;
+        if isfield(pg, 'D_risk') && ~isempty(pg.D_risk), Drisk = pg.D_risk; end
+        p.sig_eps = pg.sig_eps0 * (1 + pg.phi_D * Drisk);
         [eG, PiD, statD] = make_income_process(p);
         p.eGrid = eG; p.Pi = PiD; p.stationary_e = statD;
     end
@@ -95,6 +100,8 @@ function [S, out] = S_green(r, tau, D, pg)
     out.distdiag = distdiag;
     out.dist     = dist;
     out.V        = V;
+    out.polC     = polC;
+    out.eGrid_eff = p.eGrid;   % post-damage/levy effective endowments
 
     % Ginis: wealth over aGrid marginal; income over effective endowments
     wa = sum(dist, 2);                       % marginal over assets

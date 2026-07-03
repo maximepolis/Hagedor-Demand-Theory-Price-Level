@@ -35,7 +35,10 @@
  *   TAYLOR      : PHIPI=1.5             (default)
  *   AGGRESSIVE  : PHIPI=3.0
  *   GREENACCOM  : PHIPI=1.5, PSIG=0.03  (temporary accommodation tied to
- *                 the program flow gg, fading as the program does)
+ *                 the program flow gg, fading as the program does; with a
+ *                 gg impact of ~0.009 this is a SMALL accommodation,
+ *                 ~2.7e-4 quarterly = ~11bp annualized -- unlike the U6
+ *                 RANK GREENACCOM, which keys off the much larger kg gap)
  */
 
 @#ifndef PHIPI

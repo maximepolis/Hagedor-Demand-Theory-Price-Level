@@ -61,9 +61,12 @@ bisection on labor) -- no hand-tuned initval.
   violates or barely satisfies the Taylor principle and leaves the stacked
   perfect-foresight Newton system singular or near-singular; the near-peg
   corner is therefore represented by WEAK (`phi_pi = 1.1`, `rho_i = 0.5`).
-- GREENACCOM uses `psi_g = 0.03` (~70bp annualized accommodation at the
-  program start); larger values imply implausibly deep cuts and destroy
-  convergence.
+- GREENACCOM uses `psi_g = 0.03`. With a peak kg-gap of 0.6 this is a
+  **large** accommodation experiment — ~1.8pp quarterly (~7.2pp
+  annualized) initial rate cut, fading with the gap — deliberately sized
+  to make the accommodation channel visible (the verified run shows a
+  +22.6% annualized impact-inflation spike against −0.5% under TAYLOR).
+  Values much beyond this destroy convergence.
 - The program **ramps in linearly over 12 quarters** (implementation
   delays, Leeper–Walker–Yang) instead of jumping — more realistic and far
   easier numerically.
