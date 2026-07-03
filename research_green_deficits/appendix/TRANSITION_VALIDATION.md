@@ -85,7 +85,29 @@ Dynare-example 3-state Rouwenhorst (rho_e = 0.966, sig_e = 0.5), NOT the
 quantitative model's 7-state process — magnitudes indicative; alignment
 is future work.
 
-**New regime pending:** TAYLORBAL (PHIB = 0.75, near-balanced-budget
-financing of the same program under the Taylor rule) has been added to
-`run_green_hank.m`; the TAYLOR-vs-TAYLORBAL gap isolates the
-deficit-financing component within the HANK tier itself. RUN PENDING.
+**TAYLORBAL run (VERIFIED):** near-balanced financing (PHIB = 0.75) of
+the identical program under the Taylor rule gives pi impact +0.23%
+annualized (vs +0.31% deficit-financed), Y impact +0.0048, b(40q) +0.0117
+(vs +0.1023). READING: within the linearized HANK, **deficit financing
+buys the debt path, not the inflation path** — the debt buildup is almost
+entirely a financing choice (10× smaller under fast taxes) while impact
+inflation barely moves; the mild inflation belongs to the unanticipated
+program itself, its size set by the monetary rule. The steady-state DTPL
+is where the financing margin moves the price level (through asset-demand
+incidence) — a mechanism the linearized NKPC cannot represent, so the
+contrast between tiers is itself informative (stated in the paper).
+
+## U7 tier 1b: TWO-ASSET green HANK (green_hank2.mod) — RUN PENDING
+
+Extended tier following the verified `heterogeneity/hank_two_assets_
+steady_state.mod` example: liquid nominal bonds vs illiquid
+equity/capital (chi0/chi1/chi2 convex adjustment costs), sticky wages AND
+prices, capital/investment/Tobin-Q/equity pricing, ENDOGENOUS government
+debt with the PHIB financing-speed margin, liquid-bond supply = lamB*bg
+(a deficit-financed program changes the supply of liquid safe assets —
+the dynamic counterpart of the paper's B/P margin), climate block on TFP.
+Driver `run_green_hank2.m`: WEAK / TAYLOR / GREENACCOM / TAYLORBAL,
+PFig17, hank2_irfs_summary.txt + hank2_validation.txt. Grids ne=3, nb=10,
+na=20 (verified-example values — COARSE, magnitudes indicative);
+NE/RHOE/SIGE macro-defines expose the income process for future
+alignment with the MATLAB package's 7-state process.
