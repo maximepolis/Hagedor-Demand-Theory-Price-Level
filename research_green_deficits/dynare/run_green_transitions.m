@@ -3,13 +3,14 @@
 % the perfect-foresight transition paths, and produces the regime-comparison
 % figure PFig13 plus a summary table.
 %
-%   QUASIPEG     near-peg: minimally active rule (RHOI=0.0, PHIPI=1.01);
-%                a pure peg violates the Taylor principle and made the
-%                stacked perfect-foresight system fail to converge
+%   WEAK         weakly active rule (RHOI=0.5, PHIPI=1.1): the closest
+%                numerically regular stand-in for a peg -- a pure peg
+%                (and even PHIPI=1.01) leaves the stacked perfect-
+%                foresight Newton system singular or near-singular
 %   TAYLOR       standard inertial Taylor rule   (RHOI=0.8, PHIPI=1.5)
 %   AGGRESSIVE   strict inflation targeting      (RHOI=0.0, PHIPI=3.0)
 %   GREENACCOM   Taylor + temporary green accommodation tied to the
-%                green-capital gap (PSIG=0.05, ~120bp annualized at the
+%                green-capital gap (PSIG=0.03, ~70bp annualized at the
 %                program's start, fading with the gap)
 %
 % REQUIREMENTS: Dynare (5.x/6.x) on the MATLAB path; run from this folder.
@@ -48,12 +49,15 @@ end
 %   roughly a 120bp ANNUALIZED accommodation at the start of the program,
 %   fading with the gap. The first run's psi_g = 0.5 implied an absurd
 %   ~30pp annualized cut and never converged.
+% Post-second-failure design: WEAK (phi_pi=1.1) replaces the quasi-peg
+% (phi_pi=1.01 is numerically near-singular); psi_g=0.03; and the .mod now
+% RAMPS the program in over 12 quarters with chained solver fallbacks.
 regimes = struct( ...
-    'name',  {'QUASIPEG', 'TAYLOR', 'AGGRESSIVE', 'GREENACCOM'}, ...
-    'defs',  {'-DRHOI=0.0 -DPHIPI=1.01 -DPSIG=0.0', ...
-              '-DRHOI=0.8 -DPHIPI=1.5  -DPSIG=0.0', ...
-              '-DRHOI=0.0 -DPHIPI=3.0  -DPSIG=0.0', ...
-              '-DRHOI=0.8 -DPHIPI=1.5  -DPSIG=0.05'});
+    'name',  {'WEAK', 'TAYLOR', 'AGGRESSIVE', 'GREENACCOM'}, ...
+    'defs',  {'-DRHOI=0.5 -DPHIPI=1.1 -DPSIG=0.0', ...
+              '-DRHOI=0.8 -DPHIPI=1.5 -DPSIG=0.0', ...
+              '-DRHOI=0.0 -DPHIPI=3.0 -DPSIG=0.0', ...
+              '-DRHOI=0.8 -DPHIPI=1.5 -DPSIG=0.03'});
 
 vars_keep = {'y','ppi','b','kg','d','tau','c','i','gg'};
 RES = struct();
@@ -62,7 +66,15 @@ ok  = false(1, numel(regimes));
 for rgm = 1:numel(regimes)
     fprintf('\n===== regime %s =====\n', regimes(rgm).name);
     try
-        eval(sprintf('dynare green_rank_nk %s noclearall nolog', regimes(rgm).defs));
+        % run each regime as its OWN model file: repeated dynare calls on one
+        % .mod with different -D defines can collide with stale generated
+        % artifacts on Windows; fresh copies guarantee a clean preprocess.
+        nm = sprintf('grnk_%s', lower(regimes(rgm).name));
+        copyfile('green_rank_nk.mod', [nm '.mod']);
+        copyfile('green_rank_nk_steadystate.m', [nm '_steadystate.m']);
+        if exist(['+' nm], 'dir'), rmdir(['+' nm], 's'); end
+        if exist(nm, 'dir'), rmdir(nm, 's'); end
+        eval(sprintf('dynare %s %s noclearall nolog', nm, regimes(rgm).defs));
         % HARD convergence check: perfect_foresight_solver signals failure
         % via a status flag WITHOUT throwing (first run accepted garbage).
         if isfield(oo_, 'deterministic_simulation') && ...

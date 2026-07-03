@@ -31,9 +31,30 @@ R1 ("only steady state").
   the paper's model.
 
 **Four-regime comparison (implemented):** `run_green_transitions.m` runs
-the .mod under PEG / TAYLOR / AGGRESSIVE / GREENACCOM (temporary
+the .mod under WEAK / TAYLOR / AGGRESSIVE / GREENACCOM (temporary
 accommodation tied to the green-capital gap, fading as kg converges),
 collects the perfect-foresight paths, and produces PFig13 plus
 `transitions_summary.txt`. Steady states are computed exactly for any
 program size by `green_rank_nk_steadystate.m` (fixed point over damages,
 bisection on labor) -- no hand-tuned initval.
+
+**Convergence notes (from the first two runs):**
+
+- A pure interest-rate peg (`phi_pi = 0`, and even `phi_pi = 1.01`)
+  violates or barely satisfies the Taylor principle and leaves the stacked
+  perfect-foresight Newton system singular or near-singular; the near-peg
+  corner is therefore represented by WEAK (`phi_pi = 1.1`, `rho_i = 0.5`).
+- GREENACCOM uses `psi_g = 0.03` (~70bp annualized accommodation at the
+  program start); larger values imply implausibly deep cuts and destroy
+  convergence.
+- The program **ramps in linearly over 12 quarters** (implementation
+  delays, Leeper–Walker–Yang) instead of jumping — more realistic and far
+  easier numerically.
+- The solver call is **chained** (default, then `stack_solve_algo=6`, then
+  higher `maxit`), each attempt warm-starting from the previous iterate.
+- The driver enforces a **hard convergence check**
+  (`oo_.deterministic_simulation.status`) plus a mechanical validation of
+  the kg accumulation law; unconverged paths are discarded, never reported.
+- Each regime runs as its own copy `grnk_<name>.mod` to avoid stale
+  preprocessor artifacts when one .mod is re-run with different `-D`
+  defines (a known failure mode on Windows).
