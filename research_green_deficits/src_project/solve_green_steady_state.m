@@ -129,8 +129,17 @@ function [eqs, out] = solve_green_steady_state(pg, policy, ad2)
     out.theta_g = theta_g;
     out.n_roots = numel(eqs);
     if isempty(eqs)
-        out.msg = sprintf('%s regime, theta_g=%.2f: NO equilibrium on scan range.', ...
-                          policy.regime, theta_g);
+        fin = find(isfinite(Phiv));
+        if isempty(fin)
+            bmsg = 'Phi infeasible everywhere on the scan (tax bound binds)';
+        else
+            bmsg = sprintf(['Phi(%.3f)=%+.3f .. Phi(%.3f)=%+.3f; same-sign ' ...
+                'finite boundaries indicate EXISTENCE failure (demand above/' ...
+                'below supply everywhere), not a scan-window artifact'], ...
+                Pgrid(fin(1)), Phiv(fin(1)), Pgrid(fin(end)), Phiv(fin(end)));
+        end
+        out.msg = sprintf('%s regime, theta_g=%.2f: NO equilibrium on [%g, %g]. %s.', ...
+                          policy.regime, theta_g, pg.P_scan_min, pg.P_scan_max, bmsg);
         warning('solve_green_steady_state:noroot', '%s', out.msg);
     elseif numel(eqs) == 1
         out.msg = sprintf('%s regime, theta_g=%.2f: UNIQUE P*=%.4f (D=%.3f).', ...

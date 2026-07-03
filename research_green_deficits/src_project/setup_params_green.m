@@ -57,6 +57,13 @@ function pg = setup_params_green()
     % Extended-experiment settings (main_project_extended)
     pg.psi_sweep   = [0, 1, 2];   % incidence gradients for the sunspot probe
     pg.Gg_big      = 0.024;       % doubled program for the multiplicity search
+    % Extended experiments are evaluated at an accommodative nominal-growth
+    % stance near the welfare optimum mu* ~ 0.045: at mu = 0.02 the
+    % incidence-amplified precautionary demand (S ~ 6) pushes P* so low that
+    % the implied tax burden hits the lump-sum feasibility cliff and NO
+    % stationary equilibrium exists -- itself a finding (fiscal-space
+    % collapse), reported honestly, but not a useful benchmark to explore.
+    pg.mu_ext      = 0.03;
     pg.green_csv   = fullfile(fileparts(srcdir), '..', 'data', ...
                               'green_budget_panel.csv');  % E2 data (optional)
 
