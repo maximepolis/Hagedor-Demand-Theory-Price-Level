@@ -101,6 +101,7 @@ that crashed at X2 and is fixed as of this commit), not from the paper draft.*
 |---|---|
 | E1 nominal-anchor regression (OLS + HC1, Wald beta=1) | **IMPLEMENTED** (`empirical_anchor.m`; runs on the repo's 34-country OECD file) |
 | E2 green-budget denomination panel | **PLACEHOLDER** (schema + loader implemented; data absent by design — never fabricated) |
+| E4 World Bank panel (anchor at scale + climate-fiscal descriptives) | **IMPLEMENTED (machinery)**: `download_data.m` (webread; blocked from the assistant sandbox by network policy, runs on the user's machine) + `empirical_panel.m`; numbers pending run |
 | E3 revaluation-sign event study | **PROPOSED** (design in the paper, Sec. 6) |
 | Sovereign-yield / climate-vulnerability validation | **NOT YET IMPLEMENTED** |
 

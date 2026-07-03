@@ -25,7 +25,10 @@ function [D, Kg, X, E] = climate_block2(g_real, pg)
 % form D = D0*exp(-theta_g*Kg).
 
     g  = max(g_real, 0);
-    Kg = g ./ pg.delta_g;
+    % implementation efficiency q_g (see climate_block.m); default 1
+    qg = 1;
+    if isfield(pg, 'q_g') && ~isempty(pg.q_g), qg = pg.q_g; end
+    Kg = qg .* g ./ pg.delta_g;
     A  = 1 - exp(-pg.theta_g .* Kg);
 
     D = zeros(size(g));
