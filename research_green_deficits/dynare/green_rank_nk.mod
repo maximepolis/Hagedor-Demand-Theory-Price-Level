@@ -25,7 +25,14 @@
  *   GREENACCOM   : TAYLOR + PSIG=0.03    (temporary accommodation tied to
  *                  the green-capital gap: i is cut while kg is below its
  *                  terminal level, fading automatically as the transition
- *                  completes; ~70bp annualized at the program's start)
+ *                  completes; with a peak kg-gap of 0.6 this is a LARGE
+ *                  experiment, ~1.8pp quarterly = ~7.2pp annualized at
+ *                  the program's start)
+ *
+ * FISCAL NOTE: the tax rule finances gg CONTEMPORANEOUSLY (tau includes
+ * +gg), so these transitions are tax-financed diagnostics of the
+ * real/nominal block; deficit financing on impact lives in the HANK tier
+ * (green_hank.mod) and the steady-state MATLAB block.
  *
  * NUMERICS: the program RAMPS IN linearly over 12 quarters (shocks block)
  * rather than jumping to full size at t=1, and the solver call is chained

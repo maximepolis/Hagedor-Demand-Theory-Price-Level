@@ -1,100 +1,102 @@
-% RUN_GREEN_DEFICITS_MASTER  One-command master script for the project
-% "Can Green Deficits Finance Themselves?" -- reproduces the baseline
-% benchmark, runs the extended experiments (carbon-stock sector, incidence
-% gradient, sunspot frontier, empirical anchor), and writes a consolidated
-% model-status summary with parameter record.
+% RUN_GREEN_DEFICITS_MASTER  One-command reproduction of the full project
+% "Can Green Deficits Finance Themselves?" (editorial-roadmap Step 2).
 %
-% USAGE
-%   >> run_green_deficits_master            % full (na = 500)
-%   >> FAST = true; run_green_deficits_master
+% RUNS, IN SEQUENCE (each stage independent; failures are recorded and the
+% master continues):
+%   1. main_project_run_all      baseline: Props, PFig1-4        [MATLAB]
+%   2. main_project_extended     carbon stock, incidence, X1-X4  [MATLAB]
+%   3. main_project_calibrated   beta*, damage columns, U3       [MATLAB]
+%   4. main_project_regimes      financing regimes, U4, PFig9    [MATLAB]
+%   5. main_project_maturity     maturity/indexation, U5         [MATLAB]
+%   6. main_project_channels     safe-asset decomposition PFig15
+%                                + extended welfare PFig16       [MATLAB]
+%   7. dynare/run_green_transitions   U6 RANK diagnostics        [Dynare]
+%   8. dynare/run_green_hank          U7 tier-1 HANK IRFs        [Dynare,
+%                                     heterogeneity framework]
+% then writes output/tables/master_status.txt via export_master_status
+% (timestamp, versions, run/skipped + reasons, figure/table counts, key
+% output timestamps, implementation-status summary).
 %
-% WHAT RUNS (in order)
-%   1. main_project_run_all       baseline: Props 1-5, PFig1-4  [IMPLEMENTED]
-%   2. main_project_extended      carbon stock + incidence + empirics,
-%                                 PFig5-6                        [IMPLEMENTED]
-%   3. consolidated status summary -> output/tables/master_status.txt
+% USAGE   >> run_green_deficits_master
+%         >> FAST = true; run_green_deficits_master     % small grids
 %
-% NOT RUN HERE (see MODEL_STATUS.md):
-%   - transition dynamics (Dynare RANK-NK skeleton in dynare/;
-%     HANK transitions NOT YET IMPLEMENTED)
-%   - distortionary-tax and debt-maturity regimes (PROPOSED)
-%
-% Every figure/table is produced by code; nothing is manually edited.
+% NOTE: sub-scripts execute `clearvars -except FAST`, so the master keeps
+% its bookkeeping in appdata (survives clearvars), not in the workspace.
 
-clearvars -except FAST; close all; clc;
-master_t0 = tic;
 if ~exist('FAST','var'), FAST = false; end
+close all; clc;
 
-projdir = fileparts(mfilename('fullpath'));
-if isempty(projdir), projdir = pwd; end
-cd(projdir);
+mtrack = struct();
+mtrack.t_start   = datestr(now, 'yyyy-mm-dd HH:MM:SS'); %#ok<*TNOW1,*DATST>
+mtrack.clock0    = clock;
+mtrack.projdir   = fileparts(mfilename('fullpath'));
+if isempty(mtrack.projdir), mtrack.projdir = pwd; end
+mtrack.run       = {};
+mtrack.skipped   = {};
+mtrack.reasons   = {};
+mtrack.fast      = FAST;
+setappdata(0, 'gd_master_track', mtrack);
+cd(mtrack.projdir);
+addpath(genpath(fullfile(mtrack.projdir, 'src_project')));
 
-% ---- 1. baseline package ----
-fprintf('\n############ MASTER 1/3: baseline (main_project_run_all) ############\n');
-main_project_run_all;                       % leaves RESP, pg in workspace
-RESP_base = RESP; pg_base = pg;
+stages = { ...
+    'main_project_run_all',    'matlab'; ...
+    'main_project_extended',   'matlab'; ...
+    'main_project_calibrated', 'matlab'; ...
+    'main_project_regimes',    'matlab'; ...
+    'main_project_maturity',   'matlab'; ...
+    'main_project_channels',   'matlab'; ...
+    'run_green_transitions',   'dynare'; ...
+    'run_green_hank',          'dynare-het'};
+setappdata(0, 'gd_master_stages', stages);
 
-% ---- 2. extended package ----
-fprintf('\n############ MASTER 2/3: extended (main_project_extended) ############\n');
-FAST_saved = FAST;   % main scripts clearvars-except-FAST; keep flag alive
-FAST = FAST_saved; %#ok<NASGU>
-main_project_extended;                      % leaves REX, pg in workspace
-REX_ext = REX; pg_ext = pg;
+for master_k = 1:size(getappdata(0,'gd_master_stages'), 1)
+    stages = getappdata(0, 'gd_master_stages');           % survives clearvars
+    stage  = stages{master_k, 1};
+    kind   = stages{master_k, 2};
+    t      = getappdata(0, 'gd_master_track');
+    cd(t.projdir);
+    fprintf('\n############ MASTER %d/%d: %s ############\n', ...
+        master_k, size(stages,1), stage);
 
-% ---- 3. consolidated status summary + parameter record ----
-fprintf('\n############ MASTER 3/3: status summary ############\n');
-sf = fullfile(pg_ext.tabdir, 'master_status.txt');
-fid = fopen(sf, 'w');
-if fid > 0
-    fprintf(fid, 'GREEN DEFICITS MASTER RUN -- consolidated status\n');
-    fprintf(fid, 'date: (see log timestamps)  na=%d  FAST=%d\n\n', pg_ext.na, FAST_saved);
+    % availability gates for the Dynare tiers
+    if startsWith(kind, 'dynare') && exist('dynare', 'file') ~= 2
+        t.skipped{end+1} = stage;
+        t.reasons{end+1} = 'Dynare not on the MATLAB path';
+        setappdata(0, 'gd_master_track', t);
+        fprintf('  [skipped] %s\n', t.reasons{end});
+        continue;
+    end
 
-    fprintf(fid, '--- PARAMETER RECORD (benchmark; all climate values ILLUSTRATIVE) ---\n');
-    plist = {'beta','sigma','abar','na','ne','rho','sig_eps0','Bnom','i_ss', ...
-             'mu','mu_ext','Gg_nom','Gg_big','D0','theta_g','delta_g','phi_D', ...
-             'psi_inc','Dmax','eps0','delta_x','gamma_x','alpha_A'};
-    for k = 1:numel(plist)
-        if isfield(pg_ext, plist{k})
-            v = pg_ext.(plist{k});
-            if isscalar(v), fprintf(fid, '  %-10s = %g\n', plist{k}, v); end
+    try
+        FAST = t.fast; %#ok<NASGU>   % restore flag for the sub-script
+        if startsWith(kind, 'dynare')
+            cd(fullfile(t.projdir, 'dynare'));
         end
+        eval(stage);
+        t = getappdata(0, 'gd_master_track');
+        t.run{end+1} = stage;
+    catch ME
+        t = getappdata(0, 'gd_master_track');
+        t.skipped{end+1} = stage;
+        if strcmp(kind, 'dynare-het') && ...
+                contains(lower(ME.message), 'heterogeneity')
+            t.reasons{end+1} = ['Dynare heterogeneity framework missing: ' ME.message];
+        else
+            t.reasons{end+1} = ME.message;
+        end
+        warning('master:stagefail', 'Stage %s failed: %s', stage, ME.message);
     end
-
-    fprintf(fid, '\n--- BASELINE RESULTS (steady state only) ---\n');
-    if isfield(RESP_base,'bench_eqs') && ~isempty(RESP_base.bench_eqs)
-        e = RESP_base.bench_eqs(1);
-        fprintf(fid, '  green SS: P*=%.4f D=%.4f tau=%.4f\n', e.P, e.D, e.tau);
-    end
-    if isfield(RESP_base,'dec')
-        d = RESP_base.dec;
-        fprintf(fid, '  nu=%.3f (reval %.3f + damage %.3f)\n', d.nu, d.nu_reval, d.nu_damage);
-    end
-    if isfield(RESP_base,'opt')
-        fprintf(fid, '  mu*=%.3f\n', RESP_base.opt.mu_star);
-    end
-
-    fprintf(fid, '\n--- EXTENDED RESULTS (steady state only) ---\n');
-    if isfield(REX_ext,'x2')
-        fprintf(fid, '  sunspot frontier rows: %d; max nominal roots=%d\n', ...
-            numel(REX_ext.x2.psi), max(REX_ext.x2.n_roots_nom));
-    end
-    if isfield(REX_ext,'emp') && REX_ext.emp.ok
-        fprintf(fid, '  E1: %s\n', REX_ext.emp.msg);
-    end
-
-    fprintf(fid, '\n--- IMPLEMENTATION STATUS (see MODEL_STATUS.md for detail) ---\n');
-    fprintf(fid, '  steady-state HA price-level block ........ IMPLEMENTED\n');
-    fprintf(fid, '  climate v1/v2 + incidence gradient ....... IMPLEMENTED\n');
-    fprintf(fid, '  self-financing decomposition (4 channels)  IMPLEMENTED\n');
-    fprintf(fid, '  liquidity/maturity/sectoral channels ..... PROPOSED\n');
-    fprintf(fid, '  transition dynamics (RANK-NK skeleton) ... PARTIALLY IMPLEMENTED (dynare/)\n');
-    fprintf(fid, '  HANK transitions (sequence-space) ........ NOT YET IMPLEMENTED\n');
-    fprintf(fid, '  distortionary taxes / debt maturity ...... PROPOSED\n');
-    fprintf(fid, '  empirical anchor E1 ...................... IMPLEMENTED\n');
-    fprintf(fid, '  green-budget panel E2 .................... SPECIFIED (data absent)\n');
-    fclose(fid);
-    fprintf('  [saved] %s\n', sf);
+    setappdata(0, 'gd_master_track', t);
+    diary off;   % in case a failed stage left its diary open
 end
 
-fprintf('\nMASTER RUN COMPLETE in %.1f s. See MODEL_STATUS.md and ROADMAP.md.\n', ...
-        toc(master_t0));
+% ---- consolidated machine-written status ----
+t = getappdata(0, 'gd_master_track');
+cd(t.projdir);
+export_master_status(t);
+rmappdata(0, 'gd_master_track');
+rmappdata(0, 'gd_master_stages');
+fprintf('\nMASTER RUN COMPLETE (%.1f s). See output/tables/master_status.txt,\n', ...
+    etime(clock, t.clock0));
+fprintf('MODEL_STATUS.md and ROADMAP.md.\n');

@@ -10,8 +10,11 @@
 %   TAYLOR       standard inertial Taylor rule   (RHOI=0.8, PHIPI=1.5)
 %   AGGRESSIVE   strict inflation targeting      (RHOI=0.0, PHIPI=3.0)
 %   GREENACCOM   Taylor + temporary green accommodation tied to the
-%                green-capital gap (PSIG=0.03, ~70bp annualized at the
-%                program's start, fading with the gap)
+%                green-capital gap (PSIG=0.03; with a peak kg-gap of 0.6
+%                this is a LARGE experiment: ~1.8pp quarterly = ~7.2pp
+%                annualized rate cut at the program start, fading with
+%                the gap -- deliberately sized to make the accommodation
+%                channel visible in the figure)
 %
 % REQUIREMENTS: Dynare (5.x/6.x) on the MATLAB path; run from this folder.
 % HONEST SCOPE: these are RANK/NK transition DIAGNOSTICS -- they carry the
@@ -62,6 +65,10 @@ regimes = struct( ...
 vars_keep = {'y','ppi','b','kg','d','tau','c','i','gg'};
 RES = struct();
 ok  = false(1, numel(regimes));
+VAL = struct('name', {regimes.name}, 'converged', num2cell(false(1,numel(regimes))), ...
+             'kgres', num2cell(nan(1,numel(regimes))), ...
+             'included', num2cell(false(1,numel(regimes))), ...
+             'note', repmat({''}, 1, numel(regimes)));
 
 for rgm = 1:numel(regimes)
     fprintf('\n===== regime %s =====\n', regimes(rgm).name);
@@ -83,8 +90,10 @@ for rgm = 1:numel(regimes)
             warning('run_green_transitions:noconv', ...
                 'Regime %s: perfect-foresight solver DID NOT CONVERGE; path discarded.', ...
                 regimes(rgm).name);
+            VAL(rgm).note = 'solver did not converge';
             continue;
         end
+        VAL(rgm).converged = true;
         % collect paths by variable name (rows of oo_.endo_simul follow M_.endo_names)
         sim = oo_.endo_simul;
         paths = struct();
@@ -101,15 +110,18 @@ for rgm = 1:numel(regimes)
             kgres = max(abs(paths.kg(2:end-1) - ...
                 (1-M_.params(strcmp(cellstr(M_.param_names),'delta_g'))) ...
                 * paths.kg(1:end-2) - paths.gg(2:end-1)));
+            VAL(rgm).kgres = kgres;
             if kgres > 1e-6
                 warning('run_green_transitions:kglaw', ...
                     'Regime %s: kg accumulation law violated (%.2e); path discarded.', ...
                     regimes(rgm).name, kgres);
+                VAL(rgm).note = sprintf('kg law violated (%.2e)', kgres);
                 continue;
             end
         end
         RES.(regimes(rgm).name) = paths;
         ok(rgm) = true;
+        VAL(rgm).included = true;
         fprintf('  [%s solved: %d periods]\n', regimes(rgm).name, size(sim,2));
     catch ME
         warning('run_green_transitions:fail', ...
@@ -165,4 +177,41 @@ if fid > 0
     fclose(fid);
     fprintf('  [saved] %s\n', sf);
 end
+
+% ---- validation table (audit requirement: rank_transition_validation.txt) ----
+vf = fullfile(pg.tabdir, 'rank_transition_validation.txt');
+fid = fopen(vf, 'w');
+if fid > 0
+    fprintf(fid, 'U6 RANK/NK TRANSITION VALIDATION\n');
+    fprintf(fid, 'Scope label: RANK/NK TRANSITION DIAGNOSTIC (not the DTPL price-level mechanism).\n');
+    fprintf(fid, 'Fiscal note: the .mod tax rule finances gg CONTEMPORANEOUSLY (tau includes +gg),\n');
+    fprintf(fid, 'so this experiment is tax-financed by design; deficit financing on impact is the\n');
+    fprintf(fid, 'HANK tier (run_green_hank) and the steady-state MATLAB block.\n');
+    fprintf(fid, 'Program: GSIZE ramped in linearly over 12 quarters; horizon 300 quarters.\n\n');
+    fprintf(fid, '%-11s %-10s %-12s %-9s %-10s %-10s %-9s %-9s %-9s\n', ...
+        'regime', 'converged', 'kg-law res', 'included', 'pi impact', 'pi peak', ...
+        'b peak', 'kg(40q)', 'd(40q)');
+    for rgm = 1:numel(regimes)
+        if VAL(rgm).included
+            s = RES.(regimes(rgm).name);
+            fprintf(fid, '%-11s %-10s %-12.2e %-9s %+-10.4f %+-10.4f %-9.4f %-9.4f %-9.4f\n', ...
+                VAL(rgm).name, 'yes', VAL(rgm).kgres, 'yes', ...
+                s.ppi(2), max(s.ppi), max(s.b), s.kg(min(41,end)), s.d(min(41,end)));
+        else
+            fprintf(fid, '%-11s %-10s %-12s %-9s (%s)\n', VAL(rgm).name, ...
+                ternary_str(VAL(rgm).converged,'yes','NO'), '-', 'NO', VAL(rgm).note);
+        end
+    end
+    fprintf(fid, '\nInterpretation guide: pi is NET QUARTERLY inflation (x400 for annualized pp);\n');
+    fprintf(fid, 'kg-law residual is max|kg_t-(1-delta_g)kg_{t-1}-gg_t| over interior columns\n');
+    fprintf(fid, '(terminal steady-state column excluded: it is appended, not simulated).\n');
+    fprintf(fid, 'GREENACCOM is a deliberately LARGE accommodation experiment: psi_g=0.03 with a\n');
+    fprintf(fid, 'peak kg-gap of 0.6 implies ~1.8pp quarterly (~7.2pp annualized) initial rate cut.\n');
+    fclose(fid);
+    fprintf('  [saved] %s\n', vf);
+end
 fprintf('Elapsed: %.1f s\n', toc(t0));
+
+function s = ternary_str(cond, a, b)
+    if cond, s = a; else, s = b; end
+end
