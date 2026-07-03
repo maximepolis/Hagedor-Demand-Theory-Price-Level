@@ -150,9 +150,12 @@ steady;
 // jumping (implementation delays, Leeper-Walker-Yang) -- economically more
 // realistic AND numerically far easier for near-peg Newton systems.
 shocks;
-@#for q in 1:12
-  var e_g; periods @{q}; values (@{GSIZE}*@{q}/12);
-@#endfor
+  var e_g;
+  periods 1 2 3 4 5 6 7 8 9 10 11 12;
+  values (@{GSIZE}*1/12)  (@{GSIZE}*2/12)  (@{GSIZE}*3/12)
+         (@{GSIZE}*4/12)  (@{GSIZE}*5/12)  (@{GSIZE}*6/12)
+         (@{GSIZE}*7/12)  (@{GSIZE}*8/12)  (@{GSIZE}*9/12)
+         (@{GSIZE}*10/12) (@{GSIZE}*11/12) (@{GSIZE}*12/12);
 end;
 
 perfect_foresight_setup(periods=300);
