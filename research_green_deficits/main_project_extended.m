@@ -58,7 +58,16 @@ fprintf(' climate_version=2, na=%d\n', pg.na);
 fprintf('==============================================================\n');
 
 REX = struct();
-r_base = (1 + pg.i_ss)/(1 + pg.mu) - 1;
+
+% Extended experiments run at the ACCOMMODATIVE stance mu_ext (~ near the
+% welfare optimum mu* = 0.045 of the baseline run). At mu = 0.02 the
+% incidence gradient amplifies precautionary asset demand so much (S ~ 6)
+% that P* = B/S would force real taxes past the lump-sum feasibility cliff:
+% no stationary equilibrium exists -- a genuine fiscal-space-collapse
+% result, recorded below, but not a useful laboratory.
+mu_ext = pg.mu_ext;
+r_ext  = (1 + pg.i_ss)/(1 + mu_ext) - 1;
+fprintf('extended stance: mu_ext=%.3f (r_ss=%+.4f)\n', mu_ext, r_ext);
 
 % no-abatement damages under version 2 (calibration check ~ 0.10)
 D_noab = climate_block2(0, pg);
@@ -70,10 +79,10 @@ Dtop = max(D_noab, pg.D0);
 % X1. Extended benchmark: psi = 1
 % =====================================================================
 fprintf('\n===== [X1] Extended benchmark (psi_inc=1, carbon stock) =====\n');
-pg1 = pg; pg1.psi_inc = 1;
+pg1 = pg; pg1.psi_inc = 1; pg1.mu = mu_ext;
 pg1.Dgrid_S = linspace(0, Dtop, numel(pg.Dgrid_S));
-ad2_x = build_S_interp_green(r_base, pg1);
-pol_x = struct('regime','nominal','i_ss',pg.i_ss,'mu',pg.mu, ...
+ad2_x = build_S_interp_green(r_ext, pg1);
+pol_x = struct('regime','nominal','i_ss',pg.i_ss,'mu',mu_ext, ...
                'Bnom',pg.Bnom,'Gg_nom',pg.Gg_nom);
 [eqs_x, out_x] = solve_green_steady_state(pg1, pol_x, ad2_x);
 fprintf('  %s\n', out_x.msg);
@@ -89,17 +98,17 @@ front = struct('psi',[],'Gg',[],'n_roots_nom',[],'n_roots_real',[], ...
                'min_epsS_nom',[],'P_roots',{{}});
 row = 0; epsS_curves = cell(numel(psis), numel(Ggs));
 for a = 1:numel(psis)
-    pga = pg; pga.psi_inc = psis(a);
+    pga = pg; pga.psi_inc = psis(a); pga.mu = mu_ext;
     pga.taugrid_S = pg.taugrid_mu;             % small grids for the sweep
     pga.Dgrid_S   = linspace(0, Dtop, 3);
-    ad2a = build_S_interp_green(r_base, pga);
+    ad2a = build_S_interp_green(r_ext, pga);
     for b = 1:numel(Ggs)
-        pol_n = struct('regime','nominal','i_ss',pg.i_ss,'mu',pg.mu, ...
+        pol_n = struct('regime','nominal','i_ss',pg.i_ss,'mu',mu_ext, ...
                        'Bnom',pg.Bnom,'Gg_nom',Ggs(b));
         [eqn, outn] = solve_green_steady_state(pga, pol_n, ad2a);
         % comparable real mandate: index at the (first) nominal root's g_g
         if ~isempty(eqn), gfix = eqn(1).g_real; else, gfix = Ggs(b)/0.25; end
-        pol_r = struct('regime','real','i_ss',pg.i_ss,'mu',pg.mu, ...
+        pol_r = struct('regime','real','i_ss',pg.i_ss,'mu',mu_ext, ...
                        'Bnom',pg.Bnom,'g_real',gfix);
         [~, outr] = solve_green_steady_state(pga, pol_r, ad2a);
 
@@ -108,7 +117,9 @@ for a = 1:numel(psis)
         front.Gg(row)           = Ggs(b);
         front.n_roots_nom(row)  = outn.n_roots;
         front.n_roots_real(row) = outr.n_roots;
-        front.min_epsS_nom(row) = min(outn.eps_S(isfinite(outn.eps_S)));
+        mn = min(outn.eps_S(isfinite(outn.eps_S)));
+        if isempty(mn), mn = NaN; end          % all-NaN elasticity: no crash
+        front.min_epsS_nom(row) = mn;
         front.P_roots{row}      = [eqn.P];
         epsS_curves{a,b} = outn;
         fprintf(['  psi=%.1f Gg=%.3f: nominal roots=%d (min epsS=%+.2f), ' ...
@@ -122,11 +133,12 @@ REX.x2 = front; REX.x2_curves = epsS_curves;
 fh6 = figure('Name','PFig6: Incidence and the demand elasticity', ...
              'Color','w','Position',[80 80 640 500]); hold on; box on;
 cols = [0.10 0.30 0.75; 0.85 0.55 0.10; 0.85 0.20 0.15];
-labs = cell(1, numel(psis));
+labs = {};
 for a = 1:numel(psis)
     oc = epsS_curves{a, numel(Ggs)};
+    if isempty(oc) || all(~isfinite(oc.eps_S)), continue; end   % skip empty
     plot(oc.Pgrid, oc.eps_S, '-', 'LineWidth', 2, 'Color', cols(min(a,3),:));
-    labs{a} = sprintf('\\psi = %.0f', psis(a));
+    labs{end+1} = sprintf('\\psi = %.0f', psis(a)); %#ok<SAGROW>
 end
 plot([pg.P_scan_min pg.P_scan_max], [-1 -1], 'k--', 'LineWidth', 1.3);
 xlabel('price level  P'); ylabel('demand elasticity  \epsilon_S(P)');

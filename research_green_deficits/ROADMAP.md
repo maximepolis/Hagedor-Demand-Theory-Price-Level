@@ -1,0 +1,53 @@
+# Roadmap: from current package to top-journal submission
+
+*Separates what is submission-ready from what remains preliminary. Companion
+to MODEL_STATUS.md (block-level labels) and referee_memo/REFEREE_MEMO.md.*
+
+## Ready now (verified by runs)
+
+- The steady-state HA price-level machinery, the climate blocks (both
+  versions), the incidence gradient, the four-channel self-financing
+  decomposition, the all-roots equilibrium solver with the elasticity
+  diagnostic, the W(mu) accommodation exercise, and E1 empirics.
+- Three headline findings that survive honest labeling:
+  1. **Green disinflation / revaluation-sign reversal** (nu_reval = −0.24 at
+     benchmark): mechanism-based, robust to the tax instrument, empirically
+     diagnosable (E3).
+  2. **Anchor-insulation rule design** (nominal debt + indexed green
+     mandate): a determinacy theorem with an institutional instrument.
+  3. **Fiscal-space collapse under regressive incidence** (existence failure
+     at tight money + strong incidence): new, found by the extended run.
+- The LaTeX draft with proofs, the verified bib, the reproducibility chain
+  (master script, logs, parameter record).
+
+## Preliminary (do not oversell)
+
+- All magnitudes: climate parameters are illustrative until the calibration
+  appendix is executed (low/medium/high damages).
+- Multiplicity: a theorem plus a measured diagnostic, not (yet, possibly not
+  ever) a calibrated quantitative result. The paper's quantitative core must
+  remain the decomposition and the sign reversal.
+- Everything dynamic.
+
+## Upgrade sequence (ordered; each step is self-contained)
+
+| # | Task | Est. effort | Blocks |
+|---|---|---|---|
+| U1 | Rerun extended package post-fix; fill paper placeholders (frontier, X1, E1 CI) | hours | — |
+| U2 | Consumption-equivalent welfare + welfare by wealth/income quintile (`welfare_by_group.m`) | days | none |
+| U3 | Calibration appendix execution: low/med/high damages (DICE / DJO-BHM / Bilal-Känzig), theta_g from IEA abatement costs, psi from Känzig incidence; wealth-moment targeting for (rho, sig_eps, beta) | 1–2 weeks | data access |
+| U4 | Carbon-tax financing + transfer-rebate + mixed regimes; distortionary labor tax (Barrage template) | 1–2 weeks | U3 helpful |
+| U5 | Debt maturity (geometric-coupon bond) — bounds the revaluation channel honestly | ~1 week | none |
+| U6 | Transition dynamics tier 1: RANK-NK perfect-foresight paths in `dynare/green_rank_nk.mod` (skeleton committed; calibrate + shock design) | ~1 week | — |
+| U7 | Transition dynamics tier 2: HANK sequence-space Jacobians around each steady state; green-boom-to-brown-stagnation belief-switch experiment | weeks | U6 first |
+| U8 | Production economy with clean/dirty sectors + energy share heterogeneity (unlocks tax-base channel and energy-incidence welfare groups) | weeks | U4 |
+| U9 | Empirics: E2 data collection (schema ready); E3 event-study around EU Green Deal / IRA surprises (Känzig-style identification); sovereign-yield validation | parallel track | data |
+| U10 | Paper rewrite to the final structure (mechanism diagram, quantitative headline, regime-comparison and welfare-distribution figures); verification pass over the [u]-flagged references in LITERATURE_MATRIX.md | after U1–U5 |
+
+## Submission decision rule
+
+Target a general-interest submission once U1–U5 are done (steady-state paper
+with credible calibration, distortionary taxes, maturity bounds, and the
+three headline findings), holding U6–U8 for the revision round or a
+companion paper. If referees demand dynamics up front, U6 (RANK tier)
+addresses stability/selection; U7 is the full answer.

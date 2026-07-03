@@ -29,17 +29,21 @@ function dec = self_financing_decomposition(pg, ad2)
     pol1 = struct('regime','nominal','i_ss',pg.i_ss,'mu',pg.mu, ...
                   'Bnom',B,'Gg_nom',pg.Gg_nom);
 
-    % ---- no-program steady state (Gg=0 => D = D0 for any theta_g) ----
+    % ---- no-program steady state (Gg=0 => D = D_noabatement) ----
     [eq0, out0] = solve_green_steady_state(pg, pol0, ad2);
     if isempty(eq0)
-        error('self_financing_decomposition:base', 'No baseline equilibrium: %s', out0.msg);
+        warning('self_financing_decomposition:base', ...
+            'No baseline equilibrium: %s -- decomposition skipped.', out0.msg);
+        dec = empty_dec(pg); dec.out_base = out0; return;
     end
     base = eq0(1);      % baseline is unique in the benchmark (checked by caller)
 
     % ---- program steady state at the benchmark theta_g ----
     [eq1, out1] = solve_green_steady_state(pg, pol1, ad2);
     if isempty(eq1)
-        error('self_financing_decomposition:prog', 'No program equilibrium: %s', out1.msg);
+        warning('self_financing_decomposition:prog', ...
+            'No program equilibrium: %s -- decomposition skipped.', out1.msg);
+        dec = empty_dec(pg); dec.out_base = out0; dec.out_prog = out1; return;
     end
     % if multiple, use the LOWEST-P (green boom) equilibrium and flag it
     prog = eq1(1);
@@ -58,6 +62,7 @@ function dec = self_financing_decomposition(pg, ad2)
     dW    = prog.W - base.W;
 
     dec = struct();
+    dec.ok = true;
     dec.base = base;  dec.out_base = out0;
     dec.prog = prog;  dec.out_prog = out1;
     dec.multi_program_equilibria = multi_flag;
@@ -102,4 +107,21 @@ end
 % -------------------------------------------------------------------------
 function s = ternary(cond, a, b)
     if cond, s = a; else, s = b; end
+end
+
+% -------------------------------------------------------------------------
+function dec = empty_dec(pg)
+% Graceful no-equilibrium return: all fields present, values NaN, ok=false,
+% so downstream printing/plotting never crashes.
+    ths = pg.theta_sweep;
+    dec = struct();
+    dec.ok = false;
+    dec.base = []; dec.prog = [];
+    dec.out_base = []; dec.out_prog = [];
+    dec.multi_program_equilibria = false;
+    dec.nu = NaN; dec.nu_reval = NaN; dec.nu_damage = NaN;
+    dec.levy = NaN; dec.dtau = NaN; dec.identity_resid = NaN; dec.dW = NaN;
+    dec.sweep = struct('theta_g', ths, 'nu', nan(size(ths)), ...
+                       'nu_reval', nan(size(ths)), 'nu_damage', nan(size(ths)), ...
+                       'n_roots', zeros(size(ths)), 'P1', nan(size(ths)));
 end

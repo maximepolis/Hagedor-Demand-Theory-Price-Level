@@ -89,6 +89,39 @@ then `pdflatex` twice, inside `paper/` (figures are pulled from
 5. **Optimal accommodation** — utilitarian optimal nominal growth `mu*`
    trades the bondholder levy against real-green-spending erosion.
 
+## Research-program layer (top-journal upgrade)
+
+```
+run_green_deficits_master.m   ONE-COMMAND master run: baseline + extended +
+                              consolidated status/parameter record
+MODEL_STATUS.md               block-by-block audit with labels: IMPLEMENTED /
+                              PARTIALLY IMPLEMENTED / PROPOSED / PLACEHOLDER /
+                              NOT YET IMPLEMENTED
+LITERATURE_MATRIX.md          annotated bibliography in 7 blocks (A-G):
+                              competitors vs building blocks vs calibration vs
+                              validation vs policy sources; verification queue
+ROADMAP.md                    submission-ready vs preliminary; upgrade steps
+                              U1-U10 with the submission decision rule
+referee_memo/REFEREE_MEMO.md  pre-emptive answers to 10 top-journal objections
+appendix/CALIBRATION_APPENDIX.md  every parameter -> status + data source;
+                              low/medium/high climate-damage plan; known
+                              calibration tensions stated openly
+dynare/green_rank_nk.mod      RANK-NK transition skeleton (PARTIALLY
+                              IMPLEMENTED; see dynare/README.md for scope)
+```
+
+**Central contribution (one sentence).** Green deficits are not Ricardian
+fiscal expansions: with nominal public liabilities, climate-dependent income
+risk, and green public capital, the price level and the real fiscal burden of
+climate investment are jointly determined by household demand for safe
+nominal assets — a new fiscal arithmetic of green investment and a new
+rule-design problem.
+
+**Quantitative-scope statement (project standard #5).** Every quantitative
+result to date is a STEADY-STATE result. Transition dynamics exist only as
+the RANK-tier Dynare skeleton; HANK transitions and aggregate risk are NOT
+YET IMPLEMENTED. See MODEL_STATUS.md.
+
 ## Honesty notes
 
 - All quantitative statements in the documents are placeholders until

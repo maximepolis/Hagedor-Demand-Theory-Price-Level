@@ -998,7 +998,18 @@ suite. Aggregate asset demand on the $(\tau,D)$ plane is precomputed on a
 $7\times4$ node grid at the policy real rate and interpolated bilinearly;
 every reported equilibrium is \emph{re-solved exactly} at the root (the
 interpolation residual is reported). Roots of $\Phi$ are found by dense scan
-plus bracketed \texttt{fzero}, returning \emph{all} roots. The elasticity
+plus bracketed \texttt{fzero}, returning \emph{all} roots. Under the incidence
+gradient the high-$(\tau,D)$ corners of the interpolation grid can be
+infeasible; the $\tau$-range is clamped at the feasibility bound evaluated at
+the median damage node, remaining infeasible corner nodes are filled by
+nearest-in-$\tau$ values \emph{for scanning purposes only}, and every reported
+equilibrium is re-solved exactly at the root (the interpolation residual is
+reported), so filled cells cannot silently produce spurious equilibria. The
+extended experiments are evaluated at the accommodative stance
+$\mu_{\mathrm{ext}}=0.03$: at $\mu=0.02$ the incidence-amplified precautionary
+demand pushes $P^{*}$ so low that the implied tax burden crosses the lump-sum
+feasibility bound and no stationary equilibrium exists --- a fiscal-space
+collapse reported as a result in its own right. The elasticity
 $\varepsilon_S(P)$ is computed by centered log-differences along the demand
 curve. The optimal-policy exercise rebuilds the interpolant at each $\mu$
 (the real rate changes). Runtime: about one minute per full pass at
