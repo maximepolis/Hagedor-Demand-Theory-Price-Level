@@ -82,6 +82,7 @@ independently verified — verify before citing in a submission. Never cite an
 
 | Source | Role | Relation | Cite in |
 |---|---|---|---|
+| Hurtado, Nuño & Thomas, *Monetary Policy and Sovereign Debt Sustainability*, JEEA 21(1) 2023 [v — replication package in `MP and Sovereign Debt Sustainability Code/`] | BLOCK/CALIB | inflation as state-contingent partial default on long-term nominal debt without commitment; disciplines the credibility limits of the revaluation channel and supplies the bond-pricing template for the U5 maturity extension; their repayment region connects to our fiscal-space-collapse result | I, L, M (maturity), referee memo R9 |
 | BIS, *Decoding Climate-Related Risks in Sovereign Bond Pricing* [u — institutional] | VALID | sovereign-yield discipline for the fiscal-capacity channel | E |
 | IMF, *Sovereign Climate Debt Instruments* [u] | POLICY | green/cat bond institutional detail | L |
 | ECB/FSB nature-risk reports; NGFS documentation [k: institutional] | POLICY | optional biodiversity extension | L |

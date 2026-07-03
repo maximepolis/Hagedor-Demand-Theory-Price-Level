@@ -64,11 +64,16 @@ damages and taxes. The two mechanisms are empirically distinguishable (E3:
 bond-price response to green-program announcements).
 
 **R7. "Green spending is not carbon policy."**
-(a) True; the model currently has no carbon tax.
-(b) The comparison set already includes nominal budget vs indexed mandate vs
-accommodation stance.
-(c) Roadmap Q9: carbon-tax financing, transfer rebates, mixed regimes
-(NOT YET IMPLEMENTED).
+(a) PARTIALLY CLOSED: `main_project_regimes.m` (U4) compares deficit,
+carbon-levy, rebate, and mixed financing of the same real program at the
+calibrated medium column, with identical aggregate budgets so differences
+are pure incidence + price level.
+(b) Honest scope stated in the paper: in the endowment economy the levy has
+no Pigouvian abatement margin (abatement is public); the emissions-price
+margin belongs to the production extension (U8), and the paper says so
+rather than overclaiming.
+(c) Remaining: distortionary labor tax with an hours margin (Barrage
+template) and the two-sector Pigouvian comparison (U8).
 
 **R8. "No empirical discipline."**
 (a) Current: E1 implemented (34-country anchor regression, HC1, Wald test of

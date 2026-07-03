@@ -29,9 +29,13 @@ function wg = welfare_by_group(r, eq0, eq1, pg)
 
     wg = struct('ok', false, 'msg', '');
 
-    % exact household solutions at the two steady states
-    [~, o0] = S_green(r, eq0.tau, eq0.D, pg);
-    [~, o1] = S_green(r, eq1.tau, eq1.D, pg);
+    % exact household solutions at the two steady states; regimes may carry a
+    % state-specific proportional levy vartheta (U4 financing comparison)
+    pg0 = pg; pg1 = pg;
+    if isfield(eq0, 'vartheta'), pg0.vartheta = eq0.vartheta; else, pg0.vartheta = 0; end
+    if isfield(eq1, 'vartheta'), pg1.vartheta = eq1.vartheta; else, pg1.vartheta = 0; end
+    [~, o0] = S_green(r, eq0.tau, eq0.D, pg0);
+    [~, o1] = S_green(r, eq1.tau, eq1.D, pg1);
     if ~o0.feasible || ~o1.feasible
         wg.msg = 'welfare_by_group: one of the steady states infeasible.';
         warning('welfare_by_group:infeasible', '%s', wg.msg);
@@ -39,14 +43,25 @@ function wg = welfare_by_group(r, eq0, eq1, pg)
     end
     V0 = o0.V; V1 = o1.V; dist0 = o0.dist;
 
-    % consumption-equivalent lambda(a,e)
+    % consumption-equivalent lambda(a,e).
+    % CRRA: u(c) = (c^(1-s)-1)/(1-s) = c^(1-s)/(1-s) - 1/(1-s), so
+    % V = Vtilde - 1/((1-s)(1-beta))  =>  Vtilde = V + 1/((1-s)(1-beta)).
+    % (A prior version SUBTRACTED the shift -- a sign error that flipped
+    % every lambda and exploded magnitudes near the transform's zero; the
+    % guard below now rejects any invalid transform outright.)
     if abs(pg.sigma - 1) < 1e-12
         lam = exp((V1 - V0) * (1 - pg.beta)) - 1;
     else
         cshift = 1 / ((1 - pg.sigma) * (1 - pg.beta));
-        Vt0 = V0 - cshift;
-        Vt1 = V1 - cshift;
-        % for sigma > 1 both Vt are negative; ratio positive
+        Vt0 = V0 + cshift;
+        Vt1 = V1 + cshift;
+        % validity: for sigma > 1, Vtilde = E[sum beta^t c^(1-s)/(1-s)] < 0
+        if pg.sigma > 1 && (max(Vt0(:)) >= 0 || max(Vt1(:)) >= 0)
+            wg.msg = ['welfare_by_group: CE transform invalid (nonnegative ' ...
+                      'tilde-V under sigma>1) -- check beta/sigma fields.'];
+            warning('welfare_by_group:transform', '%s', wg.msg);
+            return;
+        end
         lam = (Vt1 ./ Vt0).^(1/(1 - pg.sigma)) - 1;
     end
 
@@ -85,6 +100,16 @@ function wg = welfare_by_group(r, eq0, eq1, pg)
     wg.lambda_bot50 = lambda_bot50;
     wg.lambda_agg   = sum(sum(lam .* dist0));
     wg.qcut         = qcut;
+
+    % consistency cross-check: the sign of the base-weighted utilitarian
+    % value change should normally agree with the aggregate CE gain; a
+    % disagreement flags a transform or state-alignment problem.
+    wg.dW_baseweighted = sum(sum((V1 - V0) .* dist0));
+    if sign(wg.dW_baseweighted) ~= sign(wg.lambda_agg) && abs(wg.lambda_agg) > 1e-4
+        warning('welfare_by_group:signcheck', ...
+            ['Aggregate CE gain (%.4f) and base-weighted dW (%.4f) disagree ' ...
+             'in sign -- inspect before reporting.'], wg.lambda_agg, wg.dW_baseweighted);
+    end
     wg.msg = sprintf(['CE gains by wealth quintile (%%): %s | top10 %.2f, ' ...
         'bottom50 %.2f, aggregate %.2f'], ...
         mat2str(round(100*lambda_q, 2)), 100*lambda_top10, ...

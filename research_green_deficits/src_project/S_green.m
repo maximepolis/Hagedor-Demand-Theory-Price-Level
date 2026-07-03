@@ -62,6 +62,18 @@ function [S, out] = S_green(r, tau, D, pg)
         p.eGrid = (1 - D) * p.eGrid;
     end
 
+    % ---- proportional levy (U4 financing regimes) ----
+    % A carbon-tax-style levy at rate vartheta on effective endowments:
+    % household resources become (1 - vartheta)*(1 - D*chi(e))*e. In the
+    % endowment economy this instrument is non-distortionary, so financing
+    % regimes differ through INCIDENCE (proportional vs lump-sum) and the
+    % induced price level, not through aggregate resources; the Pigouvian
+    % margin requires the production extension (roadmap U8) and is NOT
+    % claimed here.
+    if isfield(pg, 'vartheta') && ~isempty(pg.vartheta) && pg.vartheta ~= 0
+        p.eGrid = (1 - pg.vartheta) * p.eGrid;
+    end
+
     % ---- lump-sum feasibility: poorest at the constraint must afford c>0 ----
     if tau >= min(p.eGrid) + r*(-p.abar) - 1e-6
         S = NaN; return;
