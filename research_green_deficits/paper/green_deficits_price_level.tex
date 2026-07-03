@@ -18,7 +18,12 @@
 \usepackage[round]{natbib}
 \usepackage[colorlinks=true,citecolor=blue,linkcolor=blue,urlcolor=blue]{hyperref}
 
-\graphicspath{{../output/figures/}}
+\graphicspath{{../output/figures/}{./}}
+
+% figure guard robust to both layouts: figures in ../output/figures (repo)
+% or copied next to the .tex (e.g. Overleaf upload)
+\newcommand{\pfigguard}[2]{%
+  \IfFileExists{../output/figures/#1}{#2}{\IfFileExists{#1}{#2}{}}}
 
 \newtheorem{proposition}{Proposition}
 \newtheorem{lemma}{Lemma}
@@ -786,22 +791,22 @@ payoff) $\nu=-0.275<0$: an unproductive nominal program is \emph{worse} than
 its sticker price, again because of the disinflationary asset-demand
 response.
 
-\IfFileExists{PFig1_green_steady_state.pdf}{%
+\pfigguard{PFig1_green_steady_state.pdf}{%
 \begin{figure}[ht]\centering
 \includegraphics[width=0.6\textwidth]{PFig1_green_steady_state.pdf}
 \caption{The green steady state: asset demand and bond supply in
 (assets, price-level) space; the dot marks $(B/P^{*},P^{*})$.}
 \label{fig:pfig1}
-\end{figure}}{}
+\end{figure}}
 
-\IfFileExists{PFig2_self_financing.pdf}{%
+\pfigguard{PFig2_self_financing.pdf}{%
 \begin{figure}[ht]\centering
 \includegraphics[width=0.95\textwidth]{PFig2_self_financing.pdf}
 \caption{Self-financing. (a) Decomposition at the benchmark:
 $\nu_{\mathrm{reval}}=-0.241$, $\nu_{\mathrm{dam}}=0.841$, $\nu=0.600$.
 (b) $\nu(\theta_g)$ crosses full financing near $\theta_g\approx2.4$.}
 \label{fig:pfig2}
-\end{figure}}{}
+\end{figure}}
 
 % --------------------------------------------------------------------------
 \subsection{Determinacy diagnostics and the sunspot region}
@@ -864,14 +869,14 @@ rests --- a collapse that indexation alone does not repair
 (all $\psi\le2$ rows with the benchmark program are unique and interior at
 $\mu_{\mathrm{ext}}=0.03$).
 
-\IfFileExists{PFig3_sunspots_vs_mandate.pdf}{%
+\pfigguard{PFig3_sunspots_vs_mandate.pdf}{%
 \begin{figure}[ht]\centering
 \includegraphics[width=0.95\textwidth]{PFig3_sunspots_vs_mandate.pdf}
 \caption{Determinacy diagnostics at $\theta_g=2.5$: (a) $\Phi(P)$ under the
 nominal budget and the real mandate; (b) measured $\varepsilon_S(P)$ against
 the $-1$ line.}
 \label{fig:pfig3}
-\end{figure}}{}
+\end{figure}}
 
 % --------------------------------------------------------------------------
 \subsection{The extended sector and accommodation neutrality}
@@ -918,12 +923,12 @@ close to the $1/\beta-1$ asymptote, asset demand exceeds $B/P$ at every
 feasible price level --- the existence failure the theory predicts, reported
 honestly by the solver rather than smoothed over.
 
-\IfFileExists{PFig4_optimal_policy.pdf}{%
+\pfigguard{PFig4_optimal_policy.pdf}{%
 \begin{figure}[ht]\centering
 \includegraphics[width=0.6\textwidth]{PFig4_optimal_policy.pdf}
 \caption{Utilitarian welfare $W(\mu)$; the star marks $\mu^{*}=0.045$.}
 \label{fig:pfig4}
-\end{figure}}{}
+\end{figure}}
 
 % --------------------------------------------------------------------------
 \subsection{The calibrated pass: low, medium, and high damages}
@@ -994,13 +999,13 @@ transition and on distributional weights, which is precisely where the
 welfare-incidence analysis (Section~\ref{subsec:welfaregroups}) and the
 dynamic extension take over.
 
-\IfFileExists{PFig7_calibrated_nu.pdf}{%
+\pfigguard{PFig7_calibrated_nu.pdf}{%
 \begin{figure}[ht]\centering
 \includegraphics[width=0.6\textwidth]{PFig7_calibrated_nu.pdf}
 \caption{Calibrated self-financing by damage column: stacked revaluation
 (negative) and damage-dividend components against the full-financing line.}
 \label{fig:pfig7}
-\end{figure}}{}
+\end{figure}}
 
 % --------------------------------------------------------------------------
 \subsection{Welfare incidence by wealth group}
@@ -1046,13 +1051,13 @@ Second, this regressivity is a property of the \emph{financing}, not of the
 program --- which motivates the regime comparison below, where the same real
 program is financed progressively and the ranking reverses.
 
-\IfFileExists{PFig8_welfare_incidence.pdf}{%
+\pfigguard{PFig8_welfare_incidence.pdf}{%
 \begin{figure}[ht]\centering
 \includegraphics[width=0.7\textwidth]{PFig8_welfare_incidence.pdf}
 \caption{Welfare incidence by baseline wealth quintile across damage
 columns (deficit financing).}
 \label{fig:pfig8}
-\end{figure}}{}
+\end{figure}}
 
 % --------------------------------------------------------------------------
 \subsection{Financing regimes: deficit, carbon-levy, rebate, mixed}
@@ -1122,13 +1127,13 @@ $3.7$ percentage points of permanent consumption between the worst and best
 design. Financing structure is not fiscal bookkeeping in this economy; it
 is a price-level and distribution instrument.
 
-\IfFileExists{PFig9_financing_regimes.pdf}{%
+\pfigguard{PFig9_financing_regimes.pdf}{%
 \begin{figure}[ht]\centering
 \includegraphics[width=0.95\textwidth]{PFig9_financing_regimes.pdf}
 \caption{Financing regimes: (a) self-financing decomposition; (b) welfare
 incidence, bottom 50\% versus top 10\%.}
 \label{fig:pfig9}
-\end{figure}}{}
+\end{figure}}
 
 % ==========================================================================
 \section{Empirical evidence}\label{sec:empirics}
