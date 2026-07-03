@@ -16,13 +16,21 @@
  * appendix/HANK_TRANSITION_PLAN.md and is NOT YET IMPLEMENTED.
  *
  * MONETARY REGIMES (set by run_green_transitions.m via -D defines):
- *   PEG          : RHOI=0.999, PHIPI=0   (near-frozen nominal rate)
- *   TAYLOR       : RHOI=0.8,   PHIPI=1.5 (standard inertial Taylor)
- *   AGGRESSIVE   : RHOI=0.0,   PHIPI=3.0 (strict inflation targeting)
- *   GREENACCOM   : TAYLOR + PSIG=0.5     (temporary accommodation tied to
+ *   WEAK         : RHOI=0.5, PHIPI=1.1   (weakly active rule; the closest
+ *                  numerically regular stand-in for a peg -- a pure peg
+ *                  violates the Taylor principle and makes the stacked
+ *                  Newton system singular)
+ *   TAYLOR       : RHOI=0.8, PHIPI=1.5   (standard inertial Taylor)
+ *   AGGRESSIVE   : RHOI=0.0, PHIPI=3.0   (strict inflation targeting)
+ *   GREENACCOM   : TAYLOR + PSIG=0.03    (temporary accommodation tied to
  *                  the green-capital gap: i is cut while kg is below its
  *                  terminal level, fading automatically as the transition
- *                  completes)
+ *                  completes; ~70bp annualized at the program's start)
+ *
+ * NUMERICS: the program RAMPS IN linearly over 12 quarters (shocks block)
+ * rather than jumping to full size at t=1, and the solver call is chained
+ * (default -> stack_solve_algo=6 -> higher maxit), each attempt warm-
+ * starting from the previous iterate.
  *
  * USAGE:  dynare green_rank_nk                              (Taylor default)
  *         dynare green_rank_nk -DPHIPI=3.0 -DRHOI=0.0       (aggressive IT)
@@ -138,8 +146,22 @@ endval;
 end;
 steady;
 
+// RAMP-IN: the program phases in linearly over 12 quarters instead of
+// jumping (implementation delays, Leeper-Walker-Yang) -- economically more
+// realistic AND numerically far easier for near-peg Newton systems.
+shocks;
+@#for q in 1:12
+  var e_g; periods @{q}; values (@{GSIZE}*@{q}/12);
+@#endfor
+end;
+
 perfect_foresight_setup(periods=300);
+// chained attempts: a failed attempt leaves its iterate in oo_.endo_simul,
+// so each subsequent call warm-starts from it; if the first succeeds the
+// later calls converge in one step at negligible cost.
 perfect_foresight_solver;
+perfect_foresight_solver(stack_solve_algo=6, maxit=100);
+perfect_foresight_solver(maxit=200);
 
 rplot y;
 rplot ppi;
