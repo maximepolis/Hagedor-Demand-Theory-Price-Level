@@ -1,6 +1,12 @@
-# Hurtado–Nuño–Thomas (JEEA 2023) replication package — drop-in folder
+# Monetary Policy and Sovereign Debt Sustainability
+## Hurtado–Nuño–Thomas (JEEA 2023) replication package — drop-in folder
 
-**Expected contents (currently on your local machine, not yet committed):**
+This folder sits at the repository root, next to the DTPL replication and the
+`research_green_deficits/` project, as requested.
+
+**Expected contents (currently only on your local Windows machine — they were
+never committed, so only this destination folder could be prepared remotely;
+place the files here with the commands below):**
 
 ```
 a_inf/        model variant code (inflation-choice model)
@@ -17,9 +23,10 @@ readme.txt    authors' replication notes
 
 ```
 git checkout claude/hagedorn-dtpl-matlab-9abghk
+git pull
 xcopy "C:\Users\up24706\Downloads\MP and Sovereign Debt Sustainability Code" ^
-      "research_green_deficits\MP and Sovereign Debt Sustainability Code" /E /I
-git add "research_green_deficits/MP and Sovereign Debt Sustainability Code"
+      "Monetary Policy and Sovereign Debt Sustainability" /E /I
+git add "Monetary Policy and Sovereign Debt Sustainability"
 git commit -m "Add Hurtado-Nuno-Thomas (JEEA 2023) replication package"
 git push
 ```

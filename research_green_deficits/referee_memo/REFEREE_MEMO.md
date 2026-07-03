@@ -93,7 +93,11 @@ can only weaken a channel we already find weak-to-negative — reinforcing,
 not undermining, the headline.
 
 **R10. "The welfare result is distributionally opaque."**
-(a) Current: aggregate utilitarian W, asset/income Ginis, bondholder levy.
-(c) Roadmap: consumption-equivalent welfare by wealth/income quintile
-(distribution and value function already stored; small addition), energy- and
-sector-exposure groups after the corresponding blocks exist.
+(a) CLOSED at the wealth margin: consumption-equivalent welfare by baseline
+wealth quintile, top-10%/bottom-50%, delivered for the three damage columns
+(deficit financing regressive in LOW/MED; all-quintile gains in HIGH) and
+across four financing regimes (rebate design flips the incidence: bottom
+half +1.23% vs -2.42% under deficit financing). In the paper as Tables
+"incidence" and "regimes" plus PFig8-9.
+(b) Remaining: income-quintile split (trivial addition), and energy- and
+sector-exposure groups after the corresponding blocks exist (U8).
