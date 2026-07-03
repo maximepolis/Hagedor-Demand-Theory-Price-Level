@@ -102,3 +102,42 @@ estimated). These are reported as sweeps, not point claims.
 3. **r vs asymptote**: with beta=0.96, the computable real-rate window is
    narrow; recalibrating beta upward (e.g. 0.98 annual) widens it and is the
    natural companion of fixing tension 1.
+
+## Full parameter register (editorial-roadmap Step 6)
+
+*One row per parameter: value → source/target → status → sensitivity range
+→ where in code → which outputs depend on it. Statuses as in the header;
+"swept" = reported over a range, never as a point estimate.*
+
+| Parameter | Value | Source / target | Status | Sensitivity range | Code location | Dependent outputs |
+|---|---|---|---|---|---|---|
+| beta* | 0.9296 | debt/annual-GDP = 1.10 (OECD central) | **CALIBRATED** (bisection, verified run) | re-target 0.9–1.3 debt/GDP | `calibrate_beta.m` | all calibrated tables, PFig7–9, 15–16 |
+| Gg_cal | 0.01818 | program = 2% of income (IEA/NGFS-scale flow) | **CALIBRATED** (scale mapping) | 1–4% of income | `main_project_calibrated.m` | nu columns, regimes, channels |
+| D0 LOW/MED/HIGH | 0.02 / 0.06 / 0.20 | DICE (Nordhaus 2017) / DJO+BHM / Bilal–Känzig | **EXTERNALLY DISCIPLINED** (three columns, never averaged) | column design | `main_project_calibrated.m` | Table "calibrated", incidence table |
+| theta_g | 1.2 | NOT yet mapped | **ILLUSTRATIVE — swept** | full-self-financing threshold at ≈1.9 reported | `climate_block.m` | nu, frontier | 
+| q_g | 1.0 | implementation efficiency; Climate-PIMA evidence pending | **ILLUSTRATIVE — swept** (1 / 0.8 / 0.6: nu = 0.563/0.449/0.329) | 0.5–1 | `climate_block*.m` | maturity table, PFig11 |
+| phi_D | (setup value) | climate-induced idiosyncratic risk; no direct estimate located | **ILLUSTRATIVE — swept** | 0 (off) to 2× | `S_green.m` risk rebuild | risk channel of PFig15 |
+| psi_inc | 0 (benchmark) / >0 (extended) | Känzig incidence gradient (to map) | **ILLUSTRATIVE — swept** | 0–2 | `S_green.m` chi(e) | sunspot frontier, exposure terciles |
+| i_ss | 0.04 | policy-regime parameter (nominal anchor) | **ILLUSTRATIVE / policy-regime** | 0.02–0.06 | `setup_params_green.m` | r_cal, all steady states |
+| mu | 0.02 | inflation-target anchor | **ILLUSTRATIVE / policy-regime** | W(mu) grid 0.015–0.06 | `setup_params_green.m` | P*, accommodation exercise |
+| sigma | 2 | standard | **INHERITED** | 1–3 | `setup_params_green.m` | welfare transforms |
+| rho, sig_eps0 | 0.90, 0.20 | earnings-panel standards | **INHERITED** (wealth moments are outputs, not targets — stated) | re-estimate | `make_income_process` | S, Ginis |
+| alpha_I, alpha_F | swept | indexation share, foreign-holder share (Hilscher et al.) | **swept** | 0–1 | `debt_maturity_revaluation.m` | maturity table |
+| delta_m / duration | 1y/5y/10y | OECD average debt duration | **swept** | 1–10y | `debt_maturity_revaluation.m` | duration rows |
+| aY, thA | 0.20, 0.8 | Bom–Ligthart output elasticity (eta_Y printed as check) | **ILLUSTRATIVE — checkable** | eta_Y 0.08–0.12 | `production_block_green.m` | Stage-1 tax-base split |
+| taxbase_rate | 0.30 | average effective tax take | **ILLUSTRATIVE** | 0.2–0.4 | `production_block_green.m` | nu_taxbase |
+| na, ne, Pspan | 500, 7, [0.5,1.3] | numerics | numerical | na=1000 check | `setup_params_green.m` | all |
+| Dynare RANK block | see .mod | quarterly NK standards (kappa_r=100, eps_p=6, phi_b=0.10) | **ILLUSTRATIVE** (diagnostics tier) | regime sweep IS the sensitivity | `green_rank_nk.mod` | PFig13, validation table |
+| Dynare HANK block | see .mod | example-calibration income process (3-state); B=3.96 targets debt/GDP 1.10 | **ILLUSTRATIVE** (tier-1; alignment with 7-state process is future work — stated in the validation file) | — | `green_hank.mod` | PFig14, validation table |
+
+### Critical remaining calibration tasks (unchanged priorities)
+
+1. theta_g ← abatement-cost / public-investment-effectiveness evidence
+   (IEA marginal abatement curves); until then swept with the ≈1.9
+   threshold always reported alongside.
+2. q_g ← Climate-PIMA / public-investment-management efficiency evidence.
+3. phi_D ← climate-induced idiosyncratic income-risk estimates, or remain
+   transparently swept (it now has its own isolated channel in PFig15).
+4. psi_inc ← Känzig-style carbon/energy incidence gradients.
+5. mu, i_ss ← sample-anchored nominal targets, or presented as
+   policy-regime parameters (current treatment).

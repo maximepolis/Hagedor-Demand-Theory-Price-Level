@@ -15,19 +15,19 @@ independently verified — verify before citing in a submission. Never cite an
 | Paper | Role | Mechanism | Relation to project | Gap remaining | Cite in |
 |---|---|---|---|---|---|
 | Hagedorn, *A Demand Theory of the Price Level*, IER 2026 [v: in repo] | **COMPETITOR** | P clears the asset market in incomplete markets; nominal growth pins inflation | the analytical backbone; we add the climate loop and show his nominal-rule uniqueness can fail | no physical state feeding back into S | I, L, M |
-| Kaplan, Nikolakoudis & Violante, *Price Level and Inflation Dynamics in Heterogeneous Agent Economies* [u — verify exact outlet/year] | **COMPETITOR** | HA + nominal debt price-level/inflation dynamics | closest modern HA nominal-debt benchmark; our steady-state object is their long-run anchor | no climate block; no spending-denomination margin | I, L, M |
+| Kaplan, Nikolakoudis & Violante, *Price Level and Inflation Dynamics in Heterogeneous Agent Economies*, NBER WP 31433, 2023 (rev. 2026; no journal version as of 2026-07) [v: web-verified 2026-07-03] | **COMPETITOR** | HA + nominal debt price-level/inflation dynamics | closest modern HA nominal-debt benchmark; our steady-state object is their long-run anchor | no climate block; no spending-denomination margin | I, L, M |
 | Cochrane, *The Fiscal Theory of the Price Level*, Princeton UP 2023 [k] | BLOCK | valuation equation under active fiscal | the contrast theory; our fiscal policy is passive | — | L, M |
 | Woodford, *Fiscal Requirements for Price Stability* (JMCB 2001) [k] | BLOCK | fiscal underpinnings of price stability | regime taxonomy | — | L |
 | Leeper 1991 (JME) [k] | BLOCK | active/passive regime classification | our policy mix is M-active/F-passive | — | L, M |
 | Sargent & Wallace, *Some Unpleasant Monetarist Arithmetic* (1981) + 1975 JPE [k] | BLOCK | missing-anchor indeterminacy; fiscal limits to monetary control | Corollary "missing-anchor corner"; fiscal-space collapse echoes unpleasant arithmetic | — | L, M |
-| Höfer, *Price Levels in Heterogeneous-Agent Models* [u — UNVERIFIED; do not cite until located] | BLOCK? | reported: multiplicity math in HA fiscal-theory settings | would discipline our Proposition 3 statement | verify existence/outlet first | (L after verification) |
+| Höfer, *Price Levels in Heterogeneous-Agent Models*, arXiv:2510.26065, 2025 [v: web-verified 2026-07-03; cite as recent working paper only] | BLOCK? | reported: multiplicity math in HA fiscal-theory settings | would discipline our Proposition 3 statement | verify existence/outlet first | (L after verification) |
 
 ## B. Self-financing deficits / HANK fiscal / safe assets
 
 | Paper | Role | Mechanism | Relation | Gap | Cite in |
 |---|---|---|---|---|---|
 | Angeletos, Lian & Wolf, *Can Deficits Finance Themselves?*, Econometrica 2024 [v] | **COMPETITOR** | non-Ricardian boom + inflation erosion self-finance transitory deficits | we do the permanent-program steady-state version; benchmark finds the erosion channel REVERSED (green disinflation) | permanent programs, endogenous long-run P, climate | I, L, M |
-| Auclert, Rognlie & Straub, *Fiscal and Monetary Policy with Heterogeneous Agents* [u — verify outlet: NBER/handbook] | BLOCK | HANK fiscal-monetary toolkit | transition-dynamics blueprint | — | L |
+| Auclert, Rognlie & Straub, *Fiscal and Monetary Policy with Heterogeneous Agents*, Annual Review of Economics 17 (2025), 539–562; NBER WP 32991 [v: web-verified 2026-07-03] | BLOCK | HANK fiscal-monetary toolkit | transition-dynamics blueprint | — | L |
 | Kaplan, Moll & Violante, AER 2018 [v: bib] | BLOCK | HANK monetary transmission, MPC heterogeneity | household-block realism targets | — | L, C |
 | Auclert, Bardóczy, Rognlie & Straub, Econometrica 2021 [k] | BLOCK | sequence-space Jacobians | the planned HANK transition method | — | L, App |
 | Aiyagari & McGrattan, *The Optimum Quantity of Debt* (JME 1998) [k] | BLOCK/CALIB | welfare-optimal debt with incomplete markets | our W(mu) exercise is a nominal-growth analog | — | L, M |
@@ -56,16 +56,16 @@ independently verified — verify before citing in a submission. Never cite an
 | Burke, Hsiang & Miguel (Nature 2015) [k] | CALIB | nonlinear temperature damages | MEDIUM damage discipline | — | C |
 | Bilal & Känzig (NBER 32450) [v] | CALIB | global-temperature damages, much larger | HIGH damage robustness case | — | C |
 | Del Negro, di Giovanni & Dogra, NY Fed SR 1053 [v] | **COMPETITOR** (nominal side) | multi-sector NK: is transition inflationary? | short-run sticky-price complement to our long-run result; our sign can differ | steady-state anchor absent there | I, L |
-| Nakov & Thomas, *Climate-Conscious Monetary Policy* [u — verify] | BLOCK | MP with climate externalities | regime-comparison design | verify outlet | (L) |
+| Nakov & Thomas, *Climate-Conscious Monetary Policy*, JPE Macroeconomics (ahead of print, doi:10.1086/740430; earlier ECB WP 2845) [v: web-verified 2026-07-03] | BLOCK | MP with climate externalities | regime-comparison design | verify outlet | (L) |
 | Economides & Xepapadeas [u — verify] | BLOCK | NK + climate stabilization | same | verify | (L) |
-| Sahuc, Smets & Vermandel, *The New Keynesian Climate Model* [u — verify] | BLOCK | estimated NK climate | Dynare-skeleton benchmark | verify | (L) |
+| Sahuc, Smets & Vermandel, *The New Keynesian Climate Model*, Banque de France WP 977, 2024 [v: web-verified 2026-07-03] | BLOCK | estimated NK climate | Dynare-skeleton benchmark | verify | (L) |
 
 ## E. Climate fiscal sustainability / green fiscal rules
 
 | Source | Role | Relation | Cite in |
 |---|---|---|---|
-| IMF, *Public Debt Dynamics during the Climate Transition* [u — institutional; locate exact WP/FM chapter] | **COMPETITOR** (policy) | argues spending-heavy strategies worsen debt absent carbon pricing; we test this with revaluation + endogenous safe-asset demand — benchmark partially overturns it (nu=0.6 of cost self-financed) and partially confirms it (theta_g below ~0.5 implies nu<0: worse than sticker price) | I, L, POLICY |
-| IMF, *Green Fiscal Rules?* + Fiscal Monitor *Climate Crossroads* [u — institutional] | POLICY | rule-design competitor; our anchor-insulation corollary is a concrete rule proposal | L, POLICY |
+| Garcia-Macia, Lam & Nguyen, *Public Debt Dynamics During the Climate Transition*, IMF WP/24/71, 2024 [v: web-verified 2026-07-03] | **COMPETITOR** (policy) | argues spending-heavy strategies worsen debt absent carbon pricing; we test this with revaluation + endogenous safe-asset demand — benchmark partially overturns it (nu=0.6 of cost self-financed) and partially confirms it (theta_g below ~0.5 implies nu<0: worse than sticker price) | I, L, POLICY |
+| Caselli, Lagerborg & Medas, *Green Fiscal Rules? Challenges and Policy Alternatives*, IMF WP/24/125, 2024 [v: web-verified 2026-07-03]; Fiscal Monitor *Climate Crossroads* [u — institutional] | POLICY | rule-design competitor; our anchor-insulation corollary is a concrete rule proposal | L, POLICY |
 | Banque de France (Dees & Seghini), *The Green Transition and Public Finances* [u] | POLICY | European fiscal framing | L |
 | IEA *Net Zero by 2050*; NGFS scenarios; OECD green finance [k: institutional] | CALIB | program-size calibration for Gg (percent-of-GDP green investment paths) | C |
 
@@ -74,7 +74,7 @@ independently verified — verify before citing in a submission. Never cite an
 | Paper | Role | Relation | Cite in |
 |---|---|---|---|
 | Känzig, *Unequal Consequences of Carbon Pricing* (NBER 31221) [v] | CALIB/VALID | disciplines the incidence gradient psi; template for E3 event study | I, L, C, E |
-| Douenne, Hummel & Pedroni [u — verify outlet] | BLOCK | optimal climate fiscal policy with heterogeneity | (L) |
+| Douenne, Hummel & Pedroni, *Optimal Fiscal Policy in a Climate-Economy Model with Heterogeneous Households*, Economic Journal (2026, advance article, doi:10.1093/ej/ueag006; CEPR DP19151) [v: web-verified 2026-07-03] | BLOCK | optimal climate fiscal policy with heterogeneity | (L) |
 | Fried, Novan & Peterman (RED 2018) [v: bib] | CALIB | carbon-tax distributional incidence | C |
 | ECB/BoE/CEPR household energy-exposure evidence [k: family] | VALID | energy-share heterogeneity (PROPOSED block) | E |
 
@@ -83,8 +83,8 @@ independently verified — verify before citing in a submission. Never cite an
 | Source | Role | Relation | Cite in |
 |---|---|---|---|
 | Hurtado, Nuño & Thomas, *Monetary Policy and Sovereign Debt Sustainability*, JEEA 21(1) 2023 [v — replication package in `MP and Sovereign Debt Sustainability Code/`] | BLOCK/CALIB | inflation as state-contingent partial default on long-term nominal debt without commitment; disciplines the credibility limits of the revaluation channel and supplies the bond-pricing template for the U5 maturity extension; their repayment region connects to our fiscal-space-collapse result | I, L, M (maturity), referee memo R9 |
-| BIS, *Decoding Climate-Related Risks in Sovereign Bond Pricing* [u — institutional] | VALID | sovereign-yield discipline for the fiscal-capacity channel | E |
-| IMF, *Sovereign Climate Debt Instruments* [u] | POLICY | green/cat bond institutional detail | L |
+| Anyfantaki, Blix Grimaldi, Madeira, Malovaná & Papadopoulos, *Decoding Climate-Related Risks in Sovereign Bond Pricing: A Global Perspective*, BIS WP 1275, 2025 [v: web-verified 2026-07-03] | VALID | sovereign-yield discipline for the fiscal-capacity channel | E |
+| Ando, Fu, Roch & Wiriadinata, *Sovereign Climate Debt Instruments*, IMF Staff Climate Note 2022/004 [v: web-verified 2026-07-03] | POLICY | green/cat bond institutional detail | L |
 | ECB/FSB nature-risk reports; NGFS documentation [k: institutional] | POLICY | optional biodiversity extension | L |
 
 ## Direct competitors vs building blocks (summary)
