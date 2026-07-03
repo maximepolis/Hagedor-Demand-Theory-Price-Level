@@ -163,3 +163,22 @@ that crashed at X2 and is fixed as of this commit), not from the paper draft.*
   (hank_irfs_summary.txt / hank_tier1_validation.txt) PENDING
   transcription -- the paper's tier-1 subsection reports figure + scope
   only, no numbers.
+
+- Channels run `main_project_channels` (na=500, 51.2 s, VERIFIED):
+  safe-asset decomposition dlnP = -5.72% = tax -7.68% + damage-level
+  -1.59% + risk +2.31% + interaction +1.24%; financing swap (levy vs
+  lump-sum) +8.74%. KEY FINDING: the two climate channels have OPPOSITE
+  signs -- avoided damages are themselves disinflationary (income-level
+  effect raises S), only the risk channel pushes toward inflation.
+  Extended welfare: DEFICIT regressive on every cut (income-q -2.79..-1.04,
+  constrained -2.98% vs -1.77%, high-MPC -2.54% vs -1.77%, agg -1.97%);
+  REBATE reverses every ordering (bottom income +1.72%, constrained
+  +1.89%, high-MPC +1.35%, agg +0.73%). Income-q middle cell hit a
+  7-state boundary in the archived run; exact fractional split now
+  implemented (re-run fills it; other cells unaffected).
+- U7 tier-1 HANK numeric summary TRANSCRIBED (beta=0.9796, four regimes
+  solved): deficit financing flips impact inflation POSITIVE (+2.18%
+  WEAK .. +0.07% AGGRESSIVE annualized), debt +0.102 by 40q; real green
+  path rule-independent. In the paper (transition section) and
+  appendix/TRANSITION_VALIDATION.md. New TAYLORBAL regime (PHIB=0.75)
+  added to isolate the financing component within HANK -- run pending.

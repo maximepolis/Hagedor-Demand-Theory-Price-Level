@@ -47,6 +47,15 @@
 @#ifndef PSIG
   @#define PSIG = 0.0
 @#endif
+@#ifndef PHIB
+  @#define PHIB = 0.10
+@#endif
+// PHIB is the FINANCING-SPEED margin: 0.10 = slow debt stabilization
+// (deficit-financed on impact, the benchmark); 0.75 = near-balanced-budget
+// financing of the same program. Comparing the two isolates how much of
+// the HANK inflation/redistribution response is due to DEFICIT financing
+// rather than to the program itself -- the paper's core question, in the
+// dynamic tier.
 
 // Declare heterogeneity dimension
 heterogeneity_dimension households;
@@ -103,7 +112,7 @@ phi     = @{PHIPI};
 psig    = @{PSIG};
 r_ss    = 0.005;
 rho_g   = 0.995;   // quasi-permanent program (half-life ~ 35 years)
-phi_b   = 0.10;    // slow debt-stabilizing tax response => deficit financing on impact
+phi_b   = @{PHIB}; // debt-stabilizing tax speed: 0.10 deficit / 0.75 balanced
 // climate block: identical to green_rank_nk.mod (U6), quarterly
 delta_g = 0.025;
 theta_g = 1.2;
