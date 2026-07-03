@@ -12,7 +12,8 @@ Companion machine-written files (regenerated on every run):
 |---|---|---|
 | U6 `green_rank_nk.mod` | RANK/NK TRANSITION DIAGNOSTIC | not the DTPL price-level mechanism; inflation from NKPC + policy rule |
 | U7 tier 1 `green_hank.mod` | TIER-1 LINEARIZED HANK IRF | not nonlinear DTPL price-level determination; a bridge, not the final answer |
-| U7 tier 2 (planned) | NONLINEAR HANK-DTPL TRANSITION | NOT YET IMPLEMENTED (HANK_TRANSITION_PLAN.md) |
+| U7 tier 1b `green_hank2.mod` | TIER-1 LINEARIZED HANK IRF (two-asset) | FIRST RUN OSCILLATORY + crash -- NOT REPORTABLE until the accuracy protocol passes |
+| U7 tier 2 `solve_hank_dtpl_transition.m` | NONLINEAR HANK-DTPL TRANSITION | v1 IMPLEMENTED, run pending; a non-converged path is not a result |
 
 ## Validation criteria (enforced by the drivers, unconverged paths discarded)
 
@@ -111,3 +112,33 @@ PFig17, hank2_irfs_summary.txt + hank2_validation.txt. Grids ne=3, nb=10,
 na=20 (verified-example values — COARSE, magnitudes indicative);
 NE/RHOE/SIGE macro-defines expose the income process for future
 alignment with the MATLAB package's 7-state process.
+
+## Tier-1b accuracy incident (recorded, not hidden)
+
+First tier-1b run: WEAK/TAYLOR/GREENACCOM solved, final regime crashed
+MATLAB, and the IRFs showed a pronounced oscillatory pattern -- a
+numerical red flag, treated as such. Diagnosis (ranked): (1) shock
+persistence 0.995 (half-life 138q) too close to the 300-quarter
+sequence-space truncation horizon => reflection artifacts; (2) coarse
+example grids (nb=10, na=20); (3) near-unit-root debt under slow
+financing interacting with (1). Fixes in green_hank2.mod +
+run_green_hank2.m: rho_g -> 0.98 with THORIZON=400 default; NB/NA/THORIZON
+defines; oscillation diagnostic (sign flips of the differenced IRF over
+q20-120, tol 8) marking suspect paths NOT REPORTABLE; refinement re-solve
+(THORIZON=600, nb=20, na=40) with a 10% max-relative-deviation PASS rule;
+memory hygiene between solves + REGIME_ONLY single-session mode with
+cross-session accumulation for the crash. REPORTING RULE: no tier-1b
+number enters the paper unless oscillation check AND refinement pass
+both pass. The incident and the protocol are disclosed in the paper.
+
+## Tier-2 validation criteria (for the pending first run)
+
+1. Market-clearing residuals |S_t - b_t|/b_t reported at EVERY date; the
+   converged tolerance is 2e-3; a non-converged path is labeled so.
+2. Boundary consistency: phat_1..T must start from the announcement jump
+   and end at the green steady-state price (terminal condition pinned).
+3. Government budget holds by construction at every trial path
+   (tau_t = rbar*b_t + g_t) -- not a residual, an identity.
+4. The t=1 revaluation and the steady-state comparison nu_reval must
+   agree in sign (cross-check against the S4 decomposition).
+5. FAST pass (na=150, T=100) before the full run (na=500, T=150).

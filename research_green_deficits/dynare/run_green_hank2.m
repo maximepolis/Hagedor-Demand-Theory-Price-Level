@@ -52,6 +52,22 @@ regimes = struct( ...
               '-DPHIPI=1.5 -DPSIG=0.03', ...
               '-DPHIPI=1.5 -DPHIB=0.75'});
 
+% CRASH RESILIENCE: the first run hard-crashed MATLAB in the final regime
+% (repeated heterogeneity solves in one session are memory-heavy). If that
+% recurs, run ONE regime per MATLAB session:
+%     >> REGIME_ONLY = 'TAYLORBAL'; run_green_hank2
+% results accumulate in ../output/hank2_green_irfs.mat across sessions.
+if exist('REGIME_ONLY', 'var') && ~isempty(REGIME_ONLY)
+    keep = strcmpi({regimes.name}, REGIME_ONLY);
+    if any(keep), regimes = regimes(keep); end
+    fprintf('*** single-regime mode: %s ***\n', regimes(1).name);
+end
+accfile = fullfile(projdir, 'output', 'hank2_green_irfs.mat');
+PREV = struct();
+if exist(accfile, 'file') == 2
+    try, L = load(accfile); PREV = L.RES; catch, end %#ok<NOCOM>
+end
+
 vars_keep = {'Y','pi','i','r','rb','ra','bg','tax','gg','kg','d','p','K','I','w','N'};
 RES = struct();
 CAL = struct();
@@ -60,6 +76,9 @@ ok  = false(1, numel(regimes));
 for rgm = 1:numel(regimes)
     fprintf('\n===== HANK2 regime %s =====\n', regimes(rgm).name);
     try
+        % memory hygiene between heavy heterogeneity solves (the first
+        % run crashed in the final regime)
+        close all; clear functions; %#ok<CLFUNC>
         nm = sprintf('grn2_%s', lower(regimes(rgm).name));
         copyfile('green_hank2.mod', [nm '.mod']);
         if exist(['+' nm], 'dir'), rmdir(['+' nm], 's'); end
@@ -110,8 +129,101 @@ for rgm = 1:numel(regimes)
     end
 end
 
-if ~any(ok)
+% merge results from previous sessions (single-regime crash-recovery mode)
+pf = fieldnames(PREV);
+for k = 1:numel(pf)
+    if ~isfield(RES, pf{k})
+        RES.(pf{k}) = PREV.(pf{k});
+        hit = strcmpi({regimes.name}, pf{k});
+        if any(hit), ok(hit) = true; end
+        fprintf('  [restored %s from previous session]\n', pf{k});
+    end
+end
+
+if ~any(ok) && isempty(fieldnames(RES))
     error('No HANK2 regime solved; inspect the Dynare messages above.');
+end
+
+% ---- OSCILLATION DIAGNOSTIC (accuracy protocol, step 1) ----
+% A well-resolved IRF to a monotone quasi-permanent shock should have few
+% sign changes in its first differences beyond the impact quarters. Count
+% them per variable over quarters 20..120; an oscillation score > OSC_TOL
+% flags the path as numerically suspect -- suspect regimes are still
+% SAVED (for diagnosis) but marked NOT REPORTABLE in the validation file.
+OSC_TOL = 8;
+OSC = struct();
+rn = fieldnames(RES);
+for k = 1:numel(rn)
+    s = RES.(rn{k});
+    vn = fieldnames(s);
+    worst = 0; worstv = '';
+    for v = 1:numel(vn)
+        sc = osc_score(s.(vn{v}));
+        if sc > worst, worst = sc; worstv = vn{v}; end
+    end
+    OSC.(rn{k}) = struct('score', worst, 'var', worstv, ...
+                         'suspect', worst > OSC_TOL);
+    if worst > OSC_TOL
+        warning('run_green_hank2:oscillation', ...
+            ['Regime %s: oscillation score %d on %s (tol %d) -- path is ' ...
+             'numerically SUSPECT; not reportable.'], ...
+            rn{k}, worst, worstv, OSC_TOL);
+    else
+        fprintf('  [%s oscillation check passed: score %d (%s)]\n', ...
+            rn{k}, worst, worstv);
+    end
+end
+
+% ---- ACCURACY REFINEMENT PASS (accuracy protocol, step 2) ----
+% Re-solve the TAYLOR regime with a LONGER truncation horizon (600 vs 400)
+% and FINER asset grids (nb 10->20, na 20->40), then compare IRFs. If the
+% baseline solution is accurate, the two should agree closely; a large gap
+% means the baseline grids/horizon are driving the results. Skipped in
+% single-regime mode (set RUN_ACCURACY = true to force).
+run_acc = isfield(RES, 'TAYLOR') && ...
+    ~(exist('REGIME_ONLY','var') && ~isempty(REGIME_ONLY));
+if exist('RUN_ACCURACY', 'var') && RUN_ACCURACY, run_acc = isfield(RES,'TAYLOR'); end
+ACC = struct('ran', false);
+if run_acc
+    fprintf('\n===== HANK2 accuracy pass (TAYLOR, refined) =====\n');
+    try
+        close all; clear functions; %#ok<CLFUNC>
+        nm = 'grn2_taylor_acc';
+        copyfile('green_hank2.mod', [nm '.mod']);
+        if exist(['+' nm], 'dir'), rmdir(['+' nm], 's'); end
+        if exist(nm, 'dir'), rmdir(nm, 's'); end
+        eval(sprintf(['dynare %s -DPHIPI=1.5 -DTHORIZON=600 -DNB=20 ' ...
+                      '-DNA=40 noclearall nolog'], nm));
+        irfs = [];
+        if exist('oo_', 'var') && isfield(oo_, 'irfs') && ~isempty(fieldnames(oo_.irfs))
+            irfs = oo_.irfs;
+        elseif exist('oo_', 'var') && isfield(oo_, 'heterogeneity') ...
+                && isfield(oo_.heterogeneity, 'irfs')
+            irfs = oo_.heterogeneity.irfs;
+        end
+        if ~isempty(irfs)
+            fnn = fieldnames(irfs);
+            base = RES.TAYLOR;
+            ACC.ran = true; ACC.maxdev = 0; ACC.report = {};
+            for v = 1:numel(vars_keep)
+                if ~isfield(base, vars_keep{v}), continue; end
+                hit = find(strcmpi(fnn, [vars_keep{v} '_e_g']), 1);
+                if isempty(hit), continue; end
+                fine = irfs.(fnn{hit})(:).';
+                T = min(120, min(numel(fine), numel(base.(vars_keep{v}))));
+                bb = base.(vars_keep{v})(1:T); ff = fine(1:T);
+                scale = max(max(abs(bb)), 1e-9);
+                dev = max(abs(bb - ff)) / scale;
+                ACC.report{end+1} = sprintf('%-6s rel.dev %.3f', vars_keep{v}, dev);
+                ACC.maxdev = max(ACC.maxdev, dev);
+            end
+            ACC.pass = ACC.maxdev < 0.10;   % 10% relative agreement over 120q
+            fprintf('  [accuracy pass: max relative deviation %.3f -> %s]\n', ...
+                ACC.maxdev, ternary_str(ACC.pass, 'PASS', 'FAIL'));
+        end
+    catch ME
+        warning('run_green_hank2:acc', 'Accuracy pass failed: %s', ME.message);
+    end
 end
 
 % ---- PFig17 ----
@@ -140,7 +252,7 @@ end
 save_all_figs(fh, 'PFig17_hank2_green_irfs', pg);
 fprintf('\n  [saved] PFig17_hank2_green_irfs\n');
 
-save(fullfile(projdir, 'output', 'hank2_green_irfs.mat'), 'RES', 'regimes', 'ok');
+save(fullfile(projdir, 'output', 'hank2_green_irfs.mat'), 'RES', 'regimes', 'ok', 'OSC', 'ACC');
 
 % ---- summary ----
 sf = fullfile(pg.tabdir, 'hank2_irfs_summary.txt');
@@ -183,8 +295,44 @@ if fid > 0
             regimes(rgm).name, 'yes', numel(s.Y), cb.beta_ss, cb.vphi, cb.chi1, ...
             s.pi(1), s.Y(1), s.bg(min(40,end)));
     end
-    fprintf(fid, '\nIRFs: one-std e_g shock (0.01 ~ 1%% of output), rho_g=0.995.\n');
+    fprintf(fid, '\nIRFs: one-std e_g shock (0.01 ~ 1%% of output), rho_g=0.98\n');
+    fprintf(fid, '(reduced from 0.995 after the first run: persistence too close to the\n');
+    fprintf(fid, 'truncation horizon produces reflection/oscillation artifacts).\n');
+    fprintf(fid, '\n--- ACCURACY PROTOCOL ---\n');
+    rn = fieldnames(OSC);
+    for k = 1:numel(rn)
+        fprintf(fid, 'oscillation %-11s score %2d on %-5s -> %s\n', rn{k}, ...
+            OSC.(rn{k}).score, OSC.(rn{k}).var, ...
+            ternary_str(OSC.(rn{k}).suspect, 'SUSPECT (not reportable)', 'ok'));
+    end
+    if ACC.ran
+        fprintf(fid, 'refinement (TAYLOR, THORIZON 600, nb 20, na 40): max rel. dev %.3f -> %s\n', ...
+            ACC.maxdev, ternary_str(ACC.pass, 'PASS', 'FAIL (baseline grids/horizon drive results)'));
+        for k = 1:numel(ACC.report), fprintf(fid, '  %s\n', ACC.report{k}); end
+    else
+        fprintf(fid, 'refinement pass: NOT RUN this session\n');
+    end
+    fprintf(fid, ['\nREPORTING RULE: no tier-1b number enters the paper unless the\n' ...
+        'oscillation check and the refinement pass BOTH pass.\n']);
     fclose(fid);
     fprintf('  [saved] %s\n', vf);
 end
 fprintf('Elapsed: %.1f s\n', toc(t0));
+
+% -------------------------------------------------------------------------
+function sc = osc_score(v)
+% number of sign changes in the first differences of an IRF over quarters
+% 20..120 (ignoring numerically negligible wiggles relative to path scale)
+    v = v(:).';
+    T = min(120, numel(v));
+    if T < 25, sc = 0; return; end
+    dv = diff(v(20:T));
+    scale = max(abs(v(1:T)));
+    dv(abs(dv) < 1e-6 * max(scale, 1e-12)) = 0;
+    ss = sign(dv); ss = ss(ss ~= 0);
+    sc = sum(abs(diff(ss)) > 0);
+end
+
+function s = ternary_str(cond, a, b)
+    if cond, s = a; else, s = b; end
+end

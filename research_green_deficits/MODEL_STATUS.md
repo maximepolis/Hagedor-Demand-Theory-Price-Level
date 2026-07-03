@@ -197,3 +197,22 @@ that crashed at X2 and is fixed as of this commit), not from the paper draft.*
   run_green_hank2.m driver, PFig17). RUN PENDING. E4 estimates now
   persisted by empirical_panel.m to empirical_panel_summary.txt (the
   first run printed to console only -- re-run or paste the console line).
+
+- Tier-1b FIRST RUN: three regimes solved, final regime CRASHED MATLAB,
+  IRFs visibly OSCILLATORY -- flagged NOT REPORTABLE. Response
+  implemented: accuracy protocol in run_green_hank2.m (oscillation
+  diagnostic over q20-120, refinement re-solve at THORIZON=600 +
+  doubled grids with 10% agreement rule), rho_g 0.995 -> 0.98 (persistence
+  vs truncation-horizon reflection artifacts), memory hygiene between
+  solves, single-regime crash-recovery mode (REGIME_ONLY) with
+  cross-session result accumulation. Disclosed in the paper (transition
+  section) with the reporting rule.
+- U7 TIER 2 v1 IMPLEMENTED: solve_hank_dtpl_transition.m +
+  hh_bellman_step.m + main_project_transition.m -- the nonlinear
+  HANK-DTPL transition (price-level path as unknown; backward exact
+  Bellman induction from the green terminal ss incl. risk channel and
+  incidence gradient; exact forward distribution; damped multiplicative
+  fixed point, adaptive damping, trust region, residuals reported).
+  Experiments: nominal vs indexed announcement (dynamic anchor
+  insulation). In the paper as subsection "The nonlinear HANK-DTPL
+  transition" (labeled: numbers only after a converged run). RUN PENDING.
