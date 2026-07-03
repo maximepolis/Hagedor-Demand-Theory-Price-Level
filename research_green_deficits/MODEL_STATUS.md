@@ -124,6 +124,19 @@ that crashed at X2 and is fixed as of this commit), not from the paper draft.*
   complete). Per standard #10, multiplicity is demoted in the text to a
   sufficient-condition theorem: the calibrated benchmark does NOT generate
   it, and the paper says so.
+- Corrected C4 rerun (na=500, 132.1 s) after the CE-transform sign fix:
+  incidence now consistent with C3 welfare levels. Under deficit financing
+  the program is REGRESSIVE at the steady-state margin: LOW quintiles
+  [-3.97..-2.10]%, MEDIUM [-2.96..-1.29]%; HIGH all-quintile GAINS
+  [+1.86..+2.41]% with the poorest gaining least. Written into the paper
+  (Table "incidence").
+- Financing regimes `main_project_regimes` (na=500, 31.3 s): baseline
+  P0=0.8246; R1 deficit nu=0.568 (reval -0.060), R2 carbon levy nu=0.668
+  (reval +0.033), R3 levy+rebate nu=0.759 (reval +0.119), R4 mixed
+  nu=0.620. SIGN of the revaluation channel flips with the financing mix
+  (Proposition "financing design"); the rebate design near-Pareto-dominates
+  deficit financing (bottom50 +1.23% vs -2.42%, top10 -0.13% vs -1.15%).
+  Written into the paper (Table "regimes", Result 5, Proposition 6).
 - Calibrated pass `main_project_calibrated` (na=500): completed in 147 s.
   beta* = 0.9296 (bisection to debt/GDP = 1.10, converged); program 2% of
   income (Gg_cal = 0.01818). Self-financing by damage column: LOW (DICE
