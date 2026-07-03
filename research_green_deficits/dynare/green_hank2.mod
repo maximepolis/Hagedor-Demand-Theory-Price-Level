@@ -1,6 +1,12 @@
 /*
  * GREEN_HANK2.MOD -- U7 tier 1b: TWO-ASSET green HANK (extended tier).
  *
+ * ACCURACY STATUS: the FIRST run (rho_g=0.995, horizon 300, example
+ * grids) produced OSCILLATORY IRFs and a crash in the final regime; no
+ * tier-1b number enters the paper until the accuracy protocol in
+ * run_green_hank2.m passes (oscillation diagnostic + horizon/grid
+ * refinement comparison). See dynare/README.md 'tier-1b accuracy'.
+ *
  * STATUS: IMPLEMENTED; run pending on the user's machine (requires the
  * same Dynare heterogeneity build that ran heterogeneity/hank_two_assets_
  * steady_state.mod -- this file follows that verified example closely).
@@ -58,6 +64,28 @@
 @#endif
 @#ifndef SIGE
   @#define SIGE = 0.92
+@#endif
+// NUMERICAL-ACCURACY DEFINES (oscillation protocol; see hank2_accuracy):
+// NB/NA size the liquid/illiquid grids (defaults = the verified example's
+// COARSE values); THORIZON is the sequence-space truncation horizon.
+// RHOG sets program persistence: the first run used 0.995 (half-life 138
+// quarters), which sits too close to the 300-quarter truncation horizon
+// -- a classic source of end-of-horizon reflection/oscillation artifacts
+// in sequence-space solutions. Default now 0.98 (half-life ~34 quarters,
+// still quasi-permanent over the 120-quarter plot window) with
+// THORIZON=400; the accuracy pass re-solves at THORIZON=600 and refined
+// grids and compares.
+@#ifndef NB
+  @#define NB = 10
+@#endif
+@#ifndef NA
+  @#define NA = 20
+@#endif
+@#ifndef THORIZON
+  @#define THORIZON = 400
+@#endif
+@#ifndef RHOG
+  @#define RHOG = 0.98
 @#endif
 
 // Declare heterogeneity dimension
@@ -139,7 +167,7 @@ omega = 0.005;
 phi  = @{PHIPI};
 psig = @{PSIG};
 r_ss = 0.0125;
-rho_g = 0.995;
+rho_g = @{RHOG};
 phi_b = @{PHIB};
 lamB  = 1.04/2.8;   // liquid share of government debt (example: Bh/Bg)
 // climate block: same parameters as the U6/U7 tiers (quarterly)
@@ -208,8 +236,8 @@ sig_e = @{SIGE};
 initial_guess.shocks.grids.e = grid_e;
 initial_guess.shocks.Pi.e = Pi_e;
 
-nb = 10;
-na = 20;
+nb = @{NB};
+na = @{NA};
 a_max = 4000;
 b_max = 50;
 grid_a = logspace(log10(0.25), log10(a_max+0.25), na)-0.25;
@@ -361,7 +389,7 @@ heterogeneity_compute_steady_state(variable = initial_guess,
 //==========================================================================
 // STEP 2: Linearized solution via sequence-space Jacobians
 //==========================================================================
-heterogeneity_solve(truncation_horizon = 300);
+heterogeneity_solve(truncation_horizon = @{THORIZON});
 
 //==========================================================================
 // STEP 3: IRFs to the green-investment shock

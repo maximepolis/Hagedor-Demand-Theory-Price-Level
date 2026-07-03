@@ -109,7 +109,13 @@ First, the \emph{fiscal} question: how much of a permanent, debt-financed
 green investment program pays for itself --- and through which channels?
 Second, the \emph{monetary} question: what does the program do to the price
 level, and can the interaction between climate damages and nominal budgets
-undermine nominal determinacy itself?
+undermine nominal determinacy itself? Both are the same question about one
+economic object: \emph{green public investment changes the state-contingent
+demand for the nominal public liabilities that finance it} --- through the
+damages it avoids, the idiosyncratic risk it removes, and the taxes it
+requires --- so the price level, the real fiscal burden, and the
+distribution of the burden are jointly determined, and none can be computed
+by the deficit accounting that currently frames the policy debate.
 
 Our framework combines four building blocks that have not been assembled
 before. From \citet{hagedorn2026dtpl} we take the determination of the price
@@ -1483,8 +1489,9 @@ one-percent-of-output program) delivers the tier's key message in two
 comparisons. \emph{Across monetary rules}, impact inflation is $+2.18\%$
 annualized under \textsc{weak}, $+0.31\%$ under \textsc{taylor}, $+0.07\%$
 under \textsc{aggressive}, $+0.53\%$ under \textsc{greenaccom}, with
-output up $+0.44\%$ on impact --- positive throughout, against impact
-deflation in the tax-financed, ramped RANK experiment of
+output up half a percent of its steady-state level on impact ($+0.0044$
+in levels against $\bar Y = 0.90$) --- positive throughout, against
+impact deflation in the tax-financed, ramped RANK experiment of
 Section~\ref{subsec:ranktrans} --- and the real green path is again
 rule-independent (green capital $+0.205$, damages $-0.0039$ after 40
 quarters, identical to three decimals across all regimes). \emph{Within
@@ -1519,9 +1526,114 @@ transition.}
 \label{fig:pfig14}
 \end{figure}}
 
+\paragraph{A two-asset tier and its accuracy protocol.} The replication
+package also implements a two-asset extension of the HANK tier
+(liquid nominal bonds versus illiquid equity with convex
+portfolio-adjustment costs, sticky wages and prices, investment with
+Tobin's $Q$, and endogenous government debt whose liquid tranche scales
+with the debt stock --- so that a deficit-financed program changes the
+\emph{supply of liquid nominal safe assets}, the dynamic counterpart of
+the $B/P$ margin at the heart of the model). We flag a numerical finding
+rather than hide it: the first solution of this tier produced visibly
+\emph{oscillatory} impulse responses. The likely causes are generic to
+sequence-space methods --- shock persistence ($0.995$) too close to the
+truncation horizon (300 quarters), which produces reflection artifacts,
+compounded by the coarse benchmark asset grids of the reference
+implementation --- and the package now enforces an explicit accuracy
+protocol: an oscillation diagnostic (sign changes of the differenced
+response beyond the impact phase), reduced shock persistence with a
+longer horizon, and a full refinement re-solve (double grid densities,
+horizon 600) that must agree with the baseline to within ten percent
+before any number from this tier can be reported. No two-asset result
+appears in this paper; the tier is disclosed because a solved-but-wrong
+impulse response is worse than an honest gap. [TIER-1b: IMPLEMENTED,
+accuracy protocol pending.]
+
+% --------------------------------------------------------------------------
+\subsection{The nonlinear HANK-DTPL transition}\label{subsec:tier2}
+
+[NONLINEAR HANK-DTPL TRANSITION; machinery IMPLEMENTED (v1); numbers
+enter only after a converged, residual-verified run.] The tiers above
+borrow their inflation dynamics from a Phillips curve. The paper's own
+mechanism makes a starker prediction about the transition, and the
+package now computes it. At $t=1$ the government unexpectedly announces
+the permanent program; thereafter foresight is perfect. The unknown is
+the \emph{price-level path} $\{P_t\}_{t=1}^{T}$: at every date the price
+level must clear the asset market,
+\[
+S_t\bigl(\{r_s, \tau_s, D_s\}_{s \ge t};\, V_T,\, \Omega_t\bigr)
+\;=\; \frac{B_t}{P_t}, \qquad
+1 + r_t = (1+i^{ss})\,\frac{P_{t-1}}{P_t},
+\]
+where $S_t$ is exact aggregate asset demand from the household problem
+solved \emph{backward} from the green terminal steady state under the
+time-varying taxes, damages, and realized real returns implied by the
+trial price path, and the wealth distribution $\Omega_t$ rolls
+\emph{forward} from the pre-announcement stationary distribution. There
+is no Phillips curve and no policy rule for inflation anywhere in this
+computation: the inflation path \emph{is} the repricing of the nominal
+debt stock against precautionary asset demand, period by period, and the
+$t=1$ jump of $P_1$ against the pre-announcement price level is the
+surprise revaluation of outstanding nominal positions --- the paper's
+channel realized along a path rather than compared across steady states.
+Stationarizing by the nominal-growth trend $(1+\mu)^t$ makes the system
+autonomous; the terminal condition pins $\hat{P}_T$ at the green
+steady-state price level, and the government budget holds by construction
+at every trial path ($\tau_t = \bar r\, b_t + g_t$). The solver is a
+damped multiplicative fixed point on the price path (excess asset demand
+at $t$ raises $P_t$), with adaptive damping, a per-iteration trust
+region, and the market-clearing residuals reported at every date; a
+non-converged path is returned as such and cannot be presented as a
+result. Each iteration costs $T$ exact Bellman steps plus $T$
+distribution pushes on the full $(a,e)$ grids --- deliberately the
+computationally heaviest object in the package. Two experiments run by
+default: the \emph{nominal appropriation} (the anchor-exposed design) and
+the \emph{indexed mandate} (the anchor-insulated design of
+Proposition~\ref{prop:insulation}); the comparison of their announcement
+jumps is the dynamic version of the anchor-insulation result, and the
+model's central untested prediction --- that a credible green
+announcement produces \emph{disinflation on impact} under deficit
+finance --- becomes a computed, sign-testable object
+(Section~\ref{sec:empirics}, E3).
+
+\pfigguard{PFig18_dtpl_transition.pdf}{%
+\begin{figure}[ht]\centering
+\includegraphics[width=0.95\textwidth]{PFig18_dtpl_transition.pdf}
+\caption{The nonlinear HANK-DTPL transition: stationarized price level,
+inflation, real debt versus asset demand, green capital, damages, and
+market-clearing residuals, for the nominal-appropriation and
+indexed-mandate designs. Generated by
+\texttt{main\_project\_transition}; reported only if converged
+(residuals in the last panel).}
+\label{fig:pfig18}
+\end{figure}}
+
 % ==========================================================================
 \section{Empirical evidence}\label{sec:empirics}
 % ==========================================================================
+
+The empirical strategy follows from what the theory does and does not
+pin down, and we state its logic before its results. The model makes
+three kinds of claims with three different evidentiary standards. First,
+an \emph{anchor} claim (Lemma~\ref{lem:anchor}): long-run inflation
+equals the growth of nominal fiscal aggregates relative to real output,
+slope one, no free parameter --- directly testable in cross-country
+panels, and tested below (E1, E4). Second, a \emph{sign} claim unique to
+this mechanism: under deficit finance a credible green investment
+announcement is \emph{disinflationary} (it raises safe-asset demand),
+whereas every sticky-price transition model of the green transition we
+are aware of predicts inflation or neutrality --- so announcement-window
+breakeven-inflation responses around major green fiscal events can
+discriminate between the two mechanism classes (E3), and the nonlinear
+transition of Section~\ref{subsec:tier2} turns that sign into a computed
+path. Third, a \emph{design} claim: nominal appropriations and indexed
+mandates behave differently for determinacy
+(Proposition~\ref{prop:insulation}), which motivates a purpose-built
+registry of green budget denominations (E2) --- to our knowledge not
+assembled anywhere --- rather than an off-the-shelf dataset. We claim
+causal identification for none of these; the empirical layer validates
+signs, magnitudes, and institutional premises, and we label each result
+accordingly.
 
 The model's empirical content comes in three layers.
 

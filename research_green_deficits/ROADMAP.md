@@ -48,7 +48,7 @@ to MODEL_STATUS.md (block-level labels) and referee_memo/REFEREE_MEMO.md.*
 | U4 | ~~Financing regimes~~ **DONE** (run verified, 31.3 s: revaluation-sign flip across regimes; rebate design near-Pareto-dominates deficit financing; in the paper as Table "regimes", Result 5, Proposition 6 + PFig9). Remaining within U4: distortionary labor tax with an hours margin (Barrage template) — the levy's Pigouvian margin belongs to U8 | partial | — |
 | U5 | ~~Debt maturity~~ **DONE** (run verified, 42.6 s: level-jump equivalence; indexation RAISES nu^M (0.563->0.579) because the channel is negative; foreign holders absorb the windfall (-0.058->-0.029); duration amplifies accommodation gains (+2.4%/+12.5%/+25.6% repricing at 1y/5y/10y); q_g sweep nu=0.563/0.449/0.329 -- all in the paper) | — | — |
 | U6 | ~~RANK transitions~~ **DONE — run VERIFIED** (all four regimes CONVERGED after the ramp-in redesign; price-stable under active rules, regime-independent real green path, accommodation buys inflation not green capital; in the paper as Section "Transition diagnostics" + PFig13; validation in appendix/TRANSITION_VALIDATION.md and rank_transition_validation.txt) | — | — |
-| U7 | HANK transitions — **TIER 1 DONE incl. TAYLORBAL, runs VERIFIED and in the paper** (five regimes; TAYLOR-vs-TAYLORBAL: deficit financing buys the debt path (+0.102 vs +0.012 at 40q), not the inflation path (+0.31% vs +0.23%)). **TIER 1b machinery DONE** (`green_hank2.mod` + `run_green_hank2.m`: two-asset HANK, liquid bonds vs illiquid equity, sticky wages+prices, endogenous debt, liquid supply = lamB*bg, climate block; PFig17) — RUN PENDING. Tier 2 (nonlinear DTPL P* transition) remains PLAN ONLY | tier-1b run; tier 2 weeks | Dynare het build |
+| U7 | HANK transitions — **TIER 1 DONE incl. TAYLORBAL, runs VERIFIED and in the paper** (five regimes; TAYLOR-vs-TAYLORBAL: deficit financing buys the debt path (+0.102 vs +0.012 at 40q), not the inflation path (+0.31% vs +0.23%)). **TIER 1b machinery DONE** (`green_hank2.mod` + `run_green_hank2.m`: two-asset HANK, liquid bonds vs illiquid equity, sticky wages+prices, endogenous debt, liquid supply = lamB*bg, climate block; PFig17) — RUN PENDING. **TIER 2 v1 IMPLEMENTED** (`solve_hank_dtpl_transition.m` + `main_project_transition.m`, PFig18: price-level path clears the asset market at every date, backward/forward exact HA solution, damped fixed point with residual reporting; nominal-vs-indexed announcement experiments) — RUN PENDING (FAST pass first). Tier-1b accuracy protocol added after the oscillatory first run (rho_g 0.995→0.98, THORIZON/NB/NA defines, oscillation diagnostic, refinement re-solve, crash-recovery single-regime mode) — tier-1b NOT reportable until protocol passes | tier-2 run; tier-1b accuracy re-run | — |
 | U8 | Production economy with clean/dirty sectors + energy share heterogeneity (unlocks tax-base channel and energy-incidence welfare groups) | weeks | U4 |
 | U9 | Empirics: E2 data collection (schema ready); E3 event-study around EU Green Deal / IRA surprises (Känzig-style identification); sovereign-yield validation | parallel track | data |
 | U10 | Paper rewrite to the final structure — **PARTIALLY DONE** (transition section, safe-asset subsection, extended-welfare paragraph, conditional abstract, regime renaming, lit-review upgrade in place); mechanism diagram still to add. Literature verification pass **DONE** (10 items web-verified 2026-07-03, appendix/LITERATURE_VERIFICATION.md; 3 items remain [u] and stay out of the draft) | mostly done | — |
@@ -65,7 +65,9 @@ decomposition, the extended welfare cuts, and two tiers of transition
 diagnostics is assembled. Remaining before submission: transcribe the E4
 estimates (empirical_panel now persists them to
 empirical_panel_summary.txt), the full master reproducibility pass, the
-tier-1b two-asset run (nice-to-have, not a precondition), and a final
-[u]-reference sweep. U8 (production/Pigouvian) and U7 tier 2 (nonlinear
-HANK-DTPL transition) are the revision-round artillery, not
-preconditions.
+tier-2 nonlinear transition run (FAST pass first -- if it converges it
+becomes the paper's dynamic centerpiece; if not, the steady-state paper
+stands on its own and tier 2 moves to the revision round), the tier-1b
+accuracy re-run (nice-to-have, gated by its protocol), and a final
+[u]-reference sweep. U8 (production/Pigouvian) remains revision-round
+artillery.

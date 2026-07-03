@@ -1,8 +1,8 @@
 # HANK transition plan (roadmap U7)
 
-*Status update: **TIER 1 IMPLEMENTED, TIER 2 STILL PLAN ONLY.***
+*Status update: **TIER 1 RUN-VERIFIED (one-asset, five regimes) — TIER 2 v1 IMPLEMENTED, RUN PENDING.***
 
-- **Tier 1 (implemented, run pending):** `dynare/green_hank.mod` +
+- **Tier 1 (run VERIFIED):** `dynare/green_hank.mod` +
   `dynare/run_green_hank.m` — a native-Dynare heterogeneity-framework HANK
   (one liquid asset, borrowing constraint, Rouwenhorst income) with the
   climate block and a nominal-rate/ex-post-Fisher pair, delivering
@@ -11,12 +11,21 @@
   revalues household asset positions there — the redistribution channel,
   linearized. Built on the framework verified to run by
   `heterogeneity/hank_one_asset_steady_state.log`.
-- **Tier 2 (this document; NOT YET IMPLEMENTED):** the *nonlinear* DTPL
-  price-level transition below — P\* pinned by asset-market clearing, the
-  unknown sequence being the price-level path itself. This remains the
-  full answer; the tier-1 NK-HANK must never be presented as it (project
-  standard: inflation there comes from the Phillips curve + policy rule,
-  not from asset demand).
+- **Tier 2 (v1 IMPLEMENTED, run pending):** the *nonlinear* DTPL
+  price-level transition — P\* pinned by asset-market clearing, the
+  unknown sequence being the price-level path itself — is now implemented
+  in `src_project/solve_hank_dtpl_transition.m` (+`hh_bellman_step.m`,
+  driver `main_project_transition.m`, PFig18): backward Bellman induction
+  from the green terminal steady state under time-varying (r_t, tau_t,
+  D_t) including the risk channel, exact forward distribution iteration
+  from the pre-announcement steady state, damped multiplicative fixed
+  point on the stationarized price path with adaptive damping + trust
+  region, market-clearing residuals reported at every date. v1 uses the
+  fixed-point update rather than fake-news Jacobians (below) — the
+  Jacobian route remains the planned upgrade if v1 convergence is slow.
+  Two default experiments: nominal appropriation vs indexed mandate
+  (the dynamic anchor-insulation comparison). A non-converged path is
+  returned as such and is not a result.
 
 *The remainder specifies tier 2. Method: sequence-space Jacobians
 (Auclert–Bardóczy–Rognlie–Straub 2021) around the steady states already

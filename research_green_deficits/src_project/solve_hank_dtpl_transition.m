@@ -1,0 +1,241 @@
+function TR = solve_hank_dtpl_transition(pgc, opts)
+% SOLVE_HANK_DTPL_TRANSITION  U7 TIER 2: the nonlinear HANK-DTPL transition
+% (appendix/HANK_TRANSITION_PLAN.md, first implementation).
+%
+% THE OBJECT: at t=1 the government unexpectedly announces a PERMANENT
+% green program. From then on, perfect foresight. The unknown is the
+% PRICE-LEVEL PATH {P_t}: at every date the price level must clear the
+% asset market, P_t = B_t / S_t(1+r), where S_t is exact aggregate asset
+% demand along the transition -- households solve a FINITE-HORIZON problem
+% backward from the green terminal steady state under time-varying
+% (r_t, tau_t, D_t), and the wealth distribution rolls forward from the
+% no-program steady state. This is the DTPL mechanism ITSELF in dynamics:
+% inflation along the path is not a Phillips-curve object; it is the
+% shadow price of the nominal-debt stock against precautionary demand.
+%
+% STATIONARIZATION: nominal debt grows at mu and (in the nominal-budget
+% regime) so does the green appropriation; define phat_t = P_t/(1+mu)^t.
+% Then b_t = B0/phat_t, g_t = Gg_nom/phat_t, and the realized real return
+% on nominal bonds between t-1 and t is
+%     1 + r_t = (1+rbar) * phat_{t-1}/phat_t,   1+rbar = (1+i_ss)/(1+mu).
+% The t=1 jump phat_1 vs phat_0 (= baseline P*) is the SURPRISE
+% REVALUATION on pre-announcement bond holdings -- the paper's channel,
+% now realized along a path rather than compared across steady states.
+% Terminal condition: phat_T = green steady-state P*. Budget balance each
+% period: tau_t = rbar*b_t + g_t (nominal regime), so the government
+% budget holds by construction at every trial path.
+%
+% REGIMES (opts.regime):
+%   'nominal'  Gg fixed in nominal terms: g_t = Gg_nom/phat_t (baseline)
+%   'indexed'  real mandate: g_t = g_real (anchor-insulation experiment)
+%
+% METHOD (honest first implementation, labeled):
+%   * backward: one Bellman step per date on the package's (a,e) grids,
+%     continuation = green terminal value function (exact finite-horizon
+%     solution given the terminal condition; hh_bellman_step.m);
+%   * forward: exact distribution iteration with the date-t policies;
+%   * update: damped multiplicative fixed point on {phat_t},
+%       phat_t <- phat_t * (1 + xi * (S_t - b_t)/b_t),
+%     (excess asset demand => price level rises => real debt falls);
+%     adaptive damping (xi halves on oscillation of the residual norm);
+%   * convergence: max_t |S_t - b_t| / b_t < opts.tol. Residuals are
+%     REPORTED, never hidden; a non-converged path is returned with
+%     .converged = false and must not be presented as a result.
+%   * SCOPE OF v1: damage-level channel on endowments and the risk
+%     channel sig_eps(D_t) are both active (income process rebuilt per
+%     date); the incidence gradient chi(e) follows pgc.psi_inc as in
+%     S_green. No aggregate risk. Lump-sum taxes (regime R1).
+%
+% COST: each path iteration = T Bellman steps (na x na x ne tensor ops)
+% + T distribution pushes. At na=500, ne=7, T=150, expect minutes per
+% iteration and O(10-60) iterations -- run on the user machine.
+%
+% INPUTS: pgc from setup_params_green (+ calibrated beta), with D0 /
+%         climate fields set; opts fields (all optional):
+%   .T (150) .tol (2e-3) .maxit (60) .xi (0.5) .regime ('nominal')
+%   .Gg_nom (pgc-calibrated program) .verbose (true)
+% OUTPUT TR: .phat (1xT), .P0, .pi_path, .r_path, .tau_path, .D_path,
+%   .Kg_path, .S_path, .b_path, .resid (1xT), .converged, .iters,
+%   .eq0, .eq1 (boundary steady states), .revaluation_t1, .msg
+%
+% STATUS: IMPLEMENTED (v1); numbers are results only once a converged
+% run is verified. NONLINEAR HANK-DTPL TRANSITION tier.
+
+    if nargin < 2, opts = struct(); end
+    T      = getopt(opts, 'T', 150);
+    tol    = getopt(opts, 'tol', 2e-3);
+    maxit  = getopt(opts, 'maxit', 60);
+    xi     = getopt(opts, 'xi', 0.5);
+    regime = getopt(opts, 'regime', 'nominal');
+    verbose= getopt(opts, 'verbose', true);
+
+    B0   = pgc.Bnom;
+    rbar = (1 + pgc.i_ss)/(1 + pgc.mu) - 1;
+    Gg   = getopt(opts, 'Gg_nom', 0.02 * (pgc.Bnom / 1.10));
+
+    TR = struct('converged', false, 'msg', '');
+
+    % ---- boundary steady states (exact, reusing the regime solver) ----
+    g_of  = @(P) Gg ./ P;
+    D_of  = @(P) climate_block(g_of(P), pgc);
+    rb_of = @(P) rbar * B0 ./ P;
+    reg0 = struct('name','TR-BASE','Bnom',B0, 'g',@(P) 0*P, ...
+        'D',@(P) 0*P + pgc.D0, 'tau_ls',@(P) rb_of(P), 'vartheta',@(P) 0);
+    reg1 = struct('name','TR-GREEN','Bnom',B0, 'g',g_of, 'D',D_of, ...
+        'tau_ls',@(P) rb_of(P) + g_of(P), 'vartheta',@(P) 0);
+    [eq0, o0] = solve_regime_equilibrium(pgc, reg0, rbar, [0.5, 1.3]);
+    if isempty(eq0), TR.msg = ['tier2: no baseline ss: ' o0.msg]; return; end
+    [eq1, o1] = solve_regime_equilibrium(pgc, reg1, rbar, [0.5, 1.3]);
+    if isempty(eq1), TR.msg = ['tier2: no green ss: ' o1.msg]; return; end
+    if verbose
+        fprintf('  boundary steady states: P0=%.4f -> P1=%.4f (D: %.4f -> %.4f)\n', ...
+            eq0.P, eq1.P, eq0.D, eq1.D);
+    end
+
+    % terminal household objects (green ss) and initial distribution (base ss)
+    [~, oT] = S_green(rbar, eq1.tau, eq1.D, pgc);
+    [~, oI] = S_green(rbar, eq0.tau, eq0.D, pgc);
+    if ~oT.feasible || ~oI.feasible
+        TR.msg = 'tier2: boundary household problem infeasible.'; return;
+    end
+    VT    = oT.V;          % terminal value function (green ss)
+    dist0 = oI.dist;       % pre-announcement wealth distribution
+
+    % ---- initial guess: log-linear bridge between the steady states ----
+    phat = exp(linspace(log(eq0.P), log(eq1.P), T));
+    phat(T) = eq1.P;
+
+    % Kg accumulation from zero (announcement); delta_g from pgc
+    dg  = pgc.delta_g;
+    qg  = 1; if isfield(pgc,'q_g') && ~isempty(pgc.q_g), qg = pgc.q_g; end
+
+    resnorm_prev = Inf;
+    for it = 1:maxit
+        % ---- climate + fiscal paths implied by the trial price path ----
+        if strcmpi(regime, 'indexed')
+            g_path = (Gg / eq1.P) * ones(1, T);   % real mandate
+        else
+            g_path = Gg ./ phat;                  % nominal appropriation
+        end
+        Kg = zeros(1, T);
+        for t = 1:T
+            Kprev = 0; if t > 1, Kprev = Kg(t-1); end
+            Kg(t) = (1 - dg) * Kprev + qg * g_path(t);
+        end
+        % version-1 climate map with TRANSITION Kg (not the ss shortcut)
+        D_path = pgc.D0 * exp(-pgc.theta_g * Kg);
+        b_path = B0 ./ phat;
+        tau_path = rbar .* b_path + g_path;
+        % realized real return: surprise jump at t=1 against P0 = eq0.P
+        phat_lag = [eq0.P, phat(1:T-1)];
+        r_path = (1 + rbar) .* phat_lag ./ phat - 1;
+
+        % ---- backward: date-t policies from the terminal green ss ----
+        [POL, feas] = backward_policies(VT, r_path, tau_path, D_path, pgc);
+        if ~feas
+            TR.msg = sprintf('tier2: infeasible household problem at iter %d.', it);
+            return;
+        end
+
+        % ---- forward: distribution + aggregate asset demand ----
+        S_path = zeros(1, T);
+        dist = dist0;
+        for t = 1:T
+            S_path(t) = POL(t).aGrid_dot_dist(dist);
+            dist = POL(t).push(dist);
+        end
+
+        % ---- residuals + damped multiplicative update ----
+        resid = (S_path - b_path) ./ b_path;
+        resnorm = max(abs(resid));
+        if verbose
+            fprintf('  iter %2d: max|S-b|/b = %.5f (xi=%.3f)\n', it, resnorm, xi);
+        end
+        if resnorm < tol
+            TR.converged = true;
+            break;
+        end
+        if resnorm > resnorm_prev * 1.02, xi = max(xi/2, 0.05); end
+        resnorm_prev = resnorm;
+        upd = 1 + xi * resid;
+        upd = min(max(upd, 0.90), 1.10);          % trust region per iteration
+        phat(1:T-1) = phat(1:T-1) .* upd(1:T-1);  % terminal pinned
+    end
+
+    % ---- pack ----
+    TR.phat   = phat;   TR.P0 = eq0.P;
+    TR.pi_path = (1 + pgc.mu) * phat ./ [eq0.P, phat(1:T-1)] - 1;  % actual inflation
+    TR.r_path = r_path; TR.tau_path = tau_path; TR.D_path = D_path;
+    TR.Kg_path = Kg;    TR.S_path = S_path;     TR.b_path = b_path;
+    TR.g_path = g_path;
+    TR.resid  = resid;  TR.iters = it;
+    TR.eq0 = eq0; TR.eq1 = eq1;
+    % surprise revaluation at announcement: real value change of the
+    % pre-announcement nominal position per unit of program
+    TR.revaluation_t1 = rbar * B0 * (1/eq0.P - 1/phat(1)) / (Gg/phat(1));
+    TR.msg = sprintf(['tier2 %s: %s in %d iters, max resid %.5f; ' ...
+        'impact phat_1/P0 = %.4f (surprise %s), terminal P = %.4f'], ...
+        regime, ternstr(TR.converged, 'CONVERGED', 'NOT CONVERGED'), ...
+        TR.iters, max(abs(TR.resid)), phat(1)/eq0.P, ...
+        ternstr(phat(1) < eq0.P, 'DISINFLATION', 'inflation'), phat(T));
+end
+
+% ==========================================================================
+function [POL, feas] = backward_policies(VT, r_path, tau_path, D_path, pgc)
+% One Bellman step per date, backward from the terminal value function.
+% Returns, per date, a policy closure for the distribution push and the
+% asset-demand aggregation. Income process rebuilt per date when the risk
+% channel is active (sig_eps(D_t)), exactly as in S_green.
+    T = numel(r_path);
+    POL = struct('push', cell(1, T), 'aGrid_dot_dist', cell(1, T));
+    feas = true;
+    Vnext = VT;
+    aG = pgc.aGrid(:);
+    na = numel(aG);
+    for t = T:-1:1
+        p = pgc;
+        if pgc.phi_D > 0
+            p.sig_eps = pgc.sig_eps0 * (1 + pgc.phi_D * D_path(t));
+            [eG, PiD, statD] = make_income_process(p);
+            p.eGrid = eG; p.Pi = PiD; p.stationary_e = statD;
+        end
+        % damage level/incidence channel on endowments (as in S_green)
+        psi = 0;
+        if isfield(pgc, 'psi_inc') && ~isempty(pgc.psi_inc), psi = pgc.psi_inc; end
+        ev = p.eGrid(:); wst = p.stationary_e(:);
+        if psi > 0
+            cnorm = wst' * (ev.^(1 - psi));
+            chi = (ev.^(-psi)) / cnorm;
+            yv = max(1 - D_path(t) * chi, 0.05) .* ev;
+        else
+            yv = (1 - D_path(t)) * ev;
+        end
+        [V, polA_idx, ok] = hh_bellman_step(Vnext, r_path(t), tau_path(t), ...
+                                            yv, p, aG);
+        if ~ok, feas = false; return; end
+        Vnext = V;
+        Pi_t = p.Pi;
+        idx  = polA_idx;                     % na x ne
+        POL(t).push = @(dist) push_dist(dist, idx, Pi_t, na);
+        POL(t).aGrid_dot_dist = @(dist) sum(sum(aG(idx) .* dist));
+    end
+end
+
+function dist1 = push_dist(dist, polA_idx, Pi, na)
+% exact one-step distribution iteration: mass at (a,e) moves to
+% (polA_idx(a,e), e') with probability Pi(e,e')
+    ne = size(dist, 2);
+    dist1 = zeros(na, ne);
+    for e = 1:ne
+        m = accumarray(polA_idx(:, e), dist(:, e), [na, 1]);
+        dist1 = dist1 + m * Pi(e, :);
+    end
+end
+
+function v = getopt(o, f, d)
+    if isfield(o, f) && ~isempty(o.(f)), v = o.(f); else, v = d; end
+end
+
+function s = ternstr(c, a, b)
+    if c, s = a; else, s = b; end
+end
