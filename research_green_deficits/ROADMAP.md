@@ -33,7 +33,7 @@ to MODEL_STATUS.md (block-level labels) and referee_memo/REFEREE_MEMO.md.*
 
 | # | Task | Est. effort | Blocks |
 |---|---|---|---|
-| U1 | Rerun extended package post-fix; fill paper placeholders (frontier, X1, E1 CI) | hours | — |
+| U1 | ~~Rerun extended package post-fix; fill paper placeholders (frontier, X1, E1 CI)~~ **DONE** (master run: baseline 73.2 s + extended 48.3 s; frontier table, accommodation-neutrality result, and E1 inference now in the paper) | — | — |
 | U2 | Consumption-equivalent welfare + welfare by wealth/income quintile (`welfare_by_group.m`) | days | none |
 | U3 | Calibration appendix execution: low/med/high damages (DICE / DJO-BHM / Bilal-Känzig), theta_g from IEA abatement costs, psi from Känzig incidence; wealth-moment targeting for (rho, sig_eps, beta) | 1–2 weeks | data access |
 | U4 | Carbon-tax financing + transfer-rebate + mixed regimes; distortionary labor tax (Barrage template) | 1–2 weeks | U3 helpful |
