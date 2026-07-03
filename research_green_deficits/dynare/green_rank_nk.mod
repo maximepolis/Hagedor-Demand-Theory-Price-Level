@@ -1,25 +1,49 @@
 /*
- * GREEN_RANK_NK.MOD -- transition-dynamics skeleton for the project
- * "Can Green Deficits Finance Themselves?"
+ * GREEN_RANK_NK.MOD -- transition-dynamics tier (roadmap U6).
  *
- * STATUS: PARTIALLY IMPLEMENTED (tier-1 of roadmap step U6).
+ * STATUS: IMPLEMENTED at the RANK tier (run pending on the user's machine).
  *
  * WHAT THIS IS: a representative-agent New Keynesian economy with Rotemberg
- * pricing, a Taylor rule, real government debt with a debt-stabilizing tax
- * rule, public green (abatement) capital, a carbon stock, and TFP damages.
- * It produces perfect-foresight TRANSITION PATHS for a deficit-financed
- * green-investment program: output, inflation, debt, green capital,
- * emissions, damages -- addressing referee risk R1 at the RANK tier.
+ * pricing, real government debt with a debt-stabilizing tax rule, public
+ * green (abatement) capital, a carbon stock, TFP damages, and FOUR monetary
+ * regimes selected by macro-defines. It produces perfect-foresight
+ * TRANSITION PATHS for a permanent deficit-financed green-investment
+ * program -- the tier-1 answer to referee risk R1 ("only steady state").
  *
- * WHAT THIS IS NOT: the price-level determination mechanism of the paper.
- * The DTPL requires incomplete markets (a nondegenerate asset-demand
- * schedule); in this RANK block the price LEVEL is not pinned by asset
- * demand and inflation dynamics come from the Taylor rule + Phillips curve.
- * The HANK transition (sequence-space, roadmap U7) is NOT YET IMPLEMENTED.
+ * WHAT THIS IS NOT: the paper's price-level mechanism. The DTPL requires
+ * incomplete markets; in RANK, inflation dynamics come from the Taylor rule
+ * + Phillips curve. The HANK transition is specified in
+ * appendix/HANK_TRANSITION_PLAN.md and is NOT YET IMPLEMENTED.
  *
- * USAGE:  dynare green_rank_nk
- * (deterministic simulation of a permanent green-investment increase)
+ * MONETARY REGIMES (set by run_green_transitions.m via -D defines):
+ *   PEG          : RHOI=0.999, PHIPI=0   (near-frozen nominal rate)
+ *   TAYLOR       : RHOI=0.8,   PHIPI=1.5 (standard inertial Taylor)
+ *   AGGRESSIVE   : RHOI=0.0,   PHIPI=3.0 (strict inflation targeting)
+ *   GREENACCOM   : TAYLOR + PSIG=0.5     (temporary accommodation tied to
+ *                  the green-capital gap: i is cut while kg is below its
+ *                  terminal level, fading automatically as the transition
+ *                  completes)
+ *
+ * USAGE:  dynare green_rank_nk                              (Taylor default)
+ *         dynare green_rank_nk -DPHIPI=3.0 -DRHOI=0.0       (aggressive IT)
+ * or run all four via run_green_transitions.m.
+ *
+ * Steady states are computed exactly by green_rank_nk_steadystate.m for any
+ * program size, so initval/endval never rely on hand guesses.
  */
+
+@#ifndef PHIPI
+  @#define PHIPI = 1.5
+@#endif
+@#ifndef RHOI
+  @#define RHOI = 0.8
+@#endif
+@#ifndef PSIG
+  @#define PSIG = 0.0
+@#endif
+@#ifndef GSIZE
+  @#define GSIZE = 0.015
+@#endif
 
 var c        // consumption
     y        // output
@@ -29,16 +53,16 @@ var c        // consumption
     i        // net nominal rate
     mc       // real marginal cost
     b        // real government debt (end of period)
-    tau      // lump-sum tax (benchmark instrument; see referee memo R3)
+    tau      // lump-sum tax (transparent benchmark instrument)
     gg       // real green public investment
     kg       // green public capital
     x        // carbon stock
     d;       // damage factor on TFP
 
-varexo e_g;  // green-investment program shock (permanent via terminal value)
+varexo e_g;  // green-investment program (permanent via endval)
 
 parameters beta sigma phi_n eps_p kappa_r
-           phi_pi rho_i
+           phi_pi rho_i psi_g
            delta_g theta_g alpha_A eps0 delta_x gamma_x Dmax
            phi_b bbar ggbar;
 
@@ -47,8 +71,9 @@ sigma   = 2;
 phi_n   = 1;
 eps_p   = 6;
 kappa_r = 100;     // Rotemberg adjustment cost
-phi_pi  = 1.5;
-rho_i   = 0.8;
+phi_pi  = @{PHIPI};
+rho_i   = @{RHOI};
+psi_g   = @{PSIG};
 delta_g = 0.025;   // quarterly
 theta_g = 1.2;
 alpha_A = 0.9;
@@ -58,7 +83,7 @@ gamma_x = 0.028;
 Dmax    = 0.25;
 phi_b   = 0.10;    // debt-stabilizing tax response
 bbar    = 1.0;
-ggbar   = 0.0;     // no program initially
+ggbar   = 0.0;
 
 model;
   // Euler equation
@@ -93,33 +118,29 @@ model;
   b = (1+i(-1))/(1+ppi)*b(-1) + gg - tau;
   tau = phi_b*(b(-1)-bbar) + gg + (1/beta-1)*bbar;
 
-  // Taylor rule (inertial)
-  i = rho_i*i(-1) + (1-rho_i)*( (1/beta-1) + phi_pi*ppi );
+  // monetary rule: inertial Taylor + temporary green accommodation tied to
+  // the green-capital gap (fades as kg -> terminal steady state)
+  i = rho_i*i(-1) + (1-rho_i)*( (1/beta-1) + phi_pi*ppi
+        - psi_g*(steady_state(kg) - kg) );
 
   // program
   gg = ggbar + e_g;
 end;
 
 initval;
-  ppi = 0; i = 1/beta-1; gg = 0; kg = 0;
-  x  = eps0/delta_x*0.9;          // rough pre-program stock
-  d  = Dmax*(1-exp(-gamma_x*eps0/delta_x*0.9));
-  n  = 1; y = 1-d; c = y; w = (eps_p-1)/eps_p*(1-d);
-  mc = (eps_p-1)/eps_p; b = bbar; tau = (1/beta-1)*bbar;
+  e_g = 0;
 end;
 steady;
 check;
 
-// permanent green program of 1.5% of output from period 1
 endval;
-  e_g = 0.015;
+  e_g = @{GSIZE};
 end;
 steady;
 
 perfect_foresight_setup(periods=300);
 perfect_foresight_solver;
 
-// paths of interest: y ppi b kg x d tau c
 rplot y;
 rplot ppi;
 rplot b;
