@@ -72,10 +72,40 @@ end
 % -------------------------------------------------------------------------
 function S = eval_S(pg, bb, r, D)
 % No-program equilibrium asset level at candidate beta: the root package's
-% tau = r*S fixed point with damage-scaled endowments.
+% tau = r*S fixed point in the SAME economy the results use.
+%
+% AUDIT FIX: the previous version scaled endowments by (1-D) only and
+% omitted the climate RISK channel sig_eps(D) = sig_eps0*(1+phi_D*D) and
+% the incidence gradient that S_green applies -- so beta* was calibrated
+% in a lower-risk economy than the one all results are computed in (with
+% phi_D = 0.5 active by default, the calibration missed its own debt
+% target). eval_S now mirrors S_green's income-process rebuild and
+% damage/incidence scaling exactly, so the calibration and results
+% economies coincide. NOTE: this shifts beta* slightly vs earlier runs --
+% main_project_calibrated must be re-run to refresh the calibrated pass.
     p = pg;
-    p.beta  = bb;
-    p.eGrid = (1 - D) * pg.eGrid;
+    p.beta = bb;
+
+    % (1) risk channel: rebuild the income process at sig_eps(D)
+    if pg.phi_D > 0
+        p.sig_eps = pg.sig_eps0 * (1 + pg.phi_D * D);
+        [eG, PiD, statD] = make_income_process(p);
+        p.eGrid = eG; p.Pi = PiD; p.stationary_e = statD;
+    end
+
+    % (2) damage level / incidence channel on the (possibly rebuilt) grid
+    psi = 0;
+    if isfield(pg, 'psi_inc') && ~isempty(pg.psi_inc), psi = pg.psi_inc; end
+    if psi > 0
+        ev = p.eGrid(:); wst = p.stationary_e(:);
+        cnorm = wst' * (ev.^(1 - psi));
+        chi   = (ev.^(-psi)) / cnorm;
+        scale = max(1 - D * chi, 0.05);
+        p.eGrid = (scale .* ev)';
+    else
+        p.eGrid = (1 - D) * p.eGrid;
+    end
+
     [S, ~] = aggregate_asset_demand(r, p);
     if ~isfinite(S), S = 1e6; end     % divergence counts as "too high"
 end

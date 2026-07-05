@@ -50,6 +50,20 @@
 @#ifndef PHIB
   @#define PHIB = 0.10
 @#endif
+// Accuracy defines. AUDIT (quantified): at the first-run values
+// rho_g=0.995 / horizon 300, 22.2% of the shock and ~41% of the peak
+// green-capital response are still alive at the truncation horizon --
+// the sequence-space solution embeds a large terminal reflection, the
+// prime suspect for wobbly IRFs. Defaults now RHOG=0.98, THORIZON=400
+// (0.98^400 = 3e-4: negligible tail); the first-run numbers in the paper
+// are flagged as pending re-verification at these settings. Reproduce
+// the old run with -DRHOG=0.995 -DTHORIZON=300.
+@#ifndef RHOG
+  @#define RHOG = 0.98
+@#endif
+@#ifndef THORIZON
+  @#define THORIZON = 400
+@#endif
 // PHIB is the FINANCING-SPEED margin: 0.10 = slow debt stabilization
 // (deficit-financed on impact, the benchmark); 0.75 = near-balanced-budget
 // financing of the same program. Comparing the two isolates how much of
@@ -111,7 +125,7 @@ mu      = 1.2;
 phi     = @{PHIPI};
 psig    = @{PSIG};
 r_ss    = 0.005;
-rho_g   = 0.995;   // quasi-permanent program (half-life ~ 35 years)
+rho_g   = @{RHOG}; // quasi-permanent program (0.995 = verified run)
 phi_b   = @{PHIB}; // debt-stabilizing tax speed: 0.10 deficit / 0.75 balanced
 // climate block: identical to green_rank_nk.mod (U6), quarterly
 delta_g = 0.025;
@@ -121,8 +135,9 @@ eps0    = 0.25;
 delta_x = 0.0125;
 gamma_x = 0.028;
 Dmax    = 0.25;
-// debt level: targets debt/ANNUAL GDP = 1.10 (U3 calibration) at the
-// steady state with climate damages, where Y_ss ~ 0.90 (see verbatim block)
+// debt level: B = 3.96 gives debt/ANNUAL GDP = 1.099 at the damaged
+// steady state (Y_ss = 1 - d* = 0.90095; exact 1.10 would need B=3.9642
+// -- audit note: immaterial dynamically, label kept honest)
 B       = 3.96;
 
 verbatim;
@@ -161,6 +176,12 @@ initial_guess.agg.d   = d;
 rho_e = 0.966;
 sig_e = 0.5;
 [grid_e, ~, Pi_e] = rouwenhorst(rho_e, sig_e, 3, 1e-12, 1e5);
+% guard against src/rouwenhorst.m (a LOG-grid, 2-output variant on the
+% project path) shadowing the framework's mean-one LEVEL-grid version:
+% a level grid is positive and straddles 1; a log grid straddles 0.
+assert(all(grid_e > 0) && any(abs(grid_e - 1) < 0.5), ...
+    ['rouwenhorst returned a non-level grid -- the project src/rouwenhorst.m ' ...
+     'is shadowing the Dynare heterogeneity framework version.']);
 initial_guess.shocks.grids.e = grid_e;
 initial_guess.shocks.Pi.e = Pi_e;
 
@@ -263,7 +284,7 @@ heterogeneity_compute_steady_state(variable = initial_guess,
 //==========================================================================
 // STEP 2: Linearized solution via sequence-space Jacobians
 //==========================================================================
-heterogeneity_solve(truncation_horizon = 300);
+heterogeneity_solve(truncation_horizon = @{THORIZON});
 
 //==========================================================================
 // STEP 3: IRFs to the quasi-permanent green-investment shock

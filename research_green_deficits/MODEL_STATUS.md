@@ -216,3 +216,43 @@ that crashed at X2 and is fixed as of this commit), not from the paper draft.*
   Experiments: nominal vs indexed announcement (dynamic anchor
   insulation). In the paper as subsection "The nonlinear HANK-DTPL
   transition" (labeled: numbers only after a converged run). RUN PENDING.
+
+## Adversarial arithmetic audit (2026-07, 4 auditors + verification)
+
+An equation-level adversarial audit of the HANK tiers and the tier-2 code
+found and FIXED the following (confirmed defects only):
+
+1. **green_hank2.mod (CRITICAL):** the firm cash-flow identity
+   div = Y - wN - I - psip was dropped (inherited the reference's
+   steady-state-CALIBRATION variant instead of its DYNAMICS variant),
+   which made ra = r identically, unanchored the equity price, and
+   violated goods feasibility -- the true cause of the explosive
+   TAYLORBAL solve. Restored; liquidity premium omega now ENDOGENOUS
+   (convenience yield clearing the liquid market); chi1 fixed; targets
+   reduced to 2. TAYLORBAL restored to phi_b=0.75 (phi_b was never the
+   cause -- the tax-base-denominator hypothesis was REFUTED as first-order
+   irrelevant).
+2. **green_hank.mod (CRITICAL):** rho_g=0.995 vs truncation horizon 300
+   left 22% of the shock and ~41% of the peak kg response alive at the
+   horizon => reflection/oscillation. Defaults now rho_g=0.98,
+   THORIZON=400 (0.98^400 = 3e-4); the earlier verified tier-1 numbers
+   are flagged pending re-verification at these settings.
+3. **solve_hank_dtpl_transition.m (CRITICAL x2):** (a) the price-path
+   fixed-point update had the WRONG SIGN (raised P on excess demand;
+   clearing needs P to fall) -- now moves toward P*=B0/S; (b) the driver
+   annualized inflation with a QUARTERLY 400x factor on an ANNUAL
+   calibration -- now 100x, axes relabeled "years". Also: packed paths
+   kept consistent with phat on non-convergence; revaluation redefined
+   (reval_stock + reval_pv_share); Gg default reads pgc.Gg_nom.
+4. **calibrate_beta.m (MAJOR):** eval_S omitted the risk channel
+   sig_eps(D) that S_green applies, so beta* was calibrated in a
+   lower-risk economy than the results (phi_D=0.5 active). Fixed to mirror
+   S_green exactly. **CONSEQUENCE: main_project_calibrated must be RE-RUN;
+   beta* and every calibrated number will shift slightly.**
+5. **Minor:** B=3.96 gives debt/GDP=1.099 not 1.10 (label made honest);
+   rouwenhorst level-grid guards added; wage-adjustment-cost sign
+   documented as the reference's inert utility-cost convention.
+
+Paper text corrected accordingly (two-asset root cause, GREENACCOM
+realized cut ~1.5pp not 7pp under inertia, cross-tier "analogous not
+identical" regimes).

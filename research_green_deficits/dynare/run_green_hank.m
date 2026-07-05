@@ -125,6 +125,24 @@ if ~any(ok)
     error('No HANK regime solved; inspect the Dynare messages above.');
 end
 
+% ---- oscillation diagnostic (same protocol as run_green_hank2) ----
+OSC = struct();
+rnn = fieldnames(RES);
+for k = 1:numel(rnn)
+    s2 = RES.(rnn{k}); vn2 = fieldnames(s2);
+    worst = 0; worstv = '';
+    for v = 1:numel(vn2)
+        sc = osc_score(s2.(vn2{v}));
+        if sc > worst, worst = sc; worstv = vn2{v}; end
+    end
+    OSC.(rnn{k}) = struct('score', worst, 'var', worstv, 'suspect', worst > 8);
+    if worst > 8
+        warning('run_green_hank:oscillation', ...
+            'Regime %s: oscillation score %d on %s -- numerically SUSPECT.', ...
+            rnn{k}, worst, worstv);
+    end
+end
+
 % ---- PFig14: regime comparison (IRFs, deviations from steady state) ----
 cols = [0.10 0.30 0.75; 0.85 0.20 0.15; 0.85 0.55 0.10; 0.20 0.55 0.25; ...
         0.45 0.45 0.45];
@@ -183,7 +201,7 @@ if fid > 0
     fprintf(fid, 'DTPL price-level determination -- a bridge to the tier-2 transition, not it.\n\n');
     fprintf(fid, 'Income process: rho_e=0.966, sig_e=0.5, 3 states (DYNARE-EXAMPLE calibration,\n');
     fprintf(fid, 'NOT the MATLAB package''s 7-state process -- alignment is future work).\n');
-    fprintf(fid, 'Debt: B targets debt/annual-GDP = 1.10 at the damaged steady state (U3 target).\n');
+    fprintf(fid, 'Debt: B=3.96 gives debt/annual-GDP = 1.099 at the damaged steady state (U3 target ~1.10).\n');
     fprintf(fid, 'Steady-state market-clearing residuals: see the Dynare log of each regime\n');
     fprintf(fid, '(heterogeneity_compute_steady_state prints them; tol 1e-4).\n\n');
     fprintf(fid, '%-11s %-8s %-8s %-10s %-10s %-11s %-11s %-11s %-11s\n', ...
@@ -205,8 +223,30 @@ if fid > 0
             s.pi(1), s.Y(1), s.b(min(40,end)), s.d(min(40,end)));
     end
     fprintf(fid, '\nIRFs are deviations from steady state to a ONE-STD e_g shock (0.009,\n');
-    fprintf(fid, '~1%% of steady-state output) with persistence rho_g=0.995 (quasi-permanent).\n');
+    fprintf(fid, '~1%% of steady-state output); persistence rho_g set by -DRHOG (0.995 =\n');
+    fprintf(fid, 'verified-run default; 0.98 recommended for the accuracy re-verification).\n');
+    fprintf(fid, '\n--- OSCILLATION DIAGNOSTIC ---\n');
+    onn = fieldnames(OSC);
+    for k = 1:numel(onn)
+        if OSC.(onn{k}).suspect, tag = 'SUSPECT (not reportable)'; else, tag = 'ok'; end
+        fprintf(fid, 'oscillation %-11s score %2d on %-5s -> %s\n', onn{k}, ...
+            OSC.(onn{k}).score, OSC.(onn{k}).var, tag);
+    end
     fclose(fid);
     fprintf('  [saved] %s\n', vf);
 end
 fprintf('Elapsed: %.1f s\n', toc(t0));
+
+
+% -------------------------------------------------------------------------
+function sc = osc_score(v)
+% sign changes in the first differences of an IRF over quarters 20..120
+    v = v(:).';
+    T = min(120, numel(v));
+    if T < 25, sc = 0; return; end
+    dv = diff(v(20:T));
+    scale = max(abs(v(1:T)));
+    dv(abs(dv) < 1e-6 * max(scale, 1e-12)) = 0;
+    ss = sign(dv); ss = ss(ss ~= 0);
+    sc = sum(abs(diff(ss)) > 0);
+end
