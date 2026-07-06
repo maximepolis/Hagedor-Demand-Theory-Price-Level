@@ -80,7 +80,15 @@ regimes = struct( ...
 % SPAWN_MATLAB=true runs each regime in a fresh "matlab -batch" child so
 % a Dynare crash cannot kill this session; memory hygiene between solves.
 if ~exist('FORCE_RERUN', 'var'),  FORCE_RERUN  = false; end
-if ~exist('SPAWN_MATLAB', 'var'), SPAWN_MATLAB = false; end
+if ~exist('SPAWN_MATLAB', 'var'), SPAWN_MATLAB = false; end   % tier-1 has run
+% 5-for-5 in-session; spawn available on demand with the exact executable
+matlab_exe = fullfile(matlabroot, 'bin', 'matlab');
+if ispc, matlab_exe = [matlab_exe '.exe']; end
+if SPAWN_MATLAB && exist(matlab_exe, 'file') ~= 2
+    warning('run_green_hank:nomatlabexe', ...
+        'Could not locate %s -- falling back to in-session solves.', matlab_exe);
+    SPAWN_MATLAB = false;
+end
 accfile = fullfile(projdir, 'output', 'hank_green_irfs.mat');
 mi = dir(fullfile(dyndir, 'green_hank.mod'));
 modstamp = [mi.bytes, mi.datenum];
@@ -139,9 +147,9 @@ for rgm = 1:numel(regimes)
             dynpath = fileparts(which('dynare'));
             outmat  = fullfile(dyndir, [nm '_out.mat']);
             if exist(outmat, 'file'), delete(outmat); end
-            cmd = sprintf(['matlab -batch "cd(''%s''); ' ...
+            cmd = sprintf(['"%s" -batch "cd(''%s''); ' ...
                 'solve_hank_regime_batch(''green_hank'',''%s'',''%s'',''%s'',''%s'')"'], ...
-                dyndir, nm, regimes(rgm).defs, dynpath, outmat);
+                matlab_exe, dyndir, nm, regimes(rgm).defs, dynpath, outmat);
             fprintf('  [spawning fresh MATLAB for %s]\n', rname);
             status = system(cmd);
             if status ~= 0 || exist(outmat, 'file') ~= 2

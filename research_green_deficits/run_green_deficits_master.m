@@ -49,7 +49,7 @@ stages = { ...
     'main_project_transition', 'matlab'; ...
     'run_green_transitions',   'dynare'; ...
     'run_green_hank',          'dynare-het'; ...
-    'run_green_hank2',         'dynare-het'};
+    'run_green_hank2',         'dynare-het-experimental'};
 setappdata(0, 'gd_master_stages', stages);
 
 for master_k = 1:size(getappdata(0,'gd_master_stages'), 1)
@@ -65,6 +65,17 @@ for master_k = 1:size(getappdata(0,'gd_master_stages'), 1)
     if startsWith(kind, 'dynare') && exist('dynare', 'file') ~= 2
         t.skipped{end+1} = stage;
         t.reasons{end+1} = 'Dynare not on the MATLAB path';
+        setappdata(0, 'gd_master_track', t);
+        fprintf('  [skipped] %s\n', t.reasons{end});
+        continue;
+    end
+    % the two-asset tier is EXPERIMENTAL (Dynare 8-unstable heterogeneity
+    % solves have hard-crashed MATLAB); it never runs inside the master --
+    % run it manually (run_green_hank2, spawn mode is its default)
+    if strcmp(kind, 'dynare-het-experimental')
+        t.skipped{end+1} = stage;
+        t.reasons{end+1} = ['EXPERIMENTAL tier excluded from the master; ' ...
+                            'run run_green_hank2 manually (crash-isolated by default)'];
         setappdata(0, 'gd_master_track', t);
         fprintf('  [skipped] %s\n', t.reasons{end});
         continue;

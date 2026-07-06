@@ -30,11 +30,13 @@
 % magnitudes indicative until the accuracy protocol passes.
 %
 % USAGE:  >> cd research_green_deficits/dynare
-%         >> run_green_hank2                       % resumes from checkpoint
-%         >> FORCE_RERUN = true;  run_green_hank2  % re-solve everything
-%         >> SPAWN_MATLAB = true; run_green_hank2  % crash-proof: one fresh
-%                                                  % MATLAB process per regime
-%         >> RUN_ACCURACY = true; run_green_hank2  % force the refinement pass
+%         >> run_green_hank2                        % DEFAULT: each regime in
+%                                                   % its own MATLAB process
+%                                                   % (crash-proof), resuming
+%                                                   % from checkpoint
+%         >> FORCE_RERUN  = true;  run_green_hank2  % re-solve everything
+%         >> SPAWN_MATLAB = false; run_green_hank2  % in-session solves
+%         >> RUN_ACCURACY = true;  run_green_hank2  % force refinement pass
 %
 % OUTPUT: PFig17_hank2_green_irfs.{fig,png,pdf}, hank2_green_irfs.mat,
 %         ../output/tables/hank2_irfs_summary.txt,
@@ -99,11 +101,11 @@ regimes = struct( ...
 %     re-run run_green_hank2 and it continues where it stopped. Set
 %     FORCE_RERUN = true to ignore the checkpoint and solve everything
 %     fresh (do this after editing the .mod).
-%  2. PROCESS ISOLATION (recommended if crashes recur): set
-%         SPAWN_MATLAB = true; run_green_hank2
-%     and each regime runs in its own fresh "matlab -batch" child process
-%     (requires matlab on the system PATH). If Dynare dies, only the
-%     child dies; this session records the failure and continues.
+%  2. PROCESS ISOLATION (THE DEFAULT for this tier): each regime runs in
+%     its own fresh MATLAB child process, invoked via the running
+%     installation's exact executable (matlabroot -- no PATH setup
+%     needed). If Dynare dies, only the child dies; this session records
+%     the failure and continues. SPAWN_MATLAB = false opts out.
 %  3. MEMORY HYGIENE between in-session solves (close figures, clear
 %     generated functions/MEX, drop the previous solve's Dynare globals).
 %
@@ -114,7 +116,20 @@ if exist('REGIME_ONLY', 'var') && ~isempty(REGIME_ONLY)
     fprintf('*** single-regime mode: %s ***\n', regimes(1).name);
 end
 if ~exist('FORCE_RERUN', 'var'),  FORCE_RERUN  = false; end
-if ~exist('SPAWN_MATLAB', 'var'), SPAWN_MATLAB = false; end
+% SPAWN IS THE DEFAULT for this tier: the Dynare 8-unstable two-asset
+% heterogeneity solve has repeatedly hard-crashed MATLAB in-session on the
+% user machine. Each regime therefore runs in its own disposable MATLAB
+% process by default; a crash there can never kill this session. Set
+% SPAWN_MATLAB = false to force in-session solves (not recommended).
+if ~exist('SPAWN_MATLAB', 'var'), SPAWN_MATLAB = true; end
+% resolve the EXACT executable of the running MATLAB (no PATH setup needed)
+matlab_exe = fullfile(matlabroot, 'bin', 'matlab');
+if ispc, matlab_exe = [matlab_exe '.exe']; end
+if SPAWN_MATLAB && exist(matlab_exe, 'file') ~= 2
+    warning('run_green_hank2:nomatlabexe', ...
+        'Could not locate %s -- falling back to in-session solves.', matlab_exe);
+    SPAWN_MATLAB = false;
+end
 accfile = fullfile(projdir, 'output', 'hank2_green_irfs.mat');
 % model fingerprint: a checkpoint written under a DIFFERENT green_hank2.mod
 % must never be restored (it would resurrect pre-fix runs)
@@ -178,9 +193,9 @@ for rgm = 1:numel(regimes)
             dynpath = fileparts(which('dynare'));
             outmat  = fullfile(dyndir, [nm '_out.mat']);
             if exist(outmat, 'file'), delete(outmat); end
-            cmd = sprintf(['matlab -batch "cd(''%s''); ' ...
+            cmd = sprintf(['"%s" -batch "cd(''%s''); ' ...
                 'solve_hank_regime_batch(''green_hank2'',''%s'',''%s'',''%s'',''%s'')"'], ...
-                dyndir, nm, regimes(rgm).defs, dynpath, outmat);
+                matlab_exe, dyndir, nm, regimes(rgm).defs, dynpath, outmat);
             fprintf('  [spawning fresh MATLAB for %s]\n', rname);
             status = system(cmd);
             if status ~= 0 || exist(outmat, 'file') ~= 2
@@ -349,9 +364,9 @@ if run_acc
             dynpath = fileparts(which('dynare'));
             outmat  = fullfile(dyndir, [nm '_out.mat']);
             if exist(outmat, 'file'), delete(outmat); end
-            cmd = sprintf(['matlab -batch "cd(''%s''); ' ...
+            cmd = sprintf(['"%s" -batch "cd(''%s''); ' ...
                 'solve_hank_regime_batch(''green_hank2'',''%s'',''%s'',''%s'',''%s'')"'], ...
-                dyndir, nm, accdefs, dynpath, outmat);
+                matlab_exe, dyndir, nm, accdefs, dynpath, outmat);
             status = system(cmd);
             if status == 0 && exist(outmat, 'file') == 2
                 Lc = load(outmat); irfs = Lc.irfs;

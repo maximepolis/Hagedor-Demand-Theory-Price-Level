@@ -291,3 +291,15 @@ identical" regimes).
   truncated sequence space under both timings -- documented). Drivers now
   also delete stale summary/validation txt at startup so failed runs
   cannot leave old results lying around.
+
+- CRASH-PROOFING FINALIZED after repeated hard crashes in the two-asset
+  Dynare solves: (i) tier-1b (run_green_hank2) now runs each regime in
+  its own disposable MATLAB process BY DEFAULT, invoking the exact
+  executable of the running installation (matlabroot -- no PATH setup);
+  a Dynare crash kills only the child, never the session; (ii) tier-1b
+  is EXCLUDED from the master pipeline (EXPERIMENTAL, opt-in) so no
+  default workflow can be blocked by it; (iii) checkpoints, finiteness
+  gates, model-fingerprint invalidation, and stale-output cleanup as
+  before. The project's DYNAMIC evidence does not depend on tier-1b:
+  U6 RANK (verified), U7 tier-1 one-asset (verified, 5-for-5 in-session),
+  and tier-2 (pure MATLAB, no Dynare) carry it.
