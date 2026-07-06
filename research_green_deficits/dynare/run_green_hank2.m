@@ -23,17 +23,23 @@
 % than the one-asset tier (3 calibrated parameters, 3D household state).
 %
 % HONEST SCOPE: LINEARIZED IRFs; NOT the nonlinear DTPL transition.
-% Grids follow the verified example (ne=3, nb=10, na=20): coarse,
-% magnitudes indicative.
+% Grid defaults ne=3, nb=15, na=30 (raised from the example's 10x20):
+% magnitudes indicative until the accuracy protocol passes.
 %
 % USAGE:  >> cd research_green_deficits/dynare
-%         >> run_green_hank2
+%         >> run_green_hank2                       % resumes from checkpoint
+%         >> FORCE_RERUN = true;  run_green_hank2  % re-solve everything
+%         >> SPAWN_MATLAB = true; run_green_hank2  % crash-proof: one fresh
+%                                                  % MATLAB process per regime
+%         >> RUN_ACCURACY = true; run_green_hank2  % force the refinement pass
 %
 % OUTPUT: PFig17_hank2_green_irfs.{fig,png,pdf}, hank2_green_irfs.mat,
 %         ../output/tables/hank2_irfs_summary.txt,
 %         ../output/tables/hank2_validation.txt.
 
-clear; close all;
+% keep the user-set control flags alive (a bare 'clear' would wipe them
+% before they are read)
+clearvars -except FORCE_RERUN SPAWN_MATLAB REGIME_ONLY RUN_ACCURACY; close all;
 t0 = tic;
 
 dyndir = fileparts(mfilename('fullpath'));
@@ -55,20 +61,51 @@ regimes = struct( ...
               '-DPHIPI=1.5 -DPSIG=0.03', ...
               '-DPHIPI=1.5 -DPHIB=0.75'});
 
-% CRASH RESILIENCE: the first run hard-crashed MATLAB in the final regime
-% (repeated heterogeneity solves in one session are memory-heavy). If that
-% recurs, run ONE regime per MATLAB session:
-%     >> REGIME_ONLY = 'TAYLORBAL'; run_green_hank2
-% results accumulate in ../output/hank2_green_irfs.mat across sessions.
+% ==================== CRASH RESILIENCE (three layers) ====================
+% The Dynare 8-unstable heterogeneity framework has HARD-CRASHED MATLAB
+% when several heavy solves run in one session. A hard process crash
+% cannot be caught by try/catch, so the driver is engineered around it:
+%
+%  1. CHECKPOINT-RESUME (default, automatic): results are saved to
+%     ../output/hank2_green_irfs.mat after EVERY regime. Already-solved
+%     regimes are SKIPPED on the next run, so after a crash you simply
+%     re-run run_green_hank2 and it continues where it stopped. Set
+%     FORCE_RERUN = true to ignore the checkpoint and solve everything
+%     fresh (do this after editing the .mod).
+%  2. PROCESS ISOLATION (recommended if crashes recur): set
+%         SPAWN_MATLAB = true; run_green_hank2
+%     and each regime runs in its own fresh "matlab -batch" child process
+%     (requires matlab on the system PATH). If Dynare dies, only the
+%     child dies; this session records the failure and continues.
+%  3. MEMORY HYGIENE between in-session solves (close figures, clear
+%     generated functions/MEX, drop the previous solve's Dynare globals).
+%
+% REGIME_ONLY = '<name>' still restricts to a single regime if wanted.
 if exist('REGIME_ONLY', 'var') && ~isempty(REGIME_ONLY)
     keep = strcmpi({regimes.name}, REGIME_ONLY);
     if any(keep), regimes = regimes(keep); end
     fprintf('*** single-regime mode: %s ***\n', regimes(1).name);
 end
+if ~exist('FORCE_RERUN', 'var'),  FORCE_RERUN  = false; end
+if ~exist('SPAWN_MATLAB', 'var'), SPAWN_MATLAB = false; end
 accfile = fullfile(projdir, 'output', 'hank2_green_irfs.mat');
-PREV = struct();
-if exist(accfile, 'file') == 2
-    try, L = load(accfile); PREV = L.RES; catch, end %#ok<NOCOM>
+% model fingerprint: a checkpoint written under a DIFFERENT green_hank2.mod
+% must never be restored (it would resurrect pre-fix runs)
+mi = dir(fullfile(dyndir, 'green_hank2.mod'));
+modstamp = [mi.bytes, mi.datenum];
+PREV = struct(); PREVCAL = struct();
+if exist(accfile, 'file') == 2 && ~FORCE_RERUN
+    try
+        L = load(accfile);
+        if isfield(L, 'modstamp') && isequal(L.modstamp, modstamp)
+            PREV = L.RES;
+            if isfield(L, 'CAL'), PREVCAL = L.CAL; end
+        else
+            fprintf(['  [checkpoint ignored: green_hank2.mod changed since ' ...
+                     'it was written -- all regimes will re-solve]\n']);
+        end
+    catch
+    end
 end
 
 vars_keep = {'Y','pi','i','r','rb','ra','omega','bg','tax','gg','kg','d','p','K','I','w','N'};
@@ -76,30 +113,75 @@ RES = struct();
 CAL = struct();
 DIVERGENT = struct();
 ok  = false(1, numel(regimes));
+restored = false(1, numel(regimes));
 
 for rgm = 1:numel(regimes)
-    fprintf('\n===== HANK2 regime %s =====\n', regimes(rgm).name);
-    try
-        % memory hygiene between heavy heterogeneity solves (the first
-        % run crashed in the final regime)
-        close all; clear functions; %#ok<CLFUNC>
-        nm = sprintf('grn2_%s', lower(regimes(rgm).name));
-        copyfile('green_hank2.mod', [nm '.mod']);
-        if exist(['+' nm], 'dir'), rmdir(['+' nm], 's'); end
-        if exist(nm, 'dir'), rmdir(nm, 's'); end
-        eval(sprintf('dynare %s %s noclearall nolog', nm, regimes(rgm).defs));
+    rname = regimes(rgm).name;
+    fprintf('\n===== HANK2 regime %s =====\n', rname);
 
-        irfs = [];
-        if exist('oo_', 'var') && isfield(oo_, 'irfs') && ~isempty(fieldnames(oo_.irfs))
-            irfs = oo_.irfs;                       %#ok<NODEF>
-        elseif exist('oo_', 'var') && isfield(oo_, 'heterogeneity') ...
-                && isfield(oo_.heterogeneity, 'irfs')
-            irfs = oo_.heterogeneity.irfs;
+    % ---- layer 1: checkpoint skip (divergence gate applies to restores) --
+    if isfield(PREV, rname)
+        pv = PREV.(rname);
+        if isfield(pv,'pi') && (max(abs(pv.pi)) > 0.05 || max(abs(pv.Y)) > 0.25 ...
+                || (isfield(pv,'bg') && max(abs(pv.bg)) > 5))
+            fprintf('  [checkpointed %s is DIVERGENT -- discarded, will re-solve]\n', rname);
+            DIVERGENT.(rname) = true;
+        else
+            RES.(rname) = pv;
+            if isfield(PREVCAL, rname), CAL.(rname) = PREVCAL.(rname); end
+            ok(rgm) = true; restored(rgm) = true;
+            fprintf('  [restored from checkpoint -- set FORCE_RERUN=true to re-solve]\n');
+            continue;
         end
+    end
+
+    try
+        % ---- layer 3: memory hygiene before each heavy solve ----
+        close all;
+        clear functions; %#ok<CLFUNC>
+        try, clear mex; catch, end %#ok<CLMEX,NOCOM>
+        clear oo_ M_ options_;
+
+        nm = sprintf('grn2_%s', lower(rname));
+        irfs = []; pn = {}; pvals = [];
+
+        if SPAWN_MATLAB
+            % ---- layer 2: one fresh MATLAB process per regime ----
+            dynpath = fileparts(which('dynare'));
+            outmat  = fullfile(dyndir, [nm '_out.mat']);
+            if exist(outmat, 'file'), delete(outmat); end
+            cmd = sprintf(['matlab -batch "cd(''%s''); ' ...
+                'solve_hank_regime_batch(''green_hank2'',''%s'',''%s'',''%s'',''%s'')"'], ...
+                dyndir, nm, regimes(rgm).defs, dynpath, outmat);
+            fprintf('  [spawning fresh MATLAB for %s]\n', rname);
+            status = system(cmd);
+            if status ~= 0 || exist(outmat, 'file') ~= 2
+                warning('run_green_hank2:childfail', ...
+                    ['Regime %s: child MATLAB exited with status %d ' ...
+                     '(a crash there does NOT kill this session).'], rname, status);
+                continue;
+            end
+            Lc = load(outmat);
+            irfs = Lc.irfs; pn = Lc.param_names; pvals = Lc.param_values;
+        else
+            copyfile('green_hank2.mod', [nm '.mod']);
+            if exist(['+' nm], 'dir'), rmdir(['+' nm], 's'); end
+            if exist(nm, 'dir'), rmdir(nm, 's'); end
+            eval(sprintf('dynare %s %s noclearall nolog', nm, regimes(rgm).defs));
+            if exist('oo_', 'var') && isfield(oo_, 'irfs') && ~isempty(fieldnames(oo_.irfs))
+                irfs = oo_.irfs;                       %#ok<NODEF>
+            elseif exist('oo_', 'var') && isfield(oo_, 'heterogeneity') ...
+                    && isfield(oo_.heterogeneity, 'irfs')
+                irfs = oo_.heterogeneity.irfs;
+            end
+            if exist('M_', 'var')
+                pn = cellstr(M_.param_names); pvals = M_.params; %#ok<NODEF>
+            end
+        end
+
         if isempty(irfs)
             warning('run_green_hank2:noirfs', ...
-                'Regime %s: solved but no IRFs found; inspect fieldnames(oo_).', ...
-                regimes(rgm).name);
+                'Regime %s: solved but no IRFs found; inspect fieldnames(oo_).', rname);
             continue;
         end
         paths = struct();
@@ -114,55 +196,37 @@ for rgm = 1:numel(regimes)
         if ~isfield(paths, 'Y')
             warning('run_green_hank2:names', ...
                 'Regime %s: IRF fields do not match expected names: %s', ...
-                regimes(rgm).name, strjoin(fn, ', '));
+                rname, strjoin(fn, ', '));
             continue;
         end
         % DIVERGENCE GATE: a linearized IRF to a 1%-of-output shock that
         % moves inflation by >5% quarterly or output by >25% is not a
-        % solution, it is a pathology (the first run's TAYLORBAL wrote
-        % pi = -10.59 into the summary as if it were a result). Excluded
-        % outright -- never plotted, never summarized.
+        % solution, it is a pathology. Excluded outright.
         if max(abs(paths.pi)) > 0.05 || max(abs(paths.Y)) > 0.25 ...
                 || (isfield(paths,'bg') && max(abs(paths.bg)) > 5)
             warning('run_green_hank2:divergent', ...
                 ['Regime %s: DIVERGENT linearized solution (|pi|max=%.3g, ' ...
                  '|Y|max=%.3g) -- excluded from all outputs.'], ...
-                regimes(rgm).name, max(abs(paths.pi)), max(abs(paths.Y)));
-            DIVERGENT.(regimes(rgm).name) = true; %#ok<STRNU>
+                rname, max(abs(paths.pi)), max(abs(paths.Y)));
+            DIVERGENT.(rname) = true;
             continue;
         end
-        RES.(regimes(rgm).name) = paths;
+        RES.(rname) = paths;
         ok(rgm) = true;
-        if exist('M_', 'var')
-            pn = cellstr(M_.param_names);
-            CAL.(regimes(rgm).name) = struct( ...
-                'beta_ss', M_.params(strcmp(pn,'beta_ss')), ...
-                'vphi',    M_.params(strcmp(pn,'vphi')), ...
-                'chi1',    M_.params(strcmp(pn,'chi1')));   % chi1 FIXED (6.416)
+        if isfield(DIVERGENT, rname), DIVERGENT = rmfield(DIVERGENT, rname); end
+        if ~isempty(pn)
+            CAL.(rname) = struct( ...
+                'beta_ss', pvals(strcmp(pn,'beta_ss')), ...
+                'vphi',    pvals(strcmp(pn,'vphi')), ...
+                'chi1',    pvals(strcmp(pn,'chi1')));   % chi1 FIXED (6.416)
         end
-        fprintf('  [%s solved: IRF horizon %d]\n', regimes(rgm).name, numel(paths.Y));
-    catch ME
-        warning('run_green_hank2:fail', 'Regime %s failed: %s', ...
-            regimes(rgm).name, ME.message);
-    end
-end
+        fprintf('  [%s solved: IRF horizon %d]\n', rname, numel(paths.Y));
 
-% merge results from previous sessions (single-regime crash-recovery mode);
-% the divergence gate applies to restored paths too (the first run's .mat
-% may contain the pathological TAYLORBAL)
-pf = fieldnames(PREV);
-for k = 1:numel(pf)
-    if ~isfield(RES, pf{k})
-        pv = PREV.(pf{k});
-        if isfield(pv,'pi') && (max(abs(pv.pi)) > 0.05 || max(abs(pv.Y)) > 0.25)
-            fprintf('  [previous-session %s is DIVERGENT -- not restored]\n', pf{k});
-            DIVERGENT.(pf{k}) = true;
-            continue;
-        end
-        RES.(pf{k}) = pv;
-        hit = strcmpi({regimes.name}, pf{k});
-        if any(hit), ok(hit) = true; end
-        fprintf('  [restored %s from previous session]\n', pf{k});
+        % ---- layer 1: checkpoint immediately (a later crash loses nothing)
+        save(accfile, 'RES', 'CAL', 'regimes', 'ok', 'modstamp');
+        fprintf('  [checkpoint saved]\n');
+    catch ME
+        warning('run_green_hank2:fail', 'Regime %s failed: %s', rname, ME.message);
     end
 end
 
@@ -202,30 +266,59 @@ end
 
 % ---- ACCURACY REFINEMENT PASS (accuracy protocol, step 2) ----
 % Re-solve the TAYLOR regime with a LONGER truncation horizon (600 vs 400)
-% and FINER asset grids (nb 10->20, na 20->40), then compare IRFs. If the
+% and FINER asset grids (nb 15->25, na 30->50), then compare IRFs. If the
 % baseline solution is accurate, the two should agree closely; a large gap
-% means the baseline grids/horizon are driving the results. Skipped in
-% single-regime mode (set RUN_ACCURACY = true to force).
-run_acc = isfield(RES, 'TAYLOR') && ...
+% means the baseline grids/horizon are driving the results.
+%
+% CRASH NOTE: this is the HEAVIEST solve in the package; stacking it as a
+% fifth in-session solve is the most likely cause of the hard MATLAB
+% crash. It therefore runs by default ONLY when every main regime came
+% from the checkpoint (i.e., in a fresh session with full memory
+% headroom); in a session that just solved regimes, it defers with a
+% message. Force it with RUN_ACCURACY = true; with SPAWN_MATLAB = true it
+% runs out of process and cannot crash this session at all.
+run_acc = isfield(RES, 'TAYLOR') && all(restored(ok)) && ...
     ~(exist('REGIME_ONLY','var') && ~isempty(REGIME_ONLY));
 if exist('RUN_ACCURACY', 'var') && RUN_ACCURACY, run_acc = isfield(RES,'TAYLOR'); end
 ACC = struct('ran', false);
+if isfield(RES,'TAYLOR') && ~run_acc
+    fprintf(['\n  [accuracy pass DEFERRED: re-run run_green_hank2 in a fresh\n' ...
+             '   MATLAB session (regimes will restore from checkpoint and the\n' ...
+             '   refinement solve gets full memory), or set RUN_ACCURACY=true,\n' ...
+             '   or SPAWN_MATLAB=true for out-of-process execution]\n']);
+end
 if run_acc
     fprintf('\n===== HANK2 accuracy pass (TAYLOR, refined) =====\n');
     try
-        close all; clear functions; %#ok<CLFUNC>
+        close all;
+        clear functions; %#ok<CLFUNC>
+        try, clear mex; catch, end %#ok<CLMEX,NOCOM>
+        clear oo_ M_ options_;
         nm = 'grn2_taylor_acc';
-        copyfile('green_hank2.mod', [nm '.mod']);
-        if exist(['+' nm], 'dir'), rmdir(['+' nm], 's'); end
-        if exist(nm, 'dir'), rmdir(nm, 's'); end
-        eval(sprintf(['dynare %s -DPHIPI=1.5 -DTHORIZON=600 -DNB=25 ' ...
-                      '-DNA=50 noclearall nolog'], nm));
+        accdefs = '-DPHIPI=1.5 -DTHORIZON=600 -DNB=25 -DNA=50';
         irfs = [];
-        if exist('oo_', 'var') && isfield(oo_, 'irfs') && ~isempty(fieldnames(oo_.irfs))
-            irfs = oo_.irfs;
-        elseif exist('oo_', 'var') && isfield(oo_, 'heterogeneity') ...
-                && isfield(oo_.heterogeneity, 'irfs')
-            irfs = oo_.heterogeneity.irfs;
+        if SPAWN_MATLAB
+            dynpath = fileparts(which('dynare'));
+            outmat  = fullfile(dyndir, [nm '_out.mat']);
+            if exist(outmat, 'file'), delete(outmat); end
+            cmd = sprintf(['matlab -batch "cd(''%s''); ' ...
+                'solve_hank_regime_batch(''green_hank2'',''%s'',''%s'',''%s'',''%s'')"'], ...
+                dyndir, nm, accdefs, dynpath, outmat);
+            status = system(cmd);
+            if status == 0 && exist(outmat, 'file') == 2
+                Lc = load(outmat); irfs = Lc.irfs;
+            end
+        else
+            copyfile('green_hank2.mod', [nm '.mod']);
+            if exist(['+' nm], 'dir'), rmdir(['+' nm], 's'); end
+            if exist(nm, 'dir'), rmdir(nm, 's'); end
+            eval(sprintf('dynare %s %s noclearall nolog', nm, accdefs));
+            if exist('oo_', 'var') && isfield(oo_, 'irfs') && ~isempty(fieldnames(oo_.irfs))
+                irfs = oo_.irfs;
+            elseif exist('oo_', 'var') && isfield(oo_, 'heterogeneity') ...
+                    && isfield(oo_.heterogeneity, 'irfs')
+                irfs = oo_.heterogeneity.irfs;
+            end
         end
         if ~isempty(irfs)
             fnn = fieldnames(irfs);
@@ -278,7 +371,7 @@ end
 save_all_figs(fh, 'PFig17_hank2_green_irfs', pg);
 fprintf('\n  [saved] PFig17_hank2_green_irfs\n');
 
-save(fullfile(projdir, 'output', 'hank2_green_irfs.mat'), 'RES', 'regimes', 'ok', 'OSC', 'ACC');
+save(fullfile(projdir, 'output', 'hank2_green_irfs.mat'), 'RES', 'CAL', 'regimes', 'ok', 'OSC', 'ACC', 'modstamp');
 
 % ---- summary ----
 sf = fullfile(pg.tabdir, 'hank2_irfs_summary.txt');
@@ -303,11 +396,11 @@ vf = fullfile(pg.tabdir, 'hank2_validation.txt');
 fid = fopen(vf, 'w');
 if fid > 0
     fprintf(fid, 'U7 TIER-1b TWO-ASSET HANK VALIDATION\n');
-    fprintf(fid, 'Scope: TIER-1 LINEARIZED HANK IRF (two-asset; sequence-space; horizon 300).\n');
+    fprintf(fid, 'Scope: TIER-1 LINEARIZED HANK IRF (two-asset; sequence-space; horizon 400 default).\n');
     fprintf(fid, 'Liquid nominal bonds vs illiquid equity with convex adjustment costs;\n');
     fprintf(fid, 'endogenous government debt (liquid supply = lamB*bg); Fisher equation\n');
     fprintf(fid, 'present. NOT nonlinear DTPL price-level determination.\n');
-    fprintf(fid, 'Grids: ne=3 (rho_e=0.966, sig_e=0.92, example calibration), nb=10, na=20\n');
+    fprintf(fid, 'Grids: ne=3 (rho_e=0.966, sig_e=0.92, example calibration), nb=15, na=30\n');
     fprintf(fid, '-- COARSE; magnitudes indicative. Steady-state residuals: Dynare log.\n\n');
     fprintf(fid, '%-11s %-8s %-8s %-10s %-9s %-9s %-11s %-11s %-11s\n', ...
         'regime', 'solved', 'horizon', 'beta_ss*', 'vphi*', 'chi1*', ...
@@ -336,7 +429,7 @@ if fid > 0
         fprintf(fid, 'DIVERGENT   %-11s excluded from all outputs (pathological linearized solution)\n', dn{k});
     end
     if ACC.ran
-        fprintf(fid, 'refinement (TAYLOR, THORIZON 600, nb 20, na 40): max rel. dev %.3f -> %s\n', ...
+        fprintf(fid, 'refinement (TAYLOR, THORIZON 600, nb 25, na 50): max rel. dev %.3f -> %s\n', ...
             ACC.maxdev, ternary_str(ACC.pass, 'PASS', 'FAIL (baseline grids/horizon drive results)'));
         for k = 1:numel(ACC.report), fprintf(fid, '  %s\n', ACC.report{k}); end
     else
