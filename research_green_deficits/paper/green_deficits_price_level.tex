@@ -1538,15 +1538,21 @@ transition.}
 package also implements a two-asset extension of the HANK tier
 (liquid nominal bonds versus illiquid equity with convex
 portfolio-adjustment costs, sticky wages and prices, investment with
-Tobin's $Q$, endogenous government debt whose liquid tranche scales
-with the debt stock --- so that a deficit-financed program changes the
-\emph{supply of liquid nominal safe assets}, the dynamic counterpart of
-the $B/P$ margin at the heart of the model --- and, in the corrected
-specification, an \emph{endogenous convenience yield} that prices the
-liquid-bond market and so makes the premium on liquid nominal safe assets
-itself an equilibrium object). We flag a numerical finding
-rather than hide it: the first solution of this tier produced visibly
-\emph{oscillatory} impulse responses. The likely causes are generic to
+Tobin's $Q$, and endogenous government debt, so that households'
+demand for the liquid nominal asset --- the $B/P$ margin at the heart of
+the model --- is observable separately from total wealth). One design
+lesson from this tier is itself worth recording: we attempted to make
+the liquidity premium an \emph{endogenous convenience yield} clearing
+the liquid-bond market, under both natural timings of the premium, and
+both are boundary-singular in a truncated sequence-space system --- the
+contemporaneous premium has only an income effect on predetermined
+holdings at the impact date, while the issuance-timed premium leaves the
+terminal-date premium outside every within-horizon equation --- so the
+tier closes, like the reference implementation, with a single
+total-wealth clearing condition and a constant premium, and the
+endogenous convenience yield remains future work. We also flag a
+numerical finding rather than hide it: the first solution of this tier
+produced visibly \emph{oscillatory} impulse responses. The likely causes are generic to
 sequence-space methods --- shock persistence ($0.995$) too close to the
 truncation horizon (300 quarters), which produces reflection artifacts,
 compounded by the coarse benchmark asset grids of the reference
