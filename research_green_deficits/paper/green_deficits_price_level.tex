@@ -1493,22 +1493,23 @@ keys off the program flow rather than the green-capital gap, so the
 and the two tiers are compared on shapes, not on levels.
 
 The verified run (five regimes solved; calibrated $\beta = 0.9796$;
-one-percent-of-output program) delivers the tier's key message in two
-comparisons. \emph{Across monetary rules}, impact inflation is $+2.18\%$
-annualized under \textsc{weak}, $+0.31\%$ under \textsc{taylor}, $+0.07\%$
-under \textsc{aggressive}, $+0.53\%$ under \textsc{greenaccom}, with
-output up half a percent of its steady-state level on impact ($+0.0044$
-in levels against $\bar Y = 0.90$) --- positive throughout, against
-impact deflation in the tax-financed, ramped RANK experiment of
-Section~\ref{subsec:ranktrans} --- and the real green path is again
-rule-independent (green capital $+0.205$, damages $-0.0039$ after 40
-quarters, identical to three decimals across all regimes). \emph{Within
-the Taylor rule}, a fifth regime (\textsc{taylorbal}) re-runs the
-identical program with a fast debt-stabilizing tax rule in place of the
-slow one, isolating the deficit-financing component while holding the
-model fixed: real debt after 40 quarters rises $+0.012$ instead of
-$+0.102$ --- the debt buildup is almost entirely a financing choice ---
-yet impact inflation barely moves ($+0.23\%$ against $+0.31\%$). The
+one-percent-of-output program; persistence $\rho_g = 0.98$) delivers the
+tier's key message in two comparisons. \emph{Across monetary rules},
+impact inflation is $+2.53\%$ annualized under \textsc{weak}, $+0.44\%$
+under \textsc{taylor}, $+0.10\%$ under \textsc{aggressive}, $+0.65\%$
+under \textsc{greenaccom}, with output up half a percent of its
+steady-state level on impact ($+0.0044$ in levels against $\bar Y =
+0.90$) --- positive throughout, against impact deflation in the
+tax-financed, ramped RANK experiment of Section~\ref{subsec:ranktrans}
+--- and the real green path is again rule-independent (green capital
+$+0.148$, damages $-0.0032$ after 40 quarters, identical to three
+decimals across all regimes). \emph{Within the Taylor rule}, a fifth
+regime (\textsc{taylorbal}) re-runs the identical program with a fast
+debt-stabilizing tax rule in place of the slow one, isolating the
+deficit-financing component while holding the model fixed: real debt
+after 40 quarters rises $+0.007$ instead of $+0.071$ --- the debt buildup
+is almost entirely a financing choice --- yet impact inflation barely
+moves ($+0.36\%$ against $+0.44\%$). The
 decomposition is sharp: in the linearized HANK, \emph{deficit financing
 buys the debt path, not the inflation path} --- the mild impact inflation
 belongs to the unanticipated program itself, its size is set by the
@@ -1527,7 +1528,7 @@ validation table \texttt{hank\_tier1\_validation.txt}.]
 \includegraphics[width=0.95\textwidth]{PFig14_hank_green_irfs.pdf}
 \caption{Tier-1 HANK: linearized sequence-space impulse responses to a
 quasi-permanent deficit-financed green-investment shock (one percent of
-steady-state output, persistence $0.995$) under four monetary regimes.
+steady-state output, persistence $0.98$) under four monetary regimes.
 The ex-post real return panel is the linearized Fisher revaluation
 channel. Scope: linearized IRFs, not the nonlinear DTPL price-level
 transition.}
@@ -1616,10 +1617,18 @@ autonomous; the terminal condition pins $\hat{P}_T$ at the green
 steady-state price level, and the government budget holds by construction
 at every trial path ($\tau_t = \bar r\, b_t + g_t$). The solver is a
 damped multiplicative fixed point on the price path (excess asset demand
-at $t$ raises $P_t$), with adaptive damping, a per-iteration trust
-region, and the market-clearing residuals reported at every date; a
-non-converged path is returned as such and cannot be presented as a
-result. Each iteration costs $T$ exact Bellman steps plus $T$
+at $t$ \emph{lowers} $\hat P_t$, raising the real value $B_t/P_t$ of the
+fixed nominal stock until it meets demand --- the transition form of
+$P^{*}=B/S$), with adaptive damping (shrinking on oscillation, growing on
+steady progress), a per-iteration trust region, and the market-clearing
+residuals reported at every date. Convergence is assessed on the
+\emph{free} unknowns $\hat P_1,\dots,\hat P_{T-1}$; the pinned terminal
+date's residual is reported separately as a horizon-adequacy check --- it
+vanishes only when $T$ is long enough for the wealth distribution to
+reach the green steady state, at which point green-steady-state savings
+equal $B_T/P_T$ by construction. A path that is not both converged and
+horizon-adequate is returned as such and cannot be presented as a result.
+Each iteration costs $T$ exact Bellman steps plus $T$
 distribution pushes on the full $(a,e)$ grids --- deliberately the
 computationally heaviest object in the package. Two experiments run by
 default: the \emph{nominal appropriation} (the anchor-exposed design) and
@@ -1629,7 +1638,16 @@ jumps is the dynamic version of the anchor-insulation result, and the
 model's central untested prediction --- that a credible green
 announcement produces \emph{disinflation on impact} under deficit
 finance --- becomes a computed, sign-testable object
-(Section~\ref{sec:empirics}, E3).
+(Section~\ref{sec:empirics}, E3). A first FAST diagnostic pass (coarse
+grid, short horizon) already returns exactly this sign: a surprise impact
+disinflation with a bondholder windfall on the outstanding nominal stock,
+inflation then returning to its nominal-growth trend, and both the
+nominal-appropriation and indexed-mandate designs disinflating on impact.
+On that pass the interior fixed point clears essentially to tolerance and
+the residual concentrates at the still-settling terminal date, so the
+remaining step before magnitudes enter the text is the reportable
+full-accuracy run (dense grid, long horizon). [NONLINEAR HANK-DTPL
+TRANSITION, FAST diagnostic; sign confirmed, magnitude not yet reported.]
 
 \pfigguard{PFig18_dtpl_transition.pdf}{%
 \begin{figure}[ht]\centering
@@ -1638,8 +1656,11 @@ finance --- becomes a computed, sign-testable object
 inflation, real debt versus asset demand, green capital, damages, and
 market-clearing residuals, for the nominal-appropriation and
 indexed-mandate designs. Generated by
-\texttt{main\_project\_transition}; reported only if converged
-(residuals in the last panel).}
+\texttt{main\_project\_transition}. Current render: the FAST diagnostic
+pass (coarse grid, short horizon) --- the interior fixed point clears
+near tolerance while the last (log-scale) residual panel shows the
+mass concentrated at the still-settling terminal date; magnitudes are
+quoted only after the full-accuracy, horizon-adequate run.}
 \label{fig:pfig18}
 \end{figure}}
 

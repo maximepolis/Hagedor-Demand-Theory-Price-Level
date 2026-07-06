@@ -306,9 +306,18 @@ end
 vf = fullfile(pg.tabdir, 'hank_tier1_validation.txt');
 fid = fopen(vf, 'w');
 if fid > 0
+    % report the ACTUAL accuracy defines the .mod carries (parsed from the
+    % source, not hardcoded -- the prose used to say a stale "300")
+    thz = regexp(modtxt, '@#define\s+THORIZON\s*=\s*(\d+)', 'tokens', 'once');
+    rhg = regexp(modtxt, '@#define\s+RHOG\s*=\s*([0-9.]+)', 'tokens', 'once');
+    irfn = regexp(modtxt, 'heterogeneity_simulate\(irf\s*=\s*(\d+)', 'tokens', 'once');
+    THZ = 400; if ~isempty(thz), THZ = str2double(thz{1}); end
+    RHG = 0.98; if ~isempty(rhg), RHG = str2double(rhg{1}); end
+    IRFN = 200; if ~isempty(irfn), IRFN = str2double(irfn{1}); end
     fprintf(fid, 'U7 TIER-1 HANK VALIDATION\n');
     fprintf(fid, 'Scope label: TIER-1 LINEARIZED HANK IRF (sequence-space, Dynare heterogeneity\n');
-    fprintf(fid, 'framework, truncation horizon 300). Contains the Fisher revaluation channel\n');
+    fprintf(fid, 'framework, sequence-space truncation horizon %d, IRF stored to %d quarters).\n', THZ, IRFN);
+    fprintf(fid, 'Contains the Fisher revaluation channel\n');
     fprintf(fid, '(nominal rate + ex-post real return on nominal assets) but NOT nonlinear\n');
     fprintf(fid, 'DTPL price-level determination -- a bridge to the tier-2 transition, not it.\n\n');
     fprintf(fid, 'Income process: rho_e=0.966, sig_e=0.5, 3 states (DYNARE-EXAMPLE calibration,\n');
@@ -317,7 +326,7 @@ if fid > 0
     fprintf(fid, 'Steady-state market-clearing residuals: see the Dynare log of each regime\n');
     fprintf(fid, '(heterogeneity_compute_steady_state prints them; tol 1e-4).\n\n');
     fprintf(fid, '%-11s %-8s %-8s %-10s %-10s %-11s %-11s %-11s %-11s\n', ...
-        'regime', 'solved', 'horizon', 'beta*', 'B', ...
+        'regime', 'solved', 'irf_len', 'beta*', 'B', ...
         'pi impact', 'Y impact', 'b(40q)', 'd(40q)');
     for rgm = 1:numel(regimes)
         if ~ok(rgm)
@@ -335,8 +344,8 @@ if fid > 0
             s.pi(1), s.Y(1), s.b(min(40,end)), s.d(min(40,end)));
     end
     fprintf(fid, '\nIRFs are deviations from steady state to a ONE-STD e_g shock (0.009,\n');
-    fprintf(fid, '~1%% of steady-state output); persistence rho_g set by -DRHOG (0.995 =\n');
-    fprintf(fid, 'verified-run default; 0.98 recommended for the accuracy re-verification).\n');
+    fprintf(fid, '~1%% of steady-state output); persistence rho_g = %.3f (the .mod default;\n', RHG);
+    fprintf(fid, 'override with -DRHOG). truncation_horizon = %d.\n', THZ);
     fprintf(fid, '\n--- OSCILLATION DIAGNOSTIC ---\n');
     onn = fieldnames(OSC);
     for k = 1:numel(onn)

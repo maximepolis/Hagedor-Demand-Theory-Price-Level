@@ -26,7 +26,7 @@ that crashed at X2 and is fixed as of this commit), not from the paper draft.*
 | Component | Status | Notes |
 |---|---|---|
 | Production sector | **PARTIALLY IMPLEMENTED** | Stage-1 aggregate layer `production_block_green.m` (Y=(1-D)A(Kg)N, tax-base split, Bom-Ligthart-checkable elasticity) exists but is NOT joined to the HA household block, which remains an endowment economy by design (transparency); clean/dirty CES + Pigouvian margin (U8) NOT YET IMPLEMENTED |
-| Sticky prices (NK) | **PARTIALLY IMPLEMENTED** | `dynare/green_rank_nk.mod` (RANK, run VERIFIED: all four regimes converged) + `dynare/green_hank.mod` (tier-1 HANK, run completed, numeric summary pending) -- transition tiers only, NOT the DTPL mechanism |
+| Sticky prices (NK) | **PARTIALLY IMPLEMENTED** | `dynare/green_rank_nk.mod` (RANK, run VERIFIED: all four regimes converged) + `dynare/green_hank.mod` (tier-1 HANK, run VERIFIED: five regimes, RHOG=0.98 master run 2026-07-06, `hank_irfs_summary.txt`) -- transition tiers only, NOT the DTPL mechanism |
 | Clean/dirty sectors, energy input, brown-capital stranding | **NOT YET IMPLEMENTED** | design in ROADMAP.md |
 | Climate damages to productivity | **PARTIALLY IMPLEMENTED** | damages hit endowments (HA block) / TFP (Dynare skeleton) |
 
@@ -70,7 +70,7 @@ that crashed at X2 and is fixed as of this commit), not from the paper draft.*
 | Component | Status | Notes |
 |---|---|---|
 | Stationary equilibrium, all roots of Phi(P), elasticity diagnostic | **IMPLEMENTED** | `solve_green_steady_state.m` |
-| Steady-state vs transition vs aggregate-risk separation | **IMPLEMENTED (labels)** | ALL quantitative results to date are STEADY STATE ONLY; transitions: Dynare RANK block (U6, IMPLEMENTED, run pending) + native-Dynare HANK tier-1 (`dynare/green_hank.mod`, U7, IMPLEMENTED, run pending — linearized IRFs, NOT the nonlinear DTPL P* transition); nonlinear HANK P* transition NOT YET IMPLEMENTED (plan only); aggregate risk NOT YET IMPLEMENTED |
+| Steady-state vs transition vs aggregate-risk separation | **IMPLEMENTED (labels)** | ALL quantitative results to date are STEADY STATE ONLY; transitions: Dynare RANK block (U6, IMPLEMENTED, run VERIFIED) + native-Dynare HANK tier-1 (`dynare/green_hank.mod`, U7, IMPLEMENTED, run VERIFIED — linearized IRFs, NOT the nonlinear DTPL P* transition); nonlinear HANK P* transition (U7 tier 2, `solve_hank_dtpl_transition.m`) IMPLEMENTED (v1) and RAN in the master (FAST) — sign confirmed (impact disinflation), a horizon-adequate/converged full-accuracy run is the gate before magnitudes are reported; aggregate risk NOT YET IMPLEMENTED |
 | Exact re-solve at roots, interpolation-residual reporting | **IMPLEMENTED** | |
 
 ## 7. Welfare and incidence
