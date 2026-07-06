@@ -83,7 +83,7 @@
 // -- a classic source of end-of-horizon reflection/oscillation artifacts
 // in sequence-space solutions. Default now 0.98 (half-life ~34 quarters,
 // still quasi-permanent over the 120-quarter plot window) with
-// THORIZON=400; the accuracy pass re-solves at THORIZON=600 and refined
+// THORIZON=400; the accuracy pass re-solves at THORIZON=500 and refined
 // grids and compares. Grid defaults raised to nb=15, na=30 after the
 // first run's visible wobble (the example's 10x20 is too coarse for the
 // kinked portfolio-adjustment policies).
@@ -168,9 +168,9 @@ parameters
 Bg = 2.8;
 G_ss = 0.2;
 chi0 = 0.25;
-chi1 = 6.416;   % FIXED at the reference implementation's calibrated value:
-                % with the liquid market clearing through the endogenous
-                % premium omega_t, chi1 can no longer be a calibration target
+chi1 = 6.416;   // FIXED at the reference implementation's calibrated value:
+                // with the liquid market clearing through the endogenous
+                // premium omega_t, chi1 can no longer be a calibration target
 chi2 = 2;
 delta = 0.02;
 eis = 0.5;
@@ -179,10 +179,10 @@ frisch = 1;
 kappap = 0.1;
 kappaw = 0.1;
 muw = 1.1;
-omega_ss = 0.005;  % initial guess for the ss convenience yield (now a VARIABLE:
-                   % the liquid-bond market clears through omega_t, so the
-                   % liquidity premium on nominal safe assets is an endogenous,
-                   % plotted object -- the paper's convenience-yield channel)
+omega_ss = 0.005;  // initial guess for the ss convenience yield (now a VARIABLE:
+                   // the liquid-bond market clears through omega_t, so the
+                   // liquidity premium on nominal safe assets is an endogenous,
+                   // plotted object -- the paper's convenience-yield channel)
 phi  = @{PHIPI};
 psig = @{PSIG};
 r_ss = 0.0125;
@@ -369,10 +369,15 @@ model;
 
    [name='Return on liquid assets']
    // omega is ENDOGENOUS: the liquid-bond clearing condition determines the
-   // convenience yield households pay for liquid nominal safe assets --
-   // the first version fixed omega parametrically, leaving the liquid
-   // quantity constraint with no clearing price (audit finding)
-   r - omega - rb;
+   // convenience yield households pay for liquid nominal safe assets.
+   // TIMING (NaN fix): the premium is set at ISSUANCE -- rb_t = r_t -
+   // omega_{t-1} -- so omega_t directly prices the bonds households choose
+   // at t (through the liquid Euler on rb_{t+1}) and can clear
+   // lamB*bg_t = SUM(b_t). The first endogenous-omega version used
+   // rb_t = r_t - omega_t, which gives date-t omega only an income effect
+   // on predetermined holdings: a near-singular system whose linearized
+   // solution came back NaN in all regimes. Steady state is unchanged.
+   r - omega(-1) - rb;
 
    [name='Return on illiquid assets']
    pshare * (div + p) / p(-1) + (1 - pshare) * (1 + r) - 1 - ra;
