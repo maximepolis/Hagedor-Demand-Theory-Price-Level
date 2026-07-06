@@ -280,3 +280,14 @@ identical" regimes).
   explicit finiteness gates added on solve and restore in BOTH HANK
   drivers; accuracy refinement lightened to 500/20/40 with a
   SPAWN_MATLAB recommendation.
+
+- TIER-1b RUN 4: issuance-timing endogenous omega also SINGULAR
+  (RCOND=NaN; terminal omega_T has a zero Jacobian column in the
+  truncated system). Finiteness gates worked as designed (all NaN paths
+  excluded, nothing checkpointed, no crash). FINAL CLOSURE adopted: the
+  reference dynamics example's own (dividend identity + single
+  total-wealth clearing + constant omega; chi1 fixed at the example's
+  6.4164). Endogenous convenience yield -> PROPOSED (boundary-singular in
+  truncated sequence space under both timings -- documented). Drivers now
+  also delete stale summary/validation txt at startup so failed runs
+  cannot leave old results lying around.

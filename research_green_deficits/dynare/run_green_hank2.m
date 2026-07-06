@@ -13,10 +13,13 @@
 %               dividend identity, NOT by phi_b -- audit-confirmed and
 %               fixed in green_hank2.mod, so the documented 0.75 returns)
 %
-% WHY THIS TIER: the liquid-bond market is now separate from total wealth,
-% so the program's effect on the demand for and supply of LIQUID NOMINAL
-% SAFE ASSETS -- the paper's B/P margin -- is a directly plotted object
-% (bg, rb), and MPC heterogeneity is realistic (wealthy hand-to-mouth).
+% WHY THIS TIER: households now split wealth between LIQUID NOMINAL BONDS
+% and illiquid equity, so the program's effect on liquid-bond demand -- the
+% paper's B/P margin -- is observable (bg, rb, SUM(b) diagnostics) and MPC
+% heterogeneity is realistic (wealthy hand-to-mouth). Closure follows the
+% reference DYNAMICS example: dividend identity + single total-wealth
+% clearing + constant premium omega (an endogenous convenience yield is
+% boundary-singular in truncated sequence space -- see green_hank2.mod).
 %
 % REQUIREMENTS: the Dynare heterogeneity build that ran
 % heterogeneity/hank_two_assets_steady_state.mod. EXPECT SLOWER SOLVES
@@ -54,17 +57,24 @@ if exist('dynare', 'file') ~= 2
     error('Dynare not found on the MATLAB path.');
 end
 
-% ---- VERSION TRIPWIRE: refuse to run a pre-audit-fix model ----
-% The corrected green_hank2.mod contains the dividend identity and the
-% endogenous convenience yield; if this file is the OLD version (as when
-% an outdated ZIP is still in use), running it reproduces the explosive
-% TAYLORBAL pseudo-solution and the crash. Fail loudly instead.
+% ---- VERSION TRIPWIRE: refuse to run an outdated model ----
+% The current green_hank2.mod contains the dividend identity AND the
+% reference dynamics closure (single total-wealth clearing); older
+% versions reproduce the explosive TAYLORBAL solve or the NaN
+% (boundary-singular endogenous-omega) solutions. Fail loudly instead.
 modtxt = fileread(fullfile(dyndir, 'green_hank2.mod'));
-if ~contains(modtxt, "name='Dividends'") || ~contains(modtxt, 'omega  (long_name')
-    error(['green_hank2.mod is the PRE-FIX version (missing the dividend ' ...
-           'identity / endogenous convenience yield). You are running an ' ...
-           'OUTDATED copy of the repository: re-download the branch ZIP, ' ...
-           'replace the WHOLE research_green_deficits folder, and re-run.']);
+if ~contains(modtxt, "name='Dividends'") || ...
+   ~contains(modtxt, 'Asset market clearing (total wealth)')
+    error(['green_hank2.mod is an OUTDATED version (missing the dividend ' ...
+           'identity and/or the reference dynamics closure). Re-download ' ...
+           'the branch ZIP, replace the WHOLE research_green_deficits ' ...
+           'folder, and re-run.']);
+end
+% delete stale summary/validation files so a failed run can never leave
+% previous results lying around to be mistaken for current ones
+for stale = {'hank2_irfs_summary.txt', 'hank2_validation.txt'}
+    f = fullfile(pg.tabdir, stale{1});
+    if exist(f, 'file') == 2, delete(f); end
 end
 % clean stale generated per-regime copies from older versions so a manual
 % "dynare grn2_xxx" can never run an outdated model
@@ -125,7 +135,7 @@ if exist(accfile, 'file') == 2 && ~FORCE_RERUN
     end
 end
 
-vars_keep = {'Y','pi','i','r','rb','ra','omega','bg','tax','gg','kg','d','p','K','I','w','N'};
+vars_keep = {'Y','pi','i','r','rb','ra','bg','tax','gg','kg','d','p','K','I','w','N'};
 RES = struct();
 CAL = struct();
 DIVERGENT = struct();
@@ -386,7 +396,7 @@ end
 % ---- PFig17 ----
 cols = [0.10 0.30 0.75; 0.85 0.20 0.15; 0.20 0.55 0.25; 0.45 0.45 0.45];
 panels = {'Y','output'; 'pi','inflation (net, qtr)'; 'bg','government debt'; ...
-          'omega','convenience yield'; 'kg','green capital'; 'p','equity price'};
+          'rb','liquid (bond) return'; 'kg','green capital'; 'p','equity price'};
 fh = figure('Name','PFig17: two-asset HANK green-program IRFs','Color','w', ...
             'Position',[60 60 1100 640]);
 Tshow = 120;
@@ -436,8 +446,11 @@ if fid > 0
     fprintf(fid, 'U7 TIER-1b TWO-ASSET HANK VALIDATION\n');
     fprintf(fid, 'Scope: TIER-1 LINEARIZED HANK IRF (two-asset; sequence-space; horizon 400 default).\n');
     fprintf(fid, 'Liquid nominal bonds vs illiquid equity with convex adjustment costs;\n');
-    fprintf(fid, 'endogenous government debt (liquid supply = lamB*bg); Fisher equation\n');
-    fprintf(fid, 'present. NOT nonlinear DTPL price-level determination.\n');
+    fprintf(fid, 'endogenous government debt; REFERENCE DYNAMICS CLOSURE (dividend\n');
+    fprintf(fid, 'identity + single total-wealth clearing + constant premium omega --\n');
+    fprintf(fid, 'an endogenous convenience yield is boundary-singular in truncated\n');
+    fprintf(fid, 'sequence space and remains PROPOSED). Fisher equation present.\n');
+    fprintf(fid, 'NOT nonlinear DTPL price-level determination.\n');
     fprintf(fid, 'Grids: ne=3 (rho_e=0.966, sig_e=0.92, example calibration), nb=15, na=30\n');
     fprintf(fid, '-- COARSE; magnitudes indicative. Steady-state residuals: Dynare log.\n\n');
     fprintf(fid, '%-11s %-8s %-8s %-10s %-9s %-9s %-11s %-11s %-11s\n', ...

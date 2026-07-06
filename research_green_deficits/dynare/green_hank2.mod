@@ -1,17 +1,18 @@
 /*
  * GREEN_HANK2.MOD -- U7 tier 1b: TWO-ASSET green HANK (extended tier).
  *
- * ACCURACY STATUS: the first TWO runs are NOT REPORTABLE. Run 1
- * (rho_g=0.995, horizon 300): oscillatory IRFs + crash. Run 2: TAYLORBAL
- * returned an EXPLOSIVE pseudo-solution. ROOT CAUSE (adversarial audit,
+ * ACCURACY STATUS: runs 1-4 are NOT REPORTABLE; full history in
+ * appendix/TRANSITION_VALIDATION.md. Run 1 (rho_g=0.995, horizon 300):
+ * oscillatory + crash. Run 2: explosive TAYLORBAL -- root cause (audit,
  * confirmed): the dividend identity div = Y - wN - I - psip had been
- * dropped in the adaptation from hank_two_assets.mod, leaving div
- * residually defined by equity pricing (which then collapses ra = r
- * identically and unanchors the equity price), while the liquid-market
- * quantity constraint had no clearing price. BOTH fixed in this version:
- * the identity is restored and the liquidity premium omega is now an
- * ENDOGENOUS convenience yield clearing the liquid-bond market. No
- * tier-1b number enters the paper until the accuracy protocol passes.
+ * dropped (the steady-state-calibration template was copied instead of
+ * the dynamics template). Runs 3-4: identity restored, but an ENDOGENOUS
+ * convenience yield clearing the liquid market proved boundary-singular
+ * in the truncated sequence-space system under BOTH timings (NaN
+ * solutions; RCOND=NaN). THIS version adopts the reference dynamics
+ * closure (dividend identity + single total-wealth clearing + constant
+ * premium omega). No tier-1b number enters the paper until the accuracy
+ * protocol passes.
  *
  * STATUS: IMPLEMENTED; run pending on the user's machine (requires the
  * same Dynare heterogeneity build that ran heterogeneity/hank_two_assets_
@@ -33,14 +34,16 @@
  *   - sticky WAGES (wage Phillips curve) in addition to sticky prices
  *   - ENDOGENOUS government debt bg with a financing-speed tax rule
  *     (PHIB define: 0.10 deficit-financed / 0.75 near-balanced)
- *   - ENDOGENOUS liquidity premium omega_t (convenience yield) clearing
- *     the liquid-bond market -- the green program's effect on the
- *     convenience yield of nominal safe assets is a plotted object
  *   - climate block on TFP: Y = (1-d) Z K^alpha N^(1-alpha), green public
  *     capital kg lowers emissions, carbon stock x drives damages d
- *   - liquid-bond supply is a fixed share lamB of government debt, so a
- *     deficit-financed program CHANGES THE SUPPLY OF LIQUID SAFE ASSETS --
- *     the dynamic counterpart of the paper's B/P margin
+ *
+ * CLOSURE (matches the reference DYNAMICS example): dividend identity +
+ * ONE total-wealth clearing condition, constant liquidity premium omega.
+ * An endogenous convenience yield clearing the liquid market was
+ * implemented under both timings and is boundary-singular in the
+ * truncated sequence-space system (see the omega parameter comment) --
+ * that channel remains PROPOSED at this tier; the liquid tranche of
+ * government debt is a reported diagnostic, not an imposed constraint.
  *
  * WHAT IT STILL IS NOT: linearized sequence-space IRFs -- NOT the
  * nonlinear DTPL price-level transition (tier 2, HANK_TRANSITION_PLAN.md).
@@ -137,7 +140,6 @@ var
     mc     (long_name = 'marginal cost')
     r      (long_name = 'real interest rate')
     Y      (long_name = 'output')
-    omega  (long_name = 'liquidity premium on nominal bonds (convenience yield)')
     bg     (long_name = 'government debt (real)')
     gg     (long_name = 'green public investment')
     kg     (long_name = 'green public capital')
@@ -157,10 +159,10 @@ varexo
 ;
 
 parameters
-    kappap alpha epsI muw phi psig Bg lamB pshare delta
+    kappap alpha epsI muw phi psig omega Bg lamB pshare delta
     kappaw frisch mup vphi eis
     chi0 chi1 chi2
-    Z_ss beta_ss r_ss G_ss tax_ss wN_ss omega_ss
+    Z_ss beta_ss r_ss G_ss tax_ss wN_ss
     rho_g phi_b
     delta_g theta_g alpha_A eps0 delta_x gamma_x Dmax
 ;
@@ -168,9 +170,8 @@ parameters
 Bg = 2.8;
 G_ss = 0.2;
 chi0 = 0.25;
-chi1 = 6.416;   // FIXED at the reference implementation's calibrated value:
-                // with the liquid market clearing through the endogenous
-                // premium omega_t, chi1 can no longer be a calibration target
+chi1 = 6.416419681906506;  // FIXED at the reference dynamics example's
+                           // calibrated value (hank_two_assets.mod l.95)
 chi2 = 2;
 delta = 0.02;
 eis = 0.5;
@@ -179,10 +180,16 @@ frisch = 1;
 kappap = 0.1;
 kappaw = 0.1;
 muw = 1.1;
-omega_ss = 0.005;  // initial guess for the ss convenience yield (now a VARIABLE:
-                   // the liquid-bond market clears through omega_t, so the
-                   // liquidity premium on nominal safe assets is an endogenous,
-                   // plotted object -- the paper's convenience-yield channel)
+omega = 0.005;  // liquidity premium on nominal bonds: a PARAMETER, as in the
+                // reference dynamics example. An ENDOGENOUS omega clearing the
+                // liquid market was attempted under BOTH timings and is
+                // boundary-singular in the truncated sequence-space system:
+                // rb_t = r_t - omega_t gives date-t omega only an income
+                // effect on predetermined holdings (near-singular at impact);
+                // rb_t = r_t - omega_{t-1} leaves the terminal omega_T with
+                // an exactly-zero Jacobian column (RCOND = NaN in
+                // heterogeneity.solve). The convenience-yield channel stays
+                // PROPOSED at this tier.
 phi  = @{PHIPI};
 psig = @{PSIG};
 r_ss = 0.0125;
@@ -221,7 +228,7 @@ w = mc_ss * (1 - alpha);
 tax = (r_ss * Bg + G_ss) / w;
 I = delta * K_ss;
 div = 1 - w - I;
-rb = r_ss - omega_ss;
+rb = r_ss - omega;
 ra = r_ss;
 
 initial_guess = struct;
@@ -243,7 +250,6 @@ initial_guess.agg.pi = 0;
 initial_guess.agg.mc = mc_ss;
 initial_guess.agg.r = r_ss;
 initial_guess.agg.Y = 1;
-initial_guess.agg.omega = omega_ss;
 initial_guess.agg.bg = 2.8;
 initial_guess.agg.gg = 0;
 initial_guess.agg.kg = 0;
@@ -368,16 +374,10 @@ model;
    tax - (tax_ss + phi_b * (bg(-1) - Bg) / wN_ss);
 
    [name='Return on liquid assets']
-   // omega is ENDOGENOUS: the liquid-bond clearing condition determines the
-   // convenience yield households pay for liquid nominal safe assets.
-   // TIMING (NaN fix): the premium is set at ISSUANCE -- rb_t = r_t -
-   // omega_{t-1} -- so omega_t directly prices the bonds households choose
-   // at t (through the liquid Euler on rb_{t+1}) and can clear
-   // lamB*bg_t = SUM(b_t). The first endogenous-omega version used
-   // rb_t = r_t - omega_t, which gives date-t omega only an income effect
-   // on predetermined holdings: a near-singular system whose linearized
-   // solution came back NaN in all regimes. Steady state is unchanged.
-   r - omega(-1) - rb;
+   // constant liquidity premium (reference dynamics closure); see the
+   // omega parameter comment for why the endogenous-premium variants are
+   // boundary-singular in the truncated sequence-space system
+   r - omega - rb;
 
    [name='Return on illiquid assets']
    pshare * (div + p) / p(-1) + (1 - pshare) * (1 + r) - 1 - ra;
@@ -412,11 +412,13 @@ model;
    [name='Damages']
    d - Dmax*(1-exp(-gamma_x*x(-1)));
 
-   [name='Illiquid asset market clearing']
+   [name='Asset market clearing (total wealth)']
+   // the reference DYNAMICS example (hank_two_assets.mod) closes the
+   // dynamic system with this single condition; imposing the liquid
+   // split lamB*bg = SUM(b) as a second dynamic clearing requires an
+   // endogenous premium, which is boundary-singular here (see omega).
+   // The liquid tranche lamB*bg is reported as a diagnostic, not imposed.
    p + bg - SUM(a) - SUM(b);
-
-   [name='Liquid asset market clearing']
-   lamB * bg - SUM(b);
 end;
 
 // Green program shock: ~1% of steady-state output, quasi-permanent
@@ -430,7 +432,7 @@ end;
 //==========================================================================
 heterogeneity_compute_steady_state(variable = initial_guess,
     calibration_target_equations=['Wage Phillips curve',
-        'Illiquid asset market clearing'],
+        'Asset market clearing (total wealth)'],
     time_iteration_tol=1e-10,
     time_iteration_max_iter=2000,
     time_iteration_early_stopping=0,

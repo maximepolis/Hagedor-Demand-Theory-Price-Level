@@ -210,3 +210,35 @@ checkpointed, and (restored on the second invocation) triggered the heavy
 accuracy pass = the MATLAB crash. Both HANK drivers now gate on
 finiteness at solve AND restore; the accuracy refinement is lightened to
 THORIZON=500/nb=20/na=40 with SPAWN_MATLAB recommended for it.
+
+## Tier-1b run 4 and the closure decision (final)
+
+Run 4 (issuance-timing endogenous omega, rb_t = r_t - omega_{t-1}):
+heterogeneity.solve reported "Matrix is singular ... RCOND = NaN" and NaN
+IRFs in all regimes; the drivers' finiteness gates excluded everything
+(correct behavior -- nothing bogus written, no crash). DIAGNOSIS: in the
+TRUNCATED sequence-space system the terminal omega_T enters no equation
+inside the horizon (its only appearance is rb_{T+1}) -- an exactly-zero
+Jacobian column. The contemporaneous timing (run 3) has the mirror-image
+near-singularity at the impact date (income effect on predetermined
+holdings only). CONCLUSION: "omega clears the liquid market" is
+boundary-singular in this framework under either timing.
+
+DECISION: adopt the reference DYNAMICS example's own closure
+(hank_two_assets.mod): dividend identity + ONE total-wealth clearing
+(p + bg - SUM(a) - SUM(b)) + constant premium omega = 0.005, chi1 fixed
+at the example's calibrated 6.416419681906506; calibration targets reduce
+to (Wage Phillips curve -> vphi, total-wealth clearing -> beta_ss). The
+liquid tranche lamB*bg is a reported DIAGNOSTIC, not an imposed
+constraint; the endogenous convenience-yield channel is PROPOSED (needs
+either a non-truncated method or a premium specification with interior
+instruments at both boundaries).
+
+OPEN ITEM for the next run's log: the run-4 steady state printed
+household Euler residuals ~11 (infinite-norm over the grid) where the
+one-asset example prints ~1e-10. If these persist under the reference
+closure while aggregate residuals are ~0 and IRFs are finite and smooth,
+they are likely raw complementarity/kink-point residuals of the two-asset
+policies (constrained gridpoints violate the unconstrained Euler by
+construction); if IRFs remain suspect, this becomes the next
+investigation target.
