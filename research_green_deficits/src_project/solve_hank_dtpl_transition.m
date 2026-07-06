@@ -61,9 +61,18 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
 %   .T (80 years) .tol (2e-3) .maxit (60) .xi (0.5) .regime ('nominal')
 %   .Gg_nom (default: pgc.Gg_nom) .verbose (true)
 % OUTPUT TR: .phat (1xT), .P0, .pi_path, .r_path, .tau_path, .D_path,
-%   .Kg_path, .S_path, .b_path, .resid (1xT), .converged, .iters,
+%   .Kg_path, .S_path, .b_path, .resid (1xT), .iters,
 %   .eq0, .eq1 (boundary steady states), .reval_stock, .reval_pv_share,
-%   .msg
+%   .msg, and the split diagnostics
+%     .converged      fixed point cleared the FREE unknowns phat(1:T-1)
+%     .resid_interior max|S-b|/b over 1:T-1 (the fixed-point residual)
+%     .resid_argmax   date of the interior max
+%     .resid_terminal |S_T-b_T|/b_T at the PINNED terminal date (horizon
+%                     adequacy: small only if T is long enough for the
+%                     distribution to reach the green ss)
+%     .horizon_ok     resid_terminal < max(tol, 5e-3)
+%     .reportable     converged AND horizon_ok -- the gate a number must
+%                     pass before it may be quoted as a result
 %
 % STATUS: IMPLEMENTED (v1); numbers are results only once a converged
 % run is verified. NONLINEAR HANK-DTPL TRANSITION tier.
@@ -167,16 +176,35 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
         % version updated in the wrong direction -- audit-confirmed and
         % fixed: the damped update now moves phat toward B0/S.)
         resid = (S_path - b_path) ./ b_path;
-        resnorm = max(abs(resid));
+        % CONVERGENCE is over the FREE unknowns phat(1:T-1). phat(T) is
+        % PINNED at the terminal green ss, so resid(T) is NOT a lever the
+        % solver can move: it is instead the HORIZON-ADEQUACY diagnostic --
+        % it goes to zero only when T is long enough for the rolled-forward
+        % wealth distribution to reach the green-ss distribution (at which
+        % point green-ss savings = B0/eq1.P = b_T by construction). Audit
+        % fix: the old criterion took max over ALL dates, so a still-settling
+        % terminal date blocked declared convergence even with a perfectly
+        % cleared interior -- exactly the FAST-run symptom (one terminal
+        % outlier at 0.0097 against an interior mean at tolerance).
+        resnorm  = max(abs(resid(1:T-1)));
+        resid_T  = abs(resid(T));
         if verbose
-            fprintf('  iter %2d: max|S-b|/b = %.5f (xi=%.3f)\n', it, resnorm, xi);
+            fprintf(['  iter %2d: interior max|S-b|/b = %.5f, ' ...
+                'terminal(horizon) = %.5f (xi=%.3f)\n'], it, resnorm, resid_T, xi);
         end
         if resnorm < tol
             TR.converged = true;
             break;
         end
         if it == maxit, break; end   % keep packed paths consistent with phat
-        if resnorm > resnorm_prev * 1.02, xi = max(xi/2, 0.05); end
+        % adaptive damping: shrink xi on oscillation, GROW it on steady
+        % progress -- accelerates the slow multiplicative fixed point so the
+        % full-accuracy run clears within the iteration budget
+        if resnorm > resnorm_prev * 1.02
+            xi = max(xi/2, 0.05);
+        elseif resnorm < resnorm_prev * 0.98
+            xi = min(xi * 1.15, 0.90);
+        end
         resnorm_prev = resnorm;
         upd = (b_path ./ S_path) .^ xi;           % damped move toward B0/S
         upd = min(max(upd, 0.90), 1.10);          % trust region per iteration
@@ -190,6 +218,14 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
     TR.Kg_path = Kg;    TR.S_path = S_path;     TR.b_path = b_path;
     TR.g_path = g_path;
     TR.resid  = resid;  TR.iters = it;
+    % split diagnostics: fixed-point convergence (free unknowns) vs horizon
+    % adequacy (pinned terminal date). A reportable result needs BOTH small.
+    TR.resid_interior = max(abs(resid(1:T-1)));
+    TR.resid_terminal = abs(resid(T));
+    [~, adate]        = max(abs(resid(1:T-1)));
+    TR.resid_argmax   = adate;                 % where the interior max sits
+    TR.horizon_ok     = TR.resid_terminal < max(tol, 5e-3);
+    TR.reportable     = TR.converged && TR.horizon_ok;
     TR.eq0 = eq0; TR.eq1 = eq1;
     % surprise revaluation at announcement (audit-corrected definitions):
     %   reval_stock    government's one-time real gain on the outstanding
@@ -200,10 +236,13 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
     TR.reval_stock    = B0 * (1/eq0.P - 1/phat(1));
     PVg               = sum(g_path ./ (1 + rbar).^(1:T));
     TR.reval_pv_share = TR.reval_stock / PVg;
-    TR.msg = sprintf(['tier2 %s: %s in %d iters, max resid %.5f; ' ...
+    TR.msg = sprintf(['tier2 %s: fixed point %s (interior max %.5f @t=%d), ' ...
+        'horizon %s (terminal resid %.5f) in %d iters; ' ...
         'impact phat_1/P0 = %.4f (surprise %s), terminal P = %.4f'], ...
         regime, ternstr(TR.converged, 'CONVERGED', 'NOT CONVERGED'), ...
-        TR.iters, max(abs(TR.resid)), phat(1)/eq0.P, ...
+        TR.resid_interior, TR.resid_argmax, ...
+        ternstr(TR.horizon_ok, 'OK', 'TOO SHORT (raise T)'), TR.resid_terminal, ...
+        TR.iters, phat(1)/eq0.P, ...
         ternstr(phat(1) < eq0.P, 'DISINFLATION', 'inflation'), phat(T));
 end
 
