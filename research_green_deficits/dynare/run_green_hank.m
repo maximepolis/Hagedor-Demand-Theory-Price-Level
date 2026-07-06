@@ -21,12 +21,17 @@
 % (appendix/HANK_TRANSITION_PLAN.md, tier 2, NOT YET IMPLEMENTED).
 %
 % USAGE:  >> cd research_green_deficits/dynare
-%         >> run_green_hank
+%         >> run_green_hank                        % resumes from checkpoint
+%         >> FORCE_RERUN = true;  run_green_hank   % re-solve everything
+%         >> SPAWN_MATLAB = true; run_green_hank   % crash-proof: one fresh
+%                                                  % MATLAB process per regime
 %
 % OUTPUT: PFig14_hank_green_irfs.{fig,png,pdf} in ../output/figures,
 %         hank_green_irfs.mat, ../output/tables/hank_irfs_summary.txt.
 
-clear; close all;
+% keep the user-set control flags alive (a bare 'clear' would wipe them
+% before they are read)
+clearvars -except FORCE_RERUN SPAWN_MATLAB REGIME_ONLY RUN_ACCURACY; close all;
 t0 = tic;
 
 dyndir = fileparts(mfilename('fullpath'));
@@ -54,37 +59,106 @@ regimes = struct( ...
               '-DPHIPI=1.5 -DPSIG=0.03', ...
               '-DPHIPI=1.5 -DPSIG=0.0 -DPHIB=0.75'});
 
+% ---- crash resilience (same three layers as run_green_hank2): ----
+% checkpoint-resume after every regime (re-run to continue after a crash;
+% FORCE_RERUN=true re-solves everything, e.g. after a .mod edit);
+% SPAWN_MATLAB=true runs each regime in a fresh "matlab -batch" child so
+% a Dynare crash cannot kill this session; memory hygiene between solves.
+if ~exist('FORCE_RERUN', 'var'),  FORCE_RERUN  = false; end
+if ~exist('SPAWN_MATLAB', 'var'), SPAWN_MATLAB = false; end
+accfile = fullfile(projdir, 'output', 'hank_green_irfs.mat');
+mi = dir(fullfile(dyndir, 'green_hank.mod'));
+modstamp = [mi.bytes, mi.datenum];
+PREV = struct(); PREVCAL = struct();
+if exist(accfile, 'file') == 2 && ~FORCE_RERUN
+    try
+        L = load(accfile);
+        if isfield(L, 'modstamp') && isequal(L.modstamp, modstamp)
+            PREV = L.RES;
+            if isfield(L, 'CAL'), PREVCAL = L.CAL; end
+        else
+            fprintf(['  [checkpoint ignored: green_hank.mod changed since ' ...
+                     'it was written -- all regimes will re-solve]\n']);
+        end
+    catch
+    end
+end
+
 vars_keep = {'Y','pi','i','r','b','tau','gg','kg','d'};
 RES = struct();
 CAL = struct();
 ok  = false(1, numel(regimes));
 
 for rgm = 1:numel(regimes)
-    fprintf('\n===== HANK regime %s =====\n', regimes(rgm).name);
+    rname = regimes(rgm).name;
+    fprintf('\n===== HANK regime %s =====\n', rname);
+
+    % checkpoint skip (sanity-gated: no restored path may be implausible)
+    if isfield(PREV, rname)
+        pv = PREV.(rname);
+        if ~(isfield(pv,'pi') && (max(abs(pv.pi)) > 0.05 || max(abs(pv.Y)) > 0.25))
+            RES.(rname) = pv;
+            if isfield(PREVCAL, rname), CAL.(rname) = PREVCAL.(rname); end
+            ok(rgm) = true;
+            fprintf('  [restored from checkpoint -- set FORCE_RERUN=true to re-solve]\n');
+            continue;
+        else
+            fprintf('  [checkpointed %s is implausible -- discarded, re-solving]\n', rname);
+        end
+    end
+
     try
+        % memory hygiene before each heavy heterogeneity solve
+        close all;
+        clear functions; %#ok<CLFUNC>
+        try, clear mex; catch, end %#ok<CLMEX,NOCOM>
+        clear oo_ M_ options_;
+
         % per-regime copies: avoids stale preprocessor artifacts when one
         % .mod is re-run with different -D defines (see run_green_transitions)
-        nm = sprintf('grnhk_%s', lower(regimes(rgm).name));
-        copyfile('green_hank.mod', [nm '.mod']);
-        if exist(['+' nm], 'dir'), rmdir(['+' nm], 's'); end
-        if exist(nm, 'dir'), rmdir(nm, 's'); end
-        eval(sprintf('dynare %s %s noclearall nolog', nm, regimes(rgm).defs));
+        nm = sprintf('grnhk_%s', lower(rname));
+        irfs = []; pn = {}; pvals = [];
 
-        % ---- collect IRFs defensively: the heterogeneity framework is new
-        % and the output location may differ across Dynare builds ----
-        irfs = [];
-        if exist('oo_', 'var') && isfield(oo_, 'irfs') && ~isempty(fieldnames(oo_.irfs))
-            irfs = oo_.irfs;                       %#ok<NODEF>
-        elseif exist('oo_', 'var') && isfield(oo_, 'heterogeneity') ...
-                && isfield(oo_.heterogeneity, 'irfs')
-            irfs = oo_.heterogeneity.irfs;
+        if SPAWN_MATLAB
+            dynpath = fileparts(which('dynare'));
+            outmat  = fullfile(dyndir, [nm '_out.mat']);
+            if exist(outmat, 'file'), delete(outmat); end
+            cmd = sprintf(['matlab -batch "cd(''%s''); ' ...
+                'solve_hank_regime_batch(''green_hank'',''%s'',''%s'',''%s'',''%s'')"'], ...
+                dyndir, nm, regimes(rgm).defs, dynpath, outmat);
+            fprintf('  [spawning fresh MATLAB for %s]\n', rname);
+            status = system(cmd);
+            if status ~= 0 || exist(outmat, 'file') ~= 2
+                warning('run_green_hank:childfail', ...
+                    ['Regime %s: child MATLAB exited with status %d ' ...
+                     '(a crash there does NOT kill this session).'], rname, status);
+                continue;
+            end
+            Lc = load(outmat);
+            irfs = Lc.irfs; pn = Lc.param_names; pvals = Lc.param_values;
+        else
+            copyfile('green_hank.mod', [nm '.mod']);
+            if exist(['+' nm], 'dir'), rmdir(['+' nm], 's'); end
+            if exist(nm, 'dir'), rmdir(nm, 's'); end
+            eval(sprintf('dynare %s %s noclearall nolog', nm, regimes(rgm).defs));
+            % collect IRFs defensively: the heterogeneity framework is new
+            % and the output location may differ across Dynare builds
+            if exist('oo_', 'var') && isfield(oo_, 'irfs') && ~isempty(fieldnames(oo_.irfs))
+                irfs = oo_.irfs;                       %#ok<NODEF>
+            elseif exist('oo_', 'var') && isfield(oo_, 'heterogeneity') ...
+                    && isfield(oo_.heterogeneity, 'irfs')
+                irfs = oo_.heterogeneity.irfs;
+            end
+            if exist('M_', 'var')
+                pn = cellstr(M_.param_names); pvals = M_.params; %#ok<NODEF>
+            end
         end
+
         if isempty(irfs)
             warning('run_green_hank:noirfs', ...
                 ['Regime %s: solved, but no IRFs found in oo_.irfs or ' ...
                  'oo_.heterogeneity.irfs. Inspect oo_ interactively ' ...
-                 '(fieldnames(oo_)) and report the structure.'], ...
-                regimes(rgm).name);
+                 '(fieldnames(oo_)) and report the structure.'], rname);
             continue;
         end
         paths = struct();
@@ -100,24 +174,31 @@ for rgm = 1:numel(regimes)
         if ~isfield(paths, 'Y')
             warning('run_green_hank:names', ...
                 'Regime %s: IRF fields found but none match expected names: %s', ...
-                regimes(rgm).name, strjoin(fn, ', '));
+                rname, strjoin(fn, ', '));
             continue;
         end
-        RES.(regimes(rgm).name) = paths;
+        % divergence gate (same rationale as the two-asset driver)
+        if max(abs(paths.pi)) > 0.05 || max(abs(paths.Y)) > 0.25
+            warning('run_green_hank:divergent', ...
+                'Regime %s: DIVERGENT linearized solution -- excluded.', rname);
+            continue;
+        end
+        RES.(rname) = paths;
         ok(rgm) = true;
         % record calibrated parameters for the validation table
-        if exist('M_', 'var')
-            bidx = strcmp(cellstr(M_.param_names), 'beta');
-            vidx = strcmp(cellstr(M_.param_names), 'vphi');
-            Bidx = strcmp(cellstr(M_.param_names), 'B');
-            CAL.(regimes(rgm).name) = struct( ...
-                'beta', M_.params(bidx), 'vphi', M_.params(vidx), ...
-                'B', M_.params(Bidx));
+        if ~isempty(pn)
+            CAL.(rname) = struct( ...
+                'beta', pvals(strcmp(pn,'beta')), ...
+                'vphi', pvals(strcmp(pn,'vphi')), ...
+                'B',    pvals(strcmp(pn,'B')));
         end
-        fprintf('  [%s solved: IRF horizon %d]\n', regimes(rgm).name, numel(paths.Y));
+        fprintf('  [%s solved: IRF horizon %d]\n', rname, numel(paths.Y));
+
+        % checkpoint immediately: a later crash loses nothing
+        save(accfile, 'RES', 'CAL', 'regimes', 'ok', 'modstamp');
+        fprintf('  [checkpoint saved]\n');
     catch ME
-        warning('run_green_hank:fail', 'Regime %s failed: %s', ...
-            regimes(rgm).name, ME.message);
+        warning('run_green_hank:fail', 'Regime %s failed: %s', rname, ME.message);
     end
 end
 
@@ -170,7 +251,7 @@ end
 save_all_figs(fh, 'PFig14_hank_green_irfs', pg);
 fprintf('\n  [saved] PFig14_hank_green_irfs\n');
 
-save(fullfile(projdir, 'output', 'hank_green_irfs.mat'), 'RES', 'regimes', 'ok');
+save(fullfile(projdir, 'output', 'hank_green_irfs.mat'), 'RES', 'CAL', 'regimes', 'ok', 'OSC', 'modstamp');
 
 sf = fullfile(pg.tabdir, 'hank_irfs_summary.txt');
 fid = fopen(sf, 'w');

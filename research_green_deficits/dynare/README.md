@@ -56,6 +56,31 @@ collects the perfect-foresight paths, and produces PFig13 plus
 program size by `green_rank_nk_steadystate.m` (fixed point over damages,
 bisection on labor) -- no hand-tuned initval.
 
+## Crash resilience (HANK tiers)
+
+The Dynare 8-unstable heterogeneity framework has hard-crashed MATLAB
+when several heavy solves run in one session (first observed in the
+final tier-1b regime; a hard process crash cannot be caught by
+try/catch). Both HANK drivers are engineered around it, three layers:
+
+1. **Checkpoint-resume (automatic).** Results are saved after EVERY
+   regime; on the next run, solved regimes restore from
+   `output/hank*_green_irfs.mat` and only the missing ones solve. After
+   a crash: just re-run the same script. `FORCE_RERUN = true` re-solves
+   everything. Checkpoints are stamped with the `.mod` file's
+   fingerprint, so a checkpoint written under an older model version is
+   ignored automatically (never restores pre-fix runs).
+2. **Process isolation (`SPAWN_MATLAB = true`).** Each regime runs in a
+   fresh `matlab -batch` child (`solve_hank_regime_batch.m`; requires
+   `matlab` on the system PATH). If Dynare dies, only the child dies —
+   the parent session records the failure and continues. This is the
+   configuration that guarantees your session survives.
+3. **Memory hygiene** between in-session solves (figures closed,
+   generated functions and MEX cleared, previous solve's `M_`/`oo_`
+   dropped), and the tier-1b **accuracy refinement pass** — the heaviest
+   solve — is deferred to a fresh session by default (it runs when all
+   main regimes come from checkpoint, or with `RUN_ACCURACY = true`).
+
 **Convergence notes (from the first two runs):**
 
 - A pure interest-rate peg (`phi_pi = 0`, and even `phi_pi = 1.01`)
