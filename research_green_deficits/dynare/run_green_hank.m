@@ -48,6 +48,21 @@ if exist('dynare', 'file') ~= 2
            '<dynare>/matlab, then rerun.']);
 end
 
+% ---- VERSION TRIPWIRE: refuse to run a pre-audit-fix model ----
+% The corrected green_hank.mod carries the RHOG/THORIZON accuracy defines
+% (rho_g=0.98 default) and the rouwenhorst level-grid guard; without them
+% this is an OUTDATED copy whose IRFs embed truncation-reflection error.
+modtxt = fileread(fullfile(dyndir, 'green_hank.mod'));
+if ~contains(modtxt, 'RHOG') || ~contains(modtxt, 'non-level grid')
+    error(['green_hank.mod is the PRE-FIX version (missing the accuracy ' ...
+           'defines). You are running an OUTDATED copy of the repository: ' ...
+           're-download the branch ZIP, replace the WHOLE ' ...
+           'research_green_deficits folder, and re-run.']);
+end
+% clean stale generated per-regime copies from older versions
+old = dir(fullfile(dyndir, 'grnhk_*.mod'));
+for k = 1:numel(old), delete(fullfile(dyndir, old(k).name)); end
+
 % TAYLORBAL repeats TAYLOR with near-balanced-budget financing (PHIB=0.75
 % vs the 0.10 deficit benchmark): the TAYLOR-vs-TAYLORBAL gap isolates the
 % DEFICIT-FINANCING component of the HANK response to the same program.

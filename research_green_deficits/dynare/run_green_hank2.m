@@ -54,6 +54,23 @@ if exist('dynare', 'file') ~= 2
     error('Dynare not found on the MATLAB path.');
 end
 
+% ---- VERSION TRIPWIRE: refuse to run a pre-audit-fix model ----
+% The corrected green_hank2.mod contains the dividend identity and the
+% endogenous convenience yield; if this file is the OLD version (as when
+% an outdated ZIP is still in use), running it reproduces the explosive
+% TAYLORBAL pseudo-solution and the crash. Fail loudly instead.
+modtxt = fileread(fullfile(dyndir, 'green_hank2.mod'));
+if ~contains(modtxt, "name='Dividends'") || ~contains(modtxt, 'omega  (long_name')
+    error(['green_hank2.mod is the PRE-FIX version (missing the dividend ' ...
+           'identity / endogenous convenience yield). You are running an ' ...
+           'OUTDATED copy of the repository: re-download the branch ZIP, ' ...
+           'replace the WHOLE research_green_deficits folder, and re-run.']);
+end
+% clean stale generated per-regime copies from older versions so a manual
+% "dynare grn2_xxx" can never run an outdated model
+old = dir(fullfile(dyndir, 'grn2_*.mod'));
+for k = 1:numel(old), delete(fullfile(dyndir, old(k).name)); end
+
 regimes = struct( ...
     'name',  {'WEAK', 'TAYLOR', 'GREENACCOM', 'TAYLORBAL'}, ...
     'defs',  {'-DPHIPI=1.1', ...
