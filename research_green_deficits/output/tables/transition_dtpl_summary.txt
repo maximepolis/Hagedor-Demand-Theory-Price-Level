@@ -1,0 +1,14 @@
+U7 TIER 2: NONLINEAR HANK-DTPL TRANSITION (v1 damped fixed point)
+Scope: the price-level path clears the asset market at every date (ANNUAL);
+no Phillips curve, no policy-rule inflation. na=100, T=50, tol=2e-03.
+
+tier2 nominal: NOT CONVERGED in 40 iters, max resid 0.00973; impact phat_1/P0 = 0.9773 (surprise DISINFLATION), terminal P = 0.8686
+  impact: phat_1/P0 = 0.9773; pi_1 = -0.31%/yr; reval stock = -0.0256 (= -3.88% of program PV)
+  path: pi(4y) +2.11%, pi(20y) +1.95%, pi(40y) +1.99% (per yr, vs trend 2.00%)
+  residuals: max 0.00973, mean 0.00213, converged = 0 (iters 40)
+
+tier2 indexed: NOT CONVERGED in 40 iters, max resid 0.01060; impact phat_1/P0 = 0.9785 (surprise DISINFLATION), terminal P = 0.8686
+  impact: phat_1/P0 = 0.9785; pi_1 = -0.20%/yr; reval stock = -0.0243 (= -3.66% of program PV)
+  path: pi(4y) +2.10%, pi(20y) +1.95%, pi(40y) +1.99% (per yr, vs trend 2.00%)
+  residuals: max 0.01060, mean 0.00205, converged = 0 (iters 40)
+
