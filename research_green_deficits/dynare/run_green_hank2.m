@@ -8,7 +8,10 @@
 %   WEAK        PHIPI=1.1
 %   TAYLOR      PHIPI=1.5 (default)               PHIB=0.10 (deficit)
 %   GREENACCOM  PHIPI=1.5, PSIG=0.03
-%   TAYLORBAL   PHIPI=1.5, PHIB=0.75              (balanced comparator)
+%   TAYLORBAL   PHIPI=1.5, PHIB=0.75              (balanced comparator;
+%               the first run's divergence was caused by the missing
+%               dividend identity, NOT by phi_b -- audit-confirmed and
+%               fixed in green_hank2.mod, so the documented 0.75 returns)
 %
 % WHY THIS TIER: the liquid-bond market is now separate from total wealth,
 % so the program's effect on the demand for and supply of LIQUID NOMINAL
@@ -68,9 +71,10 @@ if exist(accfile, 'file') == 2
     try, L = load(accfile); PREV = L.RES; catch, end %#ok<NOCOM>
 end
 
-vars_keep = {'Y','pi','i','r','rb','ra','bg','tax','gg','kg','d','p','K','I','w','N'};
+vars_keep = {'Y','pi','i','r','rb','ra','omega','bg','tax','gg','kg','d','p','K','I','w','N'};
 RES = struct();
 CAL = struct();
+DIVERGENT = struct();
 ok  = false(1, numel(regimes));
 
 for rgm = 1:numel(regimes)
@@ -113,6 +117,20 @@ for rgm = 1:numel(regimes)
                 regimes(rgm).name, strjoin(fn, ', '));
             continue;
         end
+        % DIVERGENCE GATE: a linearized IRF to a 1%-of-output shock that
+        % moves inflation by >5% quarterly or output by >25% is not a
+        % solution, it is a pathology (the first run's TAYLORBAL wrote
+        % pi = -10.59 into the summary as if it were a result). Excluded
+        % outright -- never plotted, never summarized.
+        if max(abs(paths.pi)) > 0.05 || max(abs(paths.Y)) > 0.25 ...
+                || (isfield(paths,'bg') && max(abs(paths.bg)) > 5)
+            warning('run_green_hank2:divergent', ...
+                ['Regime %s: DIVERGENT linearized solution (|pi|max=%.3g, ' ...
+                 '|Y|max=%.3g) -- excluded from all outputs.'], ...
+                regimes(rgm).name, max(abs(paths.pi)), max(abs(paths.Y)));
+            DIVERGENT.(regimes(rgm).name) = true; %#ok<STRNU>
+            continue;
+        end
         RES.(regimes(rgm).name) = paths;
         ok(rgm) = true;
         if exist('M_', 'var')
@@ -120,7 +138,7 @@ for rgm = 1:numel(regimes)
             CAL.(regimes(rgm).name) = struct( ...
                 'beta_ss', M_.params(strcmp(pn,'beta_ss')), ...
                 'vphi',    M_.params(strcmp(pn,'vphi')), ...
-                'chi1',    M_.params(strcmp(pn,'chi1')));
+                'chi1',    M_.params(strcmp(pn,'chi1')));   % chi1 FIXED (6.416)
         end
         fprintf('  [%s solved: IRF horizon %d]\n', regimes(rgm).name, numel(paths.Y));
     catch ME
@@ -129,11 +147,19 @@ for rgm = 1:numel(regimes)
     end
 end
 
-% merge results from previous sessions (single-regime crash-recovery mode)
+% merge results from previous sessions (single-regime crash-recovery mode);
+% the divergence gate applies to restored paths too (the first run's .mat
+% may contain the pathological TAYLORBAL)
 pf = fieldnames(PREV);
 for k = 1:numel(pf)
     if ~isfield(RES, pf{k})
-        RES.(pf{k}) = PREV.(pf{k});
+        pv = PREV.(pf{k});
+        if isfield(pv,'pi') && (max(abs(pv.pi)) > 0.05 || max(abs(pv.Y)) > 0.25)
+            fprintf('  [previous-session %s is DIVERGENT -- not restored]\n', pf{k});
+            DIVERGENT.(pf{k}) = true;
+            continue;
+        end
+        RES.(pf{k}) = pv;
         hit = strcmpi({regimes.name}, pf{k});
         if any(hit), ok(hit) = true; end
         fprintf('  [restored %s from previous session]\n', pf{k});
@@ -192,8 +218,8 @@ if run_acc
         copyfile('green_hank2.mod', [nm '.mod']);
         if exist(['+' nm], 'dir'), rmdir(['+' nm], 's'); end
         if exist(nm, 'dir'), rmdir(nm, 's'); end
-        eval(sprintf(['dynare %s -DPHIPI=1.5 -DTHORIZON=600 -DNB=20 ' ...
-                      '-DNA=40 noclearall nolog'], nm));
+        eval(sprintf(['dynare %s -DPHIPI=1.5 -DTHORIZON=600 -DNB=25 ' ...
+                      '-DNA=50 noclearall nolog'], nm));
         irfs = [];
         if exist('oo_', 'var') && isfield(oo_, 'irfs') && ~isempty(fieldnames(oo_.irfs))
             irfs = oo_.irfs;
@@ -229,7 +255,7 @@ end
 % ---- PFig17 ----
 cols = [0.10 0.30 0.75; 0.85 0.20 0.15; 0.20 0.55 0.25; 0.45 0.45 0.45];
 panels = {'Y','output'; 'pi','inflation (net, qtr)'; 'bg','government debt'; ...
-          'rb','liquid (bond) return'; 'kg','green capital'; 'p','equity price'};
+          'omega','convenience yield'; 'kg','green capital'; 'p','equity price'};
 fh = figure('Name','PFig17: two-asset HANK green-program IRFs','Color','w', ...
             'Position',[60 60 1100 640]);
 Tshow = 120;
@@ -285,7 +311,7 @@ if fid > 0
     fprintf(fid, '-- COARSE; magnitudes indicative. Steady-state residuals: Dynare log.\n\n');
     fprintf(fid, '%-11s %-8s %-8s %-10s %-9s %-9s %-11s %-11s %-11s\n', ...
         'regime', 'solved', 'horizon', 'beta_ss*', 'vphi*', 'chi1*', ...
-        'pi impact', 'Y impact', 'bg(40q)');
+        'pi impact', 'Y impact', 'bg(40q)');   % chi1 column = fixed value
     for rgm = 1:numel(regimes)
         if ~ok(rgm), fprintf(fid, '%-11s %-8s\n', regimes(rgm).name, 'NO'); continue; end
         s = RES.(regimes(rgm).name);
@@ -304,6 +330,10 @@ if fid > 0
         fprintf(fid, 'oscillation %-11s score %2d on %-5s -> %s\n', rn{k}, ...
             OSC.(rn{k}).score, OSC.(rn{k}).var, ...
             ternary_str(OSC.(rn{k}).suspect, 'SUSPECT (not reportable)', 'ok'));
+    end
+    dn = fieldnames(DIVERGENT);
+    for k = 1:numel(dn)
+        fprintf(fid, 'DIVERGENT   %-11s excluded from all outputs (pathological linearized solution)\n', dn{k});
     end
     if ACC.ran
         fprintf(fid, 'refinement (TAYLOR, THORIZON 600, nb 20, na 40): max rel. dev %.3f -> %s\n', ...

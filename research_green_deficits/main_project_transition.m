@@ -43,13 +43,13 @@ addpath(genpath(fullfile(projdir, 'src_project')));
 
 if ~exist('FAST','var'), FAST = false; end
 pg = setup_params_green();
-opts = struct('T', 150, 'tol', 2e-3, 'maxit', 60, 'xi', 0.5, 'verbose', true);
+opts = struct('T', 80, 'tol', 2e-3, 'maxit', 60, 'xi', 0.5, 'verbose', true);  % T in YEARS
 if FAST
     pg.na    = pg.fast.na;
     u        = linspace(0,1,pg.na)';
     pg.aGrid = -pg.abar + (pg.amax + pg.abar) * (u.^pg.acurv);
     pg.aGrid(1) = -pg.abar; pg.aGrid(end) = pg.amax;
-    opts.T = 100; opts.maxit = 40;
+    opts.T = 50; opts.maxit = 40;
     fprintf('*** FAST mode: na=%d, T=%d ***\n', pg.na, opts.T);
 end
 
@@ -107,30 +107,30 @@ if ~isempty(TRn.msg) && isfield(TRn, 'phat')
     if isfield(TRi,'phat'), plot(tv, TRi.phat, 'LineWidth', 1.8, ...
             'Color', [0.20 0.55 0.25]); end
     yline(TRn.P0, ':k'); yline(TRn.eq1.P, '--k');
-    xlabel('quarters'); title('stationarized price level P_t/(1+\mu)^t');
+    xlabel('years'); title('stationarized price level P_t/(1+\mu)^t');
     legend({'nominal budget','indexed mandate'}, 'Location','best');
     subplot(2,3,2); hold on; box on;
-    plot(tv, 400*TRn.pi_path, 'LineWidth', 1.8, 'Color', [0.10 0.30 0.75]);
-    if isfield(TRi,'pi_path'), plot(tv, 400*TRi.pi_path, 'LineWidth', 1.8, ...
+    plot(tv, 100*TRn.pi_path, 'LineWidth', 1.8, 'Color', [0.10 0.30 0.75]);
+    if isfield(TRi,'pi_path'), plot(tv, 100*TRi.pi_path, 'LineWidth', 1.8, ...
             'Color', [0.20 0.55 0.25]); end
-    yline(400*pgc.mu, ':k');
-    xlabel('quarters'); title('inflation (annualized %)');
+    yline(100*pgc.mu, ':k');
+    xlabel('years'); title('inflation (% per year)');
     subplot(2,3,3); hold on; box on;
     plot(tv, TRn.b_path, 'LineWidth', 1.8, 'Color', [0.10 0.30 0.75]);
     plot(tv, TRn.S_path, '--', 'LineWidth', 1.4, 'Color', [0.85 0.20 0.15]);
-    xlabel('quarters'); title('real debt b_t vs asset demand S_t');
+    xlabel('years'); title('real debt b_t vs asset demand S_t');
     legend({'b_t = B_t/P_t','S_t'}, 'Location','best');
     subplot(2,3,4); hold on; box on;
     plot(tv, TRn.Kg_path, 'LineWidth', 1.8, 'Color', [0.20 0.55 0.25]);
-    xlabel('quarters'); title('green capital K_{g,t}');
+    xlabel('years'); title('green capital K_{g,t}');
     subplot(2,3,5); hold on; box on;
     plot(tv, TRn.D_path, 'LineWidth', 1.8, 'Color', [0.85 0.55 0.10]);
-    xlabel('quarters'); title('damages D_t');
+    xlabel('years'); title('damages D_t');
     subplot(2,3,6); hold on; box on;
     semilogy(tv, abs(TRn.resid), 'LineWidth', 1.4, 'Color', [0.10 0.30 0.75]);
     if isfield(TRi,'resid'), semilogy(tv, abs(TRi.resid), 'LineWidth', 1.4, ...
             'Color', [0.20 0.55 0.25]); end
-    xlabel('quarters'); title('|S_t - b_t|/b_t (residuals, log scale)');
+    xlabel('years'); title('|S_t - b_t|/b_t (residuals, log scale)');
     save_all_figs(fh, 'PFig18_dtpl_transition', pg);
     fprintf('\n  [saved] PFig18_dtpl_transition\n');
 end
@@ -140,19 +140,20 @@ sf = fullfile(pg.tabdir, 'transition_dtpl_summary.txt');
 fid = fopen(sf, 'w');
 if fid > 0
     fprintf(fid, 'U7 TIER 2: NONLINEAR HANK-DTPL TRANSITION (v1 damped fixed point)\n');
-    fprintf(fid, 'Scope: the price-level path clears the asset market at every date;\n');
+    fprintf(fid, 'Scope: the price-level path clears the asset market at every date (ANNUAL);\n');
     fprintf(fid, 'no Phillips curve, no policy-rule inflation. na=%d, T=%d, tol=%.0e.\n\n', ...
         pg.na, opts.T, opts.tol);
     for TRc = {TRn, TRi}
         TR = TRc{1};
         if ~isfield(TR, 'phat'), fprintf(fid, 'FAILED: %s\n', TR.msg); continue; end
         fprintf(fid, '%s\n', TR.msg);
-        fprintf(fid, ['  impact: phat_1/P0 = %.4f; pi_1 (ann) = %+.2f%%; ' ...
-            'reval@t1 = %+.4f per unit program\n'], ...
-            TR.phat(1)/TR.P0, 400*TR.pi_path(1), TR.revaluation_t1);
-        fprintf(fid, '  path: pi(4q) %+.2f%%, pi(20q) %+.2f%%, pi(40q) %+.2f%% (ann, vs trend %.2f%%)\n', ...
-            400*TR.pi_path(min(4,end)), 400*TR.pi_path(min(20,end)), ...
-            400*TR.pi_path(min(40,end)), 400*pgc.mu);
+        fprintf(fid, ['  impact: phat_1/P0 = %.4f; pi_1 = %+.2f%%/yr; ' ...
+            'reval stock = %+.4f (= %+.2f%% of program PV)\n'], ...
+            TR.phat(1)/TR.P0, 100*TR.pi_path(1), TR.reval_stock, ...
+            100*TR.reval_pv_share);
+        fprintf(fid, '  path: pi(4y) %+.2f%%, pi(20y) %+.2f%%, pi(40y) %+.2f%% (per yr, vs trend %.2f%%)\n', ...
+            100*TR.pi_path(min(4,end)), 100*TR.pi_path(min(20,end)), ...
+            100*TR.pi_path(min(40,end)), 100*pgc.mu);
         fprintf(fid, '  residuals: max %.5f, mean %.5f, converged = %d (iters %d)\n\n', ...
             max(abs(TR.resid)), mean(abs(TR.resid)), TR.converged, TR.iters);
     end

@@ -1,11 +1,17 @@
 /*
  * GREEN_HANK2.MOD -- U7 tier 1b: TWO-ASSET green HANK (extended tier).
  *
- * ACCURACY STATUS: the FIRST run (rho_g=0.995, horizon 300, example
- * grids) produced OSCILLATORY IRFs and a crash in the final regime; no
- * tier-1b number enters the paper until the accuracy protocol in
- * run_green_hank2.m passes (oscillation diagnostic + horizon/grid
- * refinement comparison). See dynare/README.md 'tier-1b accuracy'.
+ * ACCURACY STATUS: the first TWO runs are NOT REPORTABLE. Run 1
+ * (rho_g=0.995, horizon 300): oscillatory IRFs + crash. Run 2: TAYLORBAL
+ * returned an EXPLOSIVE pseudo-solution. ROOT CAUSE (adversarial audit,
+ * confirmed): the dividend identity div = Y - wN - I - psip had been
+ * dropped in the adaptation from hank_two_assets.mod, leaving div
+ * residually defined by equity pricing (which then collapses ra = r
+ * identically and unanchors the equity price), while the liquid-market
+ * quantity constraint had no clearing price. BOTH fixed in this version:
+ * the identity is restored and the liquidity premium omega is now an
+ * ENDOGENOUS convenience yield clearing the liquid-bond market. No
+ * tier-1b number enters the paper until the accuracy protocol passes.
  *
  * STATUS: IMPLEMENTED; run pending on the user's machine (requires the
  * same Dynare heterogeneity build that ran heterogeneity/hank_two_assets_
@@ -27,6 +33,9 @@
  *   - sticky WAGES (wage Phillips curve) in addition to sticky prices
  *   - ENDOGENOUS government debt bg with a financing-speed tax rule
  *     (PHIB define: 0.10 deficit-financed / 0.75 near-balanced)
+ *   - ENDOGENOUS liquidity premium omega_t (convenience yield) clearing
+ *     the liquid-bond market -- the green program's effect on the
+ *     convenience yield of nominal safe assets is a plotted object
  *   - climate block on TFP: Y = (1-d) Z K^alpha N^(1-alpha), green public
  *     capital kg lowers emissions, carbon stock x drives damages d
  *   - liquid-bond supply is a fixed share lamB of government debt, so a
@@ -35,8 +44,9 @@
  *
  * WHAT IT STILL IS NOT: linearized sequence-space IRFs -- NOT the
  * nonlinear DTPL price-level transition (tier 2, HANK_TRANSITION_PLAN.md).
- * Grids follow the verified example (ne=3, nb=10, na=20): COARSE;
- * magnitudes are indicative. Income-process alignment with the MATLAB
+ * Grids default to ne=3, nb=15, na=30 (raised from the example's 10x20
+ * after the wobbly first run): still moderate; magnitudes are indicative
+ * until the accuracy protocol passes. Income-process alignment with the MATLAB
  * package's 7-state process remains future work (NE/RHOE/SIGE defines
  * below make it a run flag, default = verified example values).
  *
@@ -74,12 +84,14 @@
 // in sequence-space solutions. Default now 0.98 (half-life ~34 quarters,
 // still quasi-permanent over the 120-quarter plot window) with
 // THORIZON=400; the accuracy pass re-solves at THORIZON=600 and refined
-// grids and compares.
+// grids and compares. Grid defaults raised to nb=15, na=30 after the
+// first run's visible wobble (the example's 10x20 is too coarse for the
+// kinked portfolio-adjustment policies).
 @#ifndef NB
-  @#define NB = 10
+  @#define NB = 15
 @#endif
 @#ifndef NA
-  @#define NA = 20
+  @#define NA = 30
 @#endif
 @#ifndef THORIZON
   @#define THORIZON = 400
@@ -125,6 +137,7 @@ var
     mc     (long_name = 'marginal cost')
     r      (long_name = 'real interest rate')
     Y      (long_name = 'output')
+    omega  (long_name = 'liquidity premium on nominal bonds (convenience yield)')
     bg     (long_name = 'government debt (real)')
     gg     (long_name = 'green public investment')
     kg     (long_name = 'green public capital')
@@ -144,10 +157,10 @@ varexo
 ;
 
 parameters
-    kappap alpha epsI muw phi psig omega Bg lamB pshare delta
+    kappap alpha epsI muw phi psig Bg lamB pshare delta
     kappaw frisch mup vphi eis
     chi0 chi1 chi2
-    Z_ss beta_ss r_ss G_ss tax_ss
+    Z_ss beta_ss r_ss G_ss tax_ss wN_ss omega_ss
     rho_g phi_b
     delta_g theta_g alpha_A eps0 delta_x gamma_x Dmax
 ;
@@ -155,6 +168,9 @@ parameters
 Bg = 2.8;
 G_ss = 0.2;
 chi0 = 0.25;
+chi1 = 6.416;   % FIXED at the reference implementation's calibrated value:
+                % with the liquid market clearing through the endogenous
+                % premium omega_t, chi1 can no longer be a calibration target
 chi2 = 2;
 delta = 0.02;
 eis = 0.5;
@@ -163,7 +179,10 @@ frisch = 1;
 kappap = 0.1;
 kappaw = 0.1;
 muw = 1.1;
-omega = 0.005;
+omega_ss = 0.005;  % initial guess for the ss convenience yield (now a VARIABLE:
+                   % the liquid-bond market clears through omega_t, so the
+                   % liquidity premium on nominal safe assets is an endogenous,
+                   % plotted object -- the paper's convenience-yield channel)
 phi  = @{PHIPI};
 psig = @{PSIG};
 r_ss = 0.0125;
@@ -195,13 +214,14 @@ alpha = (r_ss + delta) * K_ss / mc_ss;
 Z_ss = K_ss ^ (-alpha) / (1 - d_ss);   // normalization: (1-d_ss)*Z_ss*K^alpha*N^(1-alpha) = 1 at N=1
 pshare = p_ss / (tot_wealth - lamB*Bg);
 tax_ss = (r_ss * Bg + G_ss) / (mc_ss * (1 - alpha));
+wN_ss  = mc_ss * (1 - alpha);   // steady-state wage bill (N_ss = 1)
 
 verbatim;
 w = mc_ss * (1 - alpha);
 tax = (r_ss * Bg + G_ss) / w;
 I = delta * K_ss;
 div = 1 - w - I;
-rb = r_ss - omega;
+rb = r_ss - omega_ss;
 ra = r_ss;
 
 initial_guess = struct;
@@ -223,6 +243,7 @@ initial_guess.agg.pi = 0;
 initial_guess.agg.mc = mc_ss;
 initial_guess.agg.r = r_ss;
 initial_guess.agg.Y = 1;
+initial_guess.agg.omega = omega_ss;
 initial_guess.agg.bg = 2.8;
 initial_guess.agg.gg = 0;
 initial_guess.agg.kg = 0;
@@ -233,6 +254,10 @@ ne = @{NE};
 rho_e = @{RHOE};
 sig_e = @{SIGE};
 [grid_e, ~, Pi_e] = rouwenhorst(rho_e, sig_e, ne, 1e-12, 1e5);
+% guard against a shadowing LOG-grid rouwenhorst (see green_hank.mod)
+assert(all(grid_e > 0) && any(abs(grid_e - 1) < 0.5), ...
+    ['rouwenhorst returned a non-level grid -- the project src/rouwenhorst.m ' ...
+     'is shadowing the Dynare heterogeneity framework version.']);
 initial_guess.shocks.grids.e = grid_e;
 initial_guess.shocks.Pi.e = Pi_e;
 
@@ -267,8 +292,6 @@ initial_guess.pol.values.u = u;
 initial_guess.free_parameters.beta_ss.initial_guess = 0.97;
 initial_guess.free_parameters.beta_ss.lower_bound = 0.01;
 initial_guess.free_parameters.beta_ss.upper_bound = 0.999;
-initial_guess.free_parameters.chi1.initial_guess = 6.4;
-initial_guess.free_parameters.chi1.lower_bound = 0.01;
 initial_guess.free_parameters.vphi.initial_guess = 1.7;
 initial_guess.free_parameters.vphi.lower_bound = 0.01;
 end;
@@ -318,6 +341,15 @@ model;
    [name='Price adjustment cost']
    mup / (mup - 1) / 2 / kappap * log(1 + pi) ^ 2 * Y - psip;
 
+   [name='Dividends']
+   // the firm flow identity div = Y - wN - I - psip (hank_two_assets.mod
+   // l.160). DROPPING it -- as this file's first version did -- leaves div
+   // residually defined by equity pricing, collapses ra to r identically,
+   // unanchors the equity price, and produced the first run's explosive
+   // TAYLORBAL solution. psiw is deliberately NOT subtracted (utility-cost
+   // convention of the reference implementation).
+   Y - w * N - I - psip - div;
+
    [name='Capital accumulation']
    K - (1 - delta) * K(-1) + K(-1) * (K / K(-1) - 1) ^ 2 / (2 * delta * epsI) - I;
 
@@ -328,9 +360,18 @@ model;
    bg - ((1 + r) * bg(-1) + G_ss + gg - tax * w * N);
 
    [name='Tax rule (financing speed phi_b)']
-   tax - (tax_ss + phi_b * (bg(-1) - Bg) / (w * N));
+   // scaled by the STEADY-STATE wage bill for a clean lump-sum reading of
+   // the debt correction. NOTE (audit): the denominator choice is
+   // FIRST-ORDER IRRELEVANT (it multiplies a zero debt gap at the steady
+   // state), so it was NOT the cause of the first run's TAYLORBAL
+   // divergence -- the missing dividend identity was (see 'Dividends').
+   tax - (tax_ss + phi_b * (bg(-1) - Bg) / wN_ss);
 
    [name='Return on liquid assets']
+   // omega is ENDOGENOUS: the liquid-bond clearing condition determines the
+   // convenience yield households pay for liquid nominal safe assets --
+   // the first version fixed omega parametrically, leaving the liquid
+   // quantity constraint with no clearing price (audit finding)
    r - omega - rb;
 
    [name='Return on illiquid assets']
@@ -343,6 +384,12 @@ model;
    (1 + pi) * w / w(-1) - 1 - piw;
 
    [name='Wage adjustment cost']
+   // utility-cost convention of the reference example (muw/(1-muw) < 0);
+   // psiw is INERT here (it feeds no other equation, in particular NOT the
+   // resource/dividend identity above -- Rotemberg wage costs are a utility
+   // loss, not a goods loss), so its sign does not affect any result. Kept
+   // verbatim from the verified template rather than "corrected" to avoid
+   // deviating from the steady-state-solving reference.
    muw / (1 - muw) / 2 / kappaw * log(1 + piw) ^ 2 * N - psiw;
 
    [name='Wage Phillips curve']
@@ -378,7 +425,6 @@ end;
 //==========================================================================
 heterogeneity_compute_steady_state(variable = initial_guess,
     calibration_target_equations=['Wage Phillips curve',
-        'Liquid asset market clearing',
         'Illiquid asset market clearing'],
     time_iteration_tol=1e-10,
     time_iteration_max_iter=2000,

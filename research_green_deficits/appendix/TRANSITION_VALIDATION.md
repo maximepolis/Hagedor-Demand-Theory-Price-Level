@@ -142,3 +142,53 @@ both pass. The incident and the protocol are disclosed in the paper.
 4. The t=1 revaluation and the steady-state comparison nu_reval must
    agree in sign (cross-check against the S4 decomposition).
 5. FAST pass (na=150, T=100) before the full run (na=500, T=150).
+
+## Tier-1b second run (protocol result) + fixes
+
+Second run (with the accuracy protocol): WEAK/TAYLOR/GREENACCOM solved
+with plausible impacts (pi impact -0.27%/-0.53%/-0.30% annualized -- note
+the possible SIGN REVERSAL vs the one-asset tier; NOT reportable until
+the oscillation + refinement protocol passes on the fixed model);
+TAYLORBAL returned an EXPLOSIVE pseudo-solution (pi impact -10.59
+QUARTERLY, equity price +181) that the old summary writer recorded as if
+it were a result.
+
+ROOT CAUSE (adversarial equation-level audit, CONFIRMED): the firm
+cash-flow identity div = Y - w*N - I - psip was DROPPED in adapting the
+reference two-asset model. We had copied the STEADY-STATE-calibration
+variant (hank_two_assets_steady_state.mod), which omits that identity
+because it uses BOTH asset-market clearings as calibration targets;
+the dedicated DYNAMICS example (hank_two_assets.mod l.160) carries the
+identity and only ONE clearing. Without it, div is defined residually by
+equity pricing, which forces ra = r identically for all t (the equity
+valuation channel is destroyed, p is unanchored) and violates
+goods-market feasibility out of steady state -- invisible at the steady
+state (verified: div_ss = 0.14 = r_ss*p_ss both ways), explosive in the
+dynamics.
+
+An EARLIER hypothesis -- that the tax rule's contemporaneous-wage-bill
+denominator caused the blow-up -- was REFUTED by the audit: that
+denominator multiplies a zero debt gap at the steady state, so it is
+first-order irrelevant to the linearized solution. (The rule was still
+switched to the steady-state wage bill wN_ss for a clean lump-sum
+reading, but that was not the fix.)
+
+Fixes applied:
+1. RESTORE the dividend identity div = Y - w*N - I - psip;
+2. make the liquidity premium omega an ENDOGENOUS convenience yield that
+   clears the liquid-bond market (rb = r - omega_t), chi1 fixed at 6.416
+   -- this re-anchors the equity price AND makes the price of liquid
+   nominal safe assets a plotted equilibrium object (on-theme);
+3. calibration targets reduced to Wage Phillips curve + Illiquid clearing
+   (2 targets, 2 free params beta_ss, vphi);
+4. DIVERGENCE GATE: any path with |pi| > 5% quarterly, |Y| > 0.25, or
+   |bg| > 5 is excluded from every output (applies to restored results);
+5. grid defaults raised to nb=15, na=30; rho_g 0.98 / THORIZON 400;
+6. TAYLORBAL restored to the documented phi_b = 0.75 (the divergence was
+   never about phi_b);
+7. oscillation diagnostic + refinement pass gate reporting as before.
+
+Tier-1 note: the same oscillation diagnostic is now wired into
+run_green_hank.m, and RHOG/THORIZON defines allow re-verification of the
+tier-1 numbers at rho_g = 0.98 / horizon 400 (requested; the paper's
+tier-1 numbers keep their verified-run label meanwhile).

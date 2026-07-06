@@ -1414,9 +1414,11 @@ regular stand-in for a peg), an inertial Taylor rule (\textsc{taylor}:
 $\phi_\pi=1.5$, $\rho_i=0.8$), strict inflation targeting
 (\textsc{aggressive}: $\phi_\pi=3$), and a temporary green accommodation
 (\textsc{greenaccom}: Taylor plus a rate cut proportional to the
-green-capital gap, $\psi_g=0.03$, fading as $K_g$ accumulates --- a
-deliberately large experiment, roughly a $7$ percentage-point annualized
-cut at the program's start).
+green-capital gap, $\psi_g=0.03$, fading as $K_g$ accumulates). The
+accommodation is deliberately large: the un-smoothed stance target implies
+a cut of about seven annualized percentage points at the program's start,
+though the rule's own inertia ($\rho_i=0.8$) means the realized first-period
+cut is nearer one and a half points, building thereafter.
 
 Three findings, all verified by the converged runs (solver residuals
 $\sim 10^{-14}$; the $K_g$ accumulation identity holds to $10^{-9}$ on
@@ -1481,8 +1483,12 @@ qualitative transition shapes survive heterogeneity and Fisher
 redistribution. It does not --- and in a linearized NK setting cannot ---
 deliver price-\emph{level} determination by asset demand.
 Figure~\ref{fig:pfig14} reports the responses of output, inflation, real
-debt, green capital, damages, and the ex-post real return under the same
-four monetary regimes.
+debt, green capital, damages, and the ex-post real return under four
+monetary regimes analogous to the RANK block's, though not identical to
+them: the HANK rules omit interest-rate inertia and the HANK accommodation
+keys off the program flow rather than the green-capital gap, so the
+\textsc{greenaccom} experiment here is far milder than its RANK namesake
+and the two tiers are compared on shapes, not on levels.
 
 The verified run (five regimes solved; calibrated $\beta = 0.9796$;
 one-percent-of-output program) delivers the tier's key message in two
@@ -1530,10 +1536,13 @@ transition.}
 package also implements a two-asset extension of the HANK tier
 (liquid nominal bonds versus illiquid equity with convex
 portfolio-adjustment costs, sticky wages and prices, investment with
-Tobin's $Q$, and endogenous government debt whose liquid tranche scales
+Tobin's $Q$, endogenous government debt whose liquid tranche scales
 with the debt stock --- so that a deficit-financed program changes the
 \emph{supply of liquid nominal safe assets}, the dynamic counterpart of
-the $B/P$ margin at the heart of the model). We flag a numerical finding
+the $B/P$ margin at the heart of the model --- and, in the corrected
+specification, an \emph{endogenous convenience yield} that prices the
+liquid-bond market and so makes the premium on liquid nominal safe assets
+itself an equilibrium object). We flag a numerical finding
 rather than hide it: the first solution of this tier produced visibly
 \emph{oscillatory} impulse responses. The likely causes are generic to
 sequence-space methods --- shock persistence ($0.995$) too close to the
@@ -1544,7 +1553,25 @@ protocol: an oscillation diagnostic (sign changes of the differenced
 response beyond the impact phase), reduced shock persistence with a
 longer horizon, and a full refinement re-solve (double grid densities,
 horizon 600) that must agree with the baseline to within ten percent
-before any number from this tier can be reported. No two-asset result
+before any number from this tier can be reported. The protocol earned
+its keep immediately: the fast-financing regime of the first run
+returned an \emph{explosive} pseudo-solution (impact inflation orders of
+magnitude too large), which a naive reading would have reported as a
+regime result. An adversarial equation-by-equation audit traced it to a
+genuine specification error: in adapting the reference two-asset model we
+had inherited its steady-state-calibration variant, which omits the firm
+cash-flow identity $\mathrm{div}=Y-wN-I-\psi^p$ because it uses both
+asset-market clearing conditions as calibration targets. Without that
+identity, dividends are defined only residually by the equity-pricing
+equation, which collapses the equity return to the safe return
+identically and leaves the equity price unanchored while violating
+goods-market feasibility out of steady state. The corrected model
+restores the identity and, in its place, lets the liquidity premium on
+nominal bonds become an \emph{endogenous} convenience yield that clears
+the liquid-bond market --- which is not merely a repair but exactly the
+object the paper wants, since the price of liquid nominal safe assets is
+now a plotted equilibrium quantity. The driver additionally rejects any
+path violating elementary plausibility bounds. No two-asset result
 appears in this paper; the tier is disclosed because a solved-but-wrong
 impulse response is worse than an honest gap. [TIER-1b: IMPLEMENTED,
 accuracy protocol pending.]

@@ -35,8 +35,9 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
 %     solution given the terminal condition; hh_bellman_step.m);
 %   * forward: exact distribution iteration with the date-t policies;
 %   * update: damped multiplicative fixed point on {phat_t},
-%       phat_t <- phat_t * (1 + xi * (S_t - b_t)/b_t),
-%     (excess asset demand => price level rises => real debt falls);
+%       phat_t <- phat_t * (b_t/S_t)^xi   (moves toward phat* = B0/S_t:
+%     excess asset demand => price level FALLS => real debt B0/phat rises
+%     to meet demand -- the transition version of P* = B/S);
 %     adaptive damping (xi halves on oscillation of the residual norm);
 %   * convergence: max_t |S_t - b_t| / b_t < opts.tol. Residuals are
 %     REPORTED, never hidden; a non-converged path is returned with
@@ -46,23 +47,29 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
 %     date); the incidence gradient chi(e) follows pgc.psi_inc as in
 %     S_green. No aggregate risk. Lump-sum taxes (regime R1).
 %
+% FREQUENCY: the MATLAB package is calibrated ANNUALLY (beta*=0.9296,
+% i_ss=0.04, mu=0.02, delta_g=0.10/yr), so T is in YEARS and pi_path is a
+% per-YEAR rate (audit fix: an earlier driver annualized with a quarterly
+% factor).
+%
 % COST: each path iteration = T Bellman steps (na x na x ne tensor ops)
-% + T distribution pushes. At na=500, ne=7, T=150, expect minutes per
-% iteration and O(10-60) iterations -- run on the user machine.
+% + T distribution pushes. At na=500, ne=7, T=80 (years), expect minutes
+% per iteration and O(10-60) iterations -- run on the user machine.
 %
 % INPUTS: pgc from setup_params_green (+ calibrated beta), with D0 /
 %         climate fields set; opts fields (all optional):
-%   .T (150) .tol (2e-3) .maxit (60) .xi (0.5) .regime ('nominal')
-%   .Gg_nom (pgc-calibrated program) .verbose (true)
+%   .T (80 years) .tol (2e-3) .maxit (60) .xi (0.5) .regime ('nominal')
+%   .Gg_nom (default: pgc.Gg_nom) .verbose (true)
 % OUTPUT TR: .phat (1xT), .P0, .pi_path, .r_path, .tau_path, .D_path,
 %   .Kg_path, .S_path, .b_path, .resid (1xT), .converged, .iters,
-%   .eq0, .eq1 (boundary steady states), .revaluation_t1, .msg
+%   .eq0, .eq1 (boundary steady states), .reval_stock, .reval_pv_share,
+%   .msg
 %
 % STATUS: IMPLEMENTED (v1); numbers are results only once a converged
 % run is verified. NONLINEAR HANK-DTPL TRANSITION tier.
 
     if nargin < 2, opts = struct(); end
-    T      = getopt(opts, 'T', 150);
+    T      = getopt(opts, 'T', 80);   % YEARS (annual calibration)
     tol    = getopt(opts, 'tol', 2e-3);
     maxit  = getopt(opts, 'maxit', 60);
     xi     = getopt(opts, 'xi', 0.5);
@@ -71,7 +78,14 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
 
     B0   = pgc.Bnom;
     rbar = (1 + pgc.i_ss)/(1 + pgc.mu) - 1;
-    Gg   = getopt(opts, 'Gg_nom', 0.02 * (pgc.Bnom / 1.10));
+    % program-size default: the params struct's own calibrated program
+    % (audit fix: the old hard-coded 0.02*Bnom/1.10 silently overrode a
+    % caller-supplied calibration by up to 50%)
+    if isfield(pgc, 'Gg_nom') && ~isempty(pgc.Gg_nom)
+        Gg = getopt(opts, 'Gg_nom', pgc.Gg_nom);
+    else
+        Gg = getopt(opts, 'Gg_nom', 0.02 * (pgc.Bnom / 1.10));
+    end
 
     TR = struct('converged', false, 'msg', '');
 
@@ -146,6 +160,12 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
         end
 
         % ---- residuals + damped multiplicative update ----
+        % Clearing at t: b_t = B0/phat_t = S_t, so the exact clearing price
+        % is phat* = B0/S_t = phat_t * (b_t/S_t). EXCESS DEMAND (S > b)
+        % therefore requires phat_t to FALL so that real debt B0/phat rises
+        % to meet demand -- the transition version of P* = B/S. (The first
+        % version updated in the wrong direction -- audit-confirmed and
+        % fixed: the damped update now moves phat toward B0/S.)
         resid = (S_path - b_path) ./ b_path;
         resnorm = max(abs(resid));
         if verbose
@@ -155,9 +175,10 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
             TR.converged = true;
             break;
         end
+        if it == maxit, break; end   % keep packed paths consistent with phat
         if resnorm > resnorm_prev * 1.02, xi = max(xi/2, 0.05); end
         resnorm_prev = resnorm;
-        upd = 1 + xi * resid;
+        upd = (b_path ./ S_path) .^ xi;           % damped move toward B0/S
         upd = min(max(upd, 0.90), 1.10);          % trust region per iteration
         phat(1:T-1) = phat(1:T-1) .* upd(1:T-1);  % terminal pinned
     end
@@ -170,9 +191,15 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
     TR.g_path = g_path;
     TR.resid  = resid;  TR.iters = it;
     TR.eq0 = eq0; TR.eq1 = eq1;
-    % surprise revaluation at announcement: real value change of the
-    % pre-announcement nominal position per unit of program
-    TR.revaluation_t1 = rbar * B0 * (1/eq0.P - 1/phat(1)) / (Gg/phat(1));
+    % surprise revaluation at announcement (audit-corrected definitions):
+    %   reval_stock    government's one-time real gain on the outstanding
+    %                  nominal stock, B0*(1/P0 - 1/phat_1)  [negative under
+    %                  announcement disinflation: bondholder windfall]
+    %   reval_pv_share the same stock gain as a share of the program's
+    %                  present value along the computed path
+    TR.reval_stock    = B0 * (1/eq0.P - 1/phat(1));
+    PVg               = sum(g_path ./ (1 + rbar).^(1:T));
+    TR.reval_pv_share = TR.reval_stock / PVg;
     TR.msg = sprintf(['tier2 %s: %s in %d iters, max resid %.5f; ' ...
         'impact phat_1/P0 = %.4f (surprise %s), terminal P = %.4f'], ...
         regime, ternstr(TR.converged, 'CONVERGED', 'NOT CONVERGED'), ...
