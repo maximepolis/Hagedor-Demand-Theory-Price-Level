@@ -81,15 +81,24 @@ for master_k = 1:size(getappdata(0,'gd_master_stages'), 1)
         continue;
     end
 
+    % stash the loop locals: the sub-script's `clearvars -except FAST`
+    % wipes stage/kind/master_k from the base workspace, so re-read them
+    % from appdata after eval (both the success and the catch paths).
+    setappdata(0, 'gd_master_iter', ...
+        struct('stage', stage, 'kind', kind, 'k', master_k));
     try
         FAST = t.fast; %#ok<NASGU>   % restore flag for the sub-script
         if startsWith(kind, 'dynare')
             cd(fullfile(t.projdir, 'dynare'));
         end
         eval(stage);
+        it       = getappdata(0, 'gd_master_iter');   % survives clearvars
+        stage    = it.stage;  kind = it.kind;  master_k = it.k;
         t = getappdata(0, 'gd_master_track');
         t.run{end+1} = stage;
     catch ME
+        it       = getappdata(0, 'gd_master_iter');
+        stage    = it.stage;  kind = it.kind;  master_k = it.k;
         t = getappdata(0, 'gd_master_track');
         t.skipped{end+1} = stage;
         if strcmp(kind, 'dynare-het') && ...
@@ -110,6 +119,7 @@ cd(t.projdir);
 export_master_status(t);
 rmappdata(0, 'gd_master_track');
 rmappdata(0, 'gd_master_stages');
+if isappdata(0, 'gd_master_iter'), rmappdata(0, 'gd_master_iter'); end
 fprintf('\nMASTER RUN COMPLETE (%.1f s). See output/tables/master_status.txt,\n', ...
     etime(clock, t.clock0));
 fprintf('MODEL_STATUS.md and ROADMAP.md.\n');
