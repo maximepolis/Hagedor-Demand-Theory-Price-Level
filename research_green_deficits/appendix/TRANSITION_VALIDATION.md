@@ -192,3 +192,21 @@ Tier-1 note: the same oscillation diagnostic is now wired into
 run_green_hank.m, and RHOG/THORIZON defines allow re-verification of the
 tier-1 numbers at rho_g = 0.98 / horizon 400 (requested; the paper's
 tier-1 numbers keep their verified-run label meanwhile).
+
+## Tier-1b third run: solved-but-NaN, and the omega-timing fix
+
+Third run (post-dividend-identity model): all four regimes SOLVED incl.
+TAYLORBAL (chi1 fixed at 6.416, beta_ss* = 0.9706) -- but every IRF was
+NaN. Cause: with rb_t = r_t - omega_t, date-t omega touches only the
+return on PREDETERMINED holdings (income effect), so the liquid-clearing
+condition faced a nearly powerless instrument: near-singular linearized
+system, NaN solution. Fix: ISSUANCE timing, rb_t = r_t - omega_{t-1} --
+the premium set at issuance directly prices the bonds households choose
+at t through the liquid Euler (steady state unchanged).
+
+Driver holes closed at the same time: NaN passes any '>' comparison in
+MATLAB, so NaN paths slipped through the divergence gate, were
+checkpointed, and (restored on the second invocation) triggered the heavy
+accuracy pass = the MATLAB crash. Both HANK drivers now gate on
+finiteness at solve AND restore; the accuracy refinement is lightened to
+THORIZON=500/nb=20/na=40 with SPAWN_MATLAB recommended for it.

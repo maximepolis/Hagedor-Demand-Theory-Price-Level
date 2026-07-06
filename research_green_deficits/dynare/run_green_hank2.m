@@ -136,11 +136,12 @@ for rgm = 1:numel(regimes)
     rname = regimes(rgm).name;
     fprintf('\n===== HANK2 regime %s =====\n', rname);
 
-    % ---- layer 1: checkpoint skip (divergence gate applies to restores) --
+    % ---- layer 1: checkpoint skip (validity gates apply to restores) --
     if isfield(PREV, rname)
         pv = PREV.(rname);
-        if isfield(pv,'pi') && (max(abs(pv.pi)) > 0.05 || max(abs(pv.Y)) > 0.25 ...
-                || (isfield(pv,'bg') && max(abs(pv.bg)) > 5))
+        if ~all(structfun(@(v) all(isfinite(v)), pv)) || ...
+           (isfield(pv,'pi') && (max(abs(pv.pi)) > 0.05 || max(abs(pv.Y)) > 0.25 ...
+                || (isfield(pv,'bg') && max(abs(pv.bg)) > 5)))
             fprintf('  [checkpointed %s is DIVERGENT -- discarded, will re-solve]\n', rname);
             DIVERGENT.(rname) = true;
         else
@@ -216,9 +217,22 @@ for rgm = 1:numel(regimes)
                 rname, strjoin(fn, ', '));
             continue;
         end
-        % DIVERGENCE GATE: a linearized IRF to a 1%-of-output shock that
-        % moves inflation by >5% quarterly or output by >25% is not a
-        % solution, it is a pathology. Excluded outright.
+        % VALIDITY GATE 1 (NaN): a NaN/Inf path means the linearized
+        % solution is DEGENERATE. NOTE: 'NaN > x' is FALSE in MATLAB, so
+        % the divergence gate alone lets NaN through -- which is exactly
+        % how a NaN run got checkpointed and summarized once. Explicit
+        % finiteness check first.
+        if ~all(structfun(@(v) all(isfinite(v)), paths))
+            warning('run_green_hank2:nanpath', ...
+                ['Regime %s: linearized solution is DEGENERATE (NaN/Inf ' ...
+                 'IRFs) -- excluded from all outputs, NOT checkpointed.'], ...
+                rname);
+            DIVERGENT.(rname) = true;
+            continue;
+        end
+        % VALIDITY GATE 2 (divergence): a finite IRF to a 1%-of-output
+        % shock that moves inflation by >5% quarterly or output by >25%
+        % is not a solution, it is a pathology. Excluded outright.
         if max(abs(paths.pi)) > 0.05 || max(abs(paths.Y)) > 0.25 ...
                 || (isfield(paths,'bg') && max(abs(paths.bg)) > 5)
             warning('run_green_hank2:divergent', ...
@@ -312,7 +326,14 @@ if run_acc
         try, clear mex; catch, end %#ok<CLMEX,NOCOM>
         clear oo_ M_ options_;
         nm = 'grn2_taylor_acc';
-        accdefs = '-DPHIPI=1.5 -DTHORIZON=600 -DNB=25 -DNA=50';
+        % lighter refinement (500/20/40, was 600/25/50): the heaviest
+        % solve repeatedly hard-crashed MATLAB in-session; still a genuine
+        % refinement over the 400/15/30 baseline
+        accdefs = '-DPHIPI=1.5 -DTHORIZON=500 -DNB=20 -DNA=40';
+        if ~SPAWN_MATLAB
+            fprintf(['  [note: for the accuracy pass, SPAWN_MATLAB=true is ' ...
+                     'strongly recommended -- it cannot crash this session]\n']);
+        end
         irfs = [];
         if SPAWN_MATLAB
             dynpath = fileparts(which('dynare'));
@@ -446,7 +467,7 @@ if fid > 0
         fprintf(fid, 'DIVERGENT   %-11s excluded from all outputs (pathological linearized solution)\n', dn{k});
     end
     if ACC.ran
-        fprintf(fid, 'refinement (TAYLOR, THORIZON 600, nb 25, na 50): max rel. dev %.3f -> %s\n', ...
+        fprintf(fid, 'refinement (TAYLOR, THORIZON 500, nb 20, na 40): max rel. dev %.3f -> %s\n', ...
             ACC.maxdev, ternary_str(ACC.pass, 'PASS', 'FAIL (baseline grids/horizon drive results)'));
         for k = 1:numel(ACC.report), fprintf(fid, '  %s\n', ACC.report{k}); end
     else

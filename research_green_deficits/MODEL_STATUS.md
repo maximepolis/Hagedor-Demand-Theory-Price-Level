@@ -256,3 +256,27 @@ found and FIXED the following (confirmed defects only):
 Paper text corrected accordingly (two-asset root cause, GREENACCOM
 realized cut ~1.5pp not 7pp under inertia, cross-tier "analogous not
 identical" regimes).
+
+- REFRESHED CALIBRATED PASS (consistency-fixed eval_S, user run):
+  beta* = 0.9267 (S=1.1049, converged); nu = 0.156 / 0.583 / 2.045 across
+  LOW/MED/HIGH (reval -0.057/-0.053/-0.058); welfare quintiles LOW
+  [-3.57..-1.89], MED [-2.60..-1.12], HIGH [+1.82..+2.29]. Paper table
+  "calibrated" + incidence table + abstract updated; derived rows (D1,
+  tau1, |L|) verified against the run by identity (nu_damage=(D0-D1)/g and
+  nu_reval=-rL/g reproduce the printed values). theta_g-threshold and W
+  rows remain previous-vintage (noted in caption). Downstream drivers
+  (regimes/channels/maturity/transition) load the new
+  calibrated_results.mat automatically -- re-runs will shift their tables
+  at the second decimal.
+- TIER-1b THIRD RUN (fixed model): ALL FOUR regimes solved including
+  TAYLORBAL (chi1 fixed 6.416, beta_ss*=0.9706) -- the dividend-identity
+  fix works -- but IRFs were NaN: the endogenous-omega timing
+  rb_t = r_t - omega_t gave date-t omega only an income effect on
+  predetermined holdings (near-singular linear system). FIXED:
+  issuance-timing rb_t = r_t - omega_{t-1} (omega_t now directly prices
+  date-t liquid choices). Also fixed: NaN paths passed the divergence
+  gate ('NaN > x' is false in MATLAB), got checkpointed, and triggered
+  the heavy accuracy pass on the second invocation (= the crash) --
+  explicit finiteness gates added on solve and restore in BOTH HANK
+  drivers; accuracy refinement lightened to 500/20/40 with a
+  SPAWN_MATLAB recommendation.

@@ -108,10 +108,11 @@ for rgm = 1:numel(regimes)
     rname = regimes(rgm).name;
     fprintf('\n===== HANK regime %s =====\n', rname);
 
-    % checkpoint skip (sanity-gated: no restored path may be implausible)
+    % checkpoint skip (sanity-gated: finite AND plausible)
     if isfield(PREV, rname)
         pv = PREV.(rname);
-        if ~(isfield(pv,'pi') && (max(abs(pv.pi)) > 0.05 || max(abs(pv.Y)) > 0.25))
+        if all(structfun(@(v) all(isfinite(v)), pv)) && ...
+           ~(isfield(pv,'pi') && (max(abs(pv.pi)) > 0.05 || max(abs(pv.Y)) > 0.25))
             RES.(rname) = pv;
             if isfield(PREVCAL, rname), CAL.(rname) = PREVCAL.(rname); end
             ok(rgm) = true;
@@ -192,7 +193,14 @@ for rgm = 1:numel(regimes)
                 rname, strjoin(fn, ', '));
             continue;
         end
-        % divergence gate (same rationale as the two-asset driver)
+        % validity gates (same rationale as the two-asset driver);
+        % explicit finiteness first -- NaN passes any '>' comparison
+        if ~all(structfun(@(v) all(isfinite(v)), paths))
+            warning('run_green_hank:nanpath', ...
+                ['Regime %s: DEGENERATE linearized solution (NaN/Inf) -- ' ...
+                 'excluded, not checkpointed.'], rname);
+            continue;
+        end
         if max(abs(paths.pi)) > 0.05 || max(abs(paths.Y)) > 0.25
             warning('run_green_hank:divergent', ...
                 'Regime %s: DIVERGENT linearized solution -- excluded.', rname);
