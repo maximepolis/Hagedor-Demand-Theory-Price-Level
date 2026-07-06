@@ -34,14 +34,22 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
 %     continuation = green terminal value function (exact finite-horizon
 %     solution given the terminal condition; hh_bellman_step.m);
 %   * forward: exact distribution iteration with the date-t policies;
-%   * update: damped multiplicative fixed point on {phat_t},
-%       phat_t <- phat_t * (b_t/S_t)^xi   (moves toward phat* = B0/S_t:
-%     excess asset demand => price level FALLS => real debt B0/phat rises
-%     to meet demand -- the transition version of P* = B/S);
-%     adaptive damping (xi halves on oscillation of the residual norm);
-%   * convergence: max_t |S_t - b_t| / b_t < opts.tol. Residuals are
-%     REPORTED, never hidden; a non-converged path is returned with
-%     .converged = false and must not be presented as a result.
+%   * update: ANDERSON-ACCELERATED fixed point on the LOG price path.
+%     The underlying map is phat_t <- phat_t*(b_t/S_t)^xi (moves toward
+%     phat* = B0/S_t: excess asset demand => price level FALLS => real debt
+%     B0/phat rises to meet demand -- the transition version of P* = B/S).
+%     Plain diagonal relaxation stalls/oscillates because phat_t enters the
+%     realized return at BOTH t and t+1 with opposite signs (cross-date
+%     coupling, eigenvalue near -1); Anderson type-II (Fang-Saad, memory 5)
+%     combines the last few log residuals by least squares to cancel it,
+%     Jacobian-free, with a +-10%/iter per-date trust region and an
+%     ill-conditioning fallback to the plain damped step.
+%   * convergence: over the FREE unknowns phat(1:T-1) (the terminal date is
+%     pinned at the green ss); max_t |S_t-b_t|/b_t < opts.tol. The terminal
+%     residual is reported SEPARATELY as a horizon-adequacy check. Residuals
+%     are REPORTED, never hidden; a path that is not both converged and
+%     horizon-adequate is returned .reportable = false and must not be
+%     presented as a result.
 %   * SCOPE OF v1: damage-level channel on endowments and the risk
 %     channel sig_eps(D_t) are both active (income process rebuilt per
 %     date); the incidence gradient chi(e) follows pgc.psi_inc as in
@@ -132,7 +140,9 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
     dg  = pgc.delta_g;
     qg  = 1; if isfield(pgc,'q_g') && ~isempty(pgc.q_g), qg = pgc.q_g; end
 
-    resnorm_prev = Inf;
+    xi0  = xi;          % base relaxation of the underlying Picard map
+    mAnd = 5;           % Anderson memory (past residuals combined per step)
+    Xh   = {};  Fh = {};  % history: log-price iterates and log residuals
     for it = 1:maxit
         % ---- climate + fiscal paths implied by the trial price path ----
         if strcmpi(regime, 'indexed')
@@ -168,13 +178,11 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
             dist = POL(t).push(dist);
         end
 
-        % ---- residuals + damped multiplicative update ----
+        % ---- residuals ----
         % Clearing at t: b_t = B0/phat_t = S_t, so the exact clearing price
-        % is phat* = B0/S_t = phat_t * (b_t/S_t). EXCESS DEMAND (S > b)
-        % therefore requires phat_t to FALL so that real debt B0/phat rises
-        % to meet demand -- the transition version of P* = B/S. (The first
-        % version updated in the wrong direction -- audit-confirmed and
-        % fixed: the damped update now moves phat toward B0/S.)
+        % is phat* = B0/S_t. EXCESS DEMAND (S > b) requires phat_t to FALL so
+        % that real debt B0/phat rises to meet demand -- the transition
+        % version of P* = B/S (update direction audit-confirmed).
         resid = (S_path - b_path) ./ b_path;
         % CONVERGENCE is over the FREE unknowns phat(1:T-1). phat(T) is
         % PINNED at the terminal green ss, so resid(T) is NOT a lever the
@@ -188,27 +196,48 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
         % outlier at 0.0097 against an interior mean at tolerance).
         resnorm  = max(abs(resid(1:T-1)));
         resid_T  = abs(resid(T));
+        % ---- Anderson-accelerated fixed point on the log price path ----
+        % Fixed point: phat_t = B0/S_t, i.e. the log residual
+        %   f_t = log(b_t/S_t) = log(B0/S_t) - log(phat_t)
+        % is zero at a clearing price. The plain damped map x <- x + xi*f is
+        % the old multiplicative update in logs; it stalls/oscillates here
+        % because a change in phat_t moves the realized return at BOTH t and
+        % t+1 with opposite signs -- a cross-date coupling (eigenvalue near
+        % -1) the diagonal step cannot see. Anderson (type-II, Fang-Saad)
+        % combines the last mAnd residuals by least squares to cancel exactly
+        % that coupling; Jacobian-free, and the standard cure for this shape.
+        xcur = log(phat(1:T-1)).';               % column (T-1)
+        fcur = log(b_path(1:T-1) ./ S_path(1:T-1)).';
         if verbose
             fprintf(['  iter %2d: interior max|S-b|/b = %.5f, ' ...
-                'terminal(horizon) = %.5f (xi=%.3f)\n'], it, resnorm, resid_T, xi);
+                'terminal(horizon) = %.5f (mem=%d)\n'], it, resnorm, ...
+                resid_T, min(numel(Fh), mAnd));
         end
         if resnorm < tol
             TR.converged = true;
             break;
         end
         if it == maxit, break; end   % keep packed paths consistent with phat
-        % adaptive damping: shrink xi on oscillation, GROW it on steady
-        % progress -- accelerates the slow multiplicative fixed point so the
-        % full-accuracy run clears within the iteration budget
-        if resnorm > resnorm_prev * 1.02
-            xi = max(xi/2, 0.05);
-        elseif resnorm < resnorm_prev * 0.98
-            xi = min(xi * 1.15, 0.90);
+        Xh{end+1} = xcur;  Fh{end+1} = fcur; %#ok<AGROW>
+        if numel(Fh) > mAnd + 1, Fh = Fh(end-mAnd:end); Xh = Xh(end-mAnd:end); end
+        m = numel(Fh) - 1;
+        if m < 1
+            xnext = xcur + xi0 * fcur;            % first step: plain damped
+        else
+            F  = [Fh{:}];  X = [Xh{:}];           % each (T-1) x (m+1)
+            dF = diff(F, 1, 2);  dX = diff(X, 1, 2);
+            ws = warning('off', 'MATLAB:rankDeficientMatrix');
+            gamma = dF \ fcur;                    % argmin || fcur - dF*gamma ||
+            warning(ws);
+            xnext = xcur + xi0 * fcur - (dX + xi0 * dF) * gamma;
+            if ~all(isfinite(xnext)) || norm(gamma) > 1e3
+                xnext = xcur + xi0 * fcur;        % ill-conditioned: fall back
+                Xh = Xh(end);  Fh = Fh(end);      % and restart the memory
+            end
         end
-        resnorm_prev = resnorm;
-        upd = (b_path ./ S_path) .^ xi;           % damped move toward B0/S
-        upd = min(max(upd, 0.90), 1.10);          % trust region per iteration
-        phat(1:T-1) = phat(1:T-1) .* upd(1:T-1);  % terminal pinned
+        % per-date trust region (same +-10%/iter cap) then apply; terminal pin
+        step = max(min(xnext - xcur, log(1.10)), log(0.90));
+        phat(1:T-1) = exp((xcur + step).');
     end
 
     % ---- pack ----

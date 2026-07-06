@@ -43,13 +43,13 @@ addpath(genpath(fullfile(projdir, 'src_project')));
 
 if ~exist('FAST','var'), FAST = false; end
 pg = setup_params_green();
-opts = struct('T', 80, 'tol', 2e-3, 'maxit', 60, 'xi', 0.5, 'verbose', true);  % T in YEARS
+opts = struct('T', 80, 'tol', 2e-3, 'maxit', 120, 'xi', 0.5, 'verbose', true);  % T in YEARS
 if FAST
     pg.na    = pg.fast.na;
     u        = linspace(0,1,pg.na)';
     pg.aGrid = -pg.abar + (pg.amax + pg.abar) * (u.^pg.acurv);
     pg.aGrid(1) = -pg.abar; pg.aGrid(end) = pg.amax;
-    opts.T = 50; opts.maxit = 40;
+    opts.T = 60; opts.maxit = 80;
     fprintf('*** FAST mode: na=%d, T=%d ***\n', pg.na, opts.T);
 end
 
