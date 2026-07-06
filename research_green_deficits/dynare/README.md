@@ -63,6 +63,12 @@ when several heavy solves run in one session (first observed in the
 final tier-1b regime; a hard process crash cannot be caught by
 try/catch). Both HANK drivers are engineered around it, three layers:
 
+0. **Tier-1b is EXPERIMENTAL and opt-in.** The two-asset solves are the
+   crash source; `run_green_hank2` is excluded from the master pipeline
+   and, when run manually, executes each regime in its own disposable
+   MATLAB process **by default** (invoked via the running installation's
+   exact executable — no PATH setup). A Dynare crash can no longer kill
+   your session under the defaults.
 1. **Checkpoint-resume (automatic).** Results are saved after EVERY
    regime; on the next run, solved regimes restore from
    `output/hank*_green_irfs.mat` and only the missing ones solve. After
