@@ -29,11 +29,19 @@
 % Grid defaults ne=3, nb=15, na=30 (raised from the example's 10x20):
 % magnitudes indicative until the accuracy protocol passes.
 %
+% *** TIER CLOSED (protocol verdict 2026-07-07): the two-asset solves
+% *** crash inside the Dynare 8-unstable heterogeneity solver (wandering
+% *** failure point across identical runs = memory corruption in the
+% *** build, not a model error). By DEFAULT this script now stops
+% *** immediately with the verdict. The paper does not depend on it.
+%
 % USAGE:  >> cd research_green_deficits/dynare
-%         >> run_green_hank2                        % DEFAULT: each regime in
-%                                                   % its own MATLAB process
-%                                                   % (crash-proof), resuming
-%                                                   % from checkpoint
+%         >> run_green_hank2                        % DEFAULT: prints verdict
+%                                                   % and STOPS (tier closed)
+%         >> TIER1B_FORCE = true;  run_green_hank2  % attempt anyway (crash-
+%                                                   % isolated children, resume
+%                                                   % from checkpoint; use on a
+%                                                   % NEWER/stable Dynare)
 %         >> FORCE_RERUN  = true;  run_green_hank2  % re-solve everything
 %         >> SPAWN_MATLAB = false; run_green_hank2  % in-session solves
 %         >> RUN_ACCURACY = true;  run_green_hank2  % force refinement pass
@@ -44,7 +52,8 @@
 
 % keep the user-set control flags alive (a bare 'clear' would wipe them
 % before they are read)
-clearvars -except FORCE_RERUN SPAWN_MATLAB REGIME_ONLY RUN_ACCURACY; close all;
+clearvars -except FORCE_RERUN SPAWN_MATLAB REGIME_ONLY RUN_ACCURACY TIER1B_FORCE;
+close all;
 t0 = tic;
 
 dyndir = fileparts(mfilename('fullpath'));
@@ -71,6 +80,47 @@ if ~contains(modtxt, "name='Dividends'") || ...
            'identity and/or the reference dynamics closure). Re-download ' ...
            'the branch ZIP, replace the WHOLE research_green_deficits ' ...
            'folder, and re-run.']);
+end
+% ---- TIER CLOSED (2026-07-07 protocol verdict): kill-switch ----
+% Two independent protocol runs failed at the SOLVER level on Dynare
+% 8-unstable-2026-05-19, with the failure point WANDERING between runs
+% (WEAK: singular sequence-space Jacobian RCOND=NaN in one run, hard
+% child crash 0xc0000409 at calibration iter 355 in the next; TAYLOR:
+% the same 0xc0000409 after household policies converged to 2.4e-7).
+% A crash whose location moves across identical runs is memory
+% corruption inside the build's compiled heterogeneity solver -- NOT a
+% model error, and not fixable from the .mod/.m layer. The paper does
+% not depend on this tier. Default behavior is therefore to STOP HERE
+% with the verdict instead of spawning children that will crash.
+% To attempt anyway (e.g. on a newer/stable Dynare):
+%     TIER1B_FORCE = true; run_green_hank2
+if ~exist('TIER1B_FORCE', 'var') || ~TIER1B_FORCE
+    vf = fullfile(pg.tabdir, 'hank2_protocol_verdict.txt');
+    fid = fopen(vf, 'w');
+    if fid > 0
+        dynver = 'unknown';
+        try, dynver = dynare_version(); catch, end
+        fprintf(fid, 'TIER-1b (two-asset HANK) ACCURACY PROTOCOL -- VERDICT\n');
+        fprintf(fid, 'Recorded: %s;  Dynare found on path: %s\n\n', ...
+            datestr(now, 'yyyy-mm-dd HH:MM'), dynver);
+        fprintf(fid, ['Protocol runs on Dynare 8-unstable-2026-05-19 failed at the\n' ...
+            'SOLVER level with a wandering failure point across identical runs\n' ...
+            '(WEAK: RCOND=NaN once, hard crash 0xc0000409 at calibration iter 355\n' ...
+            'next; TAYLOR: 0xc0000409 after policy convergence 2.4e-7) -- the\n' ...
+            'signature of memory corruption in the build''s compiled\n' ...
+            'heterogeneity solver, not of a model error.\n\n' ...
+            'STATUS: tier CLOSED, NOT REPORTABLE. The paper does not depend on\n' ...
+            'it (tier-1b paragraph discloses this verdict). Revisit on a stable\n' ...
+            'Dynare release with: TIER1B_FORCE = true; run_green_hank2\n']);
+        fclose(fid);
+    end
+    fprintf(['\nTIER-1b IS CLOSED (protocol verdict 2026-07-07): the two-asset solves\n' ...
+        'crash inside the Dynare development build''s heterogeneity solver, with\n' ...
+        'the failure point wandering across identical runs (memory corruption in\n' ...
+        'the build, not a model error). Not running. Verdict written to\n  %s\n' ...
+        'The paper does NOT depend on this tier. To attempt anyway (e.g. on a\n' ...
+        'newer Dynare):  TIER1B_FORCE = true; run_green_hank2\n\n'], vf);
+    return;
 end
 % delete stale summary/validation files so a failed run can never leave
 % previous results lying around to be mistaken for current ones

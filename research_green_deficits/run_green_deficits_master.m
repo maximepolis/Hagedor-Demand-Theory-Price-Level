@@ -74,8 +74,9 @@ for master_k = 1:size(getappdata(0,'gd_master_stages'), 1)
     % run it manually (run_green_hank2, spawn mode is its default)
     if strcmp(kind, 'dynare-het-experimental')
         t.skipped{end+1} = stage;
-        t.reasons{end+1} = ['EXPERIMENTAL tier excluded from the master; ' ...
-                            'run run_green_hank2 manually (crash-isolated by default)'];
+        t.reasons{end+1} = ['tier-1b CLOSED (2026-07-07 protocol verdict: ' ...
+                            'solver-level crashes in the Dynare dev build); ' ...
+                            'paper does not depend on it'];
         setappdata(0, 'gd_master_track', t);
         fprintf('  [skipped] %s\n', t.reasons{end});
         continue;
