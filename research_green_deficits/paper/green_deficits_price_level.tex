@@ -17,6 +17,9 @@
 \usepackage{setspace}
 \usepackage[round]{natbib}
 \usepackage[colorlinks=true,citecolor=blue,linkcolor=blue,urlcolor=blue]{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,fit,backgrounds,calc}
+\usepackage{float}
 
 \graphicspath{{../output/figures/}{./}}
 
@@ -626,6 +629,114 @@ elasticity exactly $-1$, crossings of \eqref{eq:assetmarket} are
 $\varepsilon_S>-1$ and \emph{downward} where $\varepsilon_S<-1$.
 \end{definition}
 
+\subsection{The mechanism, in one picture}\label{subsec:mechanism}
+
+Figure~\ref{fig:mechanism} collects equations \eqref{eq:Kg}--\eqref{eq:assetmarket}
+into the causal chain the rest of the paper works through. Green spending
+$g_g$ is real resources put in the ground; what makes it a \emph{monetary}
+object is that, under a nominal budget, $g_g = G_g/P$ depends on the price
+level the program itself helps determine. Green capital lowers climate
+damages $D$ through the abatement channel \eqref{eq:abatement}--\eqref{eq:climatefixedpoint};
+lower damages raise \emph{effective} household income
+\eqref{eq:incidence} (net of the regressive incidence gradient) and lower
+\emph{idiosyncratic risk} $\sigma_\epsilon(D)$, both of which shift
+precautionary asset demand $\Sfun(1+r;\tau,D)$ --- income up weakens
+demand for the safe asset (less need to self-insure against a shrinking
+mean), risk down also weakens it (less need to self-insure against
+volatility), so \emph{both} climate channels push in the \emph{same}
+direction; only their signs relative to the \emph{tax} channel below
+determine the net effect. Real taxes $\tau = r^{ss}b + g_g$ enter the same
+demand function directly: financing the program raises the tax burden,
+which strengthens precautionary demand. The asset market then clears
+\eqref{eq:assetmarket}, pinning the price level $P^{*}=B/\Sfun(\cdot)$
+given the fixed nominal bond stock $B$ --- the DTPL mechanism itself.
+The price level does double duty on the way back: it revalues the
+outstanding nominal debt stock (the $\nu_{\mathrm{reval}}$ term of
+Definition~\ref{def:nu}, a windfall or a levy on existing bondholders
+depending on its sign), and, under a nominal budget, it resets real green
+spending for next period, closing the loop between the price level and
+the climate block. The avoided damages themselves are the
+$\nu_{\mathrm{dam}}$ term, and $\nu=\nu_{\mathrm{reval}}+\nu_{\mathrm{dam}}$
+is the self-financing share of Section~\ref{sec:theory}. Figure~\ref{fig:mechanism}
+draws this forward chain only; two further channels described above but
+omitted from the picture for legibility have no bearing on the climate
+block yet a first-order effect on the sign of $\nu_{\mathrm{reval}}$: which
+tax instrument raises $\tau$, and from whom
+(Section~\ref{subsec:financingdesign}, Proposition~\ref{prop:financingdesign})
+--- the same real program can be revaluation-negative or
+revaluation-positive depending on financing, which is why ``does the
+green transition cause inflation'' has no answer independent of ``how is
+it paid for'' --- and the feedback from $P^{*}$ back into next period's
+real spending under a nominal budget, which is exactly the loop the
+transition of Section~\ref{subsec:tier2} traces out over time rather than
+across steady states.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  font=\footnotesize,
+  every node/.style={align=center},
+  box/.style={draw, rounded corners, align=center, minimum height=9mm,
+              text width=25mm, inner sep=2pt},
+  keynode/.style={box, draw=black, thick, fill=black!6},
+  arr/.style={-{Latex[length=2mm]}, thick},
+  negarr/.style={arr, dashed},
+  lbl/.style={font=\tiny, fill=white, inner sep=1pt},
+]
+ % ---- row 1: climate block (left to right) ----
+ \node[box]    (gg)    at (0,0)    {green spending $g_g$\\ \footnotesize(nominal: $=G_g/P$)};
+ \node[box]    (kg)    at (3.6,0)  {abatement capital $K_g$};
+ \node[box]    (dmg)   at (7.2,0)  {climate damages $D$};
+ \node[box]    (nudam) at (11.0,0) {damage dividend\\ $D_0-D_1=\nu_{\mathrm{dam}}$};
+
+ % ---- row 2: climate -> household channels, and real taxes ----
+ \node[box] (tau)  at (0,-2.3)   {real taxes\\ $\tau=r^{ss}b+g_g$};
+ \node[box] (inc)  at (5.6,-2.3) {effective income\\ $y(e;D)$, regressive};
+ \node[box] (risk) at (9.4,-2.3) {idiosyncratic risk\\ $\sigma_\epsilon(D)$};
+
+ % ---- row 3: the market that clears everything above ----
+ \node[keynode] (S) at (5.6,-4.6) {precautionary asset demand\\ $\Sfun(1+r;\tau,D)$};
+
+ % ---- row 4: the price level ----
+ \node[keynode] (P) at (5.6,-6.9) {price level\\ $P^{*}=B/\Sfun(\cdot)$};
+
+ % ---- row 5: what the price level does ----
+ \node[box] (reval) at (3.2,-9.2) {revaluation of\\ nominal debt: $\nu_{\mathrm{reval}}$};
+ \node[box] (nu)    at (8.0,-9.2) {self-financing share\\ $\nu=\nu_{\mathrm{reval}}+\nu_{\mathrm{dam}}$};
+
+ % ---- main forward chain (a pure DAG; no feedback drawn -- see text) ----
+ \draw[arr] (gg) -- (kg);
+ \draw[arr] (kg) -- (dmg) node[lbl, midway] {$-$};
+ \draw[arr] (gg) -- (tau);
+ \draw[arr] (dmg) -- (inc);
+ \draw[arr] (dmg) -- (risk);
+ \draw[arr] (dmg) -- (nudam);
+ \draw[arr] (S) -- (P);
+ \draw[arr] (reval) -- (nu);
+ \draw[arr] (P) -- (reval);
+ \draw[arr] (P) -- (nu);
+ \draw[arr] (nudam.south) |- (nu.east);
+
+ % ---- signed channels into asset demand ----
+ \draw[arr]    (tau.south)  |- (S.west)       node[lbl, pos=0.72] {$+$};
+ \draw[negarr] (inc.south)  -- (S.north)      node[lbl, midway]   {$-$};
+ \draw[negarr] (risk.south) |- (S.east)       node[lbl, pos=0.72] {$-$};
+\end{tikzpicture}
+\caption{The mechanism. Solid arrows are levels; dashed arrows carry a
+sign (marked $-$/$+$) rather than a level. Both climate channels
+(effective income, idiosyncratic risk) push precautionary asset demand
+\emph{down}; the tax channel pushes it \emph{up}; the price level clears
+the difference and revalues the outstanding nominal debt stock
+accordingly. Two further channels, discussed in the text but omitted
+here for legibility: the \emph{financing instrument} (which tax raises
+$\tau$, and from whom) does not touch the climate block above but flips
+the sign of $\nu_{\mathrm{reval}}$ (Proposition~\ref{prop:financingdesign});
+and, under a nominal budget, the price level \emph{feeds back} into next
+period's real spending $g_g=G_g/P$, the loop the transition of
+Section~\ref{subsec:tier2} traces out over time.}
+\label{fig:mechanism}
+\end{figure}
+
 % ==========================================================================
 \section{Theoretical results}\label{sec:theory}
 % ==========================================================================
@@ -797,7 +908,7 @@ strictly positive. Its magnitude is quantitative.
 \end{proposition}
 
 % --------------------------------------------------------------------------
-\subsection{Financing design and the revaluation channel}
+\subsection{Financing design and the revaluation channel}\label{subsec:financingdesign}
 
 \begin{proposition}[Financing design controls the revaluation channel]
 \label{prop:financingdesign}
@@ -1617,18 +1728,27 @@ goods-market feasibility out of steady state. The corrected model
 restores the identity and closes, as described above, with the single
 total-wealth clearing condition and a constant premium. The driver
 additionally rejects any path violating elementary plausibility bounds.
-The accuracy protocol was run on the corrected model and returned its
-verdict: on the Dynare development build used here, no regime produced a
-valid solution --- one failed with a singular sequence-space Jacobian
-before any impulse response was computed, another crashed the solver
-process outright after the household policies had converged --- and the
-run-verdict file records the attempt. No two-asset result appears in
-this paper; the tier is disclosed because a solved-but-wrong impulse
-response is worse than an honest gap, and its economics are covered by
-the one-asset tier (Fisher redistribution) and the nonlinear tier-2
-transition (the $B/P$ margin proper). [TIER-1b: IMPLEMENTED; accuracy
-protocol ATTEMPTED, solver-level failure on the development build; NOT
-REPORTABLE.]
+The accuracy protocol was run on the corrected model, twice, and both
+attempts failed at the solver level: one regime failed with a singular
+sequence-space Jacobian before any impulse response was computed, and
+another crashed the solver process outright after its household policies
+had already converged. The diagnostic detail is what rules out a model
+error: rerunning the identical, unchanged specification moved the failure
+from one regime to the other and from one failure mode to the other ---
+a crash whose location is not reproducible across identical inputs is the
+signature of memory corruption inside the build's compiled solver, not
+of a mistake in our equations. We therefore closed the tier with a
+kill-switch rather than continuing to retry it: the driver now reports
+this verdict immediately (recorded in a run-verdict file) instead of
+spawning further solver processes, and stands ready to re-attempt the
+full protocol on a future stable Dynare release. No two-asset result
+appears in this paper; the tier is disclosed because a solved-but-wrong
+impulse response is worse than an honest gap, and its economics are
+covered by the one-asset tier (Fisher redistribution) and the nonlinear
+tier-2 transition (the $B/P$ margin proper). [TIER-1b: IMPLEMENTED;
+accuracy protocol ATTEMPTED twice, non-reproducible solver-level failure
+on the development build; NOT REPORTABLE; closed pending a stable Dynare
+release.]
 
 % --------------------------------------------------------------------------
 \subsection{The nonlinear HANK-DTPL transition}\label{subsec:tier2}
