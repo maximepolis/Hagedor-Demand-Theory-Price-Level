@@ -88,6 +88,10 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
     if nargin < 2, opts = struct(); end
     T      = getopt(opts, 'T', 80);   % YEARS (annual calibration)
     tol    = getopt(opts, 'tol', 2e-3);
+    % refinement target: keep polishing BELOW the reportable gate while the
+    % budget lasts (a residual of size tol leaves a visible +-2*tol ripple
+    % in the year-on-year inflation path; polishing to tol/4 removes it)
+    ttgt   = getopt(opts, 'tol_target', tol/4);
     maxit  = getopt(opts, 'maxit', 60);
     xi     = getopt(opts, 'xi', 0.5);
     regime = getopt(opts, 'regime', 'nominal');
@@ -143,6 +147,7 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
     xi0  = xi;          % base relaxation of the underlying Picard map
     mAnd = 5;           % Anderson memory (past residuals combined per step)
     Xh   = {};  Fh = {};  % history: log-price iterates and log residuals
+    best = struct('resnorm', Inf);   % best iterate found (returned at pack)
     for it = 1:maxit
         % ---- climate + fiscal paths implied by the trial price path ----
         if strcmpi(regime, 'indexed')
@@ -196,6 +201,15 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
         % outlier at 0.0097 against an interior mean at tolerance).
         resnorm  = max(abs(resid(1:T-1)));
         resid_T  = abs(resid(T));
+        % snapshot the best iterate WITH its full consistent path set --
+        % Anderson steps are not monotone, so the last iterate may be worse
+        % than one seen earlier; the packed result is always the best found
+        if resnorm < best.resnorm
+            best = struct('resnorm', resnorm, 'phat', phat, 'resid', resid, ...
+                'S_path', S_path, 'b_path', b_path, 'tau_path', tau_path, ...
+                'r_path', r_path, 'D_path', D_path, 'Kg', Kg, ...
+                'g_path', g_path, 'it', it);
+        end
         % ---- Anderson-accelerated fixed point on the log price path ----
         % Fixed point: phat_t = B0/S_t, i.e. the log residual
         %   f_t = log(b_t/S_t) = log(B0/S_t) - log(phat_t)
@@ -213,11 +227,8 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
                 'terminal(horizon) = %.5f (mem=%d)\n'], it, resnorm, ...
                 resid_T, min(numel(Fh), mAnd));
         end
-        if resnorm < tol
-            TR.converged = true;
-            break;
-        end
-        if it == maxit, break; end   % keep packed paths consistent with phat
+        if resnorm < ttgt, break; end   % refinement target reached
+        if it == maxit, break; end
         Xh{end+1} = xcur;  Fh{end+1} = fcur; %#ok<AGROW>
         if numel(Fh) > mAnd + 1, Fh = Fh(end-mAnd:end); Xh = Xh(end-mAnd:end); end
         m = numel(Fh) - 1;
@@ -240,13 +251,18 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
         phat(1:T-1) = exp((xcur + step).');
     end
 
-    % ---- pack ----
+    % ---- pack: always the BEST iterate found (with its consistent paths) ----
+    phat = best.phat;       resid = best.resid;
+    S_path = best.S_path;   b_path = best.b_path;  tau_path = best.tau_path;
+    r_path = best.r_path;   D_path = best.D_path;  Kg = best.Kg;
+    g_path = best.g_path;
+    TR.converged = best.resnorm < tol;   % the reportable gate (tol), not ttgt
     TR.phat   = phat;   TR.P0 = eq0.P;
     TR.pi_path = (1 + pgc.mu) * phat ./ [eq0.P, phat(1:T-1)] - 1;  % actual inflation
     TR.r_path = r_path; TR.tau_path = tau_path; TR.D_path = D_path;
     TR.Kg_path = Kg;    TR.S_path = S_path;     TR.b_path = b_path;
     TR.g_path = g_path;
-    TR.resid  = resid;  TR.iters = it;
+    TR.resid  = resid;  TR.iters = it;  TR.best_iter = best.it;
     % split diagnostics: fixed-point convergence (free unknowns) vs horizon
     % adequacy (pinned terminal date). A reportable result needs BOTH small.
     TR.resid_interior = max(abs(resid(1:T-1)));
@@ -265,6 +281,14 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
     TR.reval_stock    = B0 * (1/eq0.P - 1/phat(1));
     PVg               = sum(g_path ./ (1 + rbar).^(1:T));
     TR.reval_pv_share = TR.reval_stock / PVg;
+    % headline path statistics (quotable once .reportable):
+    %   frontload    share of the long-run stationarized price decline
+    %                realized in the announcement year
+    %   trend_return first year after which |pi - mu| stays within 25bp
+    TR.frontload = (eq0.P - phat(1)) / (eq0.P - phat(T));
+    late = find(abs(TR.pi_path - pgc.mu) > 0.0025, 1, 'last');
+    if isempty(late), late = 0; end
+    TR.trend_return = late + 1;
     TR.msg = sprintf(['tier2 %s: fixed point %s (interior max %.5f @t=%d), ' ...
         'horizon %s (terminal resid %.5f) in %d iters; ' ...
         'impact phat_1/P0 = %.4f (surprise %s), terminal P = %.4f'], ...

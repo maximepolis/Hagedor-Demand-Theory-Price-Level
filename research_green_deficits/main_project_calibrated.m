@@ -80,6 +80,7 @@ fprintf('\n===== [C1] Calibrating beta to debt/GDP = %.2f =====\n', b_target);
 pgc = pg;
 pgc.beta = beta_star;
 RCAL.beta_star = beta_star; RCAL.calib_beta = cb;
+RCAL.na = pg.na;   % grid the calibration is valid on (consumers must match)
 
 % =====================================================================
 % C2. Program scale: Gg such that g_g ~ g_share at the no-program P0
