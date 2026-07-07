@@ -242,12 +242,13 @@ solved as the object that clears the asset market at every date, with no
 Phillips curve and no policy rule for inflation anywhere
 (Section~\ref{subsec:tier2}) --- shows that the mechanism operates as a
 capitalization jump: on a credible announcement of the permanent program,
-$74\%$ of the long-run green disinflation is realized within the
-announcement year, year-one inflation is $-2.1\%$ against the $+2\%$
+$77\%$ of the long-run green disinflation is realized within the
+announcement year, year-one inflation is $-2.0\%$ against the $+2\%$
 trend --- a four-point announcement-window shortfall --- and holders of
 the outstanding nominal stock collect a windfall of about five percent of
-the program's present value before any green capital exists. Inflation is back at trend within four years while the
-capital stock accumulates for decades: in this economy the price level
+the program's present value before any green capital exists. Inflation is
+within a quarter-point of trend by year two while the capital stock
+accumulates for decades: in this economy the price level
 prices the \emph{news}, not the spending. A linearized HANK tier with a
 Phillips curve prices a comparable announcement at $+0.4\%$ impact
 inflation --- the opposite sign --- which makes the announcement window a
@@ -1674,64 +1675,61 @@ announcement produces \emph{disinflation on impact} under deficit
 finance --- becomes a computed, sign-testable object
 (Section~\ref{sec:empirics}, E3).
 
-The converged run ($n_a = 500$, $T = 80$ years, medium damages, calibrated
-program scale; interior market-clearing residual below $2\times10^{-3}$ at
-every free date, terminal residual below $10^{-3}$, $61$ and $40$ Anderson
-iterations for the two designs)\footnote{The discount factor of this run
-was calibrated on the coarser quantitative grid; on the transition grid it
-implies pre-announcement real debt of $1.18$ rather than the $1.10$
-target. The headline statistics below are dimensionless ratios along the
-path; the replication package recalibrates $\beta$ on the run's own grid
-for subsequent sweeps.} delivers the paper's dynamics in three
-statements. \emph{First, green disinflation is front-loaded:} the
-announcement moves the stationarized price level down $4.0\%$ on impact
---- year-one inflation of $-2.1\%$ against the $+2\%$ nominal trend ---
-which is $74\%$ of the entire long-run green disinflation ($-5.4\%$ across
-steady states) realized in the announcement year, before the first unit of
-green capital is installed. The price level jumps because asset demand
-does: households capitalize the future damage reduction and the
-transition-long tax path immediately, and the price level is what clears
-that market. Inflation is back at trend within four years --- and stays
-within the numerical tolerance of it --- while green capital accumulates
-over decades: the announcement effect and the accumulation dynamics
-separate cleanly.
+The converged run ($n_a = 500$, $T = 80$ years, medium damages, $\beta$
+calibrated on this same grid so that pre-announcement real debt matches
+the $1.10$ target; interior market-clearing residual below $5\times10^{-4}$
+at every free date, terminal residual below $5\times10^{-4}$, $88$ and
+$72$ Anderson iterations for the two designs) delivers the paper's
+dynamics in three statements. \emph{First, green disinflation is
+front-loaded:} the announcement moves the stationarized price level down
+$3.9\%$ on impact --- year-one inflation of $-2.0\%$ against the $+2\%$
+nominal trend --- which is $77\%$ of the entire long-run green
+disinflation ($-5.1\%$ across steady states) realized in the announcement
+year, before the first unit of green capital is installed. The price
+level jumps because asset demand does: households capitalize the future
+damage reduction and the transition-long tax path immediately, and the
+price level is what clears that market. Inflation is back within a
+quarter-point of trend by year two --- and stays there --- while green
+capital accumulates over decades: the announcement effect and the
+accumulation dynamics separate cleanly.
 \emph{Second, the revaluation channel is a one-time announcement windfall:}
 the surprise repricing hands holders of the outstanding nominal stock a
-real gain of $5.4\%$ of the program's present value ($5.3\%$ under the
+real gain of $5.3\%$ of the program's present value ($5.3\%$ under the
 indexed mandate) --- the dynamic realization of the negative
 $\nu_{\text{reval}}$ of the steady-state decomposition, collected entirely
 in the announcement year. \emph{Third, the denomination of the green
 budget is irrelevant on the equilibrium path:} the nominal-appropriation
-and indexed-mandate designs produce announcement jumps within a tenth of
-a percentage point of each other and land on the same terminal steady
-state, so the anchor-insulation value of the indexed mandate
-(Proposition~\ref{prop:insulation}) is entirely \emph{off}-equilibrium ---
-it removes the self-fulfilling brown-stagnation equilibria without
-changing the equilibrium the economy actually follows. The contrast with
-the Phillips-curve tiers is the point of the exercise: the linearized
-HANK tier prices a comparable deficit-financed green announcement (a
-quasi-permanent program of one percent of output) at $+0.4\%$ impact
-inflation (the demand stimulus), while the DTPL computation prices its
-permanent program at $-2.1\%$ (the asset-demand shift) --- opposite signs
-for the same class of announcement, because the two tiers answer with
-different mechanisms, and only the latter contains the
-price-level-as-market-clearing margin the paper is about. [NONLINEAR HANK-DTPL TRANSITION; converged, horizon-adequate run;
+and indexed-mandate designs produce announcement jumps within two
+hundredths of a percentage point of each other and land on the same
+terminal steady state, so the anchor-insulation value of the indexed
+mandate (Proposition~\ref{prop:insulation}) is entirely
+\emph{off}-equilibrium --- it removes the self-fulfilling brown-stagnation
+equilibria without changing the equilibrium the economy actually follows.
+The contrast with the Phillips-curve tiers is the point of the exercise:
+the linearized HANK tier prices a comparable deficit-financed green
+announcement (a quasi-permanent program of one percent of output) at
+$+0.4\%$ impact inflation (the demand stimulus), while the DTPL
+computation prices its permanent program at $-2.0\%$ (the asset-demand
+shift) --- opposite signs for the same class of announcement, because the
+two tiers answer with different mechanisms, and only the latter contains
+the price-level-as-market-clearing margin the paper is about. [NONLINEAR
+HANK-DTPL TRANSITION; converged, horizon-adequate, grid-consistent run;
 \texttt{transition\_dtpl\_summary.txt}.]
 
 \pfigguard{PFig18_dtpl_transition.pdf}{%
 \begin{figure}[ht]\centering
 \includegraphics[width=0.95\textwidth]{PFig18_dtpl_transition.pdf}
-\caption{The nonlinear HANK-DTPL transition (converged run, $n_a=500$,
-$T=80$ years): stationarized price level, inflation, real debt versus
-asset demand, green capital, damages, and market-clearing residuals, for
-the nominal-appropriation and indexed-mandate designs. The announcement
-jump (the $-4\%$ price-level drop between the pre-announcement level and
-year one) front-loads $74\%$ of the long-run green disinflation;
-inflation reverts to the $2\%$ trend within four years; the two designs
-are nearly indistinguishable on the equilibrium path. Residuals clear to
-$2\times10^{-3}$ at every date; the remaining small-amplitude ripple in
-the early inflation path is numerical (of the order of the tolerance),
-not economics. Generated by \texttt{main\_project\_transition}.}
+\caption{The nonlinear HANK-DTPL transition (converged, grid-consistent
+run, $n_a=500$, $T=80$ years, $\beta$ calibrated on this grid to the
+$1.10$ debt target): stationarized price level, inflation, real debt
+versus asset demand, green capital, damages, and market-clearing
+residuals, for the nominal-appropriation and indexed-mandate designs. The
+announcement jump (the $-3.9\%$ price-level drop between the
+pre-announcement level and year one) front-loads $77\%$ of the long-run
+green disinflation; inflation is within a quarter-point of the $2\%$
+trend by year two; the two designs are nearly indistinguishable on the
+equilibrium path. Residuals clear to $5\times10^{-4}$ at every date.
+Generated by \texttt{main\_project\_transition}.}
 \label{fig:pfig18}
 \end{figure}}
 
@@ -1824,7 +1822,7 @@ productive green programs \emph{appreciate} long nominal bonds; the
 nonlinear transition (Section~\ref{subsec:tier2}) sharpens the prediction
 from a sign to a shape: the model implies year-one inflation roughly four
 percentage points below trend (from $+2\%$ to $-2\%$ annualized) that
-decays within four years --- front-loaded price-level news, not a
+decays within two years --- front-loaded price-level news, not a
 persistent inflation differential --- scaled by the program's credibility
 and size.
 High-frequency event studies around, e.g., EU Green Deal and IRA
