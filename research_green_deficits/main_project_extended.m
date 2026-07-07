@@ -169,6 +169,11 @@ else
     fprintf('  E2: %s\n', gd.msg);
 end
 REX.green_data = gd;
+% E4 World Bank panel (was previously manual-run only, so its summary
+% never entered the reproducibility record; skips with a message if
+% data/wb_panel.csv is absent -- run download_data(pg) once to fetch it)
+ep = empirical_panel(pg);
+REX.emp_panel = ep;
 
 % =====================================================================
 % Save + summary
@@ -192,6 +197,9 @@ if fid > 0
     fprintf(fid, 'X3 nu=%.3f (reval %.3f + damage %.3f)\n', ...
             dec_x.nu, dec_x.nu_reval, dec_x.nu_damage);
     if emp.ok, fprintf(fid, 'X4 %s\n', emp.msg); end
+    if isfield(REX,'emp_panel') && REX.emp_panel.ok
+        fprintf(fid, 'X4 %s\n', REX.emp_panel.msg);
+    end
     fclose(fid);
     fprintf('  [saved] %s\n', sf);
 end
@@ -205,6 +213,9 @@ fprintf(' X2: max nominal-budget roots over frontier = %d; mandate always %d\n',
         max(front.n_roots_nom), max(front.n_roots_real));
 fprintf(' X3: nu=%.3f (reval %.3f + damage %.3f)\n', dec_x.nu, dec_x.nu_reval, dec_x.nu_damage);
 if emp.ok, fprintf(' X4: %s\n', emp.msg); end
+if isfield(REX,'emp_panel') && REX.emp_panel.ok
+    fprintf(' X4/E4: %s\n', REX.emp_panel.msg);
+end
 fprintf(' Elapsed: %.1f s\n', toc(t0));
 fprintf('==================================================\n');
 diary off;
