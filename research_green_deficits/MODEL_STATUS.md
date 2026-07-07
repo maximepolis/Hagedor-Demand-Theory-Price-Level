@@ -193,8 +193,14 @@ that crashed at X2 and is fixed as of this commit), not from the paper draft.*
 - U7 tier 1b: TWO-ASSET green HANK IMPLEMENTED (green_hank2.mod, from
   the verified hank_two_assets example: liquid bonds vs illiquid equity,
   sticky wages+prices, capital/Tobin-Q/equity pricing, ENDOGENOUS debt
-  with PHIB financing speed, liquid supply lamB*bg, climate block on TFP;
-  run_green_hank2.m driver, PFig17). RUN PENDING. E4 estimates DONE
+  with PHIB financing speed, climate block on TFP; run_green_hank2.m
+  driver, PFig17). PROTOCOL ATTEMPTED 2026-07-07, solver-level failure
+  on Dynare 8-unstable-2026-05-19: WEAK singular sequence-space Jacobian
+  (RCOND=NaN, no IRFs), TAYLOR hard child crash (0xc0000409) after
+  household policies converged (||policy||=2.4e-7). Crash isolation
+  held both times. Tier CLOSED for this round: NOT REPORTABLE, paper
+  does not depend on it, verdict disclosed in the tier-1b paragraph;
+  revisit on a stable Dynare release. E4 estimates DONE
   (2026-07-07 run, empirical_panel_summary.txt, transcribed into the
   paper -- see the E4 row above).
 

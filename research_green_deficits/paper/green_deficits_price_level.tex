@@ -1617,9 +1617,18 @@ goods-market feasibility out of steady state. The corrected model
 restores the identity and closes, as described above, with the single
 total-wealth clearing condition and a constant premium. The driver
 additionally rejects any path violating elementary plausibility bounds.
-No two-asset result appears in this paper; the tier is disclosed because
-a solved-but-wrong impulse response is worse than an honest gap.
-[TIER-1b: IMPLEMENTED, accuracy protocol pending.]
+The accuracy protocol was run on the corrected model and returned its
+verdict: on the Dynare development build used here, no regime produced a
+valid solution --- one failed with a singular sequence-space Jacobian
+before any impulse response was computed, another crashed the solver
+process outright after the household policies had converged --- and the
+run-verdict file records the attempt. No two-asset result appears in
+this paper; the tier is disclosed because a solved-but-wrong impulse
+response is worse than an honest gap, and its economics are covered by
+the one-asset tier (Fisher redistribution) and the nonlinear tier-2
+transition (the $B/P$ margin proper). [TIER-1b: IMPLEMENTED; accuracy
+protocol ATTEMPTED, solver-level failure on the development build; NOT
+REPORTABLE.]
 
 % --------------------------------------------------------------------------
 \subsection{The nonlinear HANK-DTPL transition}\label{subsec:tier2}
