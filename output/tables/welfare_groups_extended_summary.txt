@@ -1,0 +1,20 @@
+EXTENDED WELFARE GROUPS (Step 5) -- STEADY-STATE CE incidence
+medium damages, calibrated scale; wealth quintiles = BONDHOLDING
+quintiles (one-asset economy); MPC groups are a dC/dA PROXY.
+
+[DEFICIT]
+  income-q (%):  [-2.65 -1.97 -1.59 -1.32 -1.04]
+  wealth-q (%):  [-2.53 -1.89 -1.6 -1.39 -1.11]
+  constrained -2.54% (mass 18.9%)  unconstrained -1.52%
+  high-MPC -2.15%  low-MPC -1.52%  (dC/dA threshold 1.020)
+  exposure groups: INACTIVE (psi_inc = 0 at this calibration)
+  aggregate: -1.71%
+
+[REBATE]
+  income-q (%):  [1.85 1.03 0.54 0.18 -0.22]
+  wealth-q (%):  [1.67 0.87 0.52 0.27 -0.01]
+  constrained +1.68% (mass 18.9%)  unconstrained +0.44%
+  high-MPC +1.20%  low-MPC +0.45%  (dC/dA threshold 1.020)
+  exposure groups: INACTIVE (psi_inc = 0 at this calibration)
+  aggregate: +0.68%
+

@@ -1,0 +1,18 @@
+U6 RANK/NK TRANSITION VALIDATION
+Scope label: RANK/NK TRANSITION DIAGNOSTIC (not the DTPL price-level mechanism).
+Fiscal note: the .mod tax rule finances gg CONTEMPORANEOUSLY (tau includes +gg),
+so this experiment is tax-financed by design; deficit financing on impact is the
+HANK tier (run_green_hank) and the steady-state MATLAB block.
+Program: GSIZE ramped in linearly over 12 quarters; horizon 300 quarters.
+
+regime      converged  kg-law res   included  pi impact  pi peak    b peak    kg(40q)   d(40q)   
+WEAK        yes        4.16e-17     yes       -0.0001    +0.0039    1.0039    0.3485    0.0925   
+TAYLOR      yes        9.71e-17     yes       -0.0013    +0.0007    1.0039    0.3485    0.0925   
+AGGRESSIVE  yes        9.71e-17     yes       -0.0006    +0.0003    1.0038    0.3485    0.0925   
+GREENACCOM  yes        1.25e-16     yes       +0.0564    +0.0564    1.0041    0.3485    0.0933   
+
+Interpretation guide: pi is NET QUARTERLY inflation (x400 for annualized pp);
+kg-law residual is max|kg_t-(1-delta_g)kg_{t-1}-gg_t| over interior columns
+(terminal steady-state column excluded: it is appended, not simulated).
+GREENACCOM is a deliberately LARGE accommodation experiment: psi_g=0.03 with a
+peak kg-gap of 0.6 implies ~1.8pp quarterly (~7.2pp annualized) initial rate cut.

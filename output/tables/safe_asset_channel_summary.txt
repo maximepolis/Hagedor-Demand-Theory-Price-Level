@@ -1,0 +1,20 @@
+SAFE-ASSET-CHANNEL DECOMPOSITION (Step 4) -- STEADY STATE
+medium damages D0=0.06, calibrated beta*=0.9287, Gg=0.01818, r=0.0196
+
+GE counterfactual price levels:
+  N0 baseline            P0     = 0.9064
+  N1 program (lump-sum)  P1     = 0.8686   D1*=0.0467
+  N2 tax-only            P_tax  = 0.8686
+  N3 damage-only         P_dam  = 0.8866
+  N4 risk-only           P_risk = 0.9257
+  N5 levy-financed       P_levy = 0.9257
+
+log contributions to ln P1 - ln P0 = -0.0426:
+  tax burden            -0.0426
+  damage level+incid.   -0.0221
+  risk (phi_D channel)  +0.0210
+  interaction           +0.0010
+  financing swap (levy vs lump-sum, at same program): +0.0636
+
+PE asset-demand nodes at fixed r (tau0=0.0216, tau1=0.0426):
+  S(tau0,D0)=1.1033  S(tau1,D0)=1.1512  S(tau0,D1lev)=1.1175  S(tau0,D1risk)=1.0802  S(tau1,D1)=1.1423

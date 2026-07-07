@@ -1,0 +1,5 @@
+U5 MATURITY BOUNDS + q_g (medium column, calibrated scale)
+Level-jump equivalence: in steady-state comparisons at unchanged (i,mu), maturity does not alter the revaluation of a one-time price-level jump; only indexation (fiscal leakage) and holder composition (incidence reallocation) do. Duration matters only where the real rate moves (accommodation experiments).
+fiscal nu^M by alpha_I:  0.00->0.598 0.10->0.601 0.25->0.607
+duration holding-revaluation (r 0.0196->0.0097):  dm=0.00->+0.048 dm=0.80->+0.086 dm=0.90->+0.131
+q_g sweep:  0.60->nu=0.358 0.80->nu=0.481 1.00->nu=0.598
