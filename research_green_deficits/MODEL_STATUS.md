@@ -101,7 +101,7 @@ that crashed at X2 and is fixed as of this commit), not from the paper draft.*
 |---|---|
 | E1 nominal-anchor regression (OLS + HC1, Wald beta=1) | **IMPLEMENTED** (`empirical_anchor.m`; runs on the repo's 34-country OECD file) |
 | E2 green-budget denomination panel | **PLACEHOLDER** (schema + loader implemented; data absent by design — never fabricated) |
-| E4 World Bank panel (anchor at scale + climate-fiscal descriptives) | **DATA DOWNLOADED** (7,684 country-year rows via the user's MATLAB webread; CO2 fallback code used); `empirical_panel.m` estimates PENDING the user's run |
+| E4 World Bank panel (anchor at scale + climate-fiscal descriptives) | **IMPLEMENTED, run VERIFIED (2026-07-07), in the paper** — E4a full n=165 beta=1.365 (HC1 0.345, p(beta=1)=0.29); trimmed <30% infl n=158 beta=0.709 (HC1 0.087, p(beta=1)=0.001 — REJECTION reported plainly, attenuation diagnosed via the narrower consumption concept, E1 expenditure concept gives 1.004); E4b descriptives null (corr −0.07/−0.10). Wired into main_project_extended X4; `empirical_panel_summary.txt` + PFig12 |
 | E3 revaluation-sign event study | **PROPOSED** (design in the paper, Sec. 6) |
 | Sovereign-yield / climate-vulnerability validation | **NOT YET IMPLEMENTED** |
 
@@ -194,9 +194,9 @@ that crashed at X2 and is fixed as of this commit), not from the paper draft.*
   the verified hank_two_assets example: liquid bonds vs illiquid equity,
   sticky wages+prices, capital/Tobin-Q/equity pricing, ENDOGENOUS debt
   with PHIB financing speed, liquid supply lamB*bg, climate block on TFP;
-  run_green_hank2.m driver, PFig17). RUN PENDING. E4 estimates now
-  persisted by empirical_panel.m to empirical_panel_summary.txt (the
-  first run printed to console only -- re-run or paste the console line).
+  run_green_hank2.m driver, PFig17). RUN PENDING. E4 estimates DONE
+  (2026-07-07 run, empirical_panel_summary.txt, transcribed into the
+  paper -- see the E4 row above).
 
 - Tier-1b FIRST RUN: three regimes solved, final regime CRASHED MATLAB,
   IRFs visibly OSCILLATORY -- flagged NOT REPORTABLE. Response
