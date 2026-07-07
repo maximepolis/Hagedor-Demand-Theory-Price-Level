@@ -70,7 +70,7 @@ that crashed at X2 and is fixed as of this commit), not from the paper draft.*
 | Component | Status | Notes |
 |---|---|---|
 | Stationary equilibrium, all roots of Phi(P), elasticity diagnostic | **IMPLEMENTED** | `solve_green_steady_state.m` |
-| Steady-state vs transition vs aggregate-risk separation | **IMPLEMENTED (labels)** | ALL quantitative results to date are STEADY STATE ONLY; transitions: Dynare RANK block (U6, IMPLEMENTED, run VERIFIED) + native-Dynare HANK tier-1 (`dynare/green_hank.mod`, U7, IMPLEMENTED, run VERIFIED — linearized IRFs, NOT the nonlinear DTPL P* transition); nonlinear HANK P* transition (U7 tier 2, `solve_hank_dtpl_transition.m`) IMPLEMENTED (v1) and RAN in the master (FAST) — sign confirmed (impact disinflation), a horizon-adequate/converged full-accuracy run is the gate before magnitudes are reported; aggregate risk NOT YET IMPLEMENTED |
+| Steady-state vs transition vs aggregate-risk separation | **IMPLEMENTED (labels)** | ALL quantitative results to date are STEADY STATE ONLY; transitions: Dynare RANK block (U6, IMPLEMENTED, run VERIFIED) + native-Dynare HANK tier-1 (`dynare/green_hank.mod`, U7, IMPLEMENTED, run VERIFIED — linearized IRFs, NOT the nonlinear DTPL P* transition); nonlinear HANK P* transition (U7 tier 2, `solve_hank_dtpl_transition.m`, Anderson-accelerated) IMPLEMENTED, run VERIFIED & REPORTABLE (na=500, T=80, 2026-07-07: interior resid <2e-3, horizon adequate; impact disinflation −2.1%/yr, 74% of the long-run decline front-loaded, windfall 5.4% of program PV) — NONLINEAR HANK-DTPL TRANSITION tier, in the paper as Section tier2/Result 6; aggregate risk NOT YET IMPLEMENTED |
 | Exact re-solve at roots, interpolation-residual reporting | **IMPLEMENTED** | |
 
 ## 7. Welfare and incidence

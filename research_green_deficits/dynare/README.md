@@ -17,8 +17,10 @@ The HANK tier-1 model carries the paper's *redistribution* channel in
 linearized form (nominal policy rate + ex-post Fisher equation, so surprise
 inflation revalues household asset positions across the wealth
 distribution) but **not** the DTPL price-*level* mechanism; the nonlinear
-P\* transition is tier 2 (appendix/HANK_TRANSITION_PLAN.md, NOT YET
-IMPLEMENTED).
+P\* transition is tier 2, implemented in pure MATLAB outside this Dynare
+block (`src_project/solve_hank_dtpl_transition.m` +
+`main_project_transition.m`; run VERIFIED & REPORTABLE 2026-07-07,
+na=500, T=80, Anderson-accelerated).
 
 `green_rank_nk.mod` is a representative-agent New Keynesian skeleton
 (Rotemberg pricing, inertial Taylor rule, real debt with a debt-stabilizing
@@ -39,10 +41,12 @@ R1 ("only steady state").
   DTPL requires incomplete markets; in RANK, inflation dynamics come from
   the Taylor rule + Phillips curve, and the price *level* is not pinned by
   asset demand. Use it only for transition shapes of the real/nominal block.
-- The HANK transition (sequence-space Jacobians around the steady states
-  computed by the MATLAB package; belief-switch experiment between the
-  green-boom and brown-stagnation equilibria where they exist) is
-  **NOT YET IMPLEMENTED** — roadmap step U7.
+- Roadmap step U7 is now split and largely done: tier-1 linearized HANK
+  IRFs run here (`green_hank.mod`, VERIFIED), and the nonlinear DTPL
+  P\* transition runs in pure MATLAB
+  (`main_project_transition`, VERIFIED & REPORTABLE). The belief-switch
+  experiment between green-boom and brown-stagnation equilibria (where
+  they exist) remains **NOT YET IMPLEMENTED**.
 - The calibration is quarterly and illustrative; the steady-state block may
   need `initval` tuning depending on your Dynare version. Treat failures of
   `steady` as calibration issues in this skeleton, not as statements about

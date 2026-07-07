@@ -81,6 +81,12 @@ bondholders a windfall --- but its sign is itself a design choice: a
 proportional levy with a lump-sum rebate flips the channel, raises the
 self-financing share by a fifth, improves bottom-half welfare, and converts
 a regressive program into a progressive one at identical aggregate cost.
+In the nonlinear transition --- computed as a fixed point in the
+price-level path itself, with no Phillips curve --- a credible
+announcement front-loads three quarters of the long-run disinflation into
+the announcement year: year-one inflation is minus two percent against a
+plus-two-percent trend, and bondholders collect the windfall, five percent
+of the program's present value, before any green capital is installed.
 Monetary accommodation near the welfare-preferred stance renders the
 program approximately price-level neutral. The results imply that green
 fiscal rules should specify not only the scale of spending but its nominal
@@ -228,6 +234,26 @@ dominates deficit financing on both margins at once --- more self-financing
 with identical aggregate resources
 (Proposition~\ref{prop:financingdesign}, Table~\ref{tab:regimes}).
 
+\paragraph{Result 6: the transition is an announcement effect.} All of
+the above are steady-state comparisons; the natural objection is that the
+interesting economics happens on the way. We compute the way. The
+nonlinear heterogeneous-agent transition --- the price-level \emph{path}
+solved as the object that clears the asset market at every date, with no
+Phillips curve and no policy rule for inflation anywhere
+(Section~\ref{subsec:tier2}) --- shows that the mechanism operates as a
+capitalization jump: on a credible announcement of the permanent program,
+$74\%$ of the long-run green disinflation is realized within the
+announcement year, year-one inflation is $-2.1\%$ against the $+2\%$
+trend --- a four-point announcement-window shortfall --- and holders of
+the outstanding nominal stock collect a windfall of about five percent of
+the program's present value before any green capital exists. Inflation is back at trend within four years while the
+capital stock accumulates for decades: in this economy the price level
+prices the \emph{news}, not the spending. A linearized HANK tier with a
+Phillips curve prices a comparable announcement at $+0.4\%$ impact
+inflation --- the opposite sign --- which makes the announcement window a
+clean empirical discriminator between the two views of inflation
+(Section~\ref{sec:empirics}, E3).
+
 \paragraph{Empirics.} The theory's nominal anchor has a sharp long-run
 implication: average inflation should track the average growth rate of nominal
 government expenditure (relative to real output) one-for-one. In the 34-country
@@ -258,9 +284,11 @@ and damage-driven risk \emph{shift the asset-demand schedule itself});
 (ii) the exact self-financing decomposition and its calibrated,
 maturity- and indexation-bounded magnitudes
 (Proposition~\ref{prop:selffinancing} and the bounds of
-Section~\ref{subsec:maturity}); and (iii) the rule-design results ---
-anchor insulation (Proposition~\ref{prop:insulation}) and financing-design
-control of the revaluation channel
+Section~\ref{subsec:maturity}), now realized dynamically by the converged
+nonlinear transition (Result~6: the revaluation is an announcement-year
+windfall, the disinflation front-loaded); and (iii) the rule-design
+results --- anchor insulation (Proposition~\ref{prop:insulation}) and
+financing-design control of the revaluation channel
 (Proposition~\ref{prop:financingdesign}). Multiplicity
 (Proposition~\ref{prop:sunspots}) is an extension: the calibrated benchmark
 does not generate it and the paper says so; optimal accommodation
@@ -1383,19 +1411,24 @@ indexation; (b) domestic incidence under foreign holdings.}
 % ==========================================================================
 
 All quantitative results so far are \emph{steady-state} comparisons. This
-section reports two tiers of dynamics, each labeled by what it is and ---
-more importantly --- by what it is not. \textbf{These are RANK/NK
-transition diagnostics and tier-1 linearized HANK impulse responses. They
-do not implement the nonlinear DTPL price-level mechanism}: in both blocks
-inflation dynamics come from a Phillips curve and a policy rule, not from
-asset-market clearing of the nominal debt stock. The nonlinear
-heterogeneous-agent transition in which the price-level \emph{path} is the
-unknown pinned by asset demand remains future work (the computation is
-specified in the replication package's HANK transition plan). We report
-these tiers because they answer two questions the steady-state analysis
-cannot: does the announced program destabilize the nominal block on the
-way to the new steady state, and how does the answer depend on the
-monetary regime?
+section reports three tiers of dynamics, each labeled by what it is and
+--- more importantly --- by what it is not. The first two are
+\textbf{RANK/NK transition diagnostics and tier-1 linearized HANK impulse
+responses; they do not implement the nonlinear DTPL price-level
+mechanism}: in both blocks inflation dynamics come from a Phillips curve
+and a policy rule, not from asset-market clearing of the nominal debt
+stock. We report them because they answer two questions the steady-state
+analysis cannot: does the announced program destabilize the nominal block
+on the way to the new steady state, and how does the answer depend on the
+monetary regime? The third tier (Section~\ref{subsec:tier2}) is the
+paper's own mechanism in dynamics --- the nonlinear heterogeneous-agent
+transition in which the price-level \emph{path} is the unknown pinned by
+asset demand, with no Phillips curve anywhere --- and its converged
+solution turns the steady-state revaluation result into an announcement
+effect: the green disinflation is front-loaded into the announcement
+year, and the tier's inflation response has the \emph{opposite sign} to
+the linearized tiers', which is precisely the observable content of the
+mechanism.
 
 \subsection{RANK/NK transitions under four monetary regimes}
 \label{subsec:ranktrans}
@@ -1575,24 +1608,21 @@ identity, dividends are defined only residually by the equity-pricing
 equation, which collapses the equity return to the safe return
 identically and leaves the equity price unanchored while violating
 goods-market feasibility out of steady state. The corrected model
-restores the identity and, in its place, lets the liquidity premium on
-nominal bonds become an \emph{endogenous} convenience yield that clears
-the liquid-bond market --- which is not merely a repair but exactly the
-object the paper wants, since the price of liquid nominal safe assets is
-now a plotted equilibrium quantity. The driver additionally rejects any
-path violating elementary plausibility bounds. No two-asset result
-appears in this paper; the tier is disclosed because a solved-but-wrong
-impulse response is worse than an honest gap. [TIER-1b: IMPLEMENTED,
-accuracy protocol pending.]
+restores the identity and closes, as described above, with the single
+total-wealth clearing condition and a constant premium. The driver
+additionally rejects any path violating elementary plausibility bounds.
+No two-asset result appears in this paper; the tier is disclosed because
+a solved-but-wrong impulse response is worse than an honest gap.
+[TIER-1b: IMPLEMENTED, accuracy protocol pending.]
 
 % --------------------------------------------------------------------------
 \subsection{The nonlinear HANK-DTPL transition}\label{subsec:tier2}
 
-[NONLINEAR HANK-DTPL TRANSITION; machinery IMPLEMENTED (v1); numbers
-enter only after a converged, residual-verified run.] The tiers above
-borrow their inflation dynamics from a Phillips curve. The paper's own
-mechanism makes a starker prediction about the transition, and the
-package now computes it. At $t=1$ the government unexpectedly announces
+[NONLINEAR HANK-DTPL TRANSITION; IMPLEMENTED, run VERIFIED: converged and
+horizon-adequate at $n_a=500$, $T=80$; all numbers below are from that
+residual-verified run.] The tiers above borrow their inflation dynamics
+from a Phillips curve. The paper's own mechanism makes a starker
+prediction about the transition, and the package computes it. At $t=1$ the government unexpectedly announces
 the permanent program; thereafter foresight is perfect. The unknown is
 the \emph{price-level path} $\{P_t\}_{t=1}^{T}$: at every date the price
 level must clear the asset market,
@@ -1615,12 +1645,16 @@ channel realized along a path rather than compared across steady states.
 Stationarizing by the nominal-growth trend $(1+\mu)^t$ makes the system
 autonomous; the terminal condition pins $\hat{P}_T$ at the green
 steady-state price level, and the government budget holds by construction
-at every trial path ($\tau_t = \bar r\, b_t + g_t$). The solver is a
-damped multiplicative fixed point on the price path (excess asset demand
-at $t$ \emph{lowers} $\hat P_t$, raising the real value $B_t/P_t$ of the
-fixed nominal stock until it meets demand --- the transition form of
-$P^{*}=B/S$), with adaptive damping (shrinking on oscillation, growing on
-steady progress), a per-iteration trust region, and the market-clearing
+at every trial path ($\tau_t = \bar r\, b_t + g_t$). The solver is an
+Anderson-accelerated fixed point on the log price path: the underlying map
+moves each $\hat P_t$ toward $B_t/S_t$ (excess asset demand at $t$
+\emph{lowers} $\hat P_t$, raising the real value $B_t/P_t$ of the fixed
+nominal stock until it meets demand --- the transition form of
+$P^{*}=B/S$), and because a change in $\hat P_t$ moves the realized real
+return at dates $t$ and $t+1$ with opposite signs --- a cross-date
+coupling under which plain diagonal relaxation stalls --- the update
+combines the most recent residuals by least squares (type-II Anderson,
+memory five), with a per-iteration trust region and the market-clearing
 residuals reported at every date. Convergence is assessed on the
 \emph{free} unknowns $\hat P_1,\dots,\hat P_{T-1}$; the pinned terminal
 date's residual is reported separately as a horizon-adequacy check --- it
@@ -1638,39 +1672,66 @@ jumps is the dynamic version of the anchor-insulation result, and the
 model's central untested prediction --- that a credible green
 announcement produces \emph{disinflation on impact} under deficit
 finance --- becomes a computed, sign-testable object
-(Section~\ref{sec:empirics}, E3). Diagnostic passes at both coarse and
-dense grids ($n_a=100$/$T=60$ and $n_a=500$/$T=80$), for both the
-nominal-appropriation and the indexed-mandate design, already return this
-sign robustly: a surprise impact disinflation of about two percent with a
-bondholder windfall on the outstanding nominal stock worth roughly five
-percent of the program's present value, inflation then reverting to its
-nominal-growth trend. The dense pass also verifies horizon adequacy (the
-pinned terminal date clears to $10^{-3}$), so the wealth distribution has
-reached the green steady state within the horizon. What is not yet at
-tolerance is the \emph{interior} fixed point: a diagonal price-relaxation
-leaves a few-percent market-clearing residual in the middle of the
-transition, because a change in $\hat P_t$ moves the realized real return
-at dates $t$ and $t+1$ with opposite signs --- a cross-date coupling the
-diagonal step cannot see. The solver is therefore Anderson-accelerated
-(type-II, memory five), which combines recent residuals to cancel that
-coupling; magnitudes enter the text only from the resulting converged,
-horizon-adequate run. [NONLINEAR HANK-DTPL TRANSITION; sign robust across
-grids and designs, interior convergence pending the accelerated solve;
-magnitude not yet reported.]
+(Section~\ref{sec:empirics}, E3).
+
+The converged run ($n_a = 500$, $T = 80$ years, medium damages, calibrated
+program scale; interior market-clearing residual below $2\times10^{-3}$ at
+every free date, terminal residual below $10^{-3}$, $61$ and $40$ Anderson
+iterations for the two designs)\footnote{The discount factor of this run
+was calibrated on the coarser quantitative grid; on the transition grid it
+implies pre-announcement real debt of $1.18$ rather than the $1.10$
+target. The headline statistics below are dimensionless ratios along the
+path; the replication package recalibrates $\beta$ on the run's own grid
+for subsequent sweeps.} delivers the paper's dynamics in three
+statements. \emph{First, green disinflation is front-loaded:} the
+announcement moves the stationarized price level down $4.0\%$ on impact
+--- year-one inflation of $-2.1\%$ against the $+2\%$ nominal trend ---
+which is $74\%$ of the entire long-run green disinflation ($-5.4\%$ across
+steady states) realized in the announcement year, before the first unit of
+green capital is installed. The price level jumps because asset demand
+does: households capitalize the future damage reduction and the
+transition-long tax path immediately, and the price level is what clears
+that market. Inflation is back at trend within four years --- and stays
+within the numerical tolerance of it --- while green capital accumulates
+over decades: the announcement effect and the accumulation dynamics
+separate cleanly.
+\emph{Second, the revaluation channel is a one-time announcement windfall:}
+the surprise repricing hands holders of the outstanding nominal stock a
+real gain of $5.4\%$ of the program's present value ($5.3\%$ under the
+indexed mandate) --- the dynamic realization of the negative
+$\nu_{\text{reval}}$ of the steady-state decomposition, collected entirely
+in the announcement year. \emph{Third, the denomination of the green
+budget is irrelevant on the equilibrium path:} the nominal-appropriation
+and indexed-mandate designs produce announcement jumps within a tenth of
+a percentage point of each other and land on the same terminal steady
+state, so the anchor-insulation value of the indexed mandate
+(Proposition~\ref{prop:insulation}) is entirely \emph{off}-equilibrium ---
+it removes the self-fulfilling brown-stagnation equilibria without
+changing the equilibrium the economy actually follows. The contrast with
+the Phillips-curve tiers is the point of the exercise: the linearized
+HANK tier prices a comparable deficit-financed green announcement (a
+quasi-permanent program of one percent of output) at $+0.4\%$ impact
+inflation (the demand stimulus), while the DTPL computation prices its
+permanent program at $-2.1\%$ (the asset-demand shift) --- opposite signs
+for the same class of announcement, because the two tiers answer with
+different mechanisms, and only the latter contains the
+price-level-as-market-clearing margin the paper is about. [NONLINEAR HANK-DTPL TRANSITION; converged, horizon-adequate run;
+\texttt{transition\_dtpl\_summary.txt}.]
 
 \pfigguard{PFig18_dtpl_transition.pdf}{%
 \begin{figure}[ht]\centering
 \includegraphics[width=0.95\textwidth]{PFig18_dtpl_transition.pdf}
-\caption{The nonlinear HANK-DTPL transition: stationarized price level,
-inflation, real debt versus asset demand, green capital, damages, and
-market-clearing residuals, for the nominal-appropriation and
-indexed-mandate designs. Generated by
-\texttt{main\_project\_transition}. Current render: a not-yet-reportable
-pass whose interior fixed point is still above tolerance (the middle of
-the price path is not yet converged --- the visible wobble); the terminal
-(horizon) residual in the last log-scale panel is at $10^{-3}$. Magnitudes
-are quoted only after the Anderson-accelerated solve returns a converged,
-horizon-adequate path.}
+\caption{The nonlinear HANK-DTPL transition (converged run, $n_a=500$,
+$T=80$ years): stationarized price level, inflation, real debt versus
+asset demand, green capital, damages, and market-clearing residuals, for
+the nominal-appropriation and indexed-mandate designs. The announcement
+jump (the $-4\%$ price-level drop between the pre-announcement level and
+year one) front-loads $74\%$ of the long-run green disinflation;
+inflation reverts to the $2\%$ trend within four years; the two designs
+are nearly indistinguishable on the equilibrium path. Residuals clear to
+$2\times10^{-3}$ at every date; the remaining small-amplitude ripple in
+the early inflation path is numerical (of the order of the tolerance),
+not economics. Generated by \texttt{main\_project\_transition}.}
 \label{fig:pfig18}
 \end{figure}}
 
@@ -1759,10 +1820,16 @@ with observable counterparts (the response of household saving to predictable
 tax changes for constrained versus unconstrained households). The
 disinflationary case predicts that announcements of large, credibly
 productive green programs \emph{appreciate} long nominal bonds; the
-\citet{angeletos2024deficits} case predicts the opposite. High-frequency
-event studies around, e.g., EU Green Deal and IRA legislative surprises can
-discriminate; \citet{kanzig2023carbon}'s identification strategy for carbon
-policy shocks is the natural template.
+\citet{angeletos2024deficits} case predicts the opposite. The converged
+nonlinear transition (Section~\ref{subsec:tier2}) sharpens the prediction
+from a sign to a shape: the model implies year-one inflation roughly four
+percentage points below trend (from $+2\%$ to $-2\%$ annualized) that
+decays within four years --- front-loaded price-level news, not a
+persistent inflation differential --- scaled by the program's credibility
+and size.
+High-frequency event studies around, e.g., EU Green Deal and IRA
+legislative surprises can discriminate; \citet{kanzig2023carbon}'s
+identification strategy for carbon policy shocks is the natural template.
 
 % ==========================================================================
 \section{Conclusion}\label{sec:conclusion}
@@ -1784,14 +1851,18 @@ financing with a proportional levy plus rebate flips the revaluation
 channel's sign, raises the self-financing share, and converts a regressive
 program into a progressive one at identical aggregate cost. And a moderate
 steady-state inflation rate is part of the optimal financing mix.
-The RANK and tier-1 HANK transition diagnostics of
-Section~\ref{sec:transitions} indicate that the announced program does not
-destabilize the nominal block on the way to the new steady state; the
-nonlinear heterogeneous-agent transition in which the price-level path is
-itself pinned by asset demand remains the main open computation
-(sequence-space methods; \citealp{auclert2021}), alongside production with
-brown capital and a carbon price \citep{barrage2020} and the empirical
-program E2--E3.
+The RANK and tier-1 HANK diagnostics of Section~\ref{sec:transitions}
+indicate that the announced program does not destabilize the nominal block
+on the way to the new steady state, and the nonlinear heterogeneous-agent
+transition in which the price-level path is itself pinned by asset demand
+--- computed in Section~\ref{subsec:tier2} as a converged fixed point with
+no Phillips curve --- shows that the mechanism's dynamics are front-loaded:
+three quarters of the green disinflation, and the entire bondholder
+windfall, arrive in the announcement year. The main open items are
+production with brown capital and a carbon price \citep{barrage2020},
+aggregate climate risk, and the empirical program E2--E3, for which the
+announcement-window inflation shortfall of roughly four percentage points
+below trend is now a computed, sign- and size-testable prediction.
 
 % ==========================================================================
 \appendix

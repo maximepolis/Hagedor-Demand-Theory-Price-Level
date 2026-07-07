@@ -66,16 +66,31 @@ fprintf('==============================================================\n');
 % calibrated inputs (same protocol as regimes/channels drivers)
 D0_med = 0.06;
 r_cal  = (1 + pg.i_ss)/(1 + pg.mu) - 1; %#ok<NASGU>  (recomputed inside)
+% beta must be calibrated ON THIS RUN'S GRID: a beta calibrated at another
+% na shifts aggregate asset demand by a few percent, so the boundary steady
+% states would miss the debt/GDP=1.10 target (first full run: na=100 beta
+% on the na=500 grid gave P0=0.8467 instead of ~0.909). Reuse the stored
+% calibration only if its grid matches; otherwise recalibrate here.
 calfile = fullfile(projdir, 'output', 'calibrated_results.mat');
+beta_star = [];
 if exist(calfile, 'file') == 2
     L = load(calfile);
-    beta_star = L.RCAL.beta_star;
-    Gg_cal    = L.RCAL.Gg_cal;
-    fprintf('loaded calibrated inputs: beta*=%.4f, Gg=%.5f\n', beta_star, Gg_cal);
+    if isfield(L.RCAL, 'na') && L.RCAL.na == pg.na
+        beta_star = L.RCAL.beta_star;
+        Gg_cal    = L.RCAL.Gg_cal;
+        fprintf('loaded calibrated inputs (na=%d matches): beta*=%.4f, Gg=%.5f\n', ...
+            pg.na, beta_star, Gg_cal);
+    else
+        fprintf(['stored calibration grid mismatch (this run na=%d) -- ' ...
+                 'recalibrating beta on this grid...\n'], pg.na);
+    end
 else
     fprintf('calibrated_results.mat not found -- recalibrating beta...\n');
+end
+if isempty(beta_star)
     [beta_star, ~] = calibrate_beta(pg, (1+pg.i_ss)/(1+pg.mu)-1, 1.10, D0_med);
     Gg_cal = 0.02 * (pg.Bnom / 1.10);
+    fprintf('recalibrated on na=%d: beta*=%.4f, Gg=%.5f\n', pg.na, beta_star, Gg_cal);
 end
 pgc = pg;
 pgc.beta = beta_star;
@@ -130,7 +145,8 @@ if ~isempty(TRn.msg) && isfield(TRn, 'phat')
     semilogy(tv, abs(TRn.resid), 'LineWidth', 1.4, 'Color', [0.10 0.30 0.75]);
     if isfield(TRi,'resid'), semilogy(tv, abs(TRi.resid), 'LineWidth', 1.4, ...
             'Color', [0.20 0.55 0.25]); end
-    xlabel('years'); title('|S_t - b_t|/b_t (residuals, log scale)');
+    xlabel('years'); ylabel('|S_t - b_t|/b_t');
+    title('market-clearing residuals');
     save_all_figs(fh, 'PFig18_dtpl_transition', pg);
     fprintf('\n  [saved] PFig18_dtpl_transition\n');
 end
@@ -139,7 +155,7 @@ end
 sf = fullfile(pg.tabdir, 'transition_dtpl_summary.txt');
 fid = fopen(sf, 'w');
 if fid > 0
-    fprintf(fid, 'U7 TIER 2: NONLINEAR HANK-DTPL TRANSITION (v1 damped fixed point)\n');
+    fprintf(fid, 'U7 TIER 2: NONLINEAR HANK-DTPL TRANSITION (Anderson-accelerated fixed point)\n');
     fprintf(fid, 'Scope: the price-level path clears the asset market at every date (ANNUAL);\n');
     fprintf(fid, 'no Phillips curve, no policy-rule inflation. na=%d, T=%d, tol=%.0e.\n\n', ...
         pg.na, opts.T, opts.tol);
@@ -157,6 +173,11 @@ if fid > 0
         rint = max(abs(TR.resid(1:end-1)));
         rter = abs(TR.resid(end));
         rep  = isfield(TR,'reportable') && TR.reportable;
+        if isfield(TR, 'frontload')
+            fprintf(fid, ['  front-loading: %.1f%% of the long-run price decline ' ...
+                'realized in the announcement year; |pi-trend|<25bp from year %d\n'], ...
+                100*TR.frontload, TR.trend_return);
+        end
         fprintf(fid, ['  residuals: interior(free) max %.5f, terminal(horizon) %.5f, ' ...
             'mean %.5f\n'], rint, rter, mean(abs(TR.resid)));
         fprintf(fid, ['  fixed point converged = %d, horizon adequate = %d, ' ...
