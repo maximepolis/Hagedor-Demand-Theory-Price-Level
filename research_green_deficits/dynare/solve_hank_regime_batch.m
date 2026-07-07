@@ -27,19 +27,47 @@ function solve_hank_regime_batch(basemod, nm, defs, dynpath, outmat)
 
     eval(sprintf('dynare %s %s noclearall nolog', nm, defs));
 
+    % SCOPING FIX: dynare executes its generated driver in the BASE
+    % workspace (that is the workspace 'noclearall' protects), so M_ and
+    % oo_ do NOT appear in this FUNCTION's workspace after the call. The
+    % original harvest checked exist('oo_','var') locally, found nothing,
+    % and reported "solved but produced no IRFs" even after a perfectly
+    % clean solve -- the drivers' in-session paths never hit this because
+    % they are scripts (= base workspace). Fetch explicitly, checking the
+    % local workspace first in case a future Dynare changes the contract.
+    if ~exist('oo_', 'var')
+        try, oo_ = evalin('base', 'oo_'); catch, oo_ = struct(); end
+    end
+    if ~exist('M_', 'var')
+        try, M_ = evalin('base', 'M_'); catch, M_ = struct(); end
+    end
+
     irfs = [];
-    if exist('oo_', 'var') && isfield(oo_, 'irfs') && ~isempty(fieldnames(oo_.irfs))
-        irfs = oo_.irfs;                                  %#ok<NODEF>
-    elseif exist('oo_', 'var') && isfield(oo_, 'heterogeneity') ...
-            && isfield(oo_.heterogeneity, 'irfs')
+    if isfield(oo_, 'irfs') && ~isempty(fieldnames(oo_.irfs))
+        irfs = oo_.irfs;
+    elseif isfield(oo_, 'heterogeneity') && isfield(oo_.heterogeneity, 'irfs') ...
+            && ~isempty(fieldnames(oo_.heterogeneity.irfs))
         irfs = oo_.heterogeneity.irfs;
     end
     if isempty(irfs)
+        % self-diagnosing failure: show where things actually are, so the
+        % parent log carries the true oo_ layout of this Dynare build
+        fprintf('[batch child] no IRFs found; oo_ top-level fields are:\n');
+        disp(fieldnames(oo_));
+        if isfield(oo_, 'heterogeneity')
+            fprintf('[batch child] oo_.heterogeneity fields are:\n');
+            disp(fieldnames(oo_.heterogeneity));
+        end
         error('solve_hank_regime_batch:noirfs', ...
-              'Regime %s solved but produced no IRFs.', nm);
+              ['Regime %s solved but no IRFs found in oo_.irfs or ' ...
+               'oo_.heterogeneity.irfs -- the field dump above shows the ' ...
+               'actual layout of this build.'], nm);
     end
-    param_names  = cellstr(M_.param_names);               %#ok<NODEF>
-    param_values = M_.params;
+    param_names = {}; param_values = [];
+    if isfield(M_, 'param_names')
+        param_names  = cellstr(M_.param_names);
+        param_values = M_.params;
+    end
     save(outmat, 'irfs', 'param_names', 'param_values');
     fprintf('[batch child] %s done -> %s\n', nm, outmat);
 end
