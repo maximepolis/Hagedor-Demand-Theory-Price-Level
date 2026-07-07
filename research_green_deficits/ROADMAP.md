@@ -69,7 +69,11 @@ program PV, pre-announcement debt on the 1.10 target) is assembled. The
 full master reproducibility pass ran 9/9 stages (2026-07-06); the tier-2
 grid-consistency rerun (2026-07-07) superseded the first converged pass.
 Remaining before submission: transcribe the E4 estimates
-(empirical_panel persists them to empirical_panel_summary.txt),
-the tier-1b accuracy re-run (nice-to-have, gated by its protocol), and a
-final [u]-reference sweep. U8 (production/Pigouvian) remains
-revision-round artillery.
+(empirical_panel is now wired into main_project_extended and persists
+them to empirical_panel_summary.txt; needs data/wb_panel.csv via
+download_data) and the tier-1b accuracy re-run (nice-to-have, gated by
+its protocol). The final [u]-reference sweep is DONE (2026-07-07: all
+three [u] items absent from paper and bib; the Banque de France match is
+the verified Sahuc-Smets-Vermandel WP 977, not the unverified
+Dees-Seghini). U8 (production/Pigouvian) remains revision-round
+artillery.
