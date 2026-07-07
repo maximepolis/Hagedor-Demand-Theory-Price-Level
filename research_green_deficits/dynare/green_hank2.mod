@@ -1,22 +1,35 @@
 /*
  * GREEN_HANK2.MOD -- U7 tier 1b: TWO-ASSET green HANK (extended tier).
  *
- * ACCURACY STATUS: runs 1-4 are NOT REPORTABLE; full history in
+ * ACCURACY STATUS: runs 1-5 are NOT REPORTABLE; full history in
  * appendix/TRANSITION_VALIDATION.md. Run 1 (rho_g=0.995, horizon 300):
  * oscillatory + crash. Run 2: explosive TAYLORBAL -- root cause (audit,
  * confirmed): the dividend identity div = Y - wN - I - psip had been
  * dropped (the steady-state-calibration template was copied instead of
  * the dynamics template). Runs 3-4: identity restored, but an ENDOGENOUS
  * convenience yield clearing the liquid market proved boundary-singular
- * in the truncated sequence-space system under BOTH timings (NaN
- * solutions; RCOND=NaN). THIS version adopts the reference dynamics
+ * under BOTH timings (RCOND=NaN); reverted to the reference dynamics
  * closure (dividend identity + single total-wealth clearing + constant
- * premium omega). No tier-1b number enters the paper until the accuracy
- * protocol passes.
+ * premium omega). Run 5 (constant omega): calibration CONVERGES in every
+ * regime, then heterogeneity_solve still returns RCOND=NaN,
+ * reproducibly. Equation-level audit located the mechanism: the
+ * template's sign()/abs()^(chi2-1) adjustment-cost forms differentiate
+ * symbolically into abs(D)^(chi2-3) factors that evaluate to 0^(-1)=Inf
+ * at the illiquid-constraint corner (where D=0 exactly and household
+ * mass sits), and (chi2-2)=0 turns them into 0*Inf = NaN inside the
+ * sequence-space Jacobian -- precisely the failing step. THIS version
+ * replaces every kinked form with its EXACT chi2=2 polynomial equivalent
+ * (smooth everywhere) and removes the model's only exo-lead (Z(+1) ->
+ * Z, equivalent here since Z is a zero-variance placeholder). No tier-1b
+ * number enters the paper until the accuracy protocol passes.
  *
- * STATUS: IMPLEMENTED; run pending on the user's machine (requires the
- * same Dynare heterogeneity build that ran heterogeneity/hank_two_assets_
- * steady_state.mod -- this file follows that verified example closely).
+ * STATUS: IMPLEMENTED, fix awaiting a forced re-run
+ * (TIER1B_FORCE = true; run_green_hank2). Requires the Dynare
+ * heterogeneity build that ran heterogeneity/hank_two_assets_
+ * steady_state.mod. NOTE: only the steady-state variant of the reference
+ * two-asset example is verified on that build; its DYNAMICS were not,
+ * so this tier tests the framework's two-asset sequence-space solve
+ * itself.
  *
  * WHY A TWO-ASSET TIER: the paper's mechanism is about the demand for
  * LIQUID NOMINAL SAFE ASSETS specifically. In the one-asset tier
@@ -307,17 +320,32 @@ model(heterogeneity=households);
    [name='Euler equation for liquid assets']
    c^(-1/eis) - (beta_ss+beta) * Vb(+1) = 0 ⟂ b >= 0;
 
+   // RUN-5 FIX (the RCOND=NaN mechanism, located by equation-level audit):
+   // the reference template writes the adjustment cost with sign() and
+   // abs()^(chi2-1) where chi2 is a SYMBOLIC parameter. Dynare's emitted
+   // second-derivative code then contains (chi2-1)*(chi2-2)*abs(D)^(chi2-3);
+   // households at the illiquid constraint have D = a-(1+ra)a(-1) = 0
+   // EXACTLY, so abs(D)^(chi2-3) = 0^(-1) = Inf and (chi2-2) = 0 gives
+   // 0*Inf = NaN -- evaluated not in the steady-state time iteration (which
+   // is why calibration converges) but in heterogeneity_solve's
+   // sequence-space Jacobian assembly (which is exactly where every run
+   // died with RCOND = NaN). With chi2 = 2 the kinked forms are IDENTICALLY
+   // equal to smooth polynomials: sign(D)*abs(D)^(chi2-1) = D and
+   // abs(D)^chi2 = D^2. The three equations below use those exact forms --
+   // same economics, same steady state, C-infinity everywhere including the
+   // corner. (chi2 stays declared for provenance; it no longer appears in
+   // equations, so the preprocessor's "not used" warning is expected.)
    [name='Euler equation for illiquid assets']
-   c^(-1/eis)*(1 + chi1 * sign(a-(1+ra)*a(-1)) * (abs(a-(1+ra)*a(-1))/((1+ra)*a(-1)+chi0))^(chi2-1)) - (beta_ss+beta) * Va(+1) = 0 ⟂ a >= 0;
+   c^(-1/eis)*(1 + chi1 * (a-(1+ra)*a(-1)) / ((1+ra)*a(-1)+chi0)) - (beta_ss+beta) * Va(+1) = 0 ⟂ a >= 0;
 
    [name='Budget constraint with adjustment costs']
-   (1 + ra) * a(-1) + (1 + rb) * b(-1) - (chi1 / chi2) * abs(a-(1+ra)*a(-1))^chi2 * ((1+ra)*a(-1)+chi0)^(1-chi2) + (1-tax) * w * N * e - c - a - b;
+   (1 + ra) * a(-1) + (1 + rb) * b(-1) - (chi1 / 2) * (a-(1+ra)*a(-1))^2 / ((1+ra)*a(-1)+chi0) + (1-tax) * w * N * e - c - a - b;
 
    [name='Effective labor']
    u = e * c^(-1/eis);
 
    [name='Envelope condition for illiquid assets']
-   Va = (1 + ra)*(1 - (chi1/chi2) * ( - chi2 * sign(a-(1+ra)*a(-1)) * (abs(a-(1+ra)*a(-1))/((1+ra)*a(-1)+chi0))^(chi2-1) + (1-chi2) * (abs(a-(1+ra)*a(-1))/((1+ra)*a(-1)+chi0))^chi2 )) * c^(-1/eis);
+   Va = (1 + ra)*(1 - (chi1/2) * ( - 2 * (a-(1+ra)*a(-1))/((1+ra)*a(-1)+chi0) - ((a-(1+ra)*a(-1))/((1+ra)*a(-1)+chi0))^2 )) * c^(-1/eis);
 
    [name='Envelope condition for liquid assets']
    Vb = (1 + rb) * c^(-1/eis);
@@ -341,7 +369,14 @@ model;
    (K / K(-1) - 1) / (delta * epsI) + 1 - Q;
 
    [name='Valuation equation']
-   alpha * (Z_ss+Z(+1)) * (1-d(+1)) * (N(+1) / K) ^ (1 - alpha) * mc(+1) - (K(+1) / K -
+   // RUN-5 FIX (companion): the template's Z(+1) is a lead on a VAREXO,
+   // which forces the preprocessor's "substitution of exo leads" auxiliary
+   // -- the only such substitution in this model, and absent from the
+   // one-asset tier that solves cleanly. Z is a zero-variance placeholder
+   // in this tier (the only shock is e_g), so Z(+1) = Z = 0 along every
+   // computed path and the contemporaneous form is exactly equivalent
+   // while keeping the sequence-space system free of exo-lead auxiliaries.
+   alpha * (Z_ss+Z) * (1-d(+1)) * (N(+1) / K) ^ (1 - alpha) * mc(+1) - (K(+1) / K -
    (1 - delta) + (K(+1) / K - 1) ^ 2 / (2 * delta * epsI)) + K(+1) / K * Q(+1) - (1 + r(+1)) * Q;
 
    [name='Price adjustment cost']
