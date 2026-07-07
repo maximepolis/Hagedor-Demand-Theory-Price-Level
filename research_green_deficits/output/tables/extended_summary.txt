@@ -9,3 +9,4 @@ X2 psi=2.0 Gg=0.012: nom roots=1 minEpsS=-0.291 mandate roots=1 P=0.2284
 X2 psi=2.0 Gg=0.024: nom roots=0 minEpsS=-0.355 mandate roots=0 P=[]
 X3 nu=0.669 (reval -0.002 + damage 0.671)
 X4 E1 (nominal anchor): n=34, beta=1.004 (HC1 se 0.257), test beta=1: t=0.01 p=0.988, rho=0.562, R2=0.316.
+X4 E4a anchor (WB panel): full n=165 beta=1.365 (HC1 0.345); trimmed(<30%) n=158 beta=0.709 (HC1 0.087), test beta=1: p=0.001.

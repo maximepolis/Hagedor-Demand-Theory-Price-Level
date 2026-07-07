@@ -1,0 +1,7 @@
+E4 WORLD BANK PANEL -- anchor at scale + climate-fiscal descriptives
+HONEST SCOPE: cross-country correlations; no causal claim.
+
+E4a full:    n=165  beta=1.365  (HC1 0.345)  alpha=-1.653  test beta=1: p=0.290
+E4a trimmed: n=158  beta=0.709  (HC1 0.087)  alpha=1.168  test beta=1: p=0.001   (countries with avg inflation < 30%)
+
+E4b descriptives (country averages): corr(debt/GDP, CO2pc) = -0.068; corr(infl, CO2pc) = -0.095
