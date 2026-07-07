@@ -156,9 +156,21 @@ CAL = struct();
 DIVERGENT = struct();
 ok  = false(1, numel(regimes));
 restored = false(1, numel(regimes));
+nfail_consec = 0;   % fail-fast: 2 consecutive solver failures => abort run
 
 for rgm = 1:numel(regimes)
     rname = regimes(rgm).name;
+    % FAIL-FAST GATE: two consecutive regimes failing at the solver level
+    % (singular Jacobian, child crash, degenerate solution) means the tier
+    % is systematically broken on this Dynare build -- do not burn ~10
+    % minutes per remaining regime discovering the same thing.
+    if nfail_consec >= 2
+        warning('run_green_hank2:abort', ...
+            ['%d consecutive solver-level failures -- aborting the remaining ' ...
+             'regimes. The two-asset tier is EXPERIMENTAL and the paper does ' ...
+             'not depend on it; see hank2_protocol_verdict.txt.'], nfail_consec);
+        break;
+    end
     fprintf('\n===== HANK2 regime %s =====\n', rname);
 
     % ---- layer 1: checkpoint skip (validity gates apply to restores) --
@@ -202,6 +214,7 @@ for rgm = 1:numel(regimes)
                 warning('run_green_hank2:childfail', ...
                     ['Regime %s: child MATLAB exited with status %d ' ...
                      '(a crash there does NOT kill this session).'], rname, status);
+                nfail_consec = nfail_consec + 1;
                 continue;
             end
             Lc = load(outmat);
@@ -225,6 +238,7 @@ for rgm = 1:numel(regimes)
         if isempty(irfs)
             warning('run_green_hank2:noirfs', ...
                 'Regime %s: solved but no IRFs found; inspect fieldnames(oo_).', rname);
+            nfail_consec = nfail_consec + 1;
             continue;
         end
         paths = struct();
@@ -253,6 +267,7 @@ for rgm = 1:numel(regimes)
                  'IRFs) -- excluded from all outputs, NOT checkpointed.'], ...
                 rname);
             DIVERGENT.(rname) = true;
+            nfail_consec = nfail_consec + 1;
             continue;
         end
         % VALIDITY GATE 2 (divergence): a finite IRF to a 1%-of-output
@@ -265,10 +280,12 @@ for rgm = 1:numel(regimes)
                  '|Y|max=%.3g) -- excluded from all outputs.'], ...
                 rname, max(abs(paths.pi)), max(abs(paths.Y)));
             DIVERGENT.(rname) = true;
+            nfail_consec = nfail_consec + 1;
             continue;
         end
         RES.(rname) = paths;
         ok(rgm) = true;
+        nfail_consec = 0;
         if isfield(DIVERGENT, rname), DIVERGENT = rmfield(DIVERGENT, rname); end
         if ~isempty(pn)
             CAL.(rname) = struct( ...
@@ -283,11 +300,33 @@ for rgm = 1:numel(regimes)
         fprintf('  [checkpoint saved]\n');
     catch ME
         warning('run_green_hank2:fail', 'Regime %s failed: %s', rname, ME.message);
+        nfail_consec = nfail_consec + 1;
     end
 end
 
 if ~any(ok) && isempty(fieldnames(RES))
-    error('No HANK2 regime solved; inspect the Dynare messages above.');
+    % write a persistent verdict BEFORE erroring, so the protocol attempt
+    % is on the record even though the run produced nothing reportable
+    vf = fullfile(pg.tabdir, 'hank2_protocol_verdict.txt');
+    fid = fopen(vf, 'w');
+    if fid > 0
+        dynver = 'unknown';
+        try, dynver = dynare_version(); catch, end
+        fprintf(fid, 'TIER-1b (two-asset HANK) ACCURACY PROTOCOL -- VERDICT\n');
+        fprintf(fid, 'Attempted: %s;  Dynare: %s\n', ...
+            datestr(now, 'yyyy-mm-dd HH:MM'), dynver);
+        fprintf(fid, ['Outcome: NO regime produced a valid solution ' ...
+            '(solver-level failures:\nsingular sequence-space Jacobian / ' ...
+            'hard child-process crash in the Dynare\nheterogeneity solver). ' ...
+            'Tier remains EXPERIMENTAL and NOT REPORTABLE.\n' ...
+            'The paper does not depend on this tier (its scope statement ' ...
+            'says so).\n']);
+        fclose(fid);
+        fprintf('  [saved] %s\n', vf);
+    end
+    error(['No HANK2 regime solved; verdict recorded in ' ...
+           'hank2_protocol_verdict.txt. This tier is EXPERIMENTAL -- ' ...
+           'the paper does not depend on it.']);
 end
 
 % ---- OSCILLATION DIAGNOSTIC (accuracy protocol, step 1) ----
