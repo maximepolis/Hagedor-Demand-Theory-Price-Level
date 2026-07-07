@@ -1,0 +1,62 @@
+GREEN DEFICITS MASTER RUN -- consolidated status
+================================================
+
+started : 2026-07-06 17:26:33
+finished: 2026-07-06 17:35:00
+elapsed : 506.3 s
+MATLAB  : 25.2.0.3042426 (R2025b) Update 1
+Dynare  : 8-unstable-2026-05-19-1735-01136995
+FAST    : 1
+
+--- STAGES RUN (9) ---
+  main_project_run_all
+  main_project_extended
+  main_project_calibrated
+  main_project_regimes
+  main_project_maturity
+  main_project_channels
+  main_project_transition
+  run_green_transitions
+  run_green_hank
+
+--- STAGES SKIPPED (1) ---
+  run_green_hank2              reason: EXPERIMENTAL tier excluded from the master; run run_green_hank2 manually (crash-isolated by default)
+
+--- ARTIFACTS ---
+figures (pdf+png): 36 in output/figures
+tables  (txt)    : 13 in output/tables
+
+key output files (timestamp = reproducibility record):
+  output/tables/regimes_summary.txt                    06-Jul-2026 17:28:36  (620 bytes)
+  output/tables/maturity_summary.txt                   06-Jul-2026 17:28:51  (582 bytes)
+  output/tables/safe_asset_channel_summary.txt         06-Jul-2026 17:29:04  (822 bytes)
+  output/tables/welfare_groups_extended_summary.txt    06-Jul-2026 17:29:10  (791 bytes)
+  output/tables/transitions_summary.txt                06-Jul-2026 17:30:13  (631 bytes)
+  output/tables/rank_transition_validation.txt         06-Jul-2026 17:30:13  (1291 bytes)
+  output/tables/hank_irfs_summary.txt                  06-Jul-2026 17:34:59  (809 bytes)
+  output/tables/hank_tier1_validation.txt              06-Jul-2026 17:34:59  (1791 bytes)
+  output/calibrated_results.mat                        06-Jul-2026 17:28:23  (32108 bytes)
+  output/channels_results.mat                          06-Jul-2026 17:29:10  (4181 bytes)
+  data/wb_panel.csv                                    ABSENT
+
+--- IMPLEMENTATION STATUS (detail: MODEL_STATUS.md) ---
+steady-state HA price-level block (DTPL) .......... IMPLEMENTED
+climate v1/v2 + incidence gradient ................ IMPLEMENTED
+self-financing decomposition ...................... IMPLEMENTED
+safe-asset-channel decomposition (Step 4) ......... IMPLEMENTED (run: see safe_asset_channel_summary.txt)
+financing regimes R1-DEFICIT/R2-PROP-LEVY/
+  R3-PROP-LEVY-REBATE/R4-MIXED-DEFICIT-LEVY ....... IMPLEMENTED (endowment/proportional-levy tier; NO Pigouvian margin)
+welfare by wealth quintile ........................ IMPLEMENTED
+extended welfare groups (income/bond/constrained/
+  MPC-proxy/exposure) (Step 5) .................... IMPLEMENTED (run: see welfare_groups_extended_summary.txt)
+debt maturity / indexation / holders / q_g ........ IMPLEMENTED (arithmetic + bounds tier)
+production Stage 1 (tax-base split) ............... IMPLEMENTED (aggregate layer; NOT joined to HA block; labor margin ABSENT)
+RANK/NK transitions (U6) .......................... IMPLEMENTED -- RANK/NK TRANSITION DIAGNOSTIC, not DTPL
+tier-1 HANK IRFs (U7 tier 1) ...................... IMPLEMENTED -- LINEARIZED, not the nonlinear DTPL transition
+nonlinear HANK-DTPL transition (U7 tier 2) ........ NOT YET IMPLEMENTED (plan in appendix/)
+aggregate stochastic climate risk ................. NOT YET IMPLEMENTED
+clean/dirty production, Pigouvian margin (U8) ..... NOT YET IMPLEMENTED
+E1 anchor regression .............................. IMPLEMENTED
+E4 WB panel regression ............................ DATA DOWNLOADED, estimates pending user run
+E2 green-budget denomination panel ................ PLACEHOLDER (schema only; no data fabricated)
+E3 event study .................................... PROPOSED

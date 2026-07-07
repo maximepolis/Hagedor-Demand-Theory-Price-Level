@@ -1,0 +1,6 @@
+FINANCING REGIMES (U4): medium damages, calibrated scale
+beta*=0.9287 Gg=0.01818 baseline P0=0.9064
+R1-DEFICIT             P*=0.8686 D=0.0467 tau_ls=+0.0435 vth=0.0000 nu=0.592 (rev -0.045 dam 0.637) lam_b50=-2.09% lam_t10=-1.02%
+R2-PROP-LEVY           P*=0.9257 D=0.0474 tau_ls=+0.0212 vth=0.0206 nu=0.664 (rev +0.023 dam 0.641) lam_b50=-0.39% lam_t10=-0.55%
+R3-PROP-LEVY-REBATE    P*=0.9996 D=0.0482 tau_ls=+0.0014 vth=0.0382 nu=0.758 (rev +0.111 dam 0.647) lam_b50=+1.13% lam_t10=-0.10%
+R4-MIXED-DEFICIT-LEVY  P*=0.9066 D=0.0472 tau_ls=+0.0317 vth=0.0105 nu=0.640 (rev +0.000 dam 0.640) lam_b50=-1.15% lam_t10=-0.74%
