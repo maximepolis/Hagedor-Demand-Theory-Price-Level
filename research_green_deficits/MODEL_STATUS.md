@@ -194,13 +194,22 @@ that crashed at X2 and is fixed as of this commit), not from the paper draft.*
   the verified hank_two_assets example: liquid bonds vs illiquid equity,
   sticky wages+prices, capital/Tobin-Q/equity pricing, ENDOGENOUS debt
   with PHIB financing speed, climate block on TFP; run_green_hank2.m
-  driver, PFig17). PROTOCOL ATTEMPTED 2026-07-07, solver-level failure
-  on Dynare 8-unstable-2026-05-19: WEAK singular sequence-space Jacobian
-  (RCOND=NaN, no IRFs), TAYLOR hard child crash (0xc0000409) after
-  household policies converged (||policy||=2.4e-7). Crash isolation
-  held both times. Tier CLOSED for this round: NOT REPORTABLE, paper
-  does not depend on it, verdict disclosed in the tier-1b paragraph;
-  revisit on a stable Dynare release. E4 estimates DONE
+  driver, PFig17). PROTOCOL RUN 5 (2026-07-07) made the failure
+  REPRODUCIBLE: calibration converges in every regime, then
+  heterogeneity_solve returns RCOND=NaN (no IRFs). Equation-level audit
+  located the mechanism: the template's sign()/abs()^(chi2-1)
+  adjustment-cost forms differentiate symbolically into
+  abs(D)^(chi2-3) = 0^(-1) = Inf at the illiquid-constraint corner
+  (D=0 exactly, positive household mass), and the (chi2-2)=0 factor
+  yields 0*Inf = NaN inside the sequence-space Jacobian -- the precise
+  failing step. FIX IN PLACE: green_hank2.mod now carries the EXACT
+  smooth chi2=2 polynomial equivalents and drops the model's only
+  exo-lead auxiliary (Z(+1) -> Z; zero-variance placeholder). Fix
+  UNVERIFIED: driver stays kill-switched by default; test with
+  TIER1B_FORCE = true. NOT REPORTABLE until the protocol passes; the
+  paper does not depend on it and discloses this history. (Earlier
+  0xc0000409 hard child crashes: possibly NaN propagation into compiled
+  code, or a separate build issue.) E4 estimates DONE
   (2026-07-07 run, empirical_panel_summary.txt, transcribed into the
   paper -- see the E4 row above).
 

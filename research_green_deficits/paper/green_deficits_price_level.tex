@@ -1728,27 +1728,35 @@ goods-market feasibility out of steady state. The corrected model
 restores the identity and closes, as described above, with the single
 total-wealth clearing condition and a constant premium. The driver
 additionally rejects any path violating elementary plausibility bounds.
-The accuracy protocol was run on the corrected model, twice, and both
-attempts failed at the solver level: one regime failed with a singular
-sequence-space Jacobian before any impulse response was computed, and
-another crashed the solver process outright after its household policies
-had already converged. The diagnostic detail is what rules out a model
-error: rerunning the identical, unchanged specification moved the failure
-from one regime to the other and from one failure mode to the other ---
-a crash whose location is not reproducible across identical inputs is the
-signature of memory corruption inside the build's compiled solver, not
-of a mistake in our equations. We therefore closed the tier with a
-kill-switch rather than continuing to retry it: the driver now reports
-this verdict immediately (recorded in a run-verdict file) instead of
-spawning further solver processes, and stands ready to re-attempt the
-full protocol on a future stable Dynare release. No two-asset result
-appears in this paper; the tier is disclosed because a solved-but-wrong
-impulse response is worse than an honest gap, and its economics are
-covered by the one-asset tier (Fisher redistribution) and the nonlinear
-tier-2 transition (the $B/P$ margin proper). [TIER-1b: IMPLEMENTED;
-accuracy protocol ATTEMPTED twice, non-reproducible solver-level failure
-on the development build; NOT REPORTABLE; closed pending a stable Dynare
-release.]
+The accuracy protocol was then run on the corrected model repeatedly,
+and the failure eventually stabilized into a reproducible signature: in
+every regime the steady-state calibration converges, and the
+sequence-space Jacobian assembly then returns a matrix containing
+\texttt{NaN} entries, so no impulse response is ever computed. That
+reproducibility made the defect diagnosable, and an equation-level audit
+located a concrete mechanism in the reference template itself: the
+portfolio-adjustment cost is written with $\mathrm{sign}(\cdot)$ and
+$|\cdot|^{\chi_2-1}$ where $\chi_2$ enters \emph{symbolically}, so the
+emitted second-derivative code contains factors
+$(\chi_2-1)(\chi_2-2)\,|D|^{\chi_2-3}$ with $D$ the deviation from the
+no-adjustment portfolio. Households at the illiquid constraint --- a
+positive-mass corner by construction --- have $D=0$ exactly, where
+$|D|^{\chi_2-3} = 0^{-1} = \infty$ and the $(\chi_2-2)=0$ factor turns
+the product into $0\times\infty = \mathrm{NaN}$, precisely inside the
+Jacobian evaluation that fails. Because $\chi_2=2$ in the calibration,
+every kinked expression equals a smooth polynomial \emph{identically}
+($\mathrm{sign}(D)|D|^{\chi_2-1} \equiv D$, $|D|^{\chi_2} \equiv D^2$),
+and the model file now carries those exact equivalents (plus the removal
+of the template's one exogenous-lead auxiliary). The repaired model
+awaits its re-run; until the protocol passes, the tier's driver stops by
+default with the recorded verdict. No two-asset result appears in this
+paper; the tier is disclosed because a solved-but-wrong impulse response
+is worse than an honest gap, and its economics are covered by the
+one-asset tier (Fisher redistribution) and the nonlinear tier-2
+transition (the $B/P$ margin proper). [TIER-1b: IMPLEMENTED; protocol
+failure diagnosed to a reproducible kink-derivative \texttt{NaN} at the
+constraint corner; exact smooth repair in place, re-run pending; NOT
+REPORTABLE.]
 
 % --------------------------------------------------------------------------
 \subsection{The nonlinear HANK-DTPL transition}\label{subsec:tier2}
