@@ -1,11 +1,11 @@
 /*
  * GREEN_HANK.MOD -- HANK transition tier (roadmap U7, tier 1).
  *
- * STATUS: IMPLEMENTED (native Dynare heterogeneity framework); run pending
- * on the user's machine (requires the Dynare version shipping
- * heterogeneity_dimension / heterogeneity_solve -- the same version that
- * successfully ran heterogeneity/hank_one_asset_steady_state.mod, per the
- * log in that folder).
+ * STATUS: IMPLEMENTED, run VERIFIED (five regimes, RHOG=0.98 master run
+ * 2026-07-06; hank_irfs_summary.txt / hank_tier1_validation.txt). Requires
+ * the Dynare version shipping heterogeneity_dimension /
+ * heterogeneity_solve -- the same version that successfully ran
+ * heterogeneity/hank_one_asset_steady_state.mod.
  *
  * WHAT THIS IS: a one-asset HANK (heterogeneous households, borrowing
  * constraint, idiosyncratic efficiency) with Rotemberg-style NK pricing, a
@@ -19,11 +19,11 @@
  *
  * WHAT THIS IS NOT: the paper's nonlinear DTPL price-level transition
  * (P* pinned by asset demand). In this NK-HANK, inflation dynamics come
- * from the Phillips curve + policy rule; the nonlinear P* transition
- * remains specified in appendix/HANK_TRANSITION_PLAN.md (tier 2, NOT YET
- * IMPLEMENTED). Magnitudes are illustrative: the income process
- * (rho_e, sig_e) follows the Dynare example, not yet the MATLAB package's
- * calibration.
+ * from the Phillips curve + policy rule; the nonlinear P* transition is
+ * tier 2, IMPLEMENTED in pure MATLAB and run-verified
+ * (src_project/solve_hank_dtpl_transition.m + main_project_transition.m).
+ * Magnitudes here are illustrative: the income process (rho_e, sig_e)
+ * follows the Dynare example, not the MATLAB package's calibration.
  *
  * STRUCTURE: household block and numerical settings follow
  * heterogeneity/hank_one_asset_steady_state.mod (verified to run);
