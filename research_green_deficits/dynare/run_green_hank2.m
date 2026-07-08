@@ -46,6 +46,9 @@
 %                                                   % resume from checkpoint)
 %         >> RUN_ACCURACY = true;  TIER1B_FORCE = true; run_green_hank2
 %                                                   % + the refinement re-solve
+%                                                   % (memory-light defaults;
+%                                                   % if OOM, set ACC_NA=36 or
+%                                                   % ACC_THORIZON=450 first)
 %         >> FORCE_RERUN  = true;  run_green_hank2  % re-solve everything
 %         >> SPAWN_MATLAB = false; run_green_hank2  % in-session solves
 %         >> RUN_ACCURACY = true;  run_green_hank2  % force refinement pass
@@ -56,7 +59,8 @@
 
 % keep the user-set control flags alive (a bare 'clear' would wipe them
 % before they are read)
-clearvars -except FORCE_RERUN SPAWN_MATLAB REGIME_ONLY RUN_ACCURACY TIER1B_FORCE;
+clearvars -except FORCE_RERUN SPAWN_MATLAB REGIME_ONLY RUN_ACCURACY TIER1B_FORCE ...
+    ACC_NB ACC_NA ACC_THORIZON;
 close all;
 t0 = tic;
 
@@ -393,18 +397,28 @@ for k = 1:numel(rn)
 end
 
 % ---- ACCURACY REFINEMENT PASS (accuracy protocol, step 2) ----
-% Re-solve the TAYLOR regime with a LONGER truncation horizon (600 vs 400)
-% and FINER asset grids (nb 15->25, na 30->50), then compare IRFs. If the
-% baseline solution is accurate, the two should agree closely; a large gap
-% means the baseline grids/horizon are driving the results.
+% Re-solve the TAYLOR regime with a LONGER truncation horizon and a FINER
+% ILLIQUID grid, then compare IRFs. If the baseline solution is accurate,
+% the two agree closely; a large gap means the baseline discretization is
+% driving the results.
 %
-% CRASH NOTE: this is the HEAVIEST solve in the package; stacking it as a
-% fifth in-session solve is the most likely cause of the hard MATLAB
-% crash. It therefore runs by default ONLY when every main regime came
-% from the checkpoint (i.e., in a fresh session with full memory
-% headroom); in a session that just solved regimes, it defers with a
-% message. Force it with RUN_ACCURACY = true; with SPAWN_MATLAB = true it
-% runs out of process and cannot crash this session at all.
+% MEMORY NOTE (2026-07-07): the sequence-space Jacobian and the
+% steady-state tensor both scale ~ (ne*nb*na)^2, so refining BOTH liquid
+% and illiquid grids (the old nb=20,na=40) OOMs on a typical machine
+% (observed: "Out of memory" in compute_steady_state_tensor). The
+% refinement therefore, by default, refines ONLY the illiquid dimension
+% na -- which carries the kinked portfolio-adjustment policy and is the
+% discretization most likely to move the IRFs -- and the horizon, holding
+% nb at baseline. All three are workspace-overridable (ACC_NB / ACC_NA /
+% ACC_THORIZON) so you can dial to your RAM: if this still OOMs, lower
+% ACC_NA (e.g. 36) or ACC_THORIZON (e.g. 450); if you have headroom, raise
+% ACC_NB to also refine the liquid grid.
+%
+% CRASH NOTE: this is the HEAVIEST solve in the package. It runs by
+% default ONLY when every main regime came from the checkpoint (fresh
+% session, full memory headroom); otherwise it defers with a message.
+% Force it with RUN_ACCURACY = true; with SPAWN_MATLAB = true (the
+% default) it runs out of process and cannot crash or OOM this session.
 run_acc = isfield(RES, 'TAYLOR') && all(restored(ok)) && ...
     ~(exist('REGIME_ONLY','var') && ~isempty(REGIME_ONLY));
 if exist('RUN_ACCURACY', 'var') && RUN_ACCURACY, run_acc = isfield(RES,'TAYLOR'); end
@@ -423,10 +437,16 @@ if run_acc
         try, clear mex; catch, end %#ok<CLMEX,NOCOM>
         clear oo_ M_ options_;
         nm = 'grn2_taylor_acc';
-        % lighter refinement (500/20/40, was 600/25/50): the heaviest
-        % solve repeatedly hard-crashed MATLAB in-session; still a genuine
-        % refinement over the 400/15/30 baseline
-        accdefs = '-DPHIPI=1.5 -DTHORIZON=500 -DNB=20 -DNA=40';
+        % memory-light refinement over the 400/15/30 baseline: refine the
+        % illiquid grid na (30->40) and the horizon (400->500), hold nb
+        % (15). ~1800 states vs the old 2400 that OOMed. Overridable.
+        acc_nb  = 15;  if exist('ACC_NB','var')  && ~isempty(ACC_NB),  acc_nb  = ACC_NB;  end
+        acc_na  = 40;  if exist('ACC_NA','var')  && ~isempty(ACC_NA),  acc_na  = ACC_NA;  end
+        acc_thz = 500; if exist('ACC_THORIZON','var') && ~isempty(ACC_THORIZON), acc_thz = ACC_THORIZON; end
+        accdefs = sprintf('-DPHIPI=1.5 -DTHORIZON=%d -DNB=%d -DNA=%d', ...
+                          acc_thz, acc_nb, acc_na);
+        fprintf('  [refinement grid: nb=%d na=%d horizon=%d (baseline 15/30/400)]\n', ...
+                acc_nb, acc_na, acc_thz);
         if ~SPAWN_MATLAB
             fprintf(['  [note: for the accuracy pass, SPAWN_MATLAB=true is ' ...
                      'strongly recommended -- it cannot crash this session]\n']);
@@ -459,6 +479,7 @@ if run_acc
             fnn = fieldnames(irfs);
             base = RES.TAYLOR;
             ACC.ran = true; ACC.maxdev = 0; ACC.report = {};
+            ACC.nb = acc_nb; ACC.na = acc_na; ACC.thz = acc_thz;
             for v = 1:numel(vars_keep)
                 if ~isfield(base, vars_keep{v}), continue; end
                 hit = find(strcmpi(fnn, [vars_keep{v} '_e_g']), 1);
@@ -567,11 +588,14 @@ if fid > 0
         fprintf(fid, 'DIVERGENT   %-11s excluded from all outputs (pathological linearized solution)\n', dn{k});
     end
     if ACC.ran
-        fprintf(fid, 'refinement (TAYLOR, THORIZON 500, nb 20, na 40): max rel. dev %.3f -> %s\n', ...
+        fprintf(fid, ['refinement (TAYLOR, THORIZON %d, nb %d, na %d vs baseline ' ...
+            '400/15/30): max rel. dev %.3f -> %s\n'], ACC.thz, ACC.nb, ACC.na, ...
             ACC.maxdev, ternary_str(ACC.pass, 'PASS', 'FAIL (baseline grids/horizon drive results)'));
         for k = 1:numel(ACC.report), fprintf(fid, '  %s\n', ACC.report{k}); end
     else
-        fprintf(fid, 'refinement pass: NOT RUN this session\n');
+        fprintf(fid, ['refinement pass: NOT RUN this session (deferred, or the ' ...
+            'refinement solve failed -- e.g. out of memory; lower ACC_NA / ' ...
+            'ACC_THORIZON and re-run)\n']);
     end
     fprintf(fid, ['\nREPORTING RULE: no tier-1b number enters the paper unless the\n' ...
         'oscillation check and the refinement pass BOTH pass.\n']);
