@@ -20,16 +20,20 @@
  * sequence-space Jacobian -- precisely the failing step. THIS version
  * replaces every kinked form with its EXACT chi2=2 polynomial equivalent
  * (smooth everywhere) and removes the model's only exo-lead (Z(+1) ->
- * Z, equivalent here since Z is a zero-variance placeholder). No tier-1b
- * number enters the paper until the accuracy protocol passes.
+ * Z, equivalent here since Z is a zero-variance placeholder).
  *
- * STATUS: IMPLEMENTED, fix awaiting a forced re-run
- * (TIER1B_FORCE = true; run_green_hank2). Requires the Dynare
- * heterogeneity build that ran heterogeneity/hank_two_assets_
- * steady_state.mod. NOTE: only the steady-state variant of the reference
- * two-asset example is verified on that build; its DYNAMICS were not,
- * so this tier tests the framework's two-asset sequence-space solve
- * itself.
+ * RUN 6 (2026-07-07): the chi2=2 fix above, together with the
+ * base-workspace IRF-harvest fix in solve_hank_regime_batch.m, took the
+ * tier ALL THE WAY THROUGH -- all four regimes (WEAK/TAYLOR/GREENACCOM/
+ * TAYLORBAL) solve, produce finite non-divergent IRFs (horizon 200), and
+ * CLEAR the oscillation diagnostic (scores 1). The tier now SOLVES.
+ * Magnitudes remain NOT REPORTABLE until the refinement re-solve (the
+ * last accuracy gate) passes; the paper does not depend on this tier and
+ * discloses it as an extension in progress.
+ *
+ * STATUS: IMPLEMENTED, SOLVES (opt-in via TIER1B_FORCE; ~70 min, four
+ * spawned solves). Requires the Dynare heterogeneity build that ran
+ * heterogeneity/hank_two_assets_steady_state.mod.
  *
  * WHY A TWO-ASSET TIER: the paper's mechanism is about the demand for
  * LIQUID NOMINAL SAFE ASSETS specifically. In the one-asset tier

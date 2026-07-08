@@ -1685,78 +1685,39 @@ transition.}
 \label{fig:pfig14}
 \end{figure}}
 
-\paragraph{A two-asset tier and its accuracy protocol.} The replication
-package also implements a two-asset extension of the HANK tier
-(liquid nominal bonds versus illiquid equity with convex
-portfolio-adjustment costs, sticky wages and prices, investment with
-Tobin's $Q$, and endogenous government debt, so that households'
-demand for the liquid nominal asset --- the $B/P$ margin at the heart of
-the model --- is observable separately from total wealth). One design
-lesson from this tier is itself worth recording: we attempted to make
-the liquidity premium an \emph{endogenous convenience yield} clearing
-the liquid-bond market, under both natural timings of the premium, and
-both are boundary-singular in a truncated sequence-space system --- the
-contemporaneous premium has only an income effect on predetermined
-holdings at the impact date, while the issuance-timed premium leaves the
-terminal-date premium outside every within-horizon equation --- so the
-tier closes, like the reference implementation, with a single
-total-wealth clearing condition and a constant premium, and the
-endogenous convenience yield remains future work. We also flag a
-numerical finding rather than hide it: the first solution of this tier
-produced visibly \emph{oscillatory} impulse responses. The likely causes are generic to
-sequence-space methods --- shock persistence ($0.995$) too close to the
-truncation horizon (300 quarters), which produces reflection artifacts,
-compounded by the coarse benchmark asset grids of the reference
-implementation --- and the package now enforces an explicit accuracy
-protocol: an oscillation diagnostic (sign changes of the differenced
-response beyond the impact phase), reduced shock persistence with a
-longer horizon, and a full refinement re-solve (double grid densities,
-horizon 600) that must agree with the baseline to within ten percent
-before any number from this tier can be reported. The protocol earned
-its keep immediately: the fast-financing regime of the first run
-returned an \emph{explosive} pseudo-solution (impact inflation orders of
-magnitude too large), which a naive reading would have reported as a
-regime result. An adversarial equation-by-equation audit traced it to a
-genuine specification error: in adapting the reference two-asset model we
-had inherited its steady-state-calibration variant, which omits the firm
-cash-flow identity $\mathrm{div}=Y-wN-I-\psi^p$ because it uses both
-asset-market clearing conditions as calibration targets. Without that
-identity, dividends are defined only residually by the equity-pricing
-equation, which collapses the equity return to the safe return
-identically and leaves the equity price unanchored while violating
-goods-market feasibility out of steady state. The corrected model
-restores the identity and closes, as described above, with the single
-total-wealth clearing condition and a constant premium. The driver
-additionally rejects any path violating elementary plausibility bounds.
-The accuracy protocol was then run on the corrected model repeatedly,
-and the failure eventually stabilized into a reproducible signature: in
-every regime the steady-state calibration converges, and the
-sequence-space Jacobian assembly then returns a matrix containing
-\texttt{NaN} entries, so no impulse response is ever computed. That
-reproducibility made the defect diagnosable, and an equation-level audit
-located a concrete mechanism in the reference template itself: the
-portfolio-adjustment cost is written with $\mathrm{sign}(\cdot)$ and
-$|\cdot|^{\chi_2-1}$ where $\chi_2$ enters \emph{symbolically}, so the
-emitted second-derivative code contains factors
-$(\chi_2-1)(\chi_2-2)\,|D|^{\chi_2-3}$ with $D$ the deviation from the
-no-adjustment portfolio. Households at the illiquid constraint --- a
-positive-mass corner by construction --- have $D=0$ exactly, where
-$|D|^{\chi_2-3} = 0^{-1} = \infty$ and the $(\chi_2-2)=0$ factor turns
-the product into $0\times\infty = \mathrm{NaN}$, precisely inside the
-Jacobian evaluation that fails. Because $\chi_2=2$ in the calibration,
-every kinked expression equals a smooth polynomial \emph{identically}
-($\mathrm{sign}(D)|D|^{\chi_2-1} \equiv D$, $|D|^{\chi_2} \equiv D^2$),
-and the model file now carries those exact equivalents (plus the removal
-of the template's one exogenous-lead auxiliary). The repaired model
-awaits its re-run; until the protocol passes, the tier's driver stops by
-default with the recorded verdict. No two-asset result appears in this
-paper; the tier is disclosed because a solved-but-wrong impulse response
-is worse than an honest gap, and its economics are covered by the
-one-asset tier (Fisher redistribution) and the nonlinear tier-2
-transition (the $B/P$ margin proper). [TIER-1b: IMPLEMENTED; protocol
-failure diagnosed to a reproducible kink-derivative \texttt{NaN} at the
-constraint corner; exact smooth repair in place, re-run pending; NOT
-REPORTABLE.]
+\paragraph{A two-asset tier.} The replication package also implements a
+two-asset extension of the HANK tier --- liquid nominal bonds versus
+illiquid equity with convex portfolio-adjustment costs, sticky wages and
+prices, Tobin's-$Q$ investment, and endogenous government debt --- so
+that the demand for the liquid nominal asset, the $B/P$ margin at the
+heart of the model, is observable separately from total wealth. The tier
+carries one methodological lesson worth stating in the text: making the
+liquidity premium an \emph{endogenous convenience yield} that clears the
+liquid-bond market is boundary-singular in a truncated sequence-space
+system under both natural timings of the premium (the contemporaneous
+premium acts only through an income effect on predetermined holdings at
+the impact date; the issuance-timed premium leaves the terminal-date
+premium outside every within-horizon equation). The tier therefore
+closes, as the reference implementation does, with a single total-wealth
+clearing condition and a constant premium, and the endogenous convenience
+yield is left to future work. Because a two-asset sequence-space solve is
+numerically delicate, the package wraps it in an explicit accuracy
+protocol --- an oscillation diagnostic on the differenced responses,
+shock persistence held well inside a long truncation horizon, and a
+refinement re-solve on doubled grids that must agree with the baseline
+before any magnitude is reported --- and the debugging history that
+protocol uncovered (an explosive pseudo-solution from a dropped firm
+cash-flow identity; a reproducible Jacobian \texttt{NaN} from
+kink-derivative evaluation at the illiquid-constraint corner) is recorded
+in full in the replication package's validation notes. All four monetary
+regimes now solve and clear the oscillation diagnostic; the final
+refinement re-solve is the last open gate, and until it clears no
+two-asset magnitude enters the paper. The tier's economics are in any
+case covered by the one-asset tier (Fisher redistribution) and the
+nonlinear tier-2 transition (the $B/P$ margin proper), so it is disclosed
+as an extension in progress rather than a source of headline numbers.
+[TIER-1b: IMPLEMENTED; all four regimes solve and pass the oscillation
+diagnostic; refinement re-solve pending; magnitudes NOT YET REPORTED.]
 
 % --------------------------------------------------------------------------
 \subsection{The nonlinear HANK-DTPL transition}\label{subsec:tier2}
