@@ -29,23 +29,23 @@
 % Grid defaults ne=3, nb=15, na=30 (raised from the example's 10x20):
 % magnitudes indicative until the accuracy protocol passes.
 %
-% *** TIER CLOSED PENDING RE-VERIFICATION (run-5 diagnosis, 2026-07-07):
-% *** the reproducible failure (calibration converges, then
-% *** heterogeneity_solve returns RCOND=NaN) was traced to the reference
-% *** template's sign()/abs()^(chi2-1) adjustment-cost forms, whose
-% *** symbolic second derivatives evaluate to 0*Inf = NaN at the
-% *** illiquid-constraint corner inside the sequence-space Jacobian.
-% *** green_hank2.mod now carries the EXACT smooth chi2=2 equivalents
-% *** (and drops the model's only exo-lead auxiliary). The fix is
-% *** UNVERIFIED, so by DEFAULT this script still stops with the
-% *** verdict. The paper does not depend on this tier.
+% *** TIER SOLVES (verified 2026-07-07): the chi2=2 smoothing fix plus
+% *** the base-workspace IRF-harvest fix took the two-asset tier all the
+% *** way through -- all four regimes solve, produce finite non-divergent
+% *** IRFs, and clear the oscillation diagnostic (scores 1). It remains
+% *** OPT-IN by default because it is a long (~70 min, four spawned
+% *** solves) EXPERIMENTAL tier whose magnitudes are not reportable until
+% *** the refinement re-solve (the last accuracy gate) passes, and the
+% *** paper does not depend on it. Run it explicitly with TIER1B_FORCE.
 %
 % USAGE:  >> cd research_green_deficits/dynare
-%         >> run_green_hank2                        % DEFAULT: prints verdict
-%                                                   % and STOPS (tier closed)
-%         >> TIER1B_FORCE = true;  run_green_hank2  % TEST THE FIX (crash-
-%                                                   % isolated children, resume
-%                                                   % from checkpoint)
+%         >> run_green_hank2                        % DEFAULT: prints note
+%                                                   % and STOPS (opt-in tier)
+%         >> TIER1B_FORCE = true;  run_green_hank2  % RUN the tier (~70 min;
+%                                                   % crash-isolated children,
+%                                                   % resume from checkpoint)
+%         >> RUN_ACCURACY = true;  TIER1B_FORCE = true; run_green_hank2
+%                                                   % + the refinement re-solve
 %         >> FORCE_RERUN  = true;  run_green_hank2  % re-solve everything
 %         >> SPAWN_MATLAB = false; run_green_hank2  % in-session solves
 %         >> RUN_ACCURACY = true;  run_green_hank2  % force refinement pass
@@ -85,52 +85,24 @@ if ~contains(modtxt, "name='Dividends'") || ...
            'the branch ZIP, replace the WHOLE research_green_deficits ' ...
            'folder, and re-run.']);
 end
-% ---- TIER CLOSED pending re-verification: kill-switch ----
-% Protocol history: run 5 (2026-07-07) made the failure REPRODUCIBLE --
-% in every regime the steady-state calibration converges and
-% heterogeneity_solve then returns RCOND=NaN (no IRFs). The
-% equation-level audit located a concrete mechanism in the reference
-% template's household block: sign()/abs()^(chi2-1) adjustment-cost
-% forms whose symbolic second derivatives contain abs(D)^(chi2-3) ->
-% 0^(-1) = Inf at the illiquid-constraint corner (D = 0 exactly, with
-% household mass there), turned into 0*Inf = NaN by the (chi2-2) = 0
-% factor -- evaluated precisely in the sequence-space Jacobian assembly.
-% green_hank2.mod now carries the EXACT chi2=2 polynomial equivalents
-% (smooth everywhere) and drops the model's only exo-lead auxiliary.
-% The fix is UNVERIFIED until a forced run passes, so the default stays
-% CLOSED. To test the fixed model:
-%     TIER1B_FORCE = true; run_green_hank2
-% (The earlier hard child crashes, 0xc0000409, may have been NaN
-% propagation into compiled code or a separate build issue; the
-% deterministic RCOND=NaN path is what the fix addresses.)
+% ---- OPT-IN gate (tier solves, but is long + experimental) ----
+% The tier now SOLVES end-to-end (verified 2026-07-07): the chi2=2
+% smoothing fix in green_hank2.mod removed the reproducible
+% sequence-space Jacobian NaN (from sign/abs kink derivatives at the
+% illiquid-constraint corner), and the base-workspace IRF-harvest fix in
+% solve_hank_regime_batch.m let the parent collect the results. All four
+% regimes produce finite, non-divergent IRFs that clear the oscillation
+% diagnostic. It stays OPT-IN because it is a ~70-minute EXPERIMENTAL
+% solve (four spawned children) whose magnitudes are not reportable until
+% the refinement re-solve passes, and the paper does not depend on it.
+% Run it explicitly with:  TIER1B_FORCE = true; run_green_hank2
 if ~exist('TIER1B_FORCE', 'var') || ~TIER1B_FORCE
-    vf = fullfile(pg.tabdir, 'hank2_protocol_verdict.txt');
-    fid = fopen(vf, 'w');
-    if fid > 0
-        dynver = 'unknown';
-        try, dynver = dynare_version(); catch, end
-        fprintf(fid, 'TIER-1b (two-asset HANK) ACCURACY PROTOCOL -- VERDICT\n');
-        fprintf(fid, 'Recorded: %s;  Dynare found on path: %s\n\n', ...
-            datestr(now, 'yyyy-mm-dd HH:MM'), dynver);
-        fprintf(fid, ['Run 5 (2026-07-07) made the failure reproducible: calibration\n' ...
-            'converges in every regime, then heterogeneity_solve returns RCOND=NaN.\n' ...
-            'Equation-level audit located the mechanism (sign/abs adjustment-cost\n' ...
-            'forms whose symbolic derivatives produce 0*Inf = NaN at the\n' ...
-            'illiquid-constraint corner, inside the sequence-space Jacobian) and\n' ...
-            'green_hank2.mod now carries the exact smooth chi2=2 equivalents plus\n' ...
-            'the removal of the only exo-lead auxiliary.\n\n' ...
-            'STATUS: tier NOT REPORTABLE; fix awaiting a forced re-run\n' ...
-            '(TIER1B_FORCE = true; run_green_hank2). The paper does not depend on\n' ...
-            'this tier and discloses this history.\n']);
-        fclose(fid);
-    end
-    fprintf(['\nTIER-1b IS CLOSED PENDING RE-VERIFICATION: run 5 made the failure\n' ...
-        'reproducible (RCOND=NaN in heterogeneity_solve after calibration\n' ...
-        'converges) and the audit traced it to sign/abs kink derivatives at the\n' ...
-        'illiquid corner; green_hank2.mod now carries the exact smooth chi2=2\n' ...
-        'forms. Verdict written to\n  %s\n' ...
-        'To TEST THE FIX:  TIER1B_FORCE = true; run_green_hank2\n' ...
-        'The paper does NOT depend on this tier.\n\n'], vf);
+    fprintf(['\nTIER-1b is OPT-IN. It now SOLVES (all four regimes, finite\n' ...
+        'oscillation-clean IRFs), but it is a ~70-minute experimental solve\n' ...
+        'and its magnitudes are not reportable until the refinement re-solve\n' ...
+        'passes; the paper does not depend on it. To RUN it:\n' ...
+        '    TIER1B_FORCE = true; run_green_hank2\n' ...
+        'Add RUN_ACCURACY = true to include the refinement re-solve.\n\n']);
     return;
 end
 % delete stale summary/validation files so a failed run can never leave

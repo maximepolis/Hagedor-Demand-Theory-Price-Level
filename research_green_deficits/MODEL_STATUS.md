@@ -194,22 +194,19 @@ that crashed at X2 and is fixed as of this commit), not from the paper draft.*
   the verified hank_two_assets example: liquid bonds vs illiquid equity,
   sticky wages+prices, capital/Tobin-Q/equity pricing, ENDOGENOUS debt
   with PHIB financing speed, climate block on TFP; run_green_hank2.m
-  driver, PFig17). PROTOCOL RUN 5 (2026-07-07) made the failure
-  REPRODUCIBLE: calibration converges in every regime, then
-  heterogeneity_solve returns RCOND=NaN (no IRFs). Equation-level audit
-  located the mechanism: the template's sign()/abs()^(chi2-1)
-  adjustment-cost forms differentiate symbolically into
-  abs(D)^(chi2-3) = 0^(-1) = Inf at the illiquid-constraint corner
-  (D=0 exactly, positive household mass), and the (chi2-2)=0 factor
-  yields 0*Inf = NaN inside the sequence-space Jacobian -- the precise
-  failing step. FIX IN PLACE: green_hank2.mod now carries the EXACT
+  driver, PFig17). NOW SOLVES (run 6, 2026-07-07): the chi2=2 smoothing
+  fix (which removed the reproducible sequence-space Jacobian NaN traced
+  by equation-level audit to sign()/abs()^(chi2-1) kink derivatives at
+  the illiquid-constraint corner: abs(D)^(chi2-3)=0^(-1)=Inf times
+  (chi2-2)=0 gives 0*Inf=NaN) plus the base-workspace IRF-harvest fix in
+  solve_hank_regime_batch.m took the tier through -- all four regimes
+  solve, produce finite non-divergent IRFs (horizon 200), and clear the
+  oscillation diagnostic (scores 1). green_hank2.mod carries the EXACT
   smooth chi2=2 polynomial equivalents and drops the model's only
-  exo-lead auxiliary (Z(+1) -> Z; zero-variance placeholder). Fix
-  UNVERIFIED: driver stays kill-switched by default; test with
-  TIER1B_FORCE = true. NOT REPORTABLE until the protocol passes; the
-  paper does not depend on it and discloses this history. (Earlier
-  0xc0000409 hard child crashes: possibly NaN propagation into compiled
-  code, or a separate build issue.) E4 estimates DONE
+  exo-lead auxiliary (Z(+1)->Z). OPT-IN (TIER1B_FORCE=true), ~70 min.
+  Magnitudes NOT YET REPORTED: the refinement re-solve (last accuracy
+  gate) is pending; the paper discloses the tier as an extension in
+  progress and does not depend on it. E4 estimates DONE
   (2026-07-07 run, empirical_panel_summary.txt, transcribed into the
   paper -- see the E4 row above).
 
