@@ -1,0 +1,7 @@
+U7 TIER-1b: TWO-ASSET HANK IRFs to a quasi-permanent green shock
+(liquid bonds vs illiquid equity; LINEARIZED; NOT the DTPL transition)
+
+WEAK        pi impact +0.00167 (ann +0.67%), Y impact +0.00477, rb impact -0.00169, bg(40q) +0.0740, kg(40q) +0.1649, d(40q) -0.003925, p impact -0.0667
+TAYLOR      pi impact +0.00009 (ann +0.04%), Y impact +0.00520, rb impact -0.00009, bg(40q) +0.0773, kg(40q) +0.1649, d(40q) -0.003942, p impact -0.0518
+GREENACCOM  pi impact +0.00067 (ann +0.27%), Y impact +0.00539, rb impact -0.00068, bg(40q) +0.0763, kg(40q) +0.1649, d(40q) -0.003935, p impact -0.0539
+TAYLORBAL   pi impact +0.00008 (ann +0.03%), Y impact +0.00260, rb impact -0.00008, bg(40q) +0.0076, kg(40q) +0.1649, d(40q) -0.003943, p impact -0.0722

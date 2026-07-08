@@ -1,0 +1,6 @@
+TIER-1b (two-asset HANK) ACCURACY PROTOCOL -- VERDICT
+Attempted: 2026-07-07 23:01;  Dynare: 8-unstable-2026-07-03-1558-1d24bd28
+Outcome: NO regime produced a valid solution (solver-level failures:
+singular sequence-space Jacobian / hard child-process crash in the Dynare
+heterogeneity solver). Tier remains EXPERIMENTAL and NOT REPORTABLE.
+The paper does not depend on this tier (its scope statement says so).

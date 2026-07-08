@@ -1,0 +1,30 @@
+U7 TIER-1b TWO-ASSET HANK VALIDATION
+Scope: TIER-1 LINEARIZED HANK IRF (two-asset; sequence-space; horizon 400 default).
+Liquid nominal bonds vs illiquid equity with convex adjustment costs;
+endogenous government debt; REFERENCE DYNAMICS CLOSURE (dividend
+identity + single total-wealth clearing + constant premium omega --
+an endogenous convenience yield is boundary-singular in truncated
+sequence space and remains PROPOSED). Fisher equation present.
+NOT nonlinear DTPL price-level determination.
+Grids: ne=3 (rho_e=0.966, sig_e=0.92, example calibration), nb=15, na=30
+-- COARSE; magnitudes indicative. Steady-state residuals: Dynare log.
+
+regime      solved   horizon  beta_ss*   vphi*     chi1*     pi impact   Y impact    bg(40q)    
+WEAK        yes      200      0.970491   1.5760    6.4164    +0.00167    +0.00477    +0.07398   
+TAYLOR      yes      200      0.970491   1.5760    6.4164    +0.00009    +0.00520    +0.07728   
+GREENACCOM  yes      200      0.970491   1.5760    6.4164    +0.00067    +0.00539    +0.07633   
+TAYLORBAL   yes      200      0.970491   1.5760    6.4164    +0.00008    +0.00260    +0.00760   
+
+IRFs: one-std e_g shock (0.01 ~ 1% of output), rho_g=0.98
+(reduced from 0.995 after the first run: persistence too close to the
+truncation horizon produces reflection/oscillation artifacts).
+
+--- ACCURACY PROTOCOL ---
+oscillation WEAK        score  1 on Y     -> ok
+oscillation TAYLOR      score  1 on Y     -> ok
+oscillation GREENACCOM  score  1 on Y     -> ok
+oscillation TAYLORBAL   score  1 on pi    -> ok
+refinement pass: NOT RUN this session
+
+REPORTING RULE: no tier-1b number enters the paper unless the
+oscillation check and the refinement pass BOTH pass.
