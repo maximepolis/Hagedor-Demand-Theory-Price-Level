@@ -46,9 +46,9 @@
 %                                                   % resume from checkpoint)
 %         >> RUN_ACCURACY = true;  TIER1B_FORCE = true; run_green_hank2
 %                                                   % + the refinement re-solve
-%                                                   % (memory-light defaults;
-%                                                   % if OOM, set ACC_NA=36 or
-%                                                   % ACC_THORIZON=450 first)
+%                                                   % (grid na 30->36 at the
+%                                                   % baseline horizon 400; if
+%                                                   % OOM lower ACC_NA to 33)
 %         >> FORCE_RERUN  = true;  run_green_hank2  % re-solve everything
 %         >> SPAWN_MATLAB = false; run_green_hank2  % in-session solves
 %         >> RUN_ACCURACY = true;  run_green_hank2  % force refinement pass
@@ -442,22 +442,33 @@ for k = 1:numel(rn)
 end
 
 % ---- ACCURACY REFINEMENT PASS (accuracy protocol, step 2) ----
-% Re-solve the TAYLOR regime with a LONGER truncation horizon and a FINER
-% ILLIQUID grid, then compare IRFs. If the baseline solution is accurate,
-% the two agree closely; a large gap means the baseline discretization is
+% Re-solve the TAYLOR regime with a FINER ILLIQUID grid (na 30->36) at the
+% baseline truncation horizon, then compare IRFs. If the baseline solution
+% is accurate, the two agree closely; a large gap means the baseline grid is
 % driving the results.
+%
+% HORIZON (2026-07-09): the refinement holds THORIZON at the baseline 400
+% rather than extending to 500. The truncation horizon is NOT a binding
+% discretization for this shock -- with rho_g=0.98 the IRF has decayed to
+% e^{-0.02*400}=e^{-8}~3e-4 of impact by quarter 400, so quarters 400..500
+% are numerically dead and refining the horizon buys no accuracy. It DID,
+% however, add 100 time-iteration steps to the heaviest solve in the
+% package, which is exactly where the intermittent Dynare build crash
+% (0xc0000409) was landing mid-iteration. Holding the horizon at the length
+% the baseline already solved cleanly removes that exposure and isolates the
+% single discretization that actually matters here -- the illiquid grid.
 %
 % MEMORY NOTE (2026-07-07): the sequence-space Jacobian and the
 % steady-state tensor both scale ~ (ne*nb*na)^2, so refining BOTH liquid
 % and illiquid grids (the old nb=20,na=40) OOMs on a typical machine
 % (observed: "Out of memory" in compute_steady_state_tensor). The
 % refinement therefore, by default, refines ONLY the illiquid dimension
-% na -- which carries the kinked portfolio-adjustment policy and is the
-% discretization most likely to move the IRFs -- and the horizon, holding
-% nb at baseline. All three are workspace-overridable (ACC_NB / ACC_NA /
-% ACC_THORIZON) so you can dial to your RAM: if this still OOMs, lower
-% ACC_NA (e.g. 36) or ACC_THORIZON (e.g. 450); if you have headroom, raise
-% ACC_NB to also refine the liquid grid.
+% na (30->36) -- which carries the kinked portfolio-adjustment policy and is
+% the discretization most likely to move the IRFs -- holding nb AND the
+% truncation horizon at baseline. All three are workspace-overridable
+% (ACC_NB / ACC_NA / ACC_THORIZON) so you can dial to your RAM: if this
+% still OOMs, lower ACC_NA (e.g. 33); if you have headroom, raise ACC_NB to
+% also refine the liquid grid.
 %
 % CRASH NOTE: this is the HEAVIEST solve in the package. It runs by
 % default ONLY when every main regime came from the checkpoint (fresh
@@ -496,19 +507,29 @@ if run_acc
         try, clear mex; catch, end %#ok<CLMEX,NOCOM>
         clear oo_ M_ options_;
         nm = 'grn2_taylor_acc';
-        % memory-light refinement over the 400/15/30 baseline: refine the
-        % illiquid grid na (30->40) and the horizon (400->500), hold nb
-        % (15). ~1800 states vs the old 2400 that OOMed. Overridable.
-        % lighter default refinement (na 30->36, not 40) trims the heaviest
-        % solve's peak memory/time and so its crash exposure, while still
-        % refining the illiquid grid that carries the kinked portfolio policy.
+        % Refine the GRID, hold the horizon at the baseline 400. The horizon
+        % is NOT a binding discretization here: with rho_g=0.98 the IRF has
+        % decayed to e^{-0.02*400}=e^{-8}~3e-4 of impact by quarter 400, so
+        % extending the truncation to 500 changes the IRF by nothing yet adds
+        % 100 more time-iteration steps -- precisely where the intermittent
+        % Dynare build crash (0xc0000409) was landing. Holding THORIZON at the
+        % length the baseline already solved cleanly removes that exposure,
+        % and the accuracy check becomes a clean single-axis refinement of the
+        % illiquid grid na (30->36) -- the discretization that actually
+        % carries the kinked portfolio policy. Raise ACC_THORIZON if you want
+        % to also probe the (economically negligible) horizon axis.
         acc_nb  = 15;  if exist('ACC_NB','var')  && ~isempty(ACC_NB),  acc_nb  = ACC_NB;  end
         acc_na  = 36;  if exist('ACC_NA','var')  && ~isempty(ACC_NA),  acc_na  = ACC_NA;  end
-        acc_thz = 500; if exist('ACC_THORIZON','var') && ~isempty(ACC_THORIZON), acc_thz = ACC_THORIZON; end
+        acc_thz = 400; if exist('ACC_THORIZON','var') && ~isempty(ACC_THORIZON), acc_thz = ACC_THORIZON; end
         accdefs = sprintf('-DPHIPI=1.5 -DTHORIZON=%d -DNB=%d -DNA=%d', ...
                           acc_thz, acc_nb, acc_na);
-        fprintf('  [refinement grid: nb=%d na=%d horizon=%d (baseline 15/30/400)]\n', ...
-                acc_nb, acc_na, acc_thz);
+        if acc_thz == 400
+            fprintf(['  [refinement: illiquid grid na=%d (baseline 30), nb=%d, ' ...
+                'horizon held at baseline %d]\n'], acc_na, acc_nb, acc_thz);
+        else
+            fprintf('  [refinement grid: nb=%d na=%d horizon=%d (baseline 15/30/400)]\n', ...
+                    acc_nb, acc_na, acc_thz);
+        end
         if ~SPAWN_MATLAB
             fprintf(['  [note: for the accuracy pass, SPAWN_MATLAB=true is ' ...
                      'strongly recommended -- it cannot crash this session]\n']);
