@@ -1,8 +1,13 @@
 # Dynare block — transition dynamics
 
-**Status: IMPLEMENTED at the RANK tier (U6) and at the HANK tier-1
-(U7, native heterogeneity framework); both runs pending on the user's
-machine.**
+**Status: IMPLEMENTED at the RANK tier (U6), HANK tier-1 (U7, one-asset,
+run VERIFIED), and HANK tier-1b (U7, two-asset, now solves — magnitudes
+pending the refinement gate).**
+
+> **Framework compliance:** `green_hank.mod` and `green_hank2.mod` were
+> audited line-by-line against the Dynare heterogeneity framework's parse
+> rules (Masterclass 2026 material in `../../heterogeneity/`) on 2026-07-09
+> and conform to every rule — see [`FRAMEWORK_COMPLIANCE.md`](FRAMEWORK_COMPLIANCE.md).
 
 ## Files
 
