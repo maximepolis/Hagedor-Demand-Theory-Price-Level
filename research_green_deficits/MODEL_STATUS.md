@@ -53,7 +53,7 @@ that crashed at X2 and is fixed as of this commit), not from the paper draft.*
 | Adaptation capital (distinct from mitigation) | **NOT YET IMPLEMENTED** | would enter `chi(e)` or `Dmax` |
 | Idiosyncratic climate risk | **IMPLEMENTED** | `phi_D` channel + incidence-induced dispersion |
 | Low/medium/high damage calibrations | **PROPOSED** | plan in appendix/CALIBRATION_APPENDIX.md (DICE conservative / Burke-Hsiang-Miguel medium / Bilal-Känzig high); current numbers ILLUSTRATIVE |
-| Climate-risk shock process (aggregate) | **NOT YET IMPLEMENTED** | no aggregate risk anywhere yet |
+| Climate-risk shock process (aggregate) | **NOT YET IMPLEMENTED; concrete plan staged** | no aggregate risk anywhere yet; implementable two-regime (Calm/Severe) DTPL design in `appendix/AGGREGATE_RISK_PLAN.md` (Stage A: two state-contingent price levels clearing the safe-asset market, green investment as aggregate-risk reduction, a new nu_aggrisk term) — the highest-payoff extension the framework supports (the workshop's own FI example is degenerate, so the endogenous-spread route is not the path) |
 | Biodiversity/natural capital | **NOT YET IMPLEMENTED** | optional extension |
 
 ## 5. Monetary policy
