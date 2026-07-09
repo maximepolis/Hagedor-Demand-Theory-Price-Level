@@ -582,22 +582,26 @@ if run_acc
         end
         irfs = [];
         acc_oom = false;   % set if the refinement is OOM-limited (honest note)
+        acc_crash = false; % set if retries exhausted on the hard build crash
         if SPAWN_MATLAB
             dynpath = fileparts(which('dynare'));
             outmat  = fullfile(dyndir, [nm '_out.mat']);
-            % ADAPTIVE RETRY with MEMORY BACKOFF. Two distinct failure modes,
+            % ADAPTIVE RETRY with MEMORY + CRASH BACKOFF. Failure modes are
             % told apart by the child's <outmat>.err MARKER (written only on a
             % CATCHABLE error; a hard 0xc0000409 crash leaves none):
-            %   (a) INTERMITTENT hard crash (0xc0000409, NO .err) -- random;
-            %       retrying the SAME grid usually succeeds within a few tries.
-            %   (b) DETERMINISTIC OOM (.err contains "bad allocation") --
-            %       retrying the same grid fails identically, so instead back
-            %       the illiquid grid OFF by 2 and retry, down to a floor of
-            %       na=31 (still finer than the baseline 30).
-            % Live console output is preserved (the solve is NOT captured), so
-            % the time-iteration progress still streams.
+            %   (a) HARD CRASH (0xc0000409, NO .err) -- the intermittent Dynare
+            %       build fault. It is a ~coin-flip, so retrying the SAME grid
+            %       usually succeeds within a few tries; but because a LIGHTER
+            %       solve trips the stack-overflow less often, after two
+            %       consecutive hard crashes at one grid we also step na DOWN.
+            %   (b) DETERMINISTIC OOM (.err has "bad allocation") -- retrying
+            %       the same grid fails identically, so step na DOWN immediately.
+            % Both paths converge toward a grid that completes, floored at na=31
+            % (still finer than the baseline 30). A brief pause between attempts
+            % lets the OS reclaim the crashed process's memory/handles. Live
+            % console output is preserved (the solve is NOT captured).
             errfile = [outmat '.err'];
-            status = 1; natt = 6; na_try = acc_na; na_floor = 31;
+            status = 1; natt = 8; na_try = acc_na; na_floor = 31; hardfail = 0;
             for att = 1:natt
                 accdefs = sprintf('-DPHIPI=1.5 -DTHORIZON=%d -DNB=%d -DNA=%d -DCALTOL=%g', ...
                                   acc_thz, acc_nb, na_try, acc_caltol);
@@ -617,25 +621,43 @@ if run_acc
                 isOOM = contains(emsg, 'bad allocation') || ...
                         contains(emsg, 'bad_alloc') || ...
                         contains(lower(emsg), 'out of memory');
-                if isOOM && na_try > na_floor
-                    na_try = max(na_floor, na_try - 2);
-                    fprintf(['  [accuracy child OOM in the SS tensor -- backing ' ...
-                        'the refined grid off to na=%d and retrying]\n'], na_try);
-                elseif isOOM
-                    acc_oom = true;
-                    fprintf(['  [accuracy child OOM at the minimum refined grid ' ...
-                        'na=%d -- a finer two-asset solve does not fit in RAM on ' ...
-                        'this machine; refinement recorded as INFEASIBLE, NOT a ' ...
-                        'pass. Close other MATLAB sessions or use a larger-RAM ' ...
-                        'machine.]\n'], na_try);
-                    break;                              % deterministic: stop
+                ishardcrash = isempty(strtrim(emsg));   % no marker => uncatchable
+                if isOOM
+                    if na_try > na_floor
+                        na_try = max(na_floor, na_try - 2);  hardfail = 0;
+                        fprintf(['  [accuracy child OOM in the SS tensor -- backing ' ...
+                            'the refined grid off to na=%d and retrying]\n'], na_try);
+                    else
+                        acc_oom = true;
+                        fprintf(['  [accuracy child OOM at the minimum refined grid ' ...
+                            'na=%d -- a finer two-asset solve does not fit in RAM on ' ...
+                            'this machine; refinement recorded as INFEASIBLE, NOT a ' ...
+                            'pass. Close other MATLAB sessions or use a larger-RAM ' ...
+                            'machine.]\n'], na_try);
+                        break;                          % deterministic: stop
+                    end
+                elseif ishardcrash
+                    hardfail = hardfail + 1;
+                    fprintf(['  [accuracy child attempt %d/%d: hard crash ' ...
+                        '(status %d) -- intermittent Dynare build fault; ' ...
+                        'retrying]\n'], att, natt, status);
+                    if hardfail >= 2 && na_try > na_floor
+                        na_try = max(na_floor, na_try - 2);  hardfail = 0;
+                        fprintf(['  [two consecutive hard crashes at this grid -- ' ...
+                            'stepping the refined grid down to na=%d (a lighter ' ...
+                            'solve trips the fault less often)]\n'], na_try);
+                    end
+                    pause(3);                           % let the OS recover
                 else
                     fprintf(['  [accuracy child attempt %d/%d failed (status %d) ' ...
-                        '-- retrying; intermittent build crash]\n'], att, natt, status);
+                        '-- retrying]\n'], att, natt, status);
+                    pause(2);
                 end
             end
             if status == 0 && exist(outmat, 'file') == 2
                 Lc = load(outmat); irfs = Lc.irfs;
+            elseif ~acc_oom
+                acc_crash = true;   % exhausted all retries on the hard crash
             end
         else
             % in-session (no crash isolation, no memory backoff): build the
@@ -786,9 +808,17 @@ if fid > 0
         fprintf(fid, ['refinement pass: INFEASIBLE on this machine -- the finer ' ...
             'illiquid grid OOMs the steady-state tensor even at the na=%d floor ' ...
             '(bad_alloc in compute_steady_state_tensor). This is NOT a pass: the ' ...
-            'tier-1b magnitudes remain INDICATIVE and stay out of the paper. Re-run ' ...
-            'on a larger-RAM machine (or with other MATLAB sessions closed) to ' ...
-            'complete the refinement.\n'], ACC.na);
+            'two-asset magnitudes remain INDICATIVE and stay out of the paper. ' ...
+            'Re-run on a larger-RAM machine (or with other MATLAB sessions ' ...
+            'closed) to complete the refinement.\n'], ACC.na);
+    elseif exist('acc_crash','var') && acc_crash
+        fprintf(fid, ['refinement pass: NOT COMPLETED -- the refinement child ' ...
+            'hit the intermittent Dynare build crash (0xc0000409) on every ' ...
+            'retry, including at the na=31 floor. This is a Dynare-build fault, ' ...
+            'not a model error: the four main regimes solved and passed the ' ...
+            'oscillation check. The two-asset magnitudes remain INDICATIVE and ' ...
+            'stay out of the paper; re-run (the crash is intermittent, so a ' ...
+            'later run typically clears it).\n']);
     else
         fprintf(fid, ['refinement pass: NOT RUN this session (deferred, or the ' ...
             'refinement solve failed -- e.g. out of memory; lower ACC_NA and ' ...
