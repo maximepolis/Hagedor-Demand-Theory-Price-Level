@@ -1822,15 +1822,79 @@ issuance-timed premium leaves the terminal-date premium outside every
 within-horizon equation). The extension therefore closes with a single
 total-wealth clearing condition and a constant premium, and the endogenous
 convenience yield is left to future work. Because a two-asset sequence-space
-solve is numerically delicate, the package wraps it in an explicit accuracy
-protocol --- an oscillation diagnostic on the differenced responses, shock
-persistence held well inside a long truncation horizon, and a refinement
-re-solve on a finer grid that must agree with the baseline before any
-magnitude is reported. Its economics are in any case covered by the
-one-asset responses (Fisher redistribution) and by the nonlinear transition
-below (the $B/P$ margin proper), so it is disclosed as an extension in
-progress rather than a source of headline numbers, and no two-asset
-magnitude is reported here.
+solve is numerically delicate, the responses are reported only after an
+explicit accuracy protocol clears: an oscillation diagnostic on the
+differenced responses (all four regimes score one, the minimum) and a
+refinement re-solve on a finer illiquid grid that must agree with the
+baseline before any magnitude is reported (maximum relative deviation
+$6.7\%$ over the first $120$ quarters, inside the $10\%$ gate). The grids
+remain coarse ($n_e=3$, $n_b=15$, $n_a=30$), so the magnitudes are
+indicative rather than calibrated.
+
+The results (Table~\ref{tab:twoasset}, Figure~\ref{fig:pfig17}) confirm the
+one-asset findings under the richer portfolio and add the two objects the
+extension was built to see. Three findings carry over. \emph{The real green
+path is again rule-independent}: green capital after forty quarters is
+$+0.165$ and avoided damages $-0.0039$ in \emph{every} regime, identical to
+three decimals --- the monetary rule moves nominal quantities, not the
+accumulation of abatement capital. \emph{Deficit financing buys the debt
+path, not the inflation path}: the balanced-budget comparator
+(\textsc{taylorbal}) accumulates real debt of only $+0.008$ after forty
+quarters against $+0.074$--$+0.077$ under the slow debt-stabilizing rule ---
+a tenfold gap --- while impact inflation is essentially unchanged
+($+0.03\%$ against $+0.04\%$ annualized). And \emph{the richer supply side
+dampens impact inflation}: under the Taylor rule it is $+0.04\%$ annualized
+(against $+0.44\%$ in the one-asset exercise), reinforcing the message that
+the inflationary margin is the \emph{financing}, not the program. The two
+new objects are the point of the extension. The \emph{liquid-bond return}
+$r^b$ falls on impact and mirrors inflation almost exactly (e.g.\ $-0.0017$
+against $\pi=+0.0017$ under \textsc{weak}): the Fisher revaluation lands
+specifically on households' \emph{liquid} nominal savings --- the $B/P$
+margin the one-asset exercise cannot separate --- rather than on total
+wealth. And the \emph{equity price} drops $5$--$7\%$ on impact as the
+illiquid asset reprices against the program's future debt and tax path,
+most (a $7.2\%$ drop) under the balanced-budget rule, where taxes rise
+fastest. The extension thus makes the liquid-safe-asset margin at the heart
+of the paper directly observable, and it does so under a substantially
+richer household portfolio and production block; its economics are otherwise
+covered by the one-asset responses (Fisher redistribution) and by the
+nonlinear transition below (the $B/P$ margin proper).
+
+\begin{table}[ht]
+\centering
+\caption{Two-asset heterogeneous-agent impulse responses to the
+quasi-permanent green-investment shock ($\rho_g=0.98$, one percent of
+output) under four monetary/financing regimes. Impact inflation and the
+liquid return are per quarter (inflation also annualized); debt and green
+capital are at forty quarters; the equity-price response is on impact.
+Green capital is rule-independent; the balanced-budget regime
+(\textsc{taylorbal}) isolates the deficit-financing component. Both accuracy
+gates pass (see text).}
+\label{tab:twoasset}
+\begin{tabular}{lcccccc}
+\toprule
+regime & $\pi$ impact (ann.) & $Y$ impact & $r^b$ impact & debt (40q) & $K_g$ (40q) & equity (impact) \\
+\midrule
+\textsc{weak}       & $+0.67\%$ & $+0.0048$ & $-0.0017$ & $+0.074$ & $+0.165$ & $-6.7\%$ \\
+\textsc{taylor}     & $+0.04\%$ & $+0.0052$ & $-0.0001$ & $+0.077$ & $+0.165$ & $-5.2\%$ \\
+\textsc{greenaccom} & $+0.27\%$ & $+0.0054$ & $-0.0007$ & $+0.076$ & $+0.165$ & $-5.4\%$ \\
+\textsc{taylorbal}  & $+0.03\%$ & $+0.0026$ & $-0.0001$ & $+0.008$ & $+0.165$ & $-7.2\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\pfigguard{PFig17_hank2_green_irfs.pdf}{%
+\begin{figure}[ht]\centering
+\includegraphics[width=0.95\textwidth]{PFig17_hank2_green_irfs.pdf}
+\caption{Two-asset heterogeneous-agent impulse responses (output, net
+quarterly inflation, government debt, the liquid-bond return, green capital,
+the equity price) to the quasi-permanent deficit-financed green-investment
+shock under four regimes. The liquid-return panel isolates the Fisher
+revaluation on households' \emph{liquid} nominal savings; the equity-price
+panel is the illiquid asset's repricing. Linearized responses, not the
+nonlinear demand-theory price-level transition.}
+\label{fig:pfig17}
+\end{figure}}
 
 % --------------------------------------------------------------------------
 \subsection{The nonlinear price-level transition}\label{subsec:tier2}
