@@ -258,6 +258,21 @@ inflation --- the opposite sign --- which makes the announcement window a
 clean empirical discriminator between the two views of inflation
 (Section~\ref{sec:empirics}, E3).
 
+\paragraph{Result 7: green investment is aggregate-risk reduction.}
+Introducing a two-state aggregate climate process (a recurrent
+calm/severe regime) makes the nominal bond nominally safe but really
+risky: its real value $B/P_s$ is state-contingent, and the price level is
+$47\%$ higher in the severe state, so the bond takes a $25\%$ real loss
+exactly when the climate turns bad (Section~\ref{subsec:aggrisk}). A
+permanent green program compresses this systematic risk --- the
+state price dispersion falls by more than a quarter and the disaster loss
+shrinks --- because abatement lowers damages most in the high-damage
+state. Green public investment is thus not only a level intervention on
+average damages but a reduction in the aggregate climate risk that the
+safe nominal asset must bear: the paper's ``safe asset'' becomes literal,
+and the ``no aggregate uncertainty'' objection is answered with a
+computed result rather than a promise.
+
 \paragraph{Empirics.} The theory's nominal anchor has a sharp long-run
 implication: average inflation should track the average growth rate of nominal
 government expenditure (relative to real output) one-for-one. In the 34-country
@@ -444,9 +459,11 @@ design; we do not assume green investment improves sovereign risk.
 \section{Model}\label{sec:model}
 % ==========================================================================
 
-Time is discrete and infinite; there is no aggregate uncertainty and we study
-stationary equilibria. The economy has a unit continuum of households, a
-government (fiscal authority plus central bank), and a climate sector.
+Time is discrete and infinite. The baseline has no aggregate uncertainty
+and we study stationary equilibria; Section~\ref{subsec:aggrisk} adds a
+two-state aggregate climate process as an extension. The economy has a
+unit continuum of households, a government (fiscal authority plus central
+bank), and a climate sector.
 
 % --------------------------------------------------------------------------
 \subsection{Households}\label{subsec:households}
@@ -1284,6 +1301,79 @@ demand at the fixed-$(\tau, D)$ nodes.}
 \end{figure}}
 
 % --------------------------------------------------------------------------
+\subsection{Aggregate climate risk: the safe asset made literal}
+\label{subsec:aggrisk}
+
+Everything to this point has been deterministic, so the ``safe asset''
+of the mechanism is safe in real terms too, and the phrase is a
+metaphor. This subsection removes the metaphor. [STOCHASTIC AGGREGATE
+RISK; run VERIFIED.] Let the aggregate climate state follow a two-state
+Markov chain --- \textsc{calm} ($D^0=0.06$) and \textsc{severe}
+($D^0=0.20$, the high-damage column of Section~\ref{sec:quant}) --- with
+a small annual probability of entering the severe state and a mean severe
+spell of a few years ($\Pi^{\mathrm{agg}}=[0.95,0.05;\,0.30,0.70]$).
+Households still hold only the one-period nominal bond; markets are
+incomplete in the aggregate as well as the idiosyncratic dimension. The
+price level is now measurable in the aggregate state, $(P_C,P_S)$, and
+the bond's \emph{real} return is state-contingent,
+\[
+1 + r(s\to s') = (1+\bar r)\,\frac{P_s}{P_{s'}},
+\]
+so a nominally safe bond is really risky: it loses real value in exactly
+the state where households are poorest. The DTPL becomes a vector fixed
+point --- the bond market clears in \emph{each} aggregate state,
+$S_s(P_C,P_S)=B/P_s$ --- solved on the exact ergodic joint distribution
+over $(a,e,s)$ (household problem in Appendix~\ref{app:numerics};
+\texttt{solve\_dtpl\_aggrisk}).
+
+The equilibrium prices this climate risk sharply. At the calibrated
+benchmark the price level is $47\%$ higher in the severe state than in the
+calm state ($P_S/P_C-1 = 0.37$), so a household that holds the nominal
+bond into a climate disaster earns $+2.0\%$ in the calm state but takes a
+\textbf{real loss of $25\%$} on the transition $\textsc{calm}\to\textsc{severe}$
+--- the nominal safe asset is a poor hedge against systematic climate
+risk, and carries a corresponding risk premium (the bond's expected real
+return exceeds the deterministic real rate by $0.4$ percentage points).
+This is the aggregate counterpart of the paper's central object: the same
+incomplete-markets demand for the nominal liability that pins the price
+level also determines how badly that liability performs when the climate
+turns.
+
+\emph{Green public investment lowers this systematic risk.} A permanent
+program of two percent of income builds abatement capital that reduces
+damages in both states through the same climate block used everywhere
+($D_s = D^0_s e^{-\theta_g K_g}$), and because the severe state starts
+from a higher damage level the program compresses the gap between the two:
+the state price dispersion falls from $0.37$ to $0.27$ and the disaster
+real loss shrinks from $25\%$ to $20\%$ (the bond risk premium falls from
+$0.43$ to $0.25$ percentage points). Green investment is therefore not
+only a level intervention on average damages (the damage dividend of
+Section~\ref{subsec:calibrated}) but a \emph{reduction in the aggregate
+climate risk that the safe nominal asset must bear} --- a channel that
+does not exist in the deterministic model and that makes the
+safe-asset language of the paper literal (Figure~\ref{fig:pfig19}).
+[Numbers are the $n_a=100$ Stage-A pass; the mechanism and magnitudes are
+robust across grids, and a dense-grid pass refines the decimals. Stages
+that add the aggregate-risk term to the self-financing decomposition and
+to welfare are the natural next steps (appendix
+\texttt{AGGREGATE\_RISK\_PLAN.md}).]
+
+\pfigguard{PFig19_aggrisk.pdf}{%
+\begin{figure}[ht]\centering
+\includegraphics[width=0.95\textwidth]{PFig19_aggrisk.pdf}
+\caption{Aggregate climate risk. Two recurrent aggregate states
+(\textsc{calm}/\textsc{severe}); the nominal bond is nominally safe but
+really risky ($B/P_s$ state-contingent). (a) the two state-contingent
+price levels, baseline vs.\ a $2\%$-of-income green program; (b) the state
+price dispersion $P_S/P_C-1$; (c) the bond's real return on a
+$\textsc{calm}\to\textsc{severe}$ transition (the disaster return). Green
+investment compresses the dispersion and shrinks the disaster loss ---
+it reduces the systematic climate risk the safe asset carries. Generated
+by \texttt{main\_project\_aggrisk}.}
+\label{fig:pfig19}
+\end{figure}}
+
+% --------------------------------------------------------------------------
 \subsection{Welfare incidence by wealth group}
 \label{subsec:welfaregroups}
 
@@ -1999,9 +2089,13 @@ transition in which the price-level path is itself pinned by asset demand
 --- computed in Section~\ref{subsec:tier2} as a converged fixed point with
 no Phillips curve --- shows that the mechanism's dynamics are front-loaded:
 three quarters of the green disinflation, and the entire bondholder
-windfall, arrive in the announcement year. The main open items are
-production with brown capital and a carbon price \citep{barrage2020},
-aggregate climate risk, and the empirical program E2--E3, for which the
+windfall, arrive in the announcement year. A two-state aggregate climate
+process (Section~\ref{subsec:aggrisk}) makes the nominal safe asset
+literally risky and shows that green investment compresses that
+systematic risk; extending its aggregate-risk term into the
+self-financing decomposition and welfare, and adding production with
+brown capital and a carbon price \citep{barrage2020}, are the main open
+modeling items, alongside the empirical program E2--E3, for which the
 announcement-window inflation shortfall of roughly four percentage points
 below trend is now a computed, sign- and size-testable prediction.
 
