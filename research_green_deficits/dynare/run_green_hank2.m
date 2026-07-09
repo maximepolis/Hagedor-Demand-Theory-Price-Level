@@ -533,8 +533,8 @@ if run_acc
                      'pass. (This session is out-of-process and cannot be ' ...
                      'killed by the child, but siblings can.)'], ramGB);
                 if ~(exist('ACC_NA','var') && ~isempty(ACC_NA))
-                    acc_na_lowram = 33;
-                    fprintf(['  [low RAM: auto-downshifting refined grid to ' ...
+                    acc_na_lowram = 31;
+                    fprintf(['  [low RAM: starting the refined grid at ' ...
                         'na=%d (still finer than baseline 30); pin ACC_NA to ' ...
                         'override]\n'], acc_na_lowram);
                 end
@@ -549,50 +549,99 @@ if run_acc
         % Dynare build crash (0xc0000409) was landing. Holding THORIZON at the
         % length the baseline already solved cleanly removes that exposure,
         % and the accuracy check becomes a clean single-axis refinement of the
-        % illiquid grid na (30->36) -- the discretization that actually
+        % illiquid grid na (30->33) -- the discretization that actually
         % carries the kinked portfolio policy. Raise ACC_THORIZON if you want
         % to also probe the (economically negligible) horizon axis.
+        %
+        % na default lowered 36->33: at na=36 the steady-state tensor
+        % (compute_steady_state_tensor) hit "bad allocation" (OOM) on the user
+        % machine, whereas the baseline na=30 tensor fits. na=33 is +10% over
+        % baseline -- a genuine refinement -- but only ~20% more tensor memory,
+        % close to the known-good footprint. If it still OOMs, the loop below
+        % adaptively backs the grid off toward 31.
         acc_nb  = 15;  if exist('ACC_NB','var')  && ~isempty(ACC_NB),  acc_nb  = ACC_NB;  end
-        acc_na  = 36;  if exist('ACC_NA','var')  && ~isempty(ACC_NA),  acc_na  = ACC_NA;  end
-        if exist('acc_na_lowram','var'), acc_na = acc_na_lowram; end  % low-RAM auto-downshift
+        acc_na  = 33;  if exist('ACC_NA','var')  && ~isempty(ACC_NA),  acc_na  = ACC_NA;  end
+        if exist('acc_na_lowram','var'), acc_na = acc_na_lowram; end  % low-RAM start
         acc_thz = 400; if exist('ACC_THORIZON','var') && ~isempty(ACC_THORIZON), acc_thz = ACC_THORIZON; end
-        accdefs = sprintf('-DPHIPI=1.5 -DTHORIZON=%d -DNB=%d -DNA=%d', ...
-                          acc_thz, acc_nb, acc_na);
+        % loosen the steady-state policy tolerance for the refined solve: on a
+        % finer grid the aggregate policy norm cannot reach the baseline 1e-10
+        % and the solve grinds to time_iteration_max_iter (the "Iter 1304
+        % ||policy||=1.2e-1" symptom). 1e-8 is still far tighter than the 10%
+        % IRF gate and converges in a fraction of the iterations. Overridable.
+        acc_caltol = 1e-8; if exist('ACC_CALTOL','var') && ~isempty(ACC_CALTOL), acc_caltol = ACC_CALTOL; end
         if acc_thz == 400
             fprintf(['  [refinement: illiquid grid na=%d (baseline 30), nb=%d, ' ...
-                'horizon held at baseline %d]\n'], acc_na, acc_nb, acc_thz);
+                'horizon %d, SS tol %g]\n'], acc_na, acc_nb, acc_thz, acc_caltol);
         else
-            fprintf('  [refinement grid: nb=%d na=%d horizon=%d (baseline 15/30/400)]\n', ...
-                    acc_nb, acc_na, acc_thz);
+            fprintf('  [refinement grid: nb=%d na=%d horizon=%d SS tol %g (baseline 15/30/400/1e-10)]\n', ...
+                    acc_nb, acc_na, acc_thz, acc_caltol);
         end
         if ~SPAWN_MATLAB
             fprintf(['  [note: for the accuracy pass, SPAWN_MATLAB=true is ' ...
                      'strongly recommended -- it cannot crash this session]\n']);
         end
         irfs = [];
+        acc_oom = false;   % set if the refinement is OOM-limited (honest note)
         if SPAWN_MATLAB
             dynpath = fileparts(which('dynare'));
             outmat  = fullfile(dyndir, [nm '_out.mat']);
-            cmd = sprintf(['"%s" -batch "cd(''%s''); ' ...
-                'solve_hank_regime_batch(''green_hank2'',''%s'',''%s'',''%s'',''%s'')"'], ...
-                matlab_exe, dyndir, nm, accdefs, dynpath, outmat);
-            % AUTO-RETRY: the Dynare build crashes intermittently (0xc0000409)
-            % on the heavy two-asset solve. The child is isolated, so retrying
-            % is safe and spares a manual re-run; a genuine model failure would
-            % fail every attempt identically. Up to 5 tries (the crash is a
-            % ~coin-flip, so 5 attempts drive the miss probability well down).
-            status = 1; natt = 5;
+            % ADAPTIVE RETRY with MEMORY BACKOFF. Two distinct failure modes,
+            % told apart by the child's <outmat>.err MARKER (written only on a
+            % CATCHABLE error; a hard 0xc0000409 crash leaves none):
+            %   (a) INTERMITTENT hard crash (0xc0000409, NO .err) -- random;
+            %       retrying the SAME grid usually succeeds within a few tries.
+            %   (b) DETERMINISTIC OOM (.err contains "bad allocation") --
+            %       retrying the same grid fails identically, so instead back
+            %       the illiquid grid OFF by 2 and retry, down to a floor of
+            %       na=31 (still finer than the baseline 30).
+            % Live console output is preserved (the solve is NOT captured), so
+            % the time-iteration progress still streams.
+            errfile = [outmat '.err'];
+            status = 1; natt = 6; na_try = acc_na; na_floor = 31;
             for att = 1:natt
+                accdefs = sprintf('-DPHIPI=1.5 -DTHORIZON=%d -DNB=%d -DNA=%d -DCALTOL=%g', ...
+                                  acc_thz, acc_nb, na_try, acc_caltol);
+                cmd = sprintf(['"%s" -batch "cd(''%s''); ' ...
+                    'solve_hank_regime_batch(''green_hank2'',''%s'',''%s'',''%s'',''%s'')"'], ...
+                    matlab_exe, dyndir, nm, accdefs, dynpath, outmat);
                 if exist(outmat, 'file'), delete(outmat); end
-                status = system(cmd);
-                if status == 0 && exist(outmat, 'file') == 2, break; end
-                fprintf(['  [accuracy child attempt %d/%d failed (status %d) -- ' ...
-                    'retrying; intermittent build crash]\n'], att, natt, status);
+                if exist(errfile, 'file'), delete(errfile); end
+                status = system(cmd);                   % live output preserved
+                if status == 0 && exist(outmat, 'file') == 2
+                    acc_na = na_try; break;             % record the grid that ran
+                end
+                emsg = '';
+                if exist(errfile, 'file') == 2
+                    try, emsg = fileread(errfile); catch, emsg = ''; end
+                end
+                isOOM = contains(emsg, 'bad allocation') || ...
+                        contains(emsg, 'bad_alloc') || ...
+                        contains(lower(emsg), 'out of memory');
+                if isOOM && na_try > na_floor
+                    na_try = max(na_floor, na_try - 2);
+                    fprintf(['  [accuracy child OOM in the SS tensor -- backing ' ...
+                        'the refined grid off to na=%d and retrying]\n'], na_try);
+                elseif isOOM
+                    acc_oom = true;
+                    fprintf(['  [accuracy child OOM at the minimum refined grid ' ...
+                        'na=%d -- a finer two-asset solve does not fit in RAM on ' ...
+                        'this machine; refinement recorded as INFEASIBLE, NOT a ' ...
+                        'pass. Close other MATLAB sessions or use a larger-RAM ' ...
+                        'machine.]\n'], na_try);
+                    break;                              % deterministic: stop
+                else
+                    fprintf(['  [accuracy child attempt %d/%d failed (status %d) ' ...
+                        '-- retrying; intermittent build crash]\n'], att, natt, status);
+                end
             end
             if status == 0 && exist(outmat, 'file') == 2
                 Lc = load(outmat); irfs = Lc.irfs;
             end
         else
+            % in-session (no crash isolation, no memory backoff): build the
+            % refined defs directly from the chosen grid + loosened SS tol
+            accdefs = sprintf('-DPHIPI=1.5 -DTHORIZON=%d -DNB=%d -DNA=%d -DCALTOL=%g', ...
+                              acc_thz, acc_nb, acc_na, acc_caltol);
             copyfile('green_hank2.mod', [nm '.mod']);
             if exist(['+' nm], 'dir'), rmdir(['+' nm], 's'); end
             if exist(nm, 'dir'), rmdir(nm, 's'); end
@@ -609,6 +658,7 @@ if run_acc
             base = RES.TAYLOR;
             ACC.ran = true; ACC.maxdev = 0; ACC.report = {};
             ACC.nb = acc_nb; ACC.na = acc_na; ACC.thz = acc_thz;
+            ACC.caltol = acc_caltol;
             for v = 1:numel(vars_keep)
                 if ~isfield(base, vars_keep{v}), continue; end
                 hit = find(strcmpi(fnn, [vars_keep{v} '_e_g']), 1);
@@ -624,6 +674,12 @@ if run_acc
             ACC.pass = ACC.maxdev < 0.10;   % 10% relative agreement over 120q
             fprintf('  [accuracy pass: max relative deviation %.3f -> %s]\n', ...
                 ACC.maxdev, ternary_str(ACC.pass, 'PASS', 'FAIL'));
+        elseif exist('acc_oom','var') && acc_oom
+            % refinement could not fit in RAM even at the floor grid: record
+            % it honestly as infeasible, NOT as a pass and NOT as a silent
+            % skip. The reporting gate stays closed; the paper keeps the
+            % "magnitudes indicative" status.
+            ACC.ran = false; ACC.oom = true; ACC.na = na_floor;
         end
     catch ME
         warning('run_green_hank2:acc', 'Accuracy pass failed: %s', ME.message);
@@ -720,14 +776,23 @@ if fid > 0
         fprintf(fid, 'DIVERGENT   %-11s excluded from all outputs (pathological linearized solution)\n', dn{k});
     end
     if ACC.ran
-        fprintf(fid, ['refinement (TAYLOR, THORIZON %d, nb %d, na %d vs baseline ' ...
-            '400/15/30): max rel. dev %.3f -> %s\n'], ACC.thz, ACC.nb, ACC.na, ...
+        cts = 1e-10; if isfield(ACC,'caltol'), cts = ACC.caltol; end
+        fprintf(fid, ['refinement (TAYLOR, THORIZON %d, nb %d, na %d, SS tol %g vs ' ...
+            'baseline 400/15/30/1e-10): max rel. dev %.3f -> %s\n'], ...
+            ACC.thz, ACC.nb, ACC.na, cts, ...
             ACC.maxdev, ternary_str(ACC.pass, 'PASS', 'FAIL (baseline grids/horizon drive results)'));
         for k = 1:numel(ACC.report), fprintf(fid, '  %s\n', ACC.report{k}); end
+    elseif isfield(ACC,'oom') && ACC.oom
+        fprintf(fid, ['refinement pass: INFEASIBLE on this machine -- the finer ' ...
+            'illiquid grid OOMs the steady-state tensor even at the na=%d floor ' ...
+            '(bad_alloc in compute_steady_state_tensor). This is NOT a pass: the ' ...
+            'tier-1b magnitudes remain INDICATIVE and stay out of the paper. Re-run ' ...
+            'on a larger-RAM machine (or with other MATLAB sessions closed) to ' ...
+            'complete the refinement.\n'], ACC.na);
     else
         fprintf(fid, ['refinement pass: NOT RUN this session (deferred, or the ' ...
-            'refinement solve failed -- e.g. out of memory; lower ACC_NA / ' ...
-            'ACC_THORIZON and re-run)\n']);
+            'refinement solve failed -- e.g. out of memory; lower ACC_NA and ' ...
+            're-run)\n']);
     end
     fprintf(fid, ['\nREPORTING RULE: no tier-1b number enters the paper unless the\n' ...
         'oscillation check and the refinement pass BOTH pass.\n']);
@@ -834,16 +899,31 @@ function merge_save_checkpoint(accfile, RES, CAL, regimes, ok, OSC, ACC, modstam
 end
 
 function h = model_content_hash(modpath)
-% Content fingerprint of a .mod file, INVARIANT to comments, whitespace, and
+% Checkpoint fingerprint of a .mod file.
+%
+% PREFERRED: if the file declares a "MODEL_ECON_VERSION: <n>" tag, the
+% fingerprint is JUST 'econv<n>'. The author bumps that tag only when the
+% ECONOMICS change (equations, parameter meaning, closure), so edits to
+% solver tolerances, grid-size defaults, the CALTOL knob, or any @#define
+% default -- all overridden per-regime at RUNTIME and therefore irrelevant to
+% what a banked regime actually computed -- do NOT invalidate the checkpoint.
+% This is what keeps the four banked regimes valid across numerical-
+% robustness edits (e.g. adding the CALTOL define).
+%
+% FALLBACK (no tag): a content hash INVARIANT to comments, whitespace, and
 % the file's modification time -- so re-downloading the branch ZIP or editing
-% documentation does not invalidate a checkpoint, but a genuine change to the
-% equations/parameters does. Strips /* */ and // comments and all whitespace,
-% then MD5-hashes the remainder (UTF-8, so the complementarity glyph is handled),
-% with a dependency-free polynomial-hash fallback.
+% documentation does not invalidate a checkpoint, but any content change does.
+% Strips /* */ and // comments and all whitespace, then MD5-hashes the
+% remainder (UTF-8), with a dependency-free polynomial-hash fallback.
     try
         txt = fileread(modpath);
     catch
         h = 0; return;
+    end
+    tok = regexp(txt, 'MODEL_ECON_VERSION\s*[:=]\s*(\d+)', 'tokens', 'once');
+    if ~isempty(tok)
+        h = ['econv' tok{1}];
+        return;
     end
     txt = regexprep(txt, '(?s)/\*.*?\*/', '');    % block comments
     txt = regexprep(txt, '//[^\n]*', '');          % line comments

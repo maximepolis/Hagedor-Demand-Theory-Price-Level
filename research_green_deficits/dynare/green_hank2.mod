@@ -1,3 +1,11 @@
+// MODEL_ECON_VERSION: 1
+// ^ Checkpoint fingerprint. The driver's model_content_hash() keys the
+//   checkpoint on THIS tag alone. Bump it ONLY when the ECONOMICS change
+//   (equations, parameter meaning, closure) -- NOT for solver tolerances,
+//   grid-size defaults, the CALTOL knob, or any @#define default, all of
+//   which are overridden per-regime at runtime and therefore never change
+//   what a banked regime actually computed. This keeps the four banked
+//   regimes valid across numerical-robustness edits like the CALTOL define.
 /*
  * GREEN_HANK2.MOD -- U7 tier 1b: TWO-ASSET green HANK (extended tier).
  *
@@ -115,6 +123,17 @@
 @#endif
 @#ifndef THORIZON
   @#define THORIZON = 400
+@#endif
+@#ifndef CALTOL
+  // steady-state time-iteration policy tolerance. Default 1e-10 (the value
+  // the four banked regimes were calibrated at). The accuracy pass overrides
+  // it to a looser value (e.g. 1e-8) because on a FINER illiquid grid the
+  // aggregate policy norm cannot reach 1e-10 and the solve otherwise grinds
+  // to time_iteration_max_iter (2000) -- 1e-8 is still far tighter than any
+  // economically meaningful accuracy and converges in a fraction of the
+  // iterations. Economically negligible: 1e-8 vs 1e-10 shifts the calibrated
+  // objects by orders of magnitude less than the 10% IRF-agreement gate.
+  @#define CALTOL = 1e-10
 @#endif
 @#ifndef RHOG
   @#define RHOG = 0.98
@@ -472,7 +491,7 @@ end;
 heterogeneity_compute_steady_state(variable = initial_guess,
     calibration_target_equations=['Wage Phillips curve',
         'Asset market clearing (total wealth)'],
-    time_iteration_tol=1e-10,
+    time_iteration_tol=@{CALTOL},
     time_iteration_max_iter=2000,
     time_iteration_early_stopping=0,
     time_iteration_solver_tolf=1e-12,

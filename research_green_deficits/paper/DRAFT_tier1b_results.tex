@@ -16,11 +16,12 @@
 % If the refinement shifts any number, update it here from the refined
 % grid before merging.
 %
-% NOTE: the refined grid (horizon/nb/na) is printed verbatim in the
-% "refinement (TAYLOR, THORIZON ..., nb ..., na ...)" line of
-% hank2_validation.txt. The default refined na is 36 (overridable via
-% ACC_NA); set the "$n_a=..$" in the sentence below to whatever that line
-% reports, and put the reported "max rel. dev" in place of [XX].
+% NOTE: the refined grid (horizon/nb/na/SS-tol) is printed verbatim in the
+% "refinement (TAYLOR, THORIZON ..., nb ..., na ..., SS tol ...)" line of
+% hank2_validation.txt. The default refined na is 33 (may auto-back-off to
+% 31 under memory pressure; overridable via ACC_NA); set the "$n_a=..$" in
+% the sentence below to whatever that line actually reports, and put the
+% reported "max rel. dev" in place of [XX].
 %
 % WHERE IT GOES: replace the final bracket of the "A two-asset tier"
 % paragraph -- currently
@@ -31,7 +32,7 @@
 % =====================================================================
 
 With both accuracy gates cleared (oscillation scores of one on every
-regime; a re-solve on a finer illiquid grid ($n_a=36$ against the baseline
+regime; a re-solve on a finer illiquid grid ($n_a=33$ against the baseline
 $n_a=30$, at the common truncation horizon of $400$ quarters --- beyond
 which the $\rho_g=0.98$ response has decayed to $\sim\!3\times10^{-4}$ of
 impact, so the horizon does not bind) agreeing with the baseline within
