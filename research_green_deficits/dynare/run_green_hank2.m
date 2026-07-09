@@ -585,15 +585,18 @@ if run_acc
         if SPAWN_MATLAB
             dynpath = fileparts(which('dynare'));
             outmat  = fullfile(dyndir, [nm '_out.mat']);
-            % ADAPTIVE RETRY with MEMORY BACKOFF. Two distinct failure modes:
-            %   (a) INTERMITTENT hard crash (0xc0000409) -- random; retrying
-            %       the SAME grid usually succeeds within a few attempts.
-            %   (b) DETERMINISTIC OOM ("bad allocation" in the steady-state
-            %       tensor) -- retrying the same grid fails identically, so
-            %       instead we back the illiquid grid OFF by 2 and retry, down
-            %       to a floor of na=31 (still finer than the baseline 30).
-            % The child's console is CAPTURED (and echoed) so the parent can
-            % tell the two apart from the text.
+            % ADAPTIVE RETRY with MEMORY BACKOFF. Two distinct failure modes,
+            % told apart by the child's <outmat>.err MARKER (written only on a
+            % CATCHABLE error; a hard 0xc0000409 crash leaves none):
+            %   (a) INTERMITTENT hard crash (0xc0000409, NO .err) -- random;
+            %       retrying the SAME grid usually succeeds within a few tries.
+            %   (b) DETERMINISTIC OOM (.err contains "bad allocation") --
+            %       retrying the same grid fails identically, so instead back
+            %       the illiquid grid OFF by 2 and retry, down to a floor of
+            %       na=31 (still finer than the baseline 30).
+            % Live console output is preserved (the solve is NOT captured), so
+            % the time-iteration progress still streams.
+            errfile = [outmat '.err'];
             status = 1; natt = 6; na_try = acc_na; na_floor = 31;
             for att = 1:natt
                 accdefs = sprintf('-DPHIPI=1.5 -DTHORIZON=%d -DNB=%d -DNA=%d -DCALTOL=%g', ...
@@ -602,14 +605,18 @@ if run_acc
                     'solve_hank_regime_batch(''green_hank2'',''%s'',''%s'',''%s'',''%s'')"'], ...
                     matlab_exe, dyndir, nm, accdefs, dynpath, outmat);
                 if exist(outmat, 'file'), delete(outmat); end
-                [status, out] = system(cmd);
-                fprintf('%s', out);                     % stream the child log
+                if exist(errfile, 'file'), delete(errfile); end
+                status = system(cmd);                   % live output preserved
                 if status == 0 && exist(outmat, 'file') == 2
                     acc_na = na_try; break;             % record the grid that ran
                 end
-                isOOM = contains(out, 'bad allocation') || ...
-                        contains(out, 'bad_alloc') || ...
-                        contains(lower(out), 'out of memory');
+                emsg = '';
+                if exist(errfile, 'file') == 2
+                    try, emsg = fileread(errfile); catch, emsg = ''; end
+                end
+                isOOM = contains(emsg, 'bad allocation') || ...
+                        contains(emsg, 'bad_alloc') || ...
+                        contains(lower(emsg), 'out of memory');
                 if isOOM && na_try > na_floor
                     na_try = max(na_floor, na_try - 2);
                     fprintf(['  [accuracy child OOM in the SS tensor -- backing ' ...
