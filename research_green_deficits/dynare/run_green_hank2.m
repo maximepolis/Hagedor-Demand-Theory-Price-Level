@@ -46,9 +46,9 @@
 %                                                   % resume from checkpoint)
 %         >> RUN_ACCURACY = true;  TIER1B_FORCE = true; run_green_hank2
 %                                                   % + the refinement re-solve
-%                                                   % (memory-light defaults;
-%                                                   % if OOM, set ACC_NA=36 or
-%                                                   % ACC_THORIZON=450 first)
+%                                                   % (grid na 30->36 at the
+%                                                   % baseline horizon 400; if
+%                                                   % OOM lower ACC_NA to 33)
 %         >> FORCE_RERUN  = true;  run_green_hank2  % re-solve everything
 %         >> SPAWN_MATLAB = false; run_green_hank2  % in-session solves
 %         >> RUN_ACCURACY = true;  run_green_hank2  % force refinement pass
@@ -442,28 +442,44 @@ for k = 1:numel(rn)
 end
 
 % ---- ACCURACY REFINEMENT PASS (accuracy protocol, step 2) ----
-% Re-solve the TAYLOR regime with a LONGER truncation horizon and a FINER
-% ILLIQUID grid, then compare IRFs. If the baseline solution is accurate,
-% the two agree closely; a large gap means the baseline discretization is
+% Re-solve the TAYLOR regime with a FINER ILLIQUID grid (na 30->36) at the
+% baseline truncation horizon, then compare IRFs. If the baseline solution
+% is accurate, the two agree closely; a large gap means the baseline grid is
 % driving the results.
+%
+% HORIZON (2026-07-09): the refinement holds THORIZON at the baseline 400
+% rather than extending to 500. The truncation horizon is NOT a binding
+% discretization for this shock -- with rho_g=0.98 the IRF has decayed to
+% e^{-0.02*400}=e^{-8}~3e-4 of impact by quarter 400, so quarters 400..500
+% are numerically dead and refining the horizon buys no accuracy. It DID,
+% however, add 100 time-iteration steps to the heaviest solve in the
+% package, which is exactly where the intermittent Dynare build crash
+% (0xc0000409) was landing mid-iteration. Holding the horizon at the length
+% the baseline already solved cleanly removes that exposure and isolates the
+% single discretization that actually matters here -- the illiquid grid.
 %
 % MEMORY NOTE (2026-07-07): the sequence-space Jacobian and the
 % steady-state tensor both scale ~ (ne*nb*na)^2, so refining BOTH liquid
 % and illiquid grids (the old nb=20,na=40) OOMs on a typical machine
 % (observed: "Out of memory" in compute_steady_state_tensor). The
 % refinement therefore, by default, refines ONLY the illiquid dimension
-% na -- which carries the kinked portfolio-adjustment policy and is the
-% discretization most likely to move the IRFs -- and the horizon, holding
-% nb at baseline. All three are workspace-overridable (ACC_NB / ACC_NA /
-% ACC_THORIZON) so you can dial to your RAM: if this still OOMs, lower
-% ACC_NA (e.g. 36) or ACC_THORIZON (e.g. 450); if you have headroom, raise
-% ACC_NB to also refine the liquid grid.
+% na (30->36) -- which carries the kinked portfolio-adjustment policy and is
+% the discretization most likely to move the IRFs -- holding nb AND the
+% truncation horizon at baseline. All three are workspace-overridable
+% (ACC_NB / ACC_NA / ACC_THORIZON) so you can dial to your RAM: if this
+% still OOMs, lower ACC_NA (e.g. 33); if you have headroom, raise ACC_NB to
+% also refine the liquid grid.
 %
 % CRASH NOTE: this is the HEAVIEST solve in the package. It runs by
 % default ONLY when every main regime came from the checkpoint (fresh
 % session, full memory headroom); otherwise it defers with a message.
 % Force it with RUN_ACCURACY = true; with SPAWN_MATLAB = true (the
-% default) it runs out of process and cannot crash or OOM this session.
+% default) it runs out of process and cannot crash or OOM THIS session.
+% MEMORY NOTE: it CAN still exhaust the whole machine's RAM if other
+% MATLAB sessions are open -- a whole-machine OOM takes those siblings
+% down too. CLOSE OTHER MATLAB SESSIONS before the accuracy pass. A
+% pre-flight RAM guard (below) warns and auto-downshifts the grid when
+% free memory is tight.
 run_acc = isfield(RES, 'TAYLOR') && all(restored(ok)) && ...
     ~(exist('REGIME_ONLY','var') && ~isempty(REGIME_ONLY));
 if exist('RUN_ACCURACY', 'var') && RUN_ACCURACY, run_acc = isfield(RES,'TAYLOR'); end
@@ -495,20 +511,60 @@ if run_acc
         clear functions; %#ok<CLFUNC>
         try, clear mex; catch, end %#ok<CLMEX,NOCOM>
         clear oo_ M_ options_;
+        % ---- PRE-FLIGHT MEMORY GUARD ----
+        % The refinement is the heaviest allocation in the package (the
+        % steady-state tensor and the sequence-space Jacobian both scale
+        % ~(ne*nb*na)^2). If the machine is ALREADY low on RAM -- most often
+        % because other MATLAB sessions are open -- this solve can exhaust
+        % physical memory, and the OS then kills processes to recover: the
+        % "crash" is a WHOLE-MACHINE OOM that takes sibling MATLAB sessions
+        % down with it, not something confined to this child. Measure free
+        % RAM (after the clears above) and, if it is tight, warn loudly and
+        % auto-downshift the refined grid unless the user pinned ACC_NA.
+        ramGB = avail_ram_gb();
+        if ~isnan(ramGB)
+            fprintf('  [available RAM: %.1f GB]\n', ramGB);
+            if ramGB < 5
+                warning('run_green_hank2:lowram', ...
+                    ['Only %.1f GB RAM free. The two-asset refinement can ' ...
+                     'exhaust memory and crash OTHER open MATLAB sessions ' ...
+                     '(a whole-machine OOM). STRONGLY recommended: close ' ...
+                     'other MATLAB sessions before running the accuracy ' ...
+                     'pass. (This session is out-of-process and cannot be ' ...
+                     'killed by the child, but siblings can.)'], ramGB);
+                if ~(exist('ACC_NA','var') && ~isempty(ACC_NA))
+                    acc_na_lowram = 33;
+                    fprintf(['  [low RAM: auto-downshifting refined grid to ' ...
+                        'na=%d (still finer than baseline 30); pin ACC_NA to ' ...
+                        'override]\n'], acc_na_lowram);
+                end
+            end
+        end
         nm = 'grn2_taylor_acc';
-        % memory-light refinement over the 400/15/30 baseline: refine the
-        % illiquid grid na (30->40) and the horizon (400->500), hold nb
-        % (15). ~1800 states vs the old 2400 that OOMed. Overridable.
-        % lighter default refinement (na 30->36, not 40) trims the heaviest
-        % solve's peak memory/time and so its crash exposure, while still
-        % refining the illiquid grid that carries the kinked portfolio policy.
+        % Refine the GRID, hold the horizon at the baseline 400. The horizon
+        % is NOT a binding discretization here: with rho_g=0.98 the IRF has
+        % decayed to e^{-0.02*400}=e^{-8}~3e-4 of impact by quarter 400, so
+        % extending the truncation to 500 changes the IRF by nothing yet adds
+        % 100 more time-iteration steps -- precisely where the intermittent
+        % Dynare build crash (0xc0000409) was landing. Holding THORIZON at the
+        % length the baseline already solved cleanly removes that exposure,
+        % and the accuracy check becomes a clean single-axis refinement of the
+        % illiquid grid na (30->36) -- the discretization that actually
+        % carries the kinked portfolio policy. Raise ACC_THORIZON if you want
+        % to also probe the (economically negligible) horizon axis.
         acc_nb  = 15;  if exist('ACC_NB','var')  && ~isempty(ACC_NB),  acc_nb  = ACC_NB;  end
         acc_na  = 36;  if exist('ACC_NA','var')  && ~isempty(ACC_NA),  acc_na  = ACC_NA;  end
-        acc_thz = 500; if exist('ACC_THORIZON','var') && ~isempty(ACC_THORIZON), acc_thz = ACC_THORIZON; end
+        if exist('acc_na_lowram','var'), acc_na = acc_na_lowram; end  % low-RAM auto-downshift
+        acc_thz = 400; if exist('ACC_THORIZON','var') && ~isempty(ACC_THORIZON), acc_thz = ACC_THORIZON; end
         accdefs = sprintf('-DPHIPI=1.5 -DTHORIZON=%d -DNB=%d -DNA=%d', ...
                           acc_thz, acc_nb, acc_na);
-        fprintf('  [refinement grid: nb=%d na=%d horizon=%d (baseline 15/30/400)]\n', ...
-                acc_nb, acc_na, acc_thz);
+        if acc_thz == 400
+            fprintf(['  [refinement: illiquid grid na=%d (baseline 30), nb=%d, ' ...
+                'horizon held at baseline %d]\n'], acc_na, acc_nb, acc_thz);
+        else
+            fprintf('  [refinement grid: nb=%d na=%d horizon=%d (baseline 15/30/400)]\n', ...
+                    acc_nb, acc_na, acc_thz);
+        end
         if ~SPAWN_MATLAB
             fprintf(['  [note: for the accuracy pass, SPAWN_MATLAB=true is ' ...
                      'strongly recommended -- it cannot crash this session]\n']);
@@ -696,6 +752,28 @@ end
 
 function s = ternary_str(cond, a, b)
     if cond, s = a; else, s = b; end
+end
+
+function g = avail_ram_gb()
+% Best-effort AVAILABLE system RAM in GB (NaN if it cannot be determined).
+% Windows uses the MATLAB 'memory' builtin (MemAvailableAllArrays -- the
+% amount MATLAB can actually allocate, which is what the heavy tensor/
+% Jacobian needs); Linux reads MemAvailable from /proc/meminfo. Used only
+% to warn the user and auto-downshift the refined grid when RAM is tight;
+% never fatal, so any failure just returns NaN and skips the guard.
+    g = NaN;
+    try
+        if ispc
+            u = memory;                                  % 'user' struct
+            g = u.MemAvailableAllArrays / 2^30;
+        elseif isunix && ~ismac
+            txt = fileread('/proc/meminfo');
+            tok = regexp(txt, 'MemAvailable:\s*(\d+)\s*kB', 'tokens', 'once');
+            if ~isempty(tok), g = str2double(tok{1}) / 2^20; end
+        end
+    catch
+        g = NaN;
+    end
 end
 
 function merge_save_checkpoint(accfile, RES, CAL, regimes, ok, OSC, ACC, modstamp)
