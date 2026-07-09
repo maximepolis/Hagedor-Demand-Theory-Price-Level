@@ -16,6 +16,12 @@
 % If the refinement shifts any number, update it here from the refined
 % grid before merging.
 %
+% NOTE: the refined grid (horizon/nb/na) is printed verbatim in the
+% "refinement (TAYLOR, THORIZON ..., nb ..., na ...)" line of
+% hank2_validation.txt. The default refined na is 36 (overridable via
+% ACC_NA); set the "$n_a=..$" in the sentence below to whatever that line
+% reports, and put the reported "max rel. dev" in place of [XX].
+%
 % WHERE IT GOES: replace the final bracket of the "A two-asset tier"
 % paragraph -- currently
 %   "[TIER-1b: IMPLEMENTED; all four regimes solve and pass the
@@ -25,7 +31,7 @@
 % =====================================================================
 
 With both accuracy gates cleared (oscillation scores of one on every
-regime; the refined re-solve --- horizon 500, illiquid grid $n_a=40$ ---
+regime; the refined re-solve --- horizon 500, illiquid grid $n_a=36$ ---
 agreeing with the baseline within [XX]\%), the two-asset tier is
 reportable, and it delivers the robustness the extension was built for.
 The calibration clears the wage Phillips curve and the total-wealth market
