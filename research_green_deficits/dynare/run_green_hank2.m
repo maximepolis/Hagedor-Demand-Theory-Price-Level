@@ -474,7 +474,12 @@ end
 % default ONLY when every main regime came from the checkpoint (fresh
 % session, full memory headroom); otherwise it defers with a message.
 % Force it with RUN_ACCURACY = true; with SPAWN_MATLAB = true (the
-% default) it runs out of process and cannot crash or OOM this session.
+% default) it runs out of process and cannot crash or OOM THIS session.
+% MEMORY NOTE: it CAN still exhaust the whole machine's RAM if other
+% MATLAB sessions are open -- a whole-machine OOM takes those siblings
+% down too. CLOSE OTHER MATLAB SESSIONS before the accuracy pass. A
+% pre-flight RAM guard (below) warns and auto-downshifts the grid when
+% free memory is tight.
 run_acc = isfield(RES, 'TAYLOR') && all(restored(ok)) && ...
     ~(exist('REGIME_ONLY','var') && ~isempty(REGIME_ONLY));
 if exist('RUN_ACCURACY', 'var') && RUN_ACCURACY, run_acc = isfield(RES,'TAYLOR'); end
@@ -506,6 +511,35 @@ if run_acc
         clear functions; %#ok<CLFUNC>
         try, clear mex; catch, end %#ok<CLMEX,NOCOM>
         clear oo_ M_ options_;
+        % ---- PRE-FLIGHT MEMORY GUARD ----
+        % The refinement is the heaviest allocation in the package (the
+        % steady-state tensor and the sequence-space Jacobian both scale
+        % ~(ne*nb*na)^2). If the machine is ALREADY low on RAM -- most often
+        % because other MATLAB sessions are open -- this solve can exhaust
+        % physical memory, and the OS then kills processes to recover: the
+        % "crash" is a WHOLE-MACHINE OOM that takes sibling MATLAB sessions
+        % down with it, not something confined to this child. Measure free
+        % RAM (after the clears above) and, if it is tight, warn loudly and
+        % auto-downshift the refined grid unless the user pinned ACC_NA.
+        ramGB = avail_ram_gb();
+        if ~isnan(ramGB)
+            fprintf('  [available RAM: %.1f GB]\n', ramGB);
+            if ramGB < 5
+                warning('run_green_hank2:lowram', ...
+                    ['Only %.1f GB RAM free. The two-asset refinement can ' ...
+                     'exhaust memory and crash OTHER open MATLAB sessions ' ...
+                     '(a whole-machine OOM). STRONGLY recommended: close ' ...
+                     'other MATLAB sessions before running the accuracy ' ...
+                     'pass. (This session is out-of-process and cannot be ' ...
+                     'killed by the child, but siblings can.)'], ramGB);
+                if ~(exist('ACC_NA','var') && ~isempty(ACC_NA))
+                    acc_na_lowram = 33;
+                    fprintf(['  [low RAM: auto-downshifting refined grid to ' ...
+                        'na=%d (still finer than baseline 30); pin ACC_NA to ' ...
+                        'override]\n'], acc_na_lowram);
+                end
+            end
+        end
         nm = 'grn2_taylor_acc';
         % Refine the GRID, hold the horizon at the baseline 400. The horizon
         % is NOT a binding discretization here: with rho_g=0.98 the IRF has
@@ -520,6 +554,7 @@ if run_acc
         % to also probe the (economically negligible) horizon axis.
         acc_nb  = 15;  if exist('ACC_NB','var')  && ~isempty(ACC_NB),  acc_nb  = ACC_NB;  end
         acc_na  = 36;  if exist('ACC_NA','var')  && ~isempty(ACC_NA),  acc_na  = ACC_NA;  end
+        if exist('acc_na_lowram','var'), acc_na = acc_na_lowram; end  % low-RAM auto-downshift
         acc_thz = 400; if exist('ACC_THORIZON','var') && ~isempty(ACC_THORIZON), acc_thz = ACC_THORIZON; end
         accdefs = sprintf('-DPHIPI=1.5 -DTHORIZON=%d -DNB=%d -DNA=%d', ...
                           acc_thz, acc_nb, acc_na);
@@ -717,6 +752,28 @@ end
 
 function s = ternary_str(cond, a, b)
     if cond, s = a; else, s = b; end
+end
+
+function g = avail_ram_gb()
+% Best-effort AVAILABLE system RAM in GB (NaN if it cannot be determined).
+% Windows uses the MATLAB 'memory' builtin (MemAvailableAllArrays -- the
+% amount MATLAB can actually allocate, which is what the heavy tensor/
+% Jacobian needs); Linux reads MemAvailable from /proc/meminfo. Used only
+% to warn the user and auto-downshift the refined grid when RAM is tight;
+% never fatal, so any failure just returns NaN and skips the guard.
+    g = NaN;
+    try
+        if ispc
+            u = memory;                                  % 'user' struct
+            g = u.MemAvailableAllArrays / 2^30;
+        elseif isunix && ~ismac
+            txt = fileread('/proc/meminfo');
+            tok = regexp(txt, 'MemAvailable:\s*(\d+)\s*kB', 'tokens', 'once');
+            if ~isempty(tok), g = str2double(tok{1}) / 2^20; end
+        end
+    catch
+        g = NaN;
+    end
 end
 
 function merge_save_checkpoint(accfile, RES, CAL, regimes, ok, OSC, ACC, modstamp)
