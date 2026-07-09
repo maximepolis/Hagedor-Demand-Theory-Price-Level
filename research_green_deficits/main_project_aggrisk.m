@@ -12,8 +12,9 @@
 % literal and answers the "no aggregate uncertainty" objection with a computed
 % result.
 %
-% USAGE   >> main_project_aggrisk
-%         >> FAST = true; main_project_aggrisk     % smaller asset grid
+% USAGE   >> main_project_aggrisk               % na=500 benchmark grid
+%         >> NA = 250; main_project_aggrisk      % mid-resolution (faster)
+%         >> FAST = true; main_project_aggrisk   % na=100 quick check
 %
 % OUTPUT  PFig19_aggrisk.{fig,png,pdf}, output/aggrisk_results.mat,
 %         output/tables/aggrisk_summary.txt
@@ -22,7 +23,7 @@
 % stationary recurrent equilibrium with prices measurable in the current
 % aggregate state (exact as aggregate-state persistence -> 1).
 
-clearvars -except FAST; close all; clc;
+clearvars -except FAST NA; close all; clc;
 rng(20260109, 'twister'); t0 = tic;
 
 projdir = fileparts(mfilename('fullpath'));
@@ -34,13 +35,27 @@ addpath(genpath(fullfile(projdir, 'src_project')));
 
 if ~exist('FAST','var'), FAST = false; end
 pg = setup_params_green();
-if FAST
-    pg.na    = pg.fast.na;
-    u        = linspace(0,1,pg.na)';
+% RESOLUTION CONTROL. Default is the 500-node benchmark grid (matches every
+% other quantitative result in the paper -- this is the "dense-grid firming"
+% of Result 7). FAST=true drops to 100 nodes (quick check). NA overrides both,
+% so you can dial resolution vs. runtime, e.g. NA=250 for a mid-resolution run.
+%   >> main_project_aggrisk               % na=500 (benchmark; slowest)
+%   >> NA = 250;  main_project_aggrisk    % na=250 (faster, still fine)
+%   >> FAST = true; main_project_aggrisk  % na=100 (quick)
+% Runtime scales ~ na^2 (the household VFI does an na x na maximization per
+% (e,s) state); the 500-node run is the heaviest but is pure MATLAB and cannot
+% crash. Progress prints each fixed-point iteration.
+if exist('NA','var') && ~isempty(NA)
+    pg.na = NA;
+elseif FAST
+    pg.na = pg.fast.na;
+end
+if pg.na ~= numel(pg.aGrid)
+    u = linspace(0,1,pg.na)';
     pg.aGrid = -pg.abar + (pg.amax + pg.abar) * (u.^pg.acurv);
     pg.aGrid(1) = -pg.abar; pg.aGrid(end) = pg.amax;
-    fprintf('*** FAST mode: na=%d ***\n', pg.na);
 end
+fprintf('*** aggregate-risk resolution: na=%d ***\n', pg.na);
 if ~isfolder(pg.logdir), mkdir(pg.logdir); end
 if ~isfolder(pg.tabdir), mkdir(pg.tabdir); end
 logfile = fullfile(pg.logdir, 'aggrisk_run_log.txt');

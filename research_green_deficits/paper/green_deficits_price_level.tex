@@ -28,15 +28,23 @@
 % absent at compile time we STILL emit the float (with its caption and
 % \label) but replace the missing graphic with a placeholder box, so that
 % every \ref{fig:...} resolves and the paper never shows "??".
+% Placeholder box shown when a figure file is absent at compile time. It does
+% NOT print the file name (raw names contain underscores, which are math
+% subscripts in text mode -> "Missing $"); the caption below identifies the
+% figure. The mandatory argument is accepted but unused.
 \newcommand{\pfigplaceholder}[1]{%
-  \fbox{\parbox[c][0.15\textheight][c]{0.82\linewidth}{\centering
-    \small Figure available in the replication package.\\[2pt]
-    \ttfamily\footnotesize #1}}}
+  \fbox{\parbox[c][0.14\textheight][c]{0.82\linewidth}{\centering
+    \small Figure available in the replication package.}}}
+% Stand-in for \includegraphics when a figure file is absent: gobble the
+% optional [..] and show a placeholder box for the mandatory {file}. Defined
+% at top level (single-# parameters) and aliased via \let inside \pfigguard,
+% so there is NO nested-\renewcommand optional-argument parameter clash.
+\newcommand{\pfigmissing}[2][]{\pfigplaceholder{#2}}
 \newcommand{\pfigguard}[2]{%
   \IfFileExists{../output/figures/#1}{#2}{%
     \IfFileExists{#1}{#2}{%
       \begingroup
-      \renewcommand{\includegraphics}[2][]{\pfigplaceholder{##2}}%
+      \let\includegraphics\pfigmissing
       #2%
       \endgroup}}}
 
