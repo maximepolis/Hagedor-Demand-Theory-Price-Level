@@ -169,19 +169,39 @@ if SPAWN_MATLAB && exist(matlab_exe, 'file') ~= 2
 end
 accfile = fullfile(projdir, 'output', 'hank2_green_irfs.mat');
 % model fingerprint: a checkpoint written under a DIFFERENT green_hank2.mod
-% must never be restored (it would resurrect pre-fix runs)
-mi = dir(fullfile(dyndir, 'green_hank2.mod'));
-modstamp = [mi.bytes, mi.datenum];
+% must never be restored (it would resurrect pre-fix runs). CRITICAL FIX
+% (2026-07-09): the old stamp [bytes, datenum] keyed on the file's
+% MODIFICATION TIME, so every re-download of the branch ZIP changed it and
+% the checkpoint was ALWAYS discarded -- every run re-solved all four
+% regimes and re-rolled the intermittent Dynare-build crash instead of
+% banking progress. The stamp is now a hash of the MODEL CONTENT with
+% comments and whitespace stripped: it is invariant to re-downloads and to
+% documentation edits, and changes only when the equations/parameters do.
+modstamp = model_content_hash(fullfile(dyndir, 'green_hank2.mod'));
 PREV = struct(); PREVCAL = struct();
 if exist(accfile, 'file') == 2 && ~FORCE_RERUN
     try
         L = load(accfile);
-        if isfield(L, 'modstamp') && isequal(L.modstamp, modstamp)
+        same = isfield(L,'modstamp') && isequal(L.modstamp, modstamp);
+        % grandfather clause: a checkpoint written under the OLD stamp format
+        % ([bytes, datenum], a 2-element numeric) predates the content-hash
+        % fix. Accept it -- the per-regime validity gates below (finiteness +
+        % divergence) still protect against restoring a bad solve, and the
+        % equations have not changed since those runs. Without this, the
+        % transition to the new stamp would force one more full (crash-prone)
+        % re-solve of every regime.
+        grandfathered = isfield(L,'modstamp') && isnumeric(L.modstamp) && ...
+                        numel(L.modstamp) == 2 && ~same;
+        if same || grandfathered
             PREV = L.RES;
             if isfield(L, 'CAL'), PREVCAL = L.CAL; end
+            if grandfathered
+                fprintf(['  [checkpoint from a pre-hash run ACCEPTED -- ' ...
+                    'per-regime validity gates still apply]\n']);
+            end
         else
-            fprintf(['  [checkpoint ignored: green_hank2.mod changed since ' ...
-                     'it was written -- all regimes will re-solve]\n']);
+            fprintf(['  [checkpoint ignored: green_hank2.mod MODEL CONTENT ' ...
+                     'changed since it was written -- regimes will re-solve]\n']);
         end
     catch
     end
@@ -620,4 +640,31 @@ end
 
 function s = ternary_str(cond, a, b)
     if cond, s = a; else, s = b; end
+end
+
+function h = model_content_hash(modpath)
+% Content fingerprint of a .mod file, INVARIANT to comments, whitespace, and
+% the file's modification time -- so re-downloading the branch ZIP or editing
+% documentation does not invalidate a checkpoint, but a genuine change to the
+% equations/parameters does. Strips /* */ and // comments and all whitespace,
+% then MD5-hashes the remainder (UTF-8, so the complementarity glyph is handled),
+% with a dependency-free polynomial-hash fallback.
+    try
+        txt = fileread(modpath);
+    catch
+        h = 0; return;
+    end
+    txt = regexprep(txt, '(?s)/\*.*?\*/', '');    % block comments
+    txt = regexprep(txt, '//[^\n]*', '');          % line comments
+    txt = regexprep(txt, '\s+', '');               % all whitespace
+    try
+        bytes = unicode2native(txt, 'UTF-8');
+        md = java.security.MessageDigest.getInstance('MD5');
+        h  = sprintf('%02x', typecast(md.digest(bytes), 'uint8'));
+    catch
+        h = 0; M = 2147483647;                     % 2^31-1
+        for k = 1:numel(txt)
+            h = mod(h*33 + double(txt(k)), M);
+        end
+    end
 end
