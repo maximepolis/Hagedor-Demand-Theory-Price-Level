@@ -102,6 +102,20 @@ function pg = setup_params_green()
     pg.Dgrid_mu   = linspace(0.0, pg.D0, 3);
 
     % ------------------------------------------------------------------
+    % Aggregate climate risk (Stage A; appendix/AGGREGATE_RISK_PLAN.md).
+    % Two recurrent aggregate climate states, Calm and Severe: the nominal
+    % bond is nominally safe but really risky (its real value B/P_s is
+    % state-contingent). Used by main_project_aggrisk / solve_dtpl_aggrisk.
+    % ------------------------------------------------------------------
+    pg.agg.D_states  = [0.06, 0.20];  % no-abatement damage LEVELS [Calm, Severe]
+                                      % (Severe = the paper's high-damage column)
+    pg.Pi_agg        = [0.95 0.05;    % persistent; small entry prob into Severe
+                        0.30 0.70];   % Severe recurrent (mean duration ~3.3 yr)
+    % green abatement in the aggregate-risk experiment lowers the SEVERE-state
+    % damage by this fraction (illustrative; the driver also sweeps it)
+    pg.agg.green_cut = 0.30;          % Severe D_S -> (1-green_cut)*D_S
+
+    % ------------------------------------------------------------------
     % FAST mode deltas (main_project_run_all applies them if FAST=true)
     % ------------------------------------------------------------------
     pg.fast.na          = pg.na_fast;   % 100 asset nodes
