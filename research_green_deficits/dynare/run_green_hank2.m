@@ -475,11 +475,21 @@ if run_acc
         if SPAWN_MATLAB
             dynpath = fileparts(which('dynare'));
             outmat  = fullfile(dyndir, [nm '_out.mat']);
-            if exist(outmat, 'file'), delete(outmat); end
             cmd = sprintf(['"%s" -batch "cd(''%s''); ' ...
                 'solve_hank_regime_batch(''green_hank2'',''%s'',''%s'',''%s'',''%s'')"'], ...
                 matlab_exe, dyndir, nm, accdefs, dynpath, outmat);
-            status = system(cmd);
+            % AUTO-RETRY: the Dynare build crashes intermittently (0xc0000409)
+            % on the heavy two-asset solve. The child is isolated, so retrying
+            % is safe and spares a manual re-run; a genuine model failure would
+            % fail every attempt identically. Up to 3 tries.
+            status = 1;
+            for att = 1:3
+                if exist(outmat, 'file'), delete(outmat); end
+                status = system(cmd);
+                if status == 0 && exist(outmat, 'file') == 2, break; end
+                fprintf(['  [accuracy child attempt %d/3 failed (status %d) -- ' ...
+                    'retrying; intermittent build crash]\n'], att, status);
+            end
             if status == 0 && exist(outmat, 'file') == 2
                 Lc = load(outmat); irfs = Lc.irfs;
             end
