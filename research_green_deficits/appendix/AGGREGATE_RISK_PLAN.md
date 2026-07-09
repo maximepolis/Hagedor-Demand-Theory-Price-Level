@@ -70,23 +70,35 @@ equations, two unknown prices.
 
 ## Stages (each self-contained, each a commit)
 
-### Stage A — Two-regime steady-state DTPL  *(the core new result; ~1 week)*
-- **Extend** `setup_params_green.m`: add `Pi_agg` (2×2), `D0_states = [D0_C, D0_S]`,
-  and a switch `pg.agg_risk`.
-- **New** `src_project/solve_household_vfi_agg.m`: the recursion above over
-  $(a,e,s)$. Reuses the existing choice-on-grid Bellman operator; the only
-  change is the continuation $\mathbb{E}[V(a',e',s')]=\sum_{s'}\Pi^{\mathrm{agg}}_{ss'}
-  (\Pi V(a',\cdot,s'))$ and the state-contingent return/tax in the budget.
-- **New** `src_project/S_green_agg.m`: given the price vector $\{P\}$, returns
-  $(\Sfun_C,\Sfun_S)$ and the joint invariant distribution (exact, no
-  simulation — extend `compute_stationary_distribution` to carry the aggregate
-  state as an outer block-Markov layer).
-- **New** `src_project/solve_dtpl_aggrisk.m`: 2-D root find (or damped fixed
-  point, reusing the Anderson helper from `solve_hank_dtpl_transition`) over
-  $(P_C,P_S)$ so that $\Phi_C=\Phi_S=0$. Report the premium.
-- **New** `main_project_aggrisk.m` + `PFig19`: the two-regime price levels, the
-  safe-asset premium, and its comparative statics in $K_g$ and $D^0_S$.
-- **Label:** STOCHASTIC AGGREGATE RISK (the reserved scope tag).
+### Stage A — Two-regime steady-state DTPL  *(the core new result)*  **IMPLEMENTED 2026-07-09; run pending on the user machine**
+- **Done** `setup_params_green.m`: `pg.Pi_agg` (2×2), `pg.agg.D_states`
+  `=[D0_C,D0_S]`, `pg.agg.green_cut`.
+- **Done** `src_project/solve_household_vfi_agg.m`: the recursion over
+  $(a,e,s)$ with the state-contingent nominal-bond return
+  $1+r(s,s')=(1+\bar r)P_s/P_{s'}$; the continuation is evaluated at the
+  return-scaled savings $(1+r(s,s'))a'$ and LINEARLY INTERPOLATED (the
+  state-contingent return is intrinsic to a nominal asset — it cannot be
+  removed by a change of variables, so the deterministic on-grid trick does
+  not apply here).
+- **Done** `src_project/stat_dist_agg.m`: exact joint invariant distribution
+  over $(a,e,s)$ via a return-scaled lottery (no simulation).
+- **Done** `src_project/solve_dtpl_aggrisk.m`: the damped fixed point over
+  $(P_C,P_S)$ so $S_s=B/P_s$ in every state; reports the price dispersion,
+  the disaster real return, the ergodic expected real return, and the
+  climate-risk premium.
+- **Done** `main_project_aggrisk.m` + `PFig19` + `aggrisk_summary.txt`: the
+  two-regime price levels and the green comparative static (the same climate
+  block used elsewhere: a green program builds $K_g=g_g/\delta_g$ and lowers
+  $D_s=D^0_s e^{-\theta_g K_g}$ in both states, more in the high-damage Severe
+  state, compressing the gap).
+- **Label:** STOCHASTIC AGGREGATE RISK.
+- **Verified (Python prototype, before shipping the MATLAB):** the two-price
+  fixed point converges; at the calibrated rate the baseline bond earns
+  $+2.0\%$ in Calm but loses $\approx 24.5\%$ in the Severe state (price
+  dispersion $35\%$), and a $\sim\!2\%$-of-income green program cuts the
+  dispersion to $\approx 18\%$ and the disaster loss to $\approx 14\%$ —
+  green investment compresses the systematic climate risk the safe asset
+  carries. The MATLAB run will confirm these on the project calibration.
 
 ### Stage B — Decomposition + welfare under aggregate risk  *(~3 days)*
 - Add $\nu_{\mathrm{aggrisk}}$ to `decompose_safe_asset_channel.m` (a fourth GE
