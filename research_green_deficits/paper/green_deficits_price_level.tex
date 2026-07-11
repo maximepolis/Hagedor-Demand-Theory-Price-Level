@@ -1352,10 +1352,42 @@ $\beta$ so that debt remains $1.1$ times income before comparing programs
 of a drifting debt ratio --- while variants that leave the no-program
 economy untouched (green depreciation $\delta_g$; the program scale at
 $1\%$ and $4\%$) hold $\beta^{*}$ fixed (Figure~\ref{fig:pfig20}b).
-% TODO(run): quantitative sentences enter here once
-% output/tables/robustness_summary.txt is pushed -- the frontier
-% theta*(D0) at the three sourced columns, the count of nodes with
-% nu_reval<0, and the sensitivity range of nu across variants.
+
+Three findings survive the exercise. \emph{First, the required
+effectiveness falls sharply in the damage level.} The $\nu=1$ frontier reads
+$\theta_g^{*}=2.24$ at the medium column, $0.58$ at the
+\citet{bilalkanzig2024} high column, and lies \emph{above} the swept range
+($>3$) at the conservative DICE column --- so what one must believe for full
+self-financing is monotone and transparent: under high damages even a
+modestly effective program pays for itself, while under DICE damages no
+effectiveness in the plausible range does, and the honest answer there is
+partial financing ($\nu=0.06$--$0.39$) carried by the revaluation and a
+small dividend. The benchmark $\theta_g=1.2$ sits comfortably below the
+medium-column frontier, consistent with the partial self-financing
+($\nu=0.56$) reported above. \emph{Second, the disinflation is not a
+calibration artifact:} the revaluation component is negative at all $65$
+nodes of the $(D_0,\theta_g)$ plane, so productive green programs raise
+safe-asset demand and lower the price level regardless of the damage or
+effectiveness assumption. \emph{Third, the self-financing share is stable to
+the household side but genuinely governed by incidence.} Holding the debt
+target fixed, $\nu$ moves little with risk aversion ($0.57$ at $\sigma=3$)
+or the damage--risk link ($0.56$--$0.61$ as $\phi_D$ runs $0$ to $1$), rises
+mechanically when green capital is longer-lived ($\nu=1.06$ at
+$\delta_g=0.05$, which doubles the capital stock per unit of spending) or
+the program is smaller ($0.62$ at $1\%$ versus $0.48$ at $4\%$, the
+concavity of abatement), and --- the one economically important
+non-monotonicity --- the revaluation channel \emph{flips sign} under strong
+regressive incidence: at $\psi=2$ the program becomes mildly inflationary
+($\nu_{\mathrm{reval}}=+0.07$, $\Delta\ln P=+5.9\%$), exactly the
+incidence-driven reversal that Propositions~\ref{prop:sunspots} and
+\ref{prop:financingdesign} identify. The disinflation result is thus robust
+across damage calibrations and effectiveness but is, by design, a knife-edge
+in the incidence gradient --- which is the paper's point, not a fragility.
+Two variants are informative by their absence: $\sigma=1$ is omitted because
+the incomplete-markets economy cannot generate debt of $1.1$ times income at
+the calibrated real rate when risk aversion is that low (the precautionary
+motive is too weak --- a restriction on the model, not a numerical failure),
+which is itself why the benchmark uses $\sigma=2$.
 
 \pfigguard{PFig20_robustness.pdf}{%
 \begin{figure}[ht]\centering
@@ -1364,9 +1396,11 @@ $1\%$ and $4\%$) hold $\beta^{*}$ fixed (Figure~\ref{fig:pfig20}b).
 self-financing share $\nu$ over the $(D_0,\theta_g)$ plane; the white line
 is the $\nu=1$ frontier (full self-financing), and the marked column
 values $D_0\in\{0.02,0.06,0.20\}$ are the sourced damage calibrations of
-Table~\ref{tab:sources}. (b) One-at-a-time sensitivity at the medium
-column under the held debt-target protocol; the dashed line is full
-financing.}
+Table~\ref{tab:sources}. The red markers are the benchmark
+$\theta_g=1.2$ at the sourced columns. (b) One-at-a-time sensitivity at the
+medium column under the held debt-target protocol; the dashed line is full
+financing. ($\sigma=1$ has no bar: the debt target is infeasible at that
+risk aversion, as the text explains.)}
 \label{fig:pfig20}
 \end{figure}}
 

@@ -200,9 +200,18 @@ for v = 1:size(variants,1)
     if recal
         [bv, cbv] = calibrate_beta(pgv, r_cal, b_target, 0.06);
         if ~cbv.converged
-            warning('variant %s: beta recalibration failed -- skipped', vname);
+            % Distinguish an INFEASIBLE target (the debt ratio cannot be hit
+            % even at the most patient admissible beta -- a substantive
+            % restriction on the economy, e.g. weak precautionary demand at
+            % low risk aversion) from a genuine solver failure.
+            reason = 'solver failed';
+            if isfield(cbv,'S_at_star') && isnan(cbv.S_at_star)
+                reason = 'debt target INFEASIBLE (precautionary demand too weak at this parameter)';
+            end
+            warning('variant %s: %s -- reported, not plotted', vname, reason);
             SEN(end+1) = struct('name',vname,'beta',NaN,'nu',NaN, ...
-                'nu_reval',NaN,'nu_damage',NaN,'dlnP',NaN,'ok',false); %#ok<SAGROW>
+                'nu_reval',NaN,'nu_damage',NaN,'dlnP',NaN,'ok',false, ...
+                'reason',reason); %#ok<SAGROW>
             continue;
         end
         fprintf('  recalibrated beta* = %.4f (target held)\n', bv);
@@ -217,13 +226,15 @@ for v = 1:size(variants,1)
     if okv
         SEN(end+1) = struct('name',vname,'beta',bv,'nu',decv.nu, ...
             'nu_reval',decv.nu_reval,'nu_damage',decv.nu_damage, ...
-            'dlnP',100*log(decv.prog.P/decv.base.P),'ok',true); %#ok<SAGROW>
+            'dlnP',100*log(decv.prog.P/decv.base.P),'ok',true, ...
+            'reason',''); %#ok<SAGROW>
         fprintf('  %s: nu=%.3f (reval %+.3f, damage %.3f), dlnP=%+.2f%%\n', ...
             vname, decv.nu, decv.nu_reval, decv.nu_damage, ...
             100*log(decv.prog.P/decv.base.P));
     else
         SEN(end+1) = struct('name',vname,'beta',bv,'nu',NaN, ...
-            'nu_reval',NaN,'nu_damage',NaN,'dlnP',NaN,'ok',false); %#ok<SAGROW>
+            'nu_reval',NaN,'nu_damage',NaN,'dlnP',NaN,'ok',false, ...
+            'reason','decomposition failed'); %#ok<SAGROW>
         warning('variant %s: decomposition failed', vname);
     end
 end
@@ -251,10 +262,12 @@ plot(pg.theta_g*ones(size(yl)), yl, 'rs', 'MarkerFaceColor','r', ...
 xlabel('abatement effectiveness \theta_g'); ylabel('no-abatement damages D_0');
 title('(a) \nu over (D_0,\theta_g); white: \nu=1 frontier');
 subplot(1,2,2); hold on; box on;
-nuS = [SEN.nu];
+okmask = [SEN.ok];                       % drop infeasible variants (no bar)
+SENok  = SEN(okmask);
+nuS    = [SENok.nu];
 bar(nuS, 'FaceColor', [0.20 0.55 0.25]);
 yline(1, 'k--');
-set(gca,'XTick',1:numel(SEN),'XTickLabel',{SEN.name},'XTickLabelRotation',35);
+set(gca,'XTick',1:numel(SENok),'XTickLabel',{SENok.name},'XTickLabelRotation',35);
 ylabel('self-financing share \nu');
 title('(b) one-at-a-time sensitivity (medium column, held debt target)');
 save_all_figs(fh, 'PFig20_robustness', pg);
@@ -291,7 +304,8 @@ if fid > 0
                 SEN(v).name, SEN(v).beta, SEN(v).nu, SEN(v).nu_reval, ...
                 SEN(v).nu_damage, SEN(v).dlnP);
         else
-            fprintf(fid, '%-14s FAILED\n', SEN(v).name);
+            rr = 'failed'; if isfield(SEN(v),'reason') && ~isempty(SEN(v).reason), rr = SEN(v).reason; end
+            fprintf(fid, '%-14s %s\n', SEN(v).name, rr);
         end
     end
     fprintf(fid, ['\nProtocol: variants changing the no-program economy (sigma,\n' ...
