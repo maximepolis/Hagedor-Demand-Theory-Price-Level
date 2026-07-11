@@ -110,10 +110,14 @@ the announcement year: year-one inflation is minus two percent against a
 plus-two-percent trend, and bondholders collect the windfall, five percent
 of the program's present value, before any green capital is installed.
 Monetary accommodation near the welfare-preferred stance renders the
-program approximately price-level neutral. The results imply that green
-fiscal rules should specify not only the scale of spending but its nominal
-indexation, its financing mix, its distributional rebates, and the maturity
-and indexation structure of the debt that funds it.
+program approximately price-level neutral. With aggregate climate risk the
+nominal safe asset is nominally safe but really risky --- it loses real
+value precisely in the severe climate state --- and green public investment
+compresses that systematic risk, making the paper's ``safe asset'' literal.
+The results imply that green fiscal rules should specify not only the scale
+of spending but its nominal indexation, its financing mix, its
+distributional rebates, and the maturity and indexation structure of the
+debt that funds it.
 \end{abstract}
 
 \bigskip
@@ -790,7 +794,8 @@ Throughout, Assumption~\ref{ass:feasible} holds.
 
 \begin{assumption}\label{ass:feasible}
 $\beta(1+r^{ss})<1$, and the feasibility set
-$\{P:\ \tau(P) < \min_e y(e;D(P)) + r^{ss}\underline a\}$ is nonempty.
+$\{P:\ \tau(P) < \min_e y(e;D(P)) - r^{ss}\bar a\}$ is nonempty (the lower
+asset bound is $-\bar a$, from the borrowing limit $a_{t+1}\ge-\bar a$).
 \end{assumption}
 
 % --------------------------------------------------------------------------
@@ -999,7 +1004,14 @@ Appendix~\ref{app:numerics}.
 \subsection{Benchmark results}
 
 Table~\ref{tab:benchmark} reports the benchmark run (full-resolution,
-$n_a=500$).
+$n_a=500$).\footnote{The \emph{level} of $P^{*}$ is not comparable across
+subsections: it scales with the nominal debt normalization $B$ and the
+calibration, so the benchmark ($B=1$), the calibrated pass
+(Section~\ref{subsec:calibrated}, $B$ set to the $1.1$ debt-to-income
+target), and the aggregate-risk section use different normalizations. Only
+\emph{changes} in $P$ --- the disinflation $\ln P_1-\ln P_0$ and the state
+dispersion $P_S/P_C$ --- are economically meaningful and comparable, and all
+reported results are stated as such.}
 
 \begin{table}[ht]
 \centering
@@ -1344,9 +1356,12 @@ incomplete in the aggregate as well as the idiosyncratic dimension. The
 price level is now measurable in the aggregate state, $(P_C,P_S)$, and
 the bond's \emph{real} return is state-contingent,
 \[
-1 + r(s\to s') = (1+\bar r)\,\frac{P_s}{P_{s'}},
+1 + r(s\to s') = (1+r^{ss})\,\frac{P_s}{P_{s'}},
+\qquad 1+r^{ss}=\frac{1+i^{ss}}{1+\mu},
 \]
-so a nominally safe bond is really risky: it loses real value in exactly
+where $r^{ss}$ is the deterministic real service rate of
+\eqref{eq:fisher}. So a nominally safe bond is really risky: it loses real
+value in exactly
 the state where households are poorest. The DTPL becomes a vector fixed
 point --- the bond market clears in \emph{each} aggregate state,
 $S_s(P_C,P_S)=B/P_s$ --- solved on the exact ergodic joint distribution
@@ -1932,7 +1947,7 @@ channel realized along a path rather than compared across steady states.
 Stationarizing by the nominal-growth trend $(1+\mu)^t$ makes the system
 autonomous; the terminal condition pins $\hat{P}_T$ at the green
 steady-state price level, and the government budget holds by construction
-at every trial path ($\tau_t = \bar r\, b_t + g_t$). The solver is an
+at every trial path ($\tau_t = r^{ss}\, b_t + g_{g,t}$). The solver is an
 Anderson-accelerated fixed point on the log price path: the underlying map
 moves each $\hat P_t$ toward $B_t/S_t$ (excess asset demand at $t$
 \emph{lowers} $\hat P_t$, raising the real value $B_t/P_t$ of the fixed
@@ -2197,7 +2212,7 @@ below trend is now a computed, sign- and size-testable prediction.
 
 \subsection{Proof of Lemma \ref{lem:S}}
 Feasibility: at $(a,e)=(-\bar a, e_{\min})$ maximal consumption is
-$y(e_{\min};D)-\tau+r\underline a>0$ on the stated set, so the constraint set
+$y(e_{\min};D)-\tau-r\bar a>0$ on the stated set, so the constraint set
 is nonempty and compact at every state; with $\beta<1$ and $u$ bounded above
 on compacts (after the usual truncation of the asset grid at
 $\bar A<\infty$, valid since $\beta(1+r)<1$ implies a finite buffer-stock
@@ -2379,8 +2394,10 @@ enter as a TFP tax, the production-economy counterpart of the endowment
 haircut $y(e;D)$ in Section~\ref{sec:model}.
 
 \paragraph{Sticky prices.} Firms face quadratic price-adjustment costs
-(Rotemberg) with steady-state gross markup $\mu=\varepsilon_p/(\varepsilon_p-1)$
-and slope parameter governing price stickiness. This yields the New
+(Rotemberg) with steady-state gross markup
+$\mu_p=\varepsilon_p/(\varepsilon_p-1)$ --- written $\mu_p$ to keep it
+distinct from the nominal-growth rate $\mu$ of Section~\ref{sec:model} ---
+and a slope parameter governing price stickiness. This yields the New
 Keynesian Phillips curve, written in the exact nonlinear (Rotemberg) form
 in the representative-agent version and in the equivalent log form used by
 the sequence-space solver in the heterogeneous-agent version (see the two
@@ -2430,14 +2447,15 @@ with the parameters of Section~\ref{sec:quant}.
 
 \subsection{Representative-agent version}\label{app:nkrank}
 
-A representative household with CRRA utility (risk aversion $\sigma$) and
-inverse Frisch elasticity $\varphi_n$ chooses consumption $c_t$, labor
-$n_t$, and one-period nominal bonds. The private optimum, technology,
-Rotemberg Phillips curve, resource constraint, and policy rule are
+A representative household with CRRA utility (risk aversion $\sigma$, the
+same coefficient as in Section~\ref{subsec:households}) and Frisch elasticity
+$\nu$ chooses consumption $c_t$, labor $n_t$, and one-period nominal bonds.
+The private optimum, technology, Rotemberg Phillips curve, resource
+constraint, and policy rule are
 \begin{align}
 c_t^{-\sigma} &= \beta\,\frac{1+i_t}{1+\pi_{t+1}}\,c_{t+1}^{-\sigma},
   &&\text{(Euler)} \label{eq:rank-euler}\\
-n_t^{\varphi_n} &= w_t\,c_t^{-\sigma}, &&\text{(labor supply)} \label{eq:rank-labor}\\
+n_t^{1/\nu} &= w_t\,c_t^{-\sigma}, &&\text{(labor supply)} \label{eq:rank-labor}\\
 \pi_t(1+\pi_t) &= \beta\Bigl(\tfrac{c_{t+1}}{c_t}\Bigr)^{-\sigma}
   \pi_{t+1}(1+\pi_{t+1})\,\tfrac{Y_{t+1}}{Y_t}
   + \tfrac{\varepsilon_p}{\kappa_r}\Bigl(mc_t-\tfrac{\varepsilon_p-1}{\varepsilon_p}\Bigr),
@@ -2469,19 +2487,18 @@ intratemporal labor choice. A household in idiosyncratic state $e$ (the
 Markov chain of Section~\ref{subsec:households}) with beginning-of-period
 real bond holdings $a_{t-1}$ solves
 \begin{align}
-c_t^{-1/\text{eis}} &= \beta\,(1+r_{t+1})\,c_{t+1}^{-1/\text{eis}}
+c_t^{-\sigma} &= \beta\,(1+r_{t+1})\,c_{t+1}^{-\sigma}
    \quad\perp\quad a_t \ge -\bar a, &&\text{(Euler, borrowing constraint)}
    \label{eq:hank-euler}\\
 c_t + a_t &= (1+r_t)\,a_{t-1} + w_t\, n_t\, e + (\mathrm{Div}_t-\tau_t)\,e,
    &&\text{(budget)} \label{eq:hank-budget}\\
-\vphi\, n_t^{1/\text{frisch}} &= w_t\, e\, c_t^{-1/\text{eis}},
+\vphi\, n_t^{1/\nu} &= w_t\, e\, c_t^{-\sigma},
    &&\text{(labor supply)} \label{eq:hank-labor}
 \end{align}
-where $\text{eis}$ is the elasticity of intertemporal substitution,
-$\text{frisch}$ the Frisch elasticity, $\vphi$ the labor-disutility weight,
-$\mathrm{Div}_t$ real dividends rebated in proportion to efficiency $e$, and
-$\perp$ denotes the complementary-slackness form of the borrowing
-constraint. The household's asset $a$ is the real value of the nominal
+where $\sigma$ and $\nu$ are the CRRA coefficient and Frisch elasticity as
+above, $\vphi$ the labor-disutility weight, $\mathrm{Div}_t$ real dividends
+rebated in proportion to efficiency $e$, and $\perp$ denotes the
+complementary-slackness form of the borrowing constraint. The household's asset $a$ is the real value of the nominal
 government bond, exactly as in \eqref{eq:budget}: surprise inflation
 revalues $a_{t-1}$ through $r_t$ in \eqref{eq:nk-fisher}, state by state.
 Writing $\mathrm{SUM}(\cdot)$ for the cross-sectional aggregate over the
@@ -2489,9 +2506,9 @@ joint distribution of $(a,e)$, the aggregate block is
 \begin{align}
 N_t &= \frac{Y_t}{(1-D_t)Z}, &&\text{(labor demand)} \label{eq:hank-labdemand}\\
 \mathrm{Div}_t &= Y_t - w_t N_t
-   - \frac{\mu}{\mu-1}\,\frac{\log(1+\pi_t)^2}{2\kappa}\,Y_t,
+   - \frac{\mu_p}{\mu_p-1}\,\frac{\log(1+\pi_t)^2}{2\kappa_p}\,Y_t,
    &&\text{(dividends)} \label{eq:hank-div}\\
-\kappa\Bigl(\frac{w_t}{(1-D_t)Z}-\frac{1}{\mu}\Bigr)
+\kappa_p\Bigl(\frac{w_t}{(1-D_t)Z}-\frac{1}{\mu_p}\Bigr)
    &+ \frac{Y_{t+1}}{Y_t}\,\frac{\log(1+\pi_{t+1})}{1+r_{t+1}}
    - \log(1+\pi_t) = 0, &&\text{(NKPC)} \label{eq:hank-nkpc}\\
 i_t &= r^{ss} + \phi_\pi\,\pi_t - \psi_g\, g_{g,t}, &&\text{(policy)} \label{eq:hank-policy}\\
@@ -2500,7 +2517,7 @@ i_t &= r^{ss} + \phi_\pi\,\pi_t - \psi_g\, g_{g,t}, &&\text{(policy)} \label{eq:
 \end{align}
 together with the Fisher equation \eqref{eq:nk-fisher}, the fiscal block
 \eqref{eq:nk-fiscal}, the program \eqref{eq:nk-program}, and the climate
-block \eqref{eq:nk-kg}--\eqref{eq:nk-damages}, where $\kappa$ is the
+block \eqref{eq:nk-kg}--\eqref{eq:nk-damages}, where $\kappa_p$ is the
 (log-form) Phillips-curve slope. The discount factor $\beta$ and the
 labor-disutility weight $\vphi$ are calibrated so that the asset market
 \eqref{eq:hank-clearing} and the labor market clear at the damaged steady

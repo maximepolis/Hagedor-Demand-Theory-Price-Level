@@ -1,27 +1,27 @@
 AGGREGATE CLIMATE RISK (Stage A) -- STOCHASTIC AGGREGATE RISK
 Two recurrent aggregate states (Calm/Severe); nominal bond nominally
 safe, really risky (B/P_s state-contingent). Stationary recurrent
-equilibrium, prices measurable in the aggregate state. na=100, i=0.040.
+equilibrium, prices measurable in the aggregate state. na=500, i=0.040.
 Pi_agg = [0.95 0.05; 0.30 0.70].
 
 [BASELINE (no program)]  D=[0.060, 0.200]
-  price levels  P=[0.9762, 1.3348]  (Calm, Severe)
-  asset demand  S=[1.0248, 0.7477]
-  price disp.   P_S/P_C-1 = 0.3673
-  real returns  R(Calm->{Calm,Severe}) = [1.0196, 0.7457]
-  disaster ret. Calm->Severe = -0.2543;  E[real ret]=+0.0239;  premium=+0.0043
+  price levels  P=[0.9126, 1.2504]  (Calm, Severe)
+  asset demand  S=[1.0955, 0.7983]
+  price disp.   P_S/P_C-1 = 0.3700
+  real returns  R(Calm->{Calm,Severe}) = [1.0196, 0.7442]
+  disaster ret. Calm->Severe = -0.2558;  E[real ret]=+0.0240;  premium=+0.0044
 
 [GREEN (g_g=0.020, Kg=0.200)]  D=[0.047, 0.157]
-  price levels  P=[0.9711, 1.2300]  (Calm, Severe)
-  asset demand  S=[1.0290, 0.8115]
-  price disp.   P_S/P_C-1 = 0.2665
-  real returns  R(Calm->{Calm,Severe}) = [1.0196, 0.8050]
-  disaster ret. Calm->Severe = -0.1950;  E[real ret]=+0.0221;  premium=+0.0025
+  price levels  P=[0.9049, 1.1499]  (Calm, Severe)
+  asset demand  S=[1.1054, 0.8684]
+  price disp.   P_S/P_C-1 = 0.2708
+  real returns  R(Calm->{Calm,Severe}) = [1.0196, 0.8023]
+  disaster ret. Calm->Severe = -0.1977;  E[real ret]=+0.0221;  premium=+0.0025
 
 GREEN EFFECT ON THE SAFE ASSET:
-  state price dispersion  0.3673 -> 0.2665  (-27.4%)
-  disaster real return    -0.2543 -> -0.1950  (loss shrinks 0.0593)
-  bond risk premium       +0.0043 -> +0.0025
+  state price dispersion  0.3700 -> 0.2708  (-26.8%)
+  disaster real return    -0.2558 -> -0.1977  (loss shrinks 0.0581)
+  bond risk premium       +0.0044 -> +0.0025
 
 => green public investment lowers a SYSTEMATIC climate risk: it
 compresses the state price dispersion and shrinks the real loss the
