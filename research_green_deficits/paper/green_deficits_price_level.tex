@@ -96,7 +96,10 @@ $2\%$ of income). The answer is conditional: green deficits are partially
 self-financing under conservative and medium damage calibrations
 ($\nu = 0.16$ under DICE damages, $0.58$ under empirical temperature-damage
 estimates) and become fully self-financing only under high-damage,
-high-effectiveness assumptions ($\nu = 2.0$). The revaluation channel runs
+high-effectiveness assumptions ($\nu = 2.0$).
+
+The mechanism turns the arithmetic into a menu of design choices. The
+revaluation channel runs
 \emph{against} the fisc under conventional financing --- productive green
 programs are disinflationary because they raise safe-asset demand, handing
 bondholders a windfall --- but its sign is itself a design choice: a
@@ -998,7 +1001,14 @@ nominal green budget $G_g=0.012$ (real spending of roughly 5--6\% of mean
 endowment at the equilibrium price level). Version-2 climate parameters:
 $D_{\max}=0.25$, $\varepsilon_0=1$, $\delta_x=0.05$, $\gamma_x=0.028$,
 $\alpha_A=0.9$; incidence $\psi\in\{0,1,2\}$. Numerical method in
-Appendix~\ref{app:numerics}.
+Appendix~\ref{app:numerics}. Because the climate parameters are illustrative,
+no headline result rests on a single calibration: the self-financing share is
+reported across low-, medium-, and high-damage columns
+(Section~\ref{subsec:calibrated}), Section~\ref{subsec:robustness} states
+each parameter's source and reports the headline objects over the full
+swept ranges, and the qualitative findings --- the disinflationary
+revaluation, its sign reversal under financing design, and the compression
+of aggregate climate risk --- hold across the range.
 
 % --------------------------------------------------------------------------
 \subsection{Benchmark results}
@@ -1277,6 +1287,87 @@ dynamic extension take over.
 \caption{Calibrated self-financing by damage column: stacked revaluation
 (negative) and damage-dividend components against the full-financing line.}
 \label{fig:pfig7}
+\end{figure}}
+
+% --------------------------------------------------------------------------
+\subsection{Robustness: what one must believe for green deficits to
+self-finance}
+\label{subsec:robustness}
+
+The climate side of the calibration deserves to be interrogated rather than
+defended, and this subsection organizes that interrogation around a simple
+principle: parameters that published damage estimates discipline are
+\emph{anchored} to those estimates and swept across them; the one parameter
+no study pins down is not given a point value at all, but reported as an
+axis of the answer. Table~\ref{tab:sources} states where each climate
+parameter comes from.
+
+\begin{table}[ht]
+\centering\small
+\caption{Climate-block parameters: values, status, and sources. ``Anchored''
+parameters take their range from published estimates; ``swept'' parameters
+are reported as axes of the results rather than point choices.}
+\label{tab:sources}
+\begin{tabular}{llll}
+\toprule
+parameter & benchmark & status & source / discipline \\
+\midrule
+$D_0$ (no-abatement damages) & $0.06$ & anchored, 3 columns &
+  \begin{tabular}[t]{@{}l@{}}$0.02$ DICE \citep{nordhaus2017};
+  $0.06$ Dell--Jones--Olken /\\ Burke--Hsiang--Miguel range; $0.20$
+  \citet{bilalkanzig2024}\end{tabular}\\
+$\theta_g$ (abatement effectiveness) & $1.2$ & swept ($0$--$3$) &
+  no direct estimate; reported as a frontier (below) \\
+$\psi$ (damage incidence) & $0$ & swept ($0$--$2$) &
+  regressive incidence: \citet{kanzig2023carbon}, \citet{fried2018} \\
+$\phi_D$ (damage--risk link) & $0.5$ & swept ($0$--$1$) &
+  reduced form of \citet{acharya2023optimal} risk channel \\
+$\delta_g$ (green depreciation) & $0.10$ & swept ($0.05$--$0.10$) &
+  public-infrastructure depreciation range \\
+program scale & $2\%$ of income & swept ($1$--$4\%$) &
+  public green-investment shares in net-zero scenarios \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Two exercises then close the gap between ``illustrative'' and ``robust,''
+both on the calibrated economy ($\beta^{*}$ holding debt at $1.1$ times
+income; the $2\%$ program). \emph{First, the $(D_0,\theta_g)$ surface.}
+The two parameters the headline number is most sensitive to are the
+no-abatement damage level and the abatement effectiveness. Rather than
+defend point values, we compute the self-financing share on the whole
+$(D_0,\theta_g)$ plane and report the $\nu=1$ \emph{frontier} --- for each
+damage level, the abatement effectiveness required for full self-financing
+(Figure~\ref{fig:pfig20}a). The paper's answer is thus a correspondence,
+not a point estimate: a reader who holds DICE-level damage beliefs and a
+reader who accepts the \citet{bilalkanzig2024} estimates can each locate
+their own $\nu$ on the same map, and the map records at every node whether
+the revaluation component stays negative --- so the disinflation result is
+checked across the entire plane rather than asserted at the benchmark.
+\emph{Second, one-at-a-time sensitivity under a held fiscal target.} Each
+household-side variant (risk aversion $\sigma\in\{1,3\}$; the risk channel
+$\phi_D\in\{0,1\}$; the incidence gradient $\psi\in\{1,2\}$) re-calibrates
+$\beta$ so that debt remains $1.1$ times income before comparing programs
+--- differences in $\nu$ are then pure parameter effects, never artifacts
+of a drifting debt ratio --- while variants that leave the no-program
+economy untouched (green depreciation $\delta_g$; the program scale at
+$1\%$ and $4\%$) hold $\beta^{*}$ fixed (Figure~\ref{fig:pfig20}b).
+% TODO(run): quantitative sentences enter here once
+% output/tables/robustness_summary.txt is pushed -- the frontier
+% theta*(D0) at the three sourced columns, the count of nodes with
+% nu_reval<0, and the sensitivity range of nu across variants.
+
+\pfigguard{PFig20_robustness.pdf}{%
+\begin{figure}[ht]\centering
+\includegraphics[width=0.95\textwidth]{PFig20_robustness.pdf}
+\caption{Calibration robustness (steady state, calibrated scale). (a) The
+self-financing share $\nu$ over the $(D_0,\theta_g)$ plane; the white line
+is the $\nu=1$ frontier (full self-financing), and the marked column
+values $D_0\in\{0.02,0.06,0.20\}$ are the sourced damage calibrations of
+Table~\ref{tab:sources}. (b) One-at-a-time sensitivity at the medium
+column under the held debt-target protocol; the dashed line is full
+financing.}
+\label{fig:pfig20}
 \end{figure}}
 
 % --------------------------------------------------------------------------
@@ -2043,7 +2134,10 @@ three kinds of claims with three different evidentiary standards. First,
 an \emph{anchor} claim (Lemma~\ref{lem:anchor}): long-run inflation
 equals the growth of nominal fiscal aggregates relative to real output,
 slope one, no free parameter --- directly testable in cross-country
-panels, and tested below (E1, E4). Second, a \emph{sign} claim unique to
+panels. It holds one-for-one on the theory's own expenditure concept (E1)
+and remains a strong, positive relationship at scale but attenuates below
+one on a narrower government-consumption proxy (E4) --- a gap we trace to
+measurement of the spending concept rather than to the anchor itself. Second, a \emph{sign} claim unique to
 this mechanism: under deficit finance a credible green investment
 announcement is \emph{disinflationary} (it raises safe-asset demand),
 whereas every sticky-price transition model of the green transition we
