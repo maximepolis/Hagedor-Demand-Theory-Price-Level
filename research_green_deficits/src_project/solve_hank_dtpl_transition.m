@@ -169,7 +169,7 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
         r_path = (1 + rbar) .* phat_lag ./ phat - 1;
 
         % ---- backward: date-t policies from the terminal green ss ----
-        [POL, feas] = backward_policies(VT, r_path, tau_path, D_path, pgc);
+        [POL, feas] = transition_backward(VT, r_path, tau_path, D_path, pgc);
         if ~feas
             TR.msg = sprintf('tier2: infeasible household problem at iter %d.', it);
             return;
@@ -300,56 +300,9 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
 end
 
 % ==========================================================================
-function [POL, feas] = backward_policies(VT, r_path, tau_path, D_path, pgc)
-% One Bellman step per date, backward from the terminal value function.
-% Returns, per date, a policy closure for the distribution push and the
-% asset-demand aggregation. Income process rebuilt per date when the risk
-% channel is active (sig_eps(D_t)), exactly as in S_green.
-    T = numel(r_path);
-    POL = struct('push', cell(1, T), 'aGrid_dot_dist', cell(1, T));
-    feas = true;
-    Vnext = VT;
-    aG = pgc.aGrid(:);
-    na = numel(aG);
-    for t = T:-1:1
-        p = pgc;
-        if pgc.phi_D > 0
-            p.sig_eps = pgc.sig_eps0 * (1 + pgc.phi_D * D_path(t));
-            [eG, PiD, statD] = make_income_process(p);
-            p.eGrid = eG; p.Pi = PiD; p.stationary_e = statD;
-        end
-        % damage level/incidence channel on endowments (as in S_green)
-        psi = 0;
-        if isfield(pgc, 'psi_inc') && ~isempty(pgc.psi_inc), psi = pgc.psi_inc; end
-        ev = p.eGrid(:); wst = p.stationary_e(:);
-        if psi > 0
-            cnorm = wst' * (ev.^(1 - psi));
-            chi = (ev.^(-psi)) / cnorm;
-            yv = max(1 - D_path(t) * chi, 0.05) .* ev;
-        else
-            yv = (1 - D_path(t)) * ev;
-        end
-        [V, polA_idx, ok] = hh_bellman_step(Vnext, r_path(t), tau_path(t), ...
-                                            yv, p, aG);
-        if ~ok, feas = false; return; end
-        Vnext = V;
-        Pi_t = p.Pi;
-        idx  = polA_idx;                     % na x ne
-        POL(t).push = @(dist) push_dist(dist, idx, Pi_t, na);
-        POL(t).aGrid_dot_dist = @(dist) sum(sum(aG(idx) .* dist));
-    end
-end
-
-function dist1 = push_dist(dist, polA_idx, Pi, na)
-% exact one-step distribution iteration: mass at (a,e) moves to
-% (polA_idx(a,e), e') with probability Pi(e,e')
-    ne = size(dist, 2);
-    dist1 = zeros(na, ne);
-    for e = 1:ne
-        m = accumarray(polA_idx(:, e), dist(:, e), [na, 1]);
-        dist1 = dist1 + m * Pi(e, :);
-    end
-end
+% (backward pass extracted to src_project/transition_backward.m so it can be
+% re-run standalone on a saved converged path -- e.g. for the
+% transition-inclusive welfare of main_project_transition_welfare.)
 
 function v = getopt(o, f, d)
     if isfield(o, f) && ~isempty(o.(f)), v = o.(f); else, v = d; end
