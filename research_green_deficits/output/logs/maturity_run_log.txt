@@ -7,99 +7,100 @@ duration block uses accommodation move r: 0.0196 -> 0.0097 (mu* = 0.030)
 
 [debt maturity / indexation / holders -- nu^M]
   level-jump equivalence: maturity-neutral in the program experiment.
-  fiscal nu^M by indexed share:  aI=0.00: 0.598 |  aI=0.10: 0.601 |  aI=0.25: 0.607 |
-  domestic reval at aI=0.10:  aF=0.00: -0.035 | aF=0.30: -0.025 | aF=0.50: -0.018 |
-  duration (accommodation r 0.0196 -> 0.0097):  dm=0.00 (1.0y): hold-reval +0.048 |  dm=0.80 (4.6y): hold-reval +0.086 |  dm=0.90 (8.5y): hold-reval +0.131 |
+  fiscal nu^M by indexed share:  aI=0.00: 0.583 |  aI=0.10: 0.588 |  aI=0.25: 0.596 |
+  domestic reval at aI=0.10:  aF=0.00: -0.048 | aF=0.30: -0.034 | aF=0.50: -0.024 |
+  duration (accommodation r 0.0196 -> 0.0097):  dm=0.00 (1.0y): hold-reval +0.062 |  dm=0.80 (4.6y): hold-reval +0.102 |  dm=0.90 (8.5y): hold-reval +0.147 |
+[Warning: Exported image displays axes toolbar. To remove axes toolbar from image, export again.] 
   [saved] PFig10_maturity_bounds
 
 ===== [M2] Implementation efficiency q_g =====
   [S(tau,D) interpolant at r=+0.0196: 5 x 3 nodes]
-    node (tau=-0.010, D=0.000): S=  1.0018
-    node (tau=+0.012, D=0.000): S=  1.0443
-    node (tau=+0.035, D=0.000): S=  1.1078
-    node (tau=+0.058, D=0.000): S=  1.1527
-    node (tau=+0.080, D=0.000): S=  1.2334
-    node (tau=-0.010, D=0.030): S=  1.0060
-    node (tau=+0.012, D=0.030): S=  1.0466
-    node (tau=+0.035, D=0.030): S=  1.1158
-    node (tau=+0.058, D=0.030): S=  1.1803
-    node (tau=+0.080, D=0.030): S=  1.2654
-    node (tau=-0.010, D=0.060): S=  1.0311
-    node (tau=+0.012, D=0.060): S=  1.0924
-    node (tau=+0.035, D=0.060): S=  1.1413
-    node (tau=+0.058, D=0.060): S=  1.2041
-    node (tau=+0.080, D=0.060): S=  1.3349
+    node (tau=-0.010, D=0.000): S=  0.9834
+    node (tau=+0.012, D=0.000): S=  1.0440
+    node (tau=+0.035, D=0.000): S=  1.1063
+    node (tau=+0.058, D=0.000): S=  1.1705
+    node (tau=+0.080, D=0.000): S=  1.2449
+    node (tau=-0.010, D=0.030): S=  1.0025
+    node (tau=+0.012, D=0.030): S=  1.0620
+    node (tau=+0.035, D=0.030): S=  1.1256
+    node (tau=+0.058, D=0.030): S=  1.1934
+    node (tau=+0.080, D=0.030): S=  1.2784
+    node (tau=-0.010, D=0.060): S=  1.0186
+    node (tau=+0.012, D=0.060): S=  1.0809
+    node (tau=+0.035, D=0.060): S=  1.1436
+    node (tau=+0.058, D=0.060): S=  1.2180
+    node (tau=+0.080, D=0.060): S=  1.3098
 
 [self-financing, Proposition 2]
-  baseline: P0=0.8988, D0=0.0600, tau0=0.0218, W0=-4.1176
-  program : P1=0.8629, D1=0.0516, tau1=0.0438, g_g=0.0211, W1=-4.5450
-  nu = 0.358  (revaluation -0.043 + damage dividend 0.401)  => partially self-financing
-  one-time bondholder levy L = -0.0462;  identity resid = -3.47e-18
-  sweep theta_g=0.00: n_roots=1, nu=-0.050
-  sweep theta_g=0.50: n_roots=1, nu=0.127
-  sweep theta_g=1.00: n_roots=1, nu=0.294
-  sweep theta_g=1.50: n_roots=1, nu=0.451
-  sweep theta_g=2.00: n_roots=1, nu=0.598
-  sweep theta_g=2.50: n_roots=1, nu=0.736
-  q_g=0.60: nu=0.358 (reval -0.043, damage 0.401)
+  baseline: P0=0.9037, D0=0.0600, tau0=0.0217, W0=-3.9606
+  program : P1=0.8562, D1=0.0515, tau1=0.0441, g_g=0.0212, W1=-4.3623
+  nu = 0.344  (revaluation -0.057 + damage dividend 0.401)  => partially self-financing
+  one-time bondholder levy L = -0.0614;  identity resid = 3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.063
+  sweep theta_g=0.50: n_roots=1, nu=0.114
+  sweep theta_g=1.00: n_roots=1, nu=0.280
+  sweep theta_g=1.50: n_roots=1, nu=0.436
+  sweep theta_g=2.00: n_roots=1, nu=0.583
+  sweep theta_g=2.50: n_roots=1, nu=0.720
+  q_g=0.60: nu=0.344 (reval -0.057, damage 0.401)
   [S(tau,D) interpolant at r=+0.0196: 5 x 3 nodes]
-    node (tau=-0.010, D=0.000): S=  1.0018
-    node (tau=+0.012, D=0.000): S=  1.0443
-    node (tau=+0.035, D=0.000): S=  1.1078
-    node (tau=+0.058, D=0.000): S=  1.1527
-    node (tau=+0.080, D=0.000): S=  1.2334
-    node (tau=-0.010, D=0.030): S=  1.0060
-    node (tau=+0.012, D=0.030): S=  1.0466
-    node (tau=+0.035, D=0.030): S=  1.1158
-    node (tau=+0.058, D=0.030): S=  1.1803
-    node (tau=+0.080, D=0.030): S=  1.2654
-    node (tau=-0.010, D=0.060): S=  1.0311
-    node (tau=+0.012, D=0.060): S=  1.0924
-    node (tau=+0.035, D=0.060): S=  1.1413
-    node (tau=+0.058, D=0.060): S=  1.2041
-    node (tau=+0.080, D=0.060): S=  1.3349
+    node (tau=-0.010, D=0.000): S=  0.9834
+    node (tau=+0.012, D=0.000): S=  1.0440
+    node (tau=+0.035, D=0.000): S=  1.1063
+    node (tau=+0.058, D=0.000): S=  1.1705
+    node (tau=+0.080, D=0.000): S=  1.2449
+    node (tau=-0.010, D=0.030): S=  1.0025
+    node (tau=+0.012, D=0.030): S=  1.0620
+    node (tau=+0.035, D=0.030): S=  1.1256
+    node (tau=+0.058, D=0.030): S=  1.1934
+    node (tau=+0.080, D=0.030): S=  1.2784
+    node (tau=-0.010, D=0.060): S=  1.0186
+    node (tau=+0.012, D=0.060): S=  1.0809
+    node (tau=+0.035, D=0.060): S=  1.1436
+    node (tau=+0.058, D=0.060): S=  1.2180
+    node (tau=+0.080, D=0.060): S=  1.3098
 
 [self-financing, Proposition 2]
-  baseline: P0=0.8988, D0=0.0600, tau0=0.0218, W0=-4.1176
-  program : P1=0.8647, D1=0.0490, tau1=0.0437, g_g=0.0210, W1=-4.4813
-  nu = 0.481  (revaluation -0.041 + damage dividend 0.522)  => partially self-financing
-  one-time bondholder levy L = -0.0439;  identity resid = 0.00e+00
-  sweep theta_g=0.00: n_roots=1, nu=-0.050
-  sweep theta_g=0.50: n_roots=1, nu=0.184
-  sweep theta_g=1.00: n_roots=1, nu=0.399
-  sweep theta_g=1.50: n_roots=1, nu=0.598
-  sweep theta_g=2.00: n_roots=1, nu=0.780
-  sweep theta_g=2.50: n_roots=1, nu=0.948
-  q_g=0.80: nu=0.481 (reval -0.041, damage 0.522)
+  baseline: P0=0.9037, D0=0.0600, tau0=0.0217, W0=-3.9606
+  program : P1=0.8577, D1=0.0490, tau1=0.0441, g_g=0.0212, W1=-4.3034
+  nu = 0.466  (revaluation -0.055 + damage dividend 0.521)  => partially self-financing
+  one-time bondholder levy L = -0.0594;  identity resid = 3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.063
+  sweep theta_g=0.50: n_roots=1, nu=0.171
+  sweep theta_g=1.00: n_roots=1, nu=0.385
+  sweep theta_g=1.50: n_roots=1, nu=0.583
+  sweep theta_g=2.00: n_roots=1, nu=0.764
+  sweep theta_g=2.50: n_roots=1, nu=0.931
+  q_g=0.80: nu=0.466 (reval -0.055, damage 0.521)
   [S(tau,D) interpolant at r=+0.0196: 5 x 3 nodes]
-    node (tau=-0.010, D=0.000): S=  1.0018
-    node (tau=+0.012, D=0.000): S=  1.0443
-    node (tau=+0.035, D=0.000): S=  1.1078
-    node (tau=+0.058, D=0.000): S=  1.1527
-    node (tau=+0.080, D=0.000): S=  1.2334
-    node (tau=-0.010, D=0.030): S=  1.0060
-    node (tau=+0.012, D=0.030): S=  1.0466
-    node (tau=+0.035, D=0.030): S=  1.1158
-    node (tau=+0.058, D=0.030): S=  1.1803
-    node (tau=+0.080, D=0.030): S=  1.2654
-    node (tau=-0.010, D=0.060): S=  1.0311
-    node (tau=+0.012, D=0.060): S=  1.0924
-    node (tau=+0.035, D=0.060): S=  1.1413
-    node (tau=+0.058, D=0.060): S=  1.2041
-    node (tau=+0.080, D=0.060): S=  1.3349
+    node (tau=-0.010, D=0.000): S=  0.9834
+    node (tau=+0.012, D=0.000): S=  1.0440
+    node (tau=+0.035, D=0.000): S=  1.1063
+    node (tau=+0.058, D=0.000): S=  1.1705
+    node (tau=+0.080, D=0.000): S=  1.2449
+    node (tau=-0.010, D=0.030): S=  1.0025
+    node (tau=+0.012, D=0.030): S=  1.0620
+    node (tau=+0.035, D=0.030): S=  1.1256
+    node (tau=+0.058, D=0.030): S=  1.1934
+    node (tau=+0.080, D=0.030): S=  1.2784
+    node (tau=-0.010, D=0.060): S=  1.0186
+    node (tau=+0.012, D=0.060): S=  1.0809
+    node (tau=+0.035, D=0.060): S=  1.1436
+    node (tau=+0.058, D=0.060): S=  1.2180
+    node (tau=+0.080, D=0.060): S=  1.3098
 
 [self-financing, Proposition 2]
-  baseline: P0=0.8988, D0=0.0600, tau0=0.0218, W0=-4.1176
-  program : P1=0.8663, D1=0.0466, tau1=0.0436, g_g=0.0210, W1=-4.4214
-  nu = 0.598  (revaluation -0.039 + damage dividend 0.636)  => partially self-financing
-  one-time bondholder levy L = -0.0417;  identity resid = 0.00e+00
-  sweep theta_g=0.00: n_roots=1, nu=-0.050
-  sweep theta_g=0.50: n_roots=1, nu=0.240
-  sweep theta_g=1.00: n_roots=1, nu=0.501
-  sweep theta_g=1.50: n_roots=1, nu=0.736
-  sweep theta_g=2.00: n_roots=1, nu=0.948
-  sweep theta_g=2.50: n_roots=1, nu=1.140
-  q_g=1.00: nu=0.598 (reval -0.039, damage 0.636)
+  baseline: P0=0.9037, D0=0.0600, tau0=0.0217, W0=-3.9606
+  program : P1=0.8591, D1=0.0465, tau1=0.0440, g_g=0.0212, W1=-4.2476
+  nu = 0.583  (revaluation -0.053 + damage dividend 0.636)  => partially self-financing
+  one-time bondholder levy L = -0.0575;  identity resid = 0.00e+00
+  sweep theta_g=0.00: n_roots=1, nu=-0.063
+  sweep theta_g=0.50: n_roots=1, nu=0.226
+  sweep theta_g=1.00: n_roots=1, nu=0.486
+  sweep theta_g=1.50: n_roots=1, nu=0.720
+  sweep theta_g=2.00: n_roots=1, nu=0.931
+  sweep theta_g=2.50: n_roots=1, nu=1.121
+  q_g=1.00: nu=0.583 (reval -0.053, damage 0.636)
   [saved] PFig11_implementation_qg
   [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\maturity_summary.txt
 
@@ -107,5 +108,5 @@ duration block uses accommodation move r: 0.0196 -> 0.0097 (mu* = 0.030)
  Level-jump equivalence holds; indexation leakage and holder
  composition bound the channel; duration active only under the
  accommodation move. q_g sweep quantifies implementation frictions.
- Elapsed: 14.8 s
+ Elapsed: 39.2 s
 ============================================

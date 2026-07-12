@@ -1,98 +1,98 @@
 ==============================================================
  EXTENDED EXPERIMENTS: carbon-stock sector + damage incidence
- climate_version=2, na=100
+ climate_version=2, na=500
 ==============================================================
 extended stance: mu_ext=0.030 (r_ss=+0.0097)
 version-2 no-abatement damages D(0) = 0.0991 (target ~ 0.10)
 
 ===== [X1] Extended benchmark (psi_inc=1, carbon stock) =====
   [S(tau,D) interpolant at r=+0.0097: 7 x 4 nodes]
-    node (tau=-0.050, D=0.000): S=  2.0488
-    node (tau=-0.005, D=0.000): S=  2.2061
-    node (tau=+0.040, D=0.000): S=  2.3728
-    node (tau=+0.085, D=0.000): S=  2.5849
-    node (tau=+0.130, D=0.000): S=  2.8008
-    node (tau=+0.175, D=0.000): S=  3.1744
-    node (tau=+0.220, D=0.000): S=  3.6181
-    node (tau=-0.050, D=0.033): S=  2.2697
-    node (tau=-0.005, D=0.033): S=  2.4406
-    node (tau=+0.040, D=0.033): S=  2.6569
-    node (tau=+0.085, D=0.033): S=  2.9104
-    node (tau=+0.130, D=0.033): S=  3.2676
-    node (tau=+0.175, D=0.033): S=  3.6494
-    node (tau=+0.220, D=0.033): S=  4.2835
-    node (tau=-0.050, D=0.067): S=  2.5026
-    node (tau=-0.005, D=0.067): S=  2.7088
-    node (tau=+0.040, D=0.067): S=  2.9511
-    node (tau=+0.085, D=0.067): S=  3.2918
-    node (tau=+0.130, D=0.067): S=  3.7003
-    node (tau=+0.175, D=0.067): S=  4.2934
+    node (tau=-0.050, D=0.000): S=  2.1379
+    node (tau=-0.005, D=0.000): S=  2.3203
+    node (tau=+0.040, D=0.000): S=  2.5629
+    node (tau=+0.085, D=0.000): S=  2.7957
+    node (tau=+0.130, D=0.000): S=  3.0889
+    node (tau=+0.175, D=0.000): S=  3.4776
+    node (tau=+0.220, D=0.000): S=  3.9721
+    node (tau=-0.050, D=0.033): S=  2.3625
+    node (tau=-0.005, D=0.033): S=  2.6096
+    node (tau=+0.040, D=0.033): S=  2.8412
+    node (tau=+0.085, D=0.033): S=  3.1293
+    node (tau=+0.130, D=0.033): S=  3.5117
+    node (tau=+0.175, D=0.033): S=  3.9842
+    node (tau=+0.220, D=0.033): S=  4.6074
+    node (tau=-0.050, D=0.067): S=  2.6592
+    node (tau=-0.005, D=0.067): S=  2.8924
+    node (tau=+0.040, D=0.067): S=  3.1734
+    node (tau=+0.085, D=0.067): S=  3.5460
+    node (tau=+0.130, D=0.067): S=  4.0106
+    node (tau=+0.175, D=0.067): S=  4.6135
     node (tau=+0.220, D=0.067): S=     NaN
-    node (tau=-0.050, D=0.100): S=  2.7525
-    node (tau=-0.005, D=0.100): S=  3.0145
-    node (tau=+0.040, D=0.100): S=  3.3183
-    node (tau=+0.085, D=0.100): S=  3.7325
-    node (tau=+0.130, D=0.100): S=  4.3179
+    node (tau=-0.050, D=0.100): S=  2.9394
+    node (tau=-0.005, D=0.100): S=  3.2183
+    node (tau=+0.040, D=0.100): S=  3.5758
+    node (tau=+0.085, D=0.100): S=  4.0362
+    node (tau=+0.130, D=0.100): S=  4.6360
     node (tau=+0.175, D=0.100): S=     NaN
     node (tau=+0.220, D=0.100): S=     NaN
   [3 infeasible corner node(s) filled by nearest-in-tau for scanning]
-  nominal regime, theta_g=1.20: UNIQUE P*=0.3067 (D=0.073).
+  nominal regime, theta_g=1.20: UNIQUE P*=0.2826 (D=0.071).
 
 ===== [X2] Sunspot frontier over (psi, Gg) =====
   [S(tau,D) interpolant at r=+0.0097: 5 x 3 nodes]
-    node (tau=-0.020, D=0.000): S=  2.1325
-    node (tau=+0.035, D=0.000): S=  2.3728
-    node (tau=+0.090, D=0.000): S=  2.6535
-    node (tau=+0.145, D=0.000): S=  2.9868
-    node (tau=+0.200, D=0.000): S=  3.4172
-    node (tau=-0.020, D=0.050): S=  2.1606
-    node (tau=+0.035, D=0.050): S=  2.3768
-    node (tau=+0.090, D=0.050): S=  2.6964
-    node (tau=+0.145, D=0.050): S=  3.0764
-    node (tau=+0.200, D=0.050): S=  3.6009
-    node (tau=-0.020, D=0.100): S=  2.1533
-    node (tau=+0.035, D=0.100): S=  2.3892
-    node (tau=+0.090, D=0.100): S=  2.7234
-    node (tau=+0.145, D=0.100): S=  3.1297
-    node (tau=+0.200, D=0.100): S=  3.7435
-  psi=0.0 Gg=0.012: nominal roots=1 (min epsS=-0.38), mandate roots=1
-  psi=0.0 Gg=0.024: nominal roots=1 (min epsS=-0.45), mandate roots=1
+    node (tau=-0.020, D=0.000): S=  2.2538
+    node (tau=+0.035, D=0.000): S=  2.5349
+    node (tau=+0.090, D=0.000): S=  2.8250
+    node (tau=+0.145, D=0.000): S=  3.2073
+    node (tau=+0.200, D=0.000): S=  3.7342
+    node (tau=-0.020, D=0.050): S=  2.2840
+    node (tau=+0.035, D=0.050): S=  2.5637
+    node (tau=+0.090, D=0.050): S=  2.8734
+    node (tau=+0.145, D=0.050): S=  3.3150
+    node (tau=+0.200, D=0.050): S=  3.8997
+    node (tau=-0.020, D=0.100): S=  2.3102
+    node (tau=+0.035, D=0.100): S=  2.5785
+    node (tau=+0.090, D=0.100): S=  2.9249
+    node (tau=+0.145, D=0.100): S=  3.4123
+    node (tau=+0.200, D=0.100): S=  4.0524
+  psi=0.0 Gg=0.012: nominal roots=1 (min epsS=-0.48), mandate roots=1
+  psi=0.0 Gg=0.024: nominal roots=1 (min epsS=-0.49), mandate roots=1
   [S(tau,D) interpolant at r=+0.0097: 5 x 3 nodes]
-    node (tau=-0.020, D=0.000): S=  2.1325
-    node (tau=+0.035, D=0.000): S=  2.3728
-    node (tau=+0.090, D=0.000): S=  2.6535
-    node (tau=+0.145, D=0.000): S=  2.9868
-    node (tau=+0.200, D=0.000): S=  3.4172
-    node (tau=-0.020, D=0.050): S=  2.5105
-    node (tau=+0.035, D=0.050): S=  2.7579
-    node (tau=+0.090, D=0.050): S=  3.1183
-    node (tau=+0.145, D=0.050): S=  3.6295
-    node (tau=+0.200, D=0.050): S=  4.2869
-    node (tau=-0.020, D=0.100): S=  2.8819
-    node (tau=+0.035, D=0.100): S=  3.2418
-    node (tau=+0.090, D=0.100): S=  3.8186
-    node (tau=+0.145, D=0.100): S=  4.5570
+    node (tau=-0.020, D=0.000): S=  2.2538
+    node (tau=+0.035, D=0.000): S=  2.5349
+    node (tau=+0.090, D=0.000): S=  2.8250
+    node (tau=+0.145, D=0.000): S=  3.2073
+    node (tau=+0.200, D=0.000): S=  3.7342
+    node (tau=-0.020, D=0.050): S=  2.6702
+    node (tau=+0.035, D=0.050): S=  2.9697
+    node (tau=+0.090, D=0.050): S=  3.3698
+    node (tau=+0.145, D=0.050): S=  3.9140
+    node (tau=+0.200, D=0.050): S=  4.6517
+    node (tau=-0.020, D=0.100): S=  3.1168
+    node (tau=+0.035, D=0.100): S=  3.5323
+    node (tau=+0.090, D=0.100): S=  4.1001
+    node (tau=+0.145, D=0.100): S=  4.8712
     node (tau=+0.200, D=0.100): S=     NaN
   [1 infeasible corner node(s) filled by nearest-in-tau for scanning]
-  psi=1.0 Gg=0.012: nominal roots=1 (min epsS=-0.29), mandate roots=1
-  psi=1.0 Gg=0.024: nominal roots=1 (min epsS=-0.37), mandate roots=1
+  psi=1.0 Gg=0.012: nominal roots=1 (min epsS=-0.41), mandate roots=1
+  psi=1.0 Gg=0.024: nominal roots=1 (min epsS=-0.40), mandate roots=1
   [tau grid clamped at 0.134 by incidence feasibility]
   [S(tau,D) interpolant at r=+0.0097: 5 x 3 nodes]
-    node (tau=-0.020, D=0.000): S=  2.1325
-    node (tau=+0.019, D=0.000): S=  2.2832
-    node (tau=+0.057, D=0.000): S=  2.4687
-    node (tau=+0.096, D=0.000): S=  2.6644
-    node (tau=+0.134, D=0.000): S=  2.8708
-    node (tau=-0.020, D=0.050): S=  2.9752
-    node (tau=+0.019, D=0.050): S=  3.3659
-    node (tau=+0.057, D=0.050): S=  3.7496
-    node (tau=+0.096, D=0.050): S=  4.2064
-    node (tau=+0.134, D=0.050): S=  4.8816
+    node (tau=-0.020, D=0.000): S=  2.2538
+    node (tau=+0.019, D=0.000): S=  2.4619
+    node (tau=+0.057, D=0.000): S=  2.6444
+    node (tau=+0.096, D=0.000): S=  2.8616
+    node (tau=+0.134, D=0.000): S=  3.1204
+    node (tau=-0.020, D=0.050): S=  3.2753
+    node (tau=+0.019, D=0.050): S=  3.6108
+    node (tau=+0.057, D=0.050): S=  4.0114
+    node (tau=+0.096, D=0.050): S=  4.5287
+    node (tau=+0.134, D=0.050): S=  5.2308
 [Warning: Incidence gradient capped at scale=0.05 for some states (D=0.100, psi=2.00).] 
 [> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('S_green', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\S_green.m', 62)" style="font-weight:bold">S_green</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\S_green.m',62,0)">line 62</a>)
 In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('build_S_interp_green', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\build_S_interp_green.m', 58)" style="font-weight:bold">build_S_interp_green</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\build_S_interp_green.m',58,0)">line 58</a>)
 In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('main_project_extended', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\main_project_extended.m', 104)" style="font-weight:bold">main_project_extended</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\main_project_extended.m',104,0)">line 104</a>)] 
-    node (tau=-0.020, D=0.100): S=  4.7796
+    node (tau=-0.020, D=0.100): S=  5.0565
 [Warning: Incidence gradient capped at scale=0.05 for some states (D=0.100, psi=2.00).] 
 [> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('S_green', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\S_green.m', 62)" style="font-weight:bold">S_green</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\S_green.m',62,0)">line 62</a>)
 In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('build_S_interp_green', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\build_S_interp_green.m', 58)" style="font-weight:bold">build_S_interp_green</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\build_S_interp_green.m',58,0)">line 58</a>)
@@ -114,31 +114,31 @@ In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('build_S_
 In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('main_project_extended', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\main_project_extended.m', 104)" style="font-weight:bold">main_project_extended</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\main_project_extended.m',104,0)">line 104</a>)] 
     node (tau=+0.134, D=0.100): S=     NaN
   [4 infeasible corner node(s) filled by nearest-in-tau for scanning]
-  psi=2.0 Gg=0.012: nominal roots=1 (min epsS=-0.29), mandate roots=1
-[Warning: nominal regime, theta_g=1.20: NO equilibrium on [0.05, 3]. Phi(0.273)=+1.009 .. Phi(3.000)=+4.242; same-sign finite boundaries indicate
-EXISTENCE failure (demand above/below supply everywhere), not a scan-window artifact.] 
+  psi=2.0 Gg=0.012: nominal roots=1 (min epsS=-0.33), mandate roots=1
+[Warning: nominal regime, theta_g=1.20: NO equilibrium on [0.05, 3]. Phi(0.260)=+1.207 .. Phi(3.000)=+4.516; same-sign finite boundaries
+indicate EXISTENCE failure (demand above/below supply everywhere), not a scan-window artifact.] 
 [> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('solve_green_steady_state', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_green_steady_state.m', 143)" style="font-weight:bold">solve_green_steady_state</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_green_steady_state.m',143,0)">line 143</a>)
 In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('main_project_extended', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\main_project_extended.m', 108)" style="font-weight:bold">main_project_extended</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\main_project_extended.m',108,0)">line 108</a>)] 
-[Warning: real regime, theta_g=1.20: NO equilibrium on [0.05, 3]. Phi(0.273)=+1.032 .. Phi(3.000)=+3.822; same-sign finite boundaries indicate
-EXISTENCE failure (demand above/below supply everywhere), not a scan-window artifact.] 
+[Warning: real regime, theta_g=1.20: NO equilibrium on [0.05, 3]. Phi(0.260)=+1.216 .. Phi(3.000)=+4.138; same-sign finite boundaries
+indicate EXISTENCE failure (demand above/below supply everywhere), not a scan-window artifact.] 
 [> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('solve_green_steady_state', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_green_steady_state.m', 143)" style="font-weight:bold">solve_green_steady_state</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_green_steady_state.m',143,0)">line 143</a>)
 In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('main_project_extended', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\main_project_extended.m', 113)" style="font-weight:bold">main_project_extended</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\main_project_extended.m',113,0)">line 113</a>)] 
-  psi=2.0 Gg=0.024: nominal roots=0 (min epsS=-0.35), mandate roots=0
+  psi=2.0 Gg=0.024: nominal roots=0 (min epsS=-0.38), mandate roots=0
   [saved] PFig6_incidence_epsS
 
 ===== [X3] Self-financing, extended sector =====
 
 [self-financing, Proposition 2]
-  baseline: P0=0.3076, D0=0.0991, tau0=0.0316, W0=-9.1577
-  program : P1=0.3067, D1=0.0728, tau1=0.0708, g_g=0.0391, W1=-9.7610
-  nu = 0.669  (revaluation -0.002 + damage dividend 0.671)  => partially self-financing
-  one-time bondholder levy L = -0.0097;  identity resid = 0.00e+00
-  sweep theta_g=0.00: n_roots=1, nu=-0.093
-  sweep theta_g=0.50: n_roots=1, nu=0.249
-  sweep theta_g=1.00: n_roots=1, nu=0.555
-  sweep theta_g=1.50: n_roots=1, nu=0.831
-  sweep theta_g=2.00: n_roots=1, nu=1.075
-  sweep theta_g=2.50: n_roots=1, nu=1.294
+  baseline: P0=0.2842, D0=0.0991, tau0=0.0342, W0=-8.7406
+  program : P1=0.2826, D1=0.0709, tau1=0.0768, g_g=0.0425, W1=-9.3531
+  nu = 0.659  (revaluation -0.005 + damage dividend 0.664)  => partially self-financing
+  one-time bondholder levy L = -0.0197;  identity resid = 0.00e+00
+  sweep theta_g=0.00: n_roots=1, nu=-0.109
+  sweep theta_g=0.50: n_roots=1, nu=0.239
+  sweep theta_g=1.00: n_roots=1, nu=0.546
+  sweep theta_g=1.50: n_roots=1, nu=0.819
+  sweep theta_g=2.00: n_roots=1, nu=1.058
+  sweep theta_g=2.50: n_roots=1, nu=1.271
 
 ===== [X4] Empirics =====
   E1 (nominal anchor): n=34, beta=1.004 (HC1 se 0.257), test beta=1: t=0.01 p=0.988, rho=0.562, R2=0.316.
@@ -150,10 +150,10 @@ In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('main_pro
   [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\extended_summary.txt
 
 ================ EXTENDED SUMMARY ================
- X1: P*=0.3067 D=0.0728 (D_noab=0.099) tau=0.0708
+ X1: P*=0.2826 D=0.0709 (D_noab=0.099) tau=0.0768
  X2: max nominal-budget roots over frontier = 1; mandate always 1
- X3: nu=0.669 (reval -0.002 + damage 0.671)
+ X3: nu=0.659 (reval -0.005 + damage 0.664)
  X4: E1 (nominal anchor): n=34, beta=1.004 (HC1 se 0.257), test beta=1: t=0.01 p=0.988, rho=0.562, R2=0.316.
  X4/E4: E4a anchor (WB panel): full n=165 beta=1.365 (HC1 0.345); trimmed(<30%) n=158 beta=0.709 (HC1 0.087), test beta=1: p=0.001.
- Elapsed: 29.5 s
+ Elapsed: 47.3 s
 ==================================================

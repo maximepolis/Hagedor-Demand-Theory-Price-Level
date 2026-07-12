@@ -1,18 +1,7 @@
 ==============================================================
  U7 TIER 2: NONLINEAR HANK-DTPL TRANSITION (na=500, T=80)
 ==============================================================
-stored calibration grid mismatch (this run na=500) -- recalibrating beta on this grid...
-  [calibrate_beta] S(0.850)=0.113  S(0.955)=3.398  target=1.100
-  [calibrate_beta  1] beta=0.9025  S=0.5187
-  [calibrate_beta  2] beta=0.9287  S=1.1811
-  [calibrate_beta  3] beta=0.9156  S=0.7743
-  [calibrate_beta  4] beta=0.9222  S=0.9564
-  [calibrate_beta  5] beta=0.9255  S=1.0607
-  [calibrate_beta  6] beta=0.9271  S=1.1185
-  [calibrate_beta  7] beta=0.9263  S=1.0897
-  [calibrate_beta  8] beta=0.9267  S=1.1049
-  [calibrate_beta] beta* = 0.9267 (S=1.1049, target 1.100)
-recalibrated on na=500: beta*=0.9267, Gg=0.01818
+loaded calibrated inputs (na=500 matches): beta*=0.9267, Gg=0.01818
 
 --- NOMINAL appropriation ---
   boundary steady states: P0=0.9051 -> P1=0.8590 (D: 0.0600 -> 0.0465)
@@ -184,4 +173,4 @@ recalibrated on na=500: beta*=0.9267, Gg=0.01818
 
   [saved] PFig18_dtpl_transition
   [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\transition_dtpl_summary.txt
-Elapsed: 366.3 s
+Elapsed: 193.3 s
