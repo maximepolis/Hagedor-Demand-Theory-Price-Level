@@ -1,25 +1,25 @@
 ==============================================================
  SAFE-ASSET CHANNEL + EXTENDED WELFARE GROUPS (Steps 4-5)
- medium damage column, calibrated scale, na=100
+ medium damage column, calibrated scale, na=500
 ==============================================================
-loaded calibrated inputs: beta*=0.9287, Gg=0.01818
+loaded calibrated inputs: beta*=0.9267, Gg=0.01818
 
 --- (A) safe-asset-channel decomposition ---
-  regime N0-BASELINE  P*=0.9064  D=0.0600  tau_ls=+0.0216  vartheta=0.0000  |Phi|=5.3e-05  gbc=0.0e+00
-  regime N1-PROGRAM   P*=0.8686  D=0.0467  tau_ls=+0.0435  vartheta=0.0000  |Phi|=6.6e-05  gbc=0.0e+00
-  regime N2-TAX-ONLY  P*=0.8686  D=0.0600  tau_ls=+0.0435  vartheta=0.0000  |Phi|=6.6e-05  gbc=0.0e+00
-  regime N3-DAMAGE    P*=0.8866  D=0.0467  tau_ls=+0.0221  vartheta=0.0000  |Phi|=1.4e-04  gbc=0.0e+00
-  regime N4-RISK      P*=0.9257  D=0.0600  tau_ls=+0.0212  vartheta=0.0000  |Phi|=1.3e-04  gbc=0.0e+00
-  regime N5-LEVY      P*=0.9257  D=0.0474  tau_ls=+0.0212  vartheta=0.0206  |Phi|=1.2e-04  gbc=0.0e+00
-  dlnP = -0.0426 = tax -0.0426 + damage -0.0221 + risk +0.0210 + interaction +0.0010; financing swap (levy vs lump-sum) +0.0636
+  regime N0-BASELINE  P*=0.9051  D=0.0600  tau_ls=+0.0217  vartheta=0.0000  |Phi|=3.3e-05  gbc=0.0e+00
+  regime N1-PROGRAM   P*=0.8590  D=0.0465  tau_ls=+0.0440  vartheta=0.0000  |Phi|=9.2e-05  gbc=0.0e+00
+  regime N2-TAX-ONLY  P*=0.8543  D=0.0600  tau_ls=+0.0442  vartheta=0.0000  |Phi|=1.6e-04  gbc=0.0e+00
+  regime N3-DAMAGE    P*=0.8910  D=0.0465  tau_ls=+0.0220  vartheta=0.0000  |Phi|=1.5e-05  gbc=0.0e+00
+  regime N4-RISK      P*=0.9241  D=0.0600  tau_ls=+0.0212  vartheta=0.0000  |Phi|=3.5e-05  gbc=0.0e+00
+  regime N5-LEVY      P*=0.9306  D=0.0475  tau_ls=+0.0211  vartheta=0.0205  |Phi|=3.1e-05  gbc=0.0e+00
+  dlnP = -0.0523 = tax -0.0577 + damage -0.0157 + risk +0.0208 + interaction +0.0003; financing swap (levy vs lump-sum) +0.0801
   [saved] PFig15_safe_asset_decomposition
   [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\safe_asset_channel_summary.txt
 
 --- (B) extended welfare groups ---
-  regime R3-PROP-LEVY-REBATE P*=0.9996  D=0.0482  tau_ls=+0.0014  vartheta=0.0382  |Phi|=7.4e-05  gbc=0.0e+00
-  DEFICIT: agg -1.71% | wealth-q(%) [-2.53 -1.89 -1.6 -1.39 -1.11] | income-q(%) [-2.65 -1.97 -1.59 -1.32 -1.04] | constrained -2.54% (mass 18.9%) vs unconstrained -1.52% | high-MPC -2.15% vs rest -1.52%
-  REBATE:  agg +0.68% | wealth-q(%) [1.67 0.87 0.52 0.27 -0.01] | income-q(%) [1.85 1.03 0.54 0.18 -0.22] | constrained +1.68% (mass 18.9%) vs unconstrained +0.44% | high-MPC +1.20% vs rest +0.45%
+  regime R3-PROP-LEVY-REBATE P*=0.9986  D=0.0482  tau_ls=+0.0014  vartheta=0.0383  |Phi|=5.8e-05  gbc=0.0e+00
+  DEFICIT: agg -1.75% | wealth-q(%) [-2.6 -1.9 -1.67 -1.43 -1.12] | income-q(%) [-2.73 -2.01 -1.62 -1.34 -1.05] | constrained -2.64% (mass 17.7%) vs unconstrained -1.56% | high-MPC -2.25% vs rest -1.56%
+  REBATE:  agg +0.67% | wealth-q(%) [1.68 0.82 0.54 0.28 -0.03] | income-q(%) [1.86 1.02 0.53 0.16 -0.24] | constrained +1.71% (mass 17.7%) vs unconstrained +0.44% | high-MPC +1.23% vs rest +0.45%
   [saved] PFig16_extended_welfare_groups
   [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\welfare_groups_extended_summary.txt
 
-Elapsed: 19.0 s
+Elapsed: 57.1 s

@@ -1,13 +1,19 @@
 ==============================================================
  CALIBRATED PASS (U3): debt/GDP target 1.10, program 2.0% of income
- damage columns D0 = {0.02, 0.06, 0.20}, na=100
+ damage columns D0 = {0.02, 0.06, 0.20}, na=500
 ==============================================================
 
 ===== [C1] Calibrating beta to debt/GDP = 1.10 =====
-  [calibrate_beta] S(0.850)=0.111  S(0.955)=2.968  target=1.100
-  [calibrate_beta  1] beta=0.9025  S=0.4958
-  [calibrate_beta  2] beta=0.9287  S=1.1033
-  [calibrate_beta] beta* = 0.9287 (S=1.1033, target 1.100)
+  [calibrate_beta] S(0.850)=0.113  S(0.955)=3.398  target=1.100
+  [calibrate_beta  1] beta=0.9025  S=0.5187
+  [calibrate_beta  2] beta=0.9287  S=1.1811
+  [calibrate_beta  3] beta=0.9156  S=0.7743
+  [calibrate_beta  4] beta=0.9222  S=0.9564
+  [calibrate_beta  5] beta=0.9255  S=1.0607
+  [calibrate_beta  6] beta=0.9271  S=1.1185
+  [calibrate_beta  7] beta=0.9263  S=1.0897
+  [calibrate_beta  8] beta=0.9267  S=1.1049
+  [calibrate_beta] beta* = 0.9267 (S=1.1049, target 1.100)
 
 ===== [C2] Program scale: P0(med)=0.9091 => Gg_cal=0.01818 =====
 
@@ -15,105 +21,105 @@
 
 --- column LOW (DICE): D0=0.02 ---
   [S(tau,D) interpolant at r=+0.0196: 5 x 3 nodes]
-    node (tau=-0.010, D=0.000): S=  1.0018
-    node (tau=+0.012, D=0.000): S=  1.0443
-    node (tau=+0.035, D=0.000): S=  1.1078
-    node (tau=+0.058, D=0.000): S=  1.1527
-    node (tau=+0.080, D=0.000): S=  1.2334
-    node (tau=-0.010, D=0.010): S=  1.0018
-    node (tau=+0.012, D=0.010): S=  1.0443
-    node (tau=+0.035, D=0.010): S=  1.1086
-    node (tau=+0.058, D=0.010): S=  1.1737
-    node (tau=+0.080, D=0.010): S=  1.2355
-    node (tau=-0.010, D=0.020): S=  1.0018
-    node (tau=+0.012, D=0.020): S=  1.0466
-    node (tau=+0.035, D=0.020): S=  1.1086
-    node (tau=+0.058, D=0.020): S=  1.1803
-    node (tau=+0.080, D=0.020): S=  1.2456
+    node (tau=-0.010, D=0.000): S=  0.9834
+    node (tau=+0.012, D=0.000): S=  1.0440
+    node (tau=+0.035, D=0.000): S=  1.1063
+    node (tau=+0.058, D=0.000): S=  1.1705
+    node (tau=+0.080, D=0.000): S=  1.2449
+    node (tau=-0.010, D=0.010): S=  0.9920
+    node (tau=+0.012, D=0.010): S=  1.0504
+    node (tau=+0.035, D=0.010): S=  1.1135
+    node (tau=+0.058, D=0.010): S=  1.1797
+    node (tau=+0.080, D=0.010): S=  1.2565
+    node (tau=-0.010, D=0.020): S=  0.9965
+    node (tau=+0.012, D=0.020): S=  1.0564
+    node (tau=+0.035, D=0.020): S=  1.1206
+    node (tau=+0.058, D=0.020): S=  1.1874
+    node (tau=+0.080, D=0.020): S=  1.2661
 
 [self-financing, Proposition 2]
-  baseline: P0=0.9346, D0=0.0200, tau0=0.0210, W0=-3.2288
-  program : P1=0.8830, D1=0.0156, tau1=0.0428, g_g=0.0206, W1=-3.6929
-  nu = 0.153  (revaluation -0.059 + damage dividend 0.213)  => partially self-financing
-  one-time bondholder levy L = -0.0625;  identity resid = -3.47e-18
-  sweep theta_g=0.00: n_roots=1, nu=-0.061
-  sweep theta_g=0.50: n_roots=1, nu=0.035
-  sweep theta_g=1.00: n_roots=1, nu=0.121
-  sweep theta_g=1.50: n_roots=1, nu=0.199
-  sweep theta_g=2.00: n_roots=1, nu=0.269
-  sweep theta_g=2.50: n_roots=1, nu=0.332
+  baseline: P0=0.9248, D0=0.0200, tau0=0.0212, W0=-3.1257
+  program : P1=0.8760, D1=0.0156, tau1=0.0431, g_g=0.0208, W1=-3.5585
+  nu = 0.156  (revaluation -0.057 + damage dividend 0.212)  => partially self-financing
+  one-time bondholder levy L = -0.0603;  identity resid = 3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.060
+  sweep theta_g=0.50: n_roots=1, nu=0.036
+  sweep theta_g=1.00: n_roots=1, nu=0.123
+  sweep theta_g=1.50: n_roots=1, nu=0.202
+  sweep theta_g=2.00: n_roots=1, nu=0.272
+  sweep theta_g=2.50: n_roots=1, nu=0.336
 
 --- column MEDIUM (DJO-BHM): D0=0.06 ---
   [S(tau,D) interpolant at r=+0.0196: 5 x 3 nodes]
-    node (tau=-0.010, D=0.000): S=  1.0018
-    node (tau=+0.012, D=0.000): S=  1.0443
-    node (tau=+0.035, D=0.000): S=  1.1078
-    node (tau=+0.058, D=0.000): S=  1.1527
-    node (tau=+0.080, D=0.000): S=  1.2334
-    node (tau=-0.010, D=0.030): S=  1.0060
-    node (tau=+0.012, D=0.030): S=  1.0466
-    node (tau=+0.035, D=0.030): S=  1.1158
-    node (tau=+0.058, D=0.030): S=  1.1803
-    node (tau=+0.080, D=0.030): S=  1.2654
-    node (tau=-0.010, D=0.060): S=  1.0311
-    node (tau=+0.012, D=0.060): S=  1.0924
-    node (tau=+0.035, D=0.060): S=  1.1413
-    node (tau=+0.058, D=0.060): S=  1.2041
-    node (tau=+0.080, D=0.060): S=  1.3349
+    node (tau=-0.010, D=0.000): S=  0.9834
+    node (tau=+0.012, D=0.000): S=  1.0440
+    node (tau=+0.035, D=0.000): S=  1.1063
+    node (tau=+0.058, D=0.000): S=  1.1705
+    node (tau=+0.080, D=0.000): S=  1.2449
+    node (tau=-0.010, D=0.030): S=  1.0025
+    node (tau=+0.012, D=0.030): S=  1.0620
+    node (tau=+0.035, D=0.030): S=  1.1256
+    node (tau=+0.058, D=0.030): S=  1.1934
+    node (tau=+0.080, D=0.030): S=  1.2784
+    node (tau=-0.010, D=0.060): S=  1.0186
+    node (tau=+0.012, D=0.060): S=  1.0809
+    node (tau=+0.035, D=0.060): S=  1.1436
+    node (tau=+0.058, D=0.060): S=  1.2180
+    node (tau=+0.080, D=0.060): S=  1.3098
 
 [self-financing, Proposition 2]
-  baseline: P0=0.8988, D0=0.0600, tau0=0.0218, W0=-4.1176
-  program : P1=0.8663, D1=0.0466, tau1=0.0436, g_g=0.0210, W1=-4.4214
-  nu = 0.598  (revaluation -0.039 + damage dividend 0.636)  => partially self-financing
-  one-time bondholder levy L = -0.0417;  identity resid = 0.00e+00
-  sweep theta_g=0.00: n_roots=1, nu=-0.050
-  sweep theta_g=0.50: n_roots=1, nu=0.240
-  sweep theta_g=1.00: n_roots=1, nu=0.501
-  sweep theta_g=1.50: n_roots=1, nu=0.736
-  sweep theta_g=2.00: n_roots=1, nu=0.948
-  sweep theta_g=2.50: n_roots=1, nu=1.140
+  baseline: P0=0.9037, D0=0.0600, tau0=0.0217, W0=-3.9606
+  program : P1=0.8591, D1=0.0465, tau1=0.0440, g_g=0.0212, W1=-4.2476
+  nu = 0.583  (revaluation -0.053 + damage dividend 0.636)  => partially self-financing
+  one-time bondholder levy L = -0.0575;  identity resid = 0.00e+00
+  sweep theta_g=0.00: n_roots=1, nu=-0.063
+  sweep theta_g=0.50: n_roots=1, nu=0.226
+  sweep theta_g=1.00: n_roots=1, nu=0.486
+  sweep theta_g=1.50: n_roots=1, nu=0.720
+  sweep theta_g=2.00: n_roots=1, nu=0.931
+  sweep theta_g=2.50: n_roots=1, nu=1.121
 
 --- column HIGH (Bilal-Kaenzig): D0=0.20 ---
   [S(tau,D) interpolant at r=+0.0196: 5 x 3 nodes]
-    node (tau=-0.010, D=0.000): S=  1.0018
-    node (tau=+0.012, D=0.000): S=  1.0443
-    node (tau=+0.035, D=0.000): S=  1.1078
-    node (tau=+0.058, D=0.000): S=  1.1527
-    node (tau=+0.080, D=0.000): S=  1.2334
-    node (tau=-0.010, D=0.100): S=  1.0310
-    node (tau=+0.012, D=0.100): S=  1.0977
-    node (tau=+0.035, D=0.100): S=  1.1502
-    node (tau=+0.058, D=0.100): S=  1.2811
-    node (tau=+0.080, D=0.100): S=  1.3932
-    node (tau=-0.010, D=0.200): S=  1.0232
-    node (tau=+0.012, D=0.200): S=  1.1675
-    node (tau=+0.035, D=0.200): S=  1.2353
-    node (tau=+0.058, D=0.200): S=  1.3237
-    node (tau=+0.080, D=0.200): S=  1.4394
+    node (tau=-0.010, D=0.000): S=  0.9834
+    node (tau=+0.012, D=0.000): S=  1.0440
+    node (tau=+0.035, D=0.000): S=  1.1063
+    node (tau=+0.058, D=0.000): S=  1.1705
+    node (tau=+0.080, D=0.000): S=  1.2449
+    node (tau=-0.010, D=0.100): S=  1.0322
+    node (tau=+0.012, D=0.100): S=  1.0953
+    node (tau=+0.035, D=0.100): S=  1.1624
+    node (tau=+0.058, D=0.100): S=  1.2544
+    node (tau=+0.080, D=0.100): S=  1.3426
+    node (tau=-0.010, D=0.200): S=  1.0483
+    node (tau=+0.012, D=0.200): S=  1.1328
+    node (tau=+0.035, D=0.200): S=  1.2126
+    node (tau=+0.058, D=0.200): S=  1.3035
+    node (tau=+0.080, D=0.200): S=  1.4125
 
 [self-financing, Proposition 2]
-  baseline: P0=0.8328, D0=0.2000, tau0=0.0235, W0=-7.7734
-  program : P1=0.7971, D1=0.1521, tau1=0.0474, g_g=0.0228, W1=-7.1828
-  nu = 2.053  (revaluation -0.046 + damage dividend 2.100)  => FULLY self-financing
-  one-time bondholder levy L = -0.0538;  identity resid = 0.00e+00
-  sweep theta_g=0.00: n_roots=1, nu=-0.074
-  sweep theta_g=0.50: n_roots=1, nu=0.882
-  sweep theta_g=1.00: n_roots=1, nu=1.737
-  sweep theta_g=1.50: n_roots=1, nu=2.503
-  sweep theta_g=2.00: n_roots=1, nu=3.192
-  sweep theta_g=2.50: n_roots=1, nu=3.812
+  baseline: P0=0.8549, D0=0.2000, tau0=0.0229, W0=-7.5508
+  program : P1=0.8087, D1=0.1527, tau1=0.0467, g_g=0.0225, W1=-7.0206
+  nu = 2.045  (revaluation -0.058 + damage dividend 2.104)  => FULLY self-financing
+  one-time bondholder levy L = -0.0667;  identity resid = -3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.081
+  sweep theta_g=0.50: n_roots=1, nu=0.875
+  sweep theta_g=1.00: n_roots=1, nu=1.729
+  sweep theta_g=1.50: n_roots=1, nu=2.495
+  sweep theta_g=2.00: n_roots=1, nu=3.183
+  sweep theta_g=2.50: n_roots=1, nu=3.803
 
 ===== [C4] Welfare incidence by wealth group =====
-  LOW (DICE)             CE gains by wealth quintile (%): [-3.55 -2.86 -2.54 -2.27 -1.9] | top10 -1.79, bottom50 -3.08, aggregate -2.64
-  MEDIUM (DJO-BHM)       CE gains by wealth quintile (%): [-2.51 -1.88 -1.59 -1.37 -1.1] | top10 -1.01, bottom50 -2.08, aggregate -1.70
-  HIGH (Bilal-Kaenzig)   CE gains by wealth quintile (%): [1.95 2.4 2.49 2.46 2.36] | top10 2.32, bottom50 2.24, aggregate 2.32
+  LOW (DICE)             CE gains by wealth quintile (%): [-3.57 -2.85 -2.57 -2.28 -1.89] | top10 -1.75, bottom50 -3.10, aggregate -2.64
+  MEDIUM (DJO-BHM)       CE gains by wealth quintile (%): [-2.6 -1.9 -1.66 -1.42 -1.12] | top10 -1.02, bottom50 -2.15, aggregate -1.75
+  HIGH (Bilal-Kaenzig)   CE gains by wealth quintile (%): [1.82 2.33 2.4 2.4 2.29] | top10 2.24, bottom50 2.13, aggregate 2.25
   [saved] PFig8_welfare_incidence
   [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\calibrated_summary.txt
 
 ================ CALIBRATED SUMMARY ================
- beta* = 0.9287;  Gg_cal = 0.01818 (2.0% of income at P0)
- LOW (DICE)             nu = 0.153 (reval -0.059 + damage 0.213)
- MEDIUM (DJO-BHM)       nu = 0.598 (reval -0.039 + damage 0.636)
- HIGH (Bilal-Kaenzig)   nu = 2.053 (reval -0.046 + damage 2.100)
- Elapsed: 25.5 s
+ beta* = 0.9267;  Gg_cal = 0.01818 (2.0% of income at P0)
+ LOW (DICE)             nu = 0.156 (reval -0.057 + damage 0.212)
+ MEDIUM (DJO-BHM)       nu = 0.583 (reval -0.053 + damage 0.636)
+ HIGH (Bilal-Kaenzig)   nu = 2.045 (reval -0.058 + damage 2.104)
+ Elapsed: 191.9 s
 ====================================================
