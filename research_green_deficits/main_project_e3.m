@@ -77,17 +77,26 @@ dts    = T.date;
 % green public investment). "surprise" flags a genuine news shock (markets
 % did not price it in); non-surprises are anticipated legislative steps and
 % are expected to move markets little (a placebo-ish check).
-E = { % date          label                                    surprise
-  '2021-03-31', 'American Jobs Plan (~$2tn, green infra) announced',      true;  ...
-  '2021-06-24', 'Bipartisan Infrastructure Framework announced',         false; ...
-  '2021-11-15', 'Infrastructure Investment & Jobs Act signed',           false; ...
-  '2022-07-27', 'IRA Schumer-Manchin deal (SURPRISE; ~$370bn green)',    true;  ...
-  '2022-08-07', 'IRA Senate passage',                                     false; ...
-  '2022-08-16', 'IRA signed into law',                                    false; ...
+% Columns: date, label, surprise (genuine news shock?), fomc (does the window
+% coincide with an FOMC decision -- a fatal confound for an inflation-
+% expectations test?). The IRA Schumer-Manchin deal is the marquee surprise
+% but it landed on the EVENING of 27 Jul 2022, AFTER the close, on the SAME
+% DAY as the July FOMC (26-27 Jul; Powell's 2:30pm "pivot" presser itself
+% pushed breakevens up). Daily data cannot separate the two -- so this event
+% is flagged fomc=true and excluded from the clean-surprise summary.
+E = { % date          label                                        surp   fomc
+  '2021-03-31', 'American Jobs Plan (~$2tn, green infra) announced',  true,  false; ...
+  '2021-06-24', 'Bipartisan Infrastructure Framework announced',      false, false; ...
+  '2021-11-15', 'Infrastructure Investment & Jobs Act signed',        false, false; ...
+  '2022-07-27', 'IRA Schumer-Manchin deal (SAME-DAY FOMC confound)',  true,  true;  ...
+  '2022-08-07', 'IRA Senate passage',                                 false, false; ...
+  '2022-08-16', 'IRA signed into law',                                false, false; ...
 };
 edates = datetime(E(:,1));
 elabel = E(:,2);
 esurp  = cell2mat(E(:,3));
+efomc  = cell2mat(E(:,4));
+eclean = esurp & ~efomc;             % genuine surprises with clean timing
 nE = numel(edates);
 
 % map each event to the first trading-day index on/after the announcement
@@ -186,12 +195,14 @@ fh = figure('Name','PFig22: E3 green-fiscal announcements & breakeven inflation'
             'Color','w','Position',[60 60 1150 430]);
 subplot(1,2,1); hold on; box on;
 bvals = A.be5y5y(:,3);                         % [0,+5] window
-cols = repmat([0.45 0.45 0.45], nE, 1); cols(esurp,:) = repmat([0.10 0.30 0.75], sum(esurp),1);
+cols = repmat([0.55 0.55 0.55], nE, 1);        % gray: anticipated
+cols(eclean,:) = repmat([0.10 0.30 0.75], sum(eclean),1);  % blue: clean surprise
+cols(efomc,:)  = repmat([0.80 0.20 0.15], sum(efomc),1);   % red: FOMC-confounded
 hb = bar(bvals, 'FaceColor','flat'); hb.CData = cols;
 yline(0,'k-');
 set(gca,'XTick',1:nE,'XTickLabel',datestr(edates,'yyyy-mm-dd'),'XTickLabelRotation',35);
 ylabel('\Delta 5y5y breakeven, [0,+5]d (bp)');
-title('(a) per-event breakeven response (blue = surprise)');
+title('(a) per-event response (blue=clean surprise, red=FOMC-confounded)');
 subplot(1,2,2); hold on; box on;
 hh = LP.h;
 fill([hh; flipud(hh)], [LP.beta-1.64*LP.se; flipud(LP.beta+1.64*LP.se)], ...
@@ -224,10 +235,22 @@ if fid > 0
         '', nanmean(A.be5y5y(:,1)), nanmean(A.be5y5y(:,2)), nanmean(A.be5y5y(:,3)));
     fprintf(fid, 'mean (surprises only)                        %6s %8.1f %8.1f %8.1f\n', ...
         '', nanmean(A.be5y5y(esurp,1)), nanmean(A.be5y5y(esurp,2)), nanmean(A.be5y5y(esurp,3)));
+    fprintf(fid, 'mean (CLEAN surprises, non-FOMC)             %6s %8.1f %8.1f %8.1f\n', ...
+        '', nanmean(A.be5y5y(eclean,1)), nanmean(A.be5y5y(eclean,2)), nanmean(A.be5y5y(eclean,3)));
     if ~isempty(iIRA)
-        fprintf(fid, '\nMARQUEE (IRA Schumer-Manchin surprise, 2022-07-27):\n');
+        fprintf(fid, '\nMARQUEE (IRA Schumer-Manchin, 2022-07-27) -- CONFOUNDED:\n');
         fprintf(fid, '  5y5y  %+.1f / %+.1f / %+.1f bp   |  5y %+.1f  10y %+.1f bp ([0,+5])\n', ...
             A.be5y5y(iIRA,1), A.be5y5y(iIRA,2), A.be5y5y(iIRA,3), A.be5(iIRA,3), A.be10(iIRA,3));
+        % day-after isolation: the move on the first FULL trading day after the
+        % event index strips the FOMC-decision day (which sits at the index).
+        jj = eidx(iIRA);
+        if ~isnan(jj) && jj+1 <= numel(y)
+            iso = 100*(y(jj+1) - y(jj));
+            fprintf(fid, '  ISOLATION (close(t+1)-close(t), strips the FOMC day): %+.1f bp\n', iso);
+        end
+        fprintf(fid, ['  NOTE: 27 Jul 2022 was an FOMC decision day; the dovish\n' ...
+            '  reception itself raised breakevens. The daily window cannot\n' ...
+            '  attribute this move to the green-fiscal news.\n']);
     end
     fprintf(fid, '\n[B] ORTHOGONALIZED (breakeven news net of same-day real-yield,\n');
     fprintf(fid, '    oil, vix moves); response (bp) over the same windows\n');
