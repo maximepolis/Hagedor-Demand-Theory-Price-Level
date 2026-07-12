@@ -35,6 +35,12 @@ function TR = solve_dtpl_aggrisk(pg, Dvec, opts)
     maxit = getf(opts,'maxit', 100);
     tol   = getf(opts,'tol',   2e-3);
     verb  = getf(opts,'verbose', true);
+    g_g   = getf(opts,'g_g',   0);   % real green spending in the budget
+                                     % (Stage B: the program is financed each
+                                     % period, tau_s = r^ss b_s + g_g, so the
+                                     % self-financing decomposition is well
+                                     % posed; g_g = 0 recovers the Stage-A
+                                     % pure damages comparative static)
     ns    = numel(Dvec);
     P     = getf(opts,'P0', (B / 1.2) * ones(1, ns));   % sensible start
 
@@ -43,10 +49,11 @@ function TR = solve_dtpl_aggrisk(pg, Dvec, opts)
 
     S = nan(1,ns); R = []; mu = []; tau = nan(1,ns); it = 0;
     for it = 1:maxit
-        % government budget each state: balanced real interest service on the
-        % state-contingent real debt b_s = B/P_s (lump-sum; regime R1 analog)
-        tau = rbar * (B ./ P);
-        [~, apol, R, hd] = solve_household_vfi_agg(P, Dvec, tau, pg, rbar);
+        % government budget each state: real interest service on the
+        % state-contingent real debt b_s = B/P_s, plus the (real) green
+        % program spending g_g (lump-sum financed; regime R1 analog)
+        tau = rbar * (B ./ P) + g_g;
+        [V, apol, R, hd] = solve_household_vfi_agg(P, Dvec, tau, pg, rbar);
         if ~hd.converged, TR.msg = 'agg VFI did not converge'; return; end
         [mu, dd] = stat_dist_agg(apol, R, pg);
         if ~dd.converged, TR.msg = 'agg distribution did not converge'; return; end
@@ -70,6 +77,7 @@ function TR = solve_dtpl_aggrisk(pg, Dvec, opts)
 
     % ---- pack + safe-asset-risk diagnostics ----
     TR.P = P; TR.S = S; TR.R = R; TR.tau = tau; TR.mu = mu; TR.iters = it;
+    TR.V = V; TR.apol = apol; TR.g_g = g_g; TR.Dvec = Dvec(:).';
     TR.price_disp = max(P)/min(P) - 1;              % state price dispersion
     % ergodic expected real return of the bond and the disaster return
     piagg = stat_of(pg.Pi_agg);                     % ergodic aggregate marginal
