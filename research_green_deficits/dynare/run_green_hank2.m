@@ -709,28 +709,45 @@ if run_acc
 end
 
 % ---- PFig17 ----
+% Descriptive legend labels, consistent with PFig13/PFig14: the green program
+% is identical across scenarios; WEAK/TAYLOR vary the monetary rule, GREENACCOM
+% adds temporary green accommodation, and TAYLORBAL repeats the Taylor rule
+% under near-balanced-budget financing (the deficit/revaluation contrast).
+lblmap = containers.Map( ...
+    {'WEAK','TAYLOR','GREENACCOM','TAYLORBAL'}, ...
+    {'Weakly active rule (\phi_\pi=1.1)', 'Taylor rule (\phi_\pi=1.5)', ...
+     'Green accommodation', 'Taylor, near-balanced budget'});
 cols = [0.10 0.30 0.75; 0.85 0.20 0.15; 0.20 0.55 0.25; 0.45 0.45 0.45];
 panels = {'Y','output'; 'pi','inflation (net, qtr)'; 'bg','government debt'; ...
           'rb','liquid (bond) return'; 'kg','green capital'; 'p','equity price'};
 fh = figure('Name','PFig17: two-asset HANK green-program IRFs','Color','w', ...
-            'Position',[60 60 1100 640]);
+            'Position',[60 60 1100 680]);
 Tshow = 120;
 names_ok = {regimes(ok).name};
+leg_labels = cellfun(@(n) lblmap(n), names_ok, 'UniformOutput', false);
+leg_handles = gobjects(1, numel(names_ok));
 for pp = 1:size(panels,1)
     subplot(2,3,pp); hold on; box on;
+    ii = 0;
     for rgm = 1:numel(regimes)
         if ~ok(rgm), continue; end
+        ii = ii + 1;
         s = RES.(regimes(rgm).name);
         if isfield(s, panels{pp,1})
             v = s.(panels{pp,1});
-            plot(0:min(Tshow,numel(v))-1, v(1:min(Tshow,numel(v))), ...
+            h = plot(0:min(Tshow,numel(v))-1, v(1:min(Tshow,numel(v))), ...
                  'LineWidth', 1.8, 'Color', cols(rgm,:));
+            if pp == 1, leg_handles(ii) = h; end
         end
     end
-    yline(0, ':', 'Color', [0.4 0.4 0.4]);
+    yline(0, ':', 'Color', [0.4 0.4 0.4], 'HandleVisibility', 'off');
     xlabel('quarters'); title(panels{pp,2});
-    if pp == 1, legend(names_ok, 'Location','best'); end
 end
+valid = isgraphics(leg_handles);
+lg = legend(leg_handles(valid), leg_labels(valid), 'Orientation', 'horizontal', ...
+            'NumColumns', min(4, sum(valid)));
+lg.Position = [0.5 - lg.Position(3)/2, 0.005, lg.Position(3), lg.Position(4)];
+sgtitle('Two-asset HANK impulse responses to a permanent green-investment program');
 save_all_figs(fh, 'PFig17_hank2_green_irfs', pg);
 fprintf('\n  [saved] PFig17_hank2_green_irfs\n');
 

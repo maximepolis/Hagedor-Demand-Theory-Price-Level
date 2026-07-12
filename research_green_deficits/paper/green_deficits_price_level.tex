@@ -20,6 +20,13 @@
 \usepackage{tikz}
 \usetikzlibrary{positioning,arrows.meta,fit,backgrounds,calc}
 \usepackage{float}
+% placeins gives \FloatBarrier and [section] keeps every figure inside the
+% (sub)section that introduces it, so figures render next to the text that
+% discusses them instead of drifting to the end of the paper. Loaded only if
+% available (it is on Overleaf and full TeX Live); otherwise \FloatBarrier is
+% a no-op so a minimal distribution still compiles.
+\IfFileExists{placeins.sty}{\usepackage[section]{placeins}}{%
+  \providecommand{\FloatBarrier}{}}
 
 % Figures live in figures/ on Overleaf; ../output/figures/ in the repo.
 \graphicspath{{figures/}{../output/figures/}{./}}
@@ -186,162 +193,140 @@ $g_g = G_g/P$: the \emph{real} value of a \emph{nominal} budget line. That
 single link --- nominal appropriation, real abatement --- generates all of our
 results.
 
-\paragraph{Result 1: green determinacy.} The climate sector adds real
-equations (abatement capital, the carbon stock, damages) that are pinned by
-real green spending; the asset market still has exactly one job, pricing
-nominal debt, and performs it under the same conditions as in
-\citet{hagedorn2026dtpl} (Proposition~\ref{prop:determinacy}). Determinacy is
-not free, however --- see Result~3.
+\paragraph{Findings.} Our first result is that the theory survives the
+addition of a full climate sector. The abatement capital, the carbon stock,
+and the damage schedule add real equations, but they are pinned by real green
+spending; the asset market retains its single job of pricing nominal debt, and
+determines the price level under the same conditions as in
+\citet{hagedorn2026dtpl} (Proposition~\ref{prop:determinacy}). That
+determinacy is not free, and the rest of the paper is about the economics that
+the climate loop injects into the asset-demand schedule --- economics that
+is absent from an incomplete-markets economy without a physical state.
 
-\paragraph{Result 2: self-financing, with a sign surprise.} We define the
-self-financing share $\nu$ of a permanent green program by an exact
-steady-state decomposition (Proposition~\ref{prop:selffinancing}):
-$\nu = \nu_{\mathrm{reval}} + \nu_{\mathrm{dam}}$, a \emph{revaluation}
-component (the endogenous price-level response revalues nominal debt service)
-and a \emph{damage dividend} (avoided damages raise endowments). In the
-benchmark calibration, $\nu = 0.60$: sixty percent of the program's real
-resource cost is covered without raising the net burden on households. But
-the decomposition overturns the presumption, inherited from
-\citet{angeletos2024deficits}, that the nominal side helps: the revaluation
-component is \emph{negative} ($-0.24$), while the damage dividend contributes
-$0.84$. The reason is an asset-demand effect specific to the incomplete-markets
-pricing of money-like debt: the program \emph{raises} aggregate asset demand
---- avoided damages raise incomes, damage-exposure risk falls only modestly,
-and the taxes that service the program strengthen the precautionary motive of
-households pushed toward the borrowing constraint --- so the price level
-\emph{falls} ($P$: $0.223 \to 0.190$). Green deficits are
-\emph{disinflationary} in this economy (Result~\ref{res:disinflation}), and
-the ``inflation tax'' runs backwards: bondholders receive a windfall.
-Full self-financing ($\nu \ge 1$) still obtains once abatement productivity
-$\theta_g$ crosses a threshold that the model measures
-($\theta_g \approx 2.4$ in the benchmark; Figure~\ref{fig:pfig2}).
-The calibrated pass (Section~\ref{subsec:calibrated}) turns this into the
-paper's central conditional statement: at a defensible fiscal scale
-(debt of $1.1$ times income, a program of $2\%$ of income), the
-self-financing share is $0.15$ under conservative DICE damages, $0.56$
-under empirical temperature-damage estimates, and $2.0$ under high-damage
-estimates --- while the disinflationary revaluation ($\approx -0.06$) is
-robust across all three damage regimes.
+The centerpiece is the self-financing of a permanent green program. We measure
+it by an exact steady-state decomposition (Proposition~\ref{prop:selffinancing})
+of the self-financing share $\nu = \nu_{\mathrm{reval}} + \nu_{\mathrm{dam}}$
+into a \emph{revaluation} component --- the endogenous price-level response
+revalues nominal debt service --- and a \emph{damage dividend} --- avoided
+damages raise endowments. In the benchmark calibration $\nu = 0.60$: sixty
+percent of the program's real resource cost is covered without raising the net
+burden on households. The composition, however, overturns the presumption
+inherited from \citet{angeletos2024deficits} that the nominal side of a deficit
+helps to finance it. The revaluation component is \emph{negative} ($-0.24$)
+and the damage dividend does all the work ($0.84$). The reason is an
+asset-demand effect specific to the incomplete-markets pricing of money-like
+debt: the program \emph{raises} aggregate asset demand --- avoided damages
+raise incomes, damage-exposure risk falls only modestly, and the taxes that
+service the program strengthen the precautionary motive of households pushed
+toward the borrowing constraint --- so the price level \emph{falls} ($P$:
+$0.223 \to 0.190$). Green deficits are \emph{disinflationary} in this economy
+(Result~\ref{res:disinflation}), and the ``inflation tax'' runs backwards:
+bondholders receive a windfall rather than paying for the program. Full
+self-financing ($\nu \ge 1$) is still reachable, but only once abatement
+productivity $\theta_g$ crosses a threshold the model measures
+($\theta_g \approx 2.4$ in the benchmark; Figure~\ref{fig:pfig2}). The
+calibrated pass (Section~\ref{subsec:calibrated}) turns this into the paper's
+central conditional statement: at a defensible fiscal scale (debt of $1.1$
+times income, a program of $2\%$ of income), the self-financing share is
+$0.15$ under conservative DICE damages, $0.56$ under empirical
+temperature-damage estimates, and $2.0$ under high-damage estimates --- while
+the disinflationary revaluation ($\approx -0.06$) is robust across all three
+damage regimes.
 
-\paragraph{Result 3: climate sunspots and anchor insulation.} Because the
-green budget is nominal, a higher price level lowers real abatement, raises
-future damages, and --- through the incidence gradient --- concentrates those
-damages on households with the highest marginal propensity to build
-precautionary buffers. When this feedback is steep enough, the asset-market
-equation admits \emph{two} stationary price levels: a green boom (low $P$,
-high real abatement, low damages) and a brown stagnation (high $P$, low
-abatement, high damages), ranked by utilitarian welfare yet each
-self-fulfilling (Proposition~\ref{prop:sunspots}). This is the steady-state,
-price-level analog of self-fulfilling fluctuations in HANK economies
-\citep{acharyabenhabib2024}, with the climate stock as the belief-relevant
-state. The policy fix is institutional and cheap: \emph{index the green
-budget} (a real mandate) while keeping debt nominal
-(Proposition~\ref{prop:insulation}). This reverses the rule ranking in
+That the budget is \emph{nominal} is what makes determinacy conditional. A
+higher price level lowers real abatement, raises future damages, and ---
+through the incidence gradient --- concentrates those damages on the
+households with the highest marginal propensity to build precautionary
+buffers. When this feedback is steep enough the asset-market equation admits
+\emph{two} stationary price levels: a green boom (low $P$, high real abatement,
+low damages) and a brown stagnation (high $P$, low abatement, high damages),
+ranked by utilitarian welfare yet each self-fulfilling
+(Proposition~\ref{prop:sunspots}). This is the steady-state, price-level
+analog of the self-fulfilling fluctuations that arise in HANK economies when
+risk is endogenous to beliefs \citep{acharyabenhabib2024}, with the slow-moving
+climate stock as the belief-relevant state. The remedy is institutional and
+cheap: \emph{index the green budget} while keeping debt nominal
+(Proposition~\ref{prop:insulation}). This reverses the rule ranking of
 \citet{hagedorn2026dtpl} for the spending line --- nominal rules, which
 guarantee uniqueness in his economy for any shape of asset demand, lose that
-guarantee once the climate loop is active --- while preserving his insight
-that some nominal anchor is indispensable: indexing \emph{everything} is the
+guarantee once the climate loop is active --- while preserving his insight that
+some nominal anchor is indispensable, since indexing \emph{everything} is the
 classical missing-anchor corner of \citet{sargentwallace1975}.
 
-\paragraph{Result 4: optimal accommodation.} Choosing the nominal growth rate
-$\mu$ trades off three forces: faster nominal growth lowers the real rate and
-the real interest burden (a transfer from wealth-concentrated bondholders to
+Two policy margins follow directly. Choosing the nominal growth rate $\mu$
+trades off three forces: faster nominal growth lowers the real rate and the
+real interest burden (a transfer from wealth-concentrated bondholders to
 taxpayers, valuable for risk-sharing exactly as in \citet{acharya2023optimal});
-it raises the price level, eroding real green spending and hence raising
-damages and risk; and it lowers the return on the buffer-stock asset. The
+it raises the price level, eroding real green spending and hence raising damages
+and risk; and it lowers the return on the buffer-stock asset. The
 welfare-maximizing $\mu^{*}$ is interior and strictly positive --- $0.045$ in
 the benchmark, i.e., $4.5\%$ steady-state inflation against a $2\%$ baseline
 (Figure~\ref{fig:pfig4}) --- so a moderate inflation rate is an efficient
-component of green finance, not a policy failure.
-
-\paragraph{Result 5: financing design as a price-level instrument.}
-Because the revaluation channel is an incidence object, \emph{how} the same
-real program is financed moves the price level through asset demand:
-lump-sum taxes strengthen precautionary demand (disinflation, bondholder
-windfall), a proportional carbon-style levy weakens it (inflation, debt
-erosion). At the calibrated medium column, the levy-plus-rebate design
-dominates deficit financing on both margins at once --- more self-financing
-($\nu$: $0.57 \to 0.76$) and progressive rather than regressive
-(bottom-half welfare: $-2.4\% \to +1.2\%$, top decile nearly unharmed) ---
-with identical aggregate resources
+component of green finance rather than a policy failure. The second margin is
+the financing instrument itself: because the revaluation channel is an
+incidence object, \emph{how} the same real program is financed moves the price
+level through asset demand. Lump-sum taxes strengthen precautionary demand
+(disinflation, bondholder windfall) while a proportional carbon-style levy
+weakens it (inflation, debt erosion), and at the calibrated medium column the
+levy-plus-rebate design dominates deficit financing on both margins at once ---
+more self-financing ($\nu$: $0.57 \to 0.76$) and progressive rather than
+regressive (bottom-half welfare: $-2.4\% \to +1.2\%$, top decile nearly
+unharmed) --- with identical aggregate resources
 (Proposition~\ref{prop:financingdesign}, Table~\ref{tab:regimes}).
 
-\paragraph{Result 6: the transition is an announcement effect.} All of
-the above are steady-state comparisons; the natural objection is that the
-interesting economics happens on the way. We compute the way. The
-nonlinear heterogeneous-agent transition --- the price-level \emph{path}
-solved as the object that clears the asset market at every date, with no
-Phillips curve and no policy rule for inflation anywhere
-(Section~\ref{subsec:tier2}) --- shows that the mechanism operates as a
-capitalization jump: on a credible announcement of the permanent program,
-$77\%$ of the long-run green disinflation is realized within the
-announcement year, year-one inflation is $-2.0\%$ against the $+2\%$
-trend --- a four-point announcement-window shortfall --- and holders of
-the outstanding nominal stock collect a windfall of about five percent of
-the program's present value before any green capital exists. Inflation is
-within a quarter-point of trend by year two while the capital stock
-accumulates for decades: in this economy the price level
-prices the \emph{news}, not the spending. A linearized heterogeneous-agent
-economy with a Phillips curve prices a comparable announcement at $+0.4\%$
-impact inflation --- the opposite sign --- so the sign of the
-announcement-window inflation response is a sharp, falsifiable discriminator
-between the two views of inflation.
+These are steady-state comparisons, and the natural objection is that the
+interesting economics happens on the way between them. We compute the way. The
+nonlinear heterogeneous-agent transition --- the price-level \emph{path} solved
+as the object that clears the asset market at every date, with no Phillips
+curve and no policy rule for inflation anywhere (Section~\ref{subsec:tier2}) ---
+shows that the mechanism operates as a capitalization jump. On a credible
+announcement of the permanent program, $77\%$ of the long-run green
+disinflation is realized within the announcement year, year-one inflation is
+$-2.0\%$ against the $+2\%$ trend --- a four-point announcement-window
+shortfall --- and holders of the outstanding nominal stock collect a windfall
+of about five percent of the program's present value before any green capital
+exists. Inflation is back within a quarter-point of trend by year two while the
+capital stock accumulates for decades: the price level prices the \emph{news},
+not the spending. The same announcement, priced in a linearized
+heterogeneous-agent economy with a Phillips curve, delivers $+0.4\%$ impact
+inflation --- the opposite sign --- so the announcement-window inflation
+response sharply separates the two views of what determines inflation.
 
-\paragraph{Result 7: green investment is aggregate-risk reduction.}
-Introducing a two-state aggregate climate process (a recurrent
-calm/severe regime) makes the nominal bond nominally safe but really
-risky: its real value $B/P_s$ is state-contingent, and the price level is
-$37\%$ higher in the severe state, so the bond takes a $26\%$ real loss
-exactly when the climate turns bad (Section~\ref{subsec:aggrisk}). A
-permanent green program compresses this systematic risk --- the
-state price dispersion falls by more than a quarter and the disaster loss
-shrinks --- because abatement lowers damages most in the high-damage
-state. Green public investment is thus not only a level intervention on
-average damages but a reduction in the aggregate climate risk that the
-safe nominal asset must bear: the paper's ``safe asset'' becomes literal,
-and the ``no aggregate uncertainty'' objection is answered with a
-computed result rather than a promise.
+A final extension confronts the objection that the whole analysis assumes away
+aggregate uncertainty. Introducing a two-state aggregate climate process (a
+recurrent calm/severe regime) makes the nominal bond nominally safe but really
+risky: its real value $B/P_s$ is state-contingent, the price level is $37\%$
+higher in the severe state, and the bond therefore takes a $26\%$ real loss
+exactly when the climate turns bad (Section~\ref{subsec:aggrisk}). A permanent
+green program compresses this systematic risk --- the state-price dispersion
+falls by more than a quarter and the disaster loss shrinks --- because
+abatement lowers damages most in the high-damage state. Green public investment
+is thus not merely a level intervention on average damages but a reduction in
+the aggregate climate risk that the safe nominal asset must bear: the paper's
+``safe asset'' becomes literal, and the aggregate-uncertainty objection is met
+with a computed result rather than a promise.
 
-\paragraph{Testable implications.} The mechanism is falsifiable on two
-margins. The nominal anchor (Lemma~\ref{lem:anchor}) implies that long-run
-inflation tracks the growth of nominal fiscal aggregates relative to real
-output one-for-one; and the disinflation result implies that credible
-announcements of large, deficit-financed green programs \emph{lower}
-market-implied expected inflation, against the New Keynesian sign. Taking
-these to the data cleanly requires, respectively, a green-budget-denomination
-registry that does not yet exist and high-frequency identification around
-green-fiscal surprises; we set them out as the empirical program the theory
-invites, and keep the present paper's claims theoretical and quantitative.
-
-\paragraph{What is new relative to the four foundations.} Relative to
-\citet{hagedorn2026dtpl}: a climate sector, the disinflationary-deficit
-result, the failure and repair of nominal-rule uniqueness (anchor insulation),
-and the welfare analysis of $\mu$. Relative to \citet{angeletos2024deficits}:
-a permanent-program, steady-state self-financing decomposition with an
-endogenous price level, and the sign reversal of the nominal channel.
-Relative to \citet{acharya2023optimal}: the instrument is nominal growth
-rather than the interest rate, and the risk externality runs through the
-climate. Relative to \citet{acharyabenhabib2024}: multiplicity concerns the
-\emph{price level across steady states} rather than dynamics around one, with
-an institutional (indexation) rather than interest-rate-rule resolution.
-
-\paragraph{Hierarchy of results.} Three results are central and the rest are
-supporting. The paper stands on (i) climate-state-dependent asset demand as
-a price-level theory (Proposition~\ref{prop:determinacy} with the climate
-block; the deviation from Hagedorn is that green public capital, damages
-and damage-driven risk \emph{shift the asset-demand schedule itself});
-(ii) the exact self-financing decomposition and its calibrated,
-maturity- and indexation-bounded magnitudes
-(Proposition~\ref{prop:selffinancing} and the bounds of
-Section~\ref{subsec:maturity}), now realized dynamically by the converged
-nonlinear transition (Result~6: the revaluation is an announcement-year
-windfall, the disinflation front-loaded); and (iii) the rule-design
-results --- anchor insulation (Proposition~\ref{prop:insulation}) and
-financing-design control of the revaluation channel
-(Proposition~\ref{prop:financingdesign}). Multiplicity
-(Proposition~\ref{prop:sunspots}) is an extension: the calibrated benchmark
-does not generate it and the paper says so; optimal accommodation
-(Proposition~\ref{prop:optimalmu}) supports the rule-design analysis.
+\paragraph{Contributions.} Read against its four foundations, the paper's
+contribution is to show that each of their central mechanisms changes ---
+sometimes reverses --- once a nominal spending line meets an endogenous
+physical state. Relative to \citet{hagedorn2026dtpl} we add a climate sector
+and, with it, three findings that have no counterpart in an economy without a
+physical state: green deficits are disinflationary, nominal-rule uniqueness can
+fail and be repaired by \emph{denominating the spending line} in real terms
+(anchor insulation), and the optimal nominal growth rate is a genuine
+green-finance instrument. Relative to \citet{angeletos2024deficits} we evaluate a
+\emph{permanent} program across stationary equilibria with an endogenous
+price level, and find that the nominal (revaluation) channel they identify as
+a source of self-financing flips sign for green investment. Relative to
+\citet{acharya2023optimal} the policy instrument is nominal growth rather than
+the interest rate and the risk externality it manages runs through the climate.
+And relative to \citet{acharyabenhabib2024} the multiplicity we uncover is
+across \emph{steady-state price levels} rather than in the dynamics around one,
+and it is resolved by budget indexation rather than by an interest-rate rule.
+The unifying object throughout is climate-state-dependent asset demand: green
+public capital, damages, and damage-driven risk \emph{shift the asset-demand
+schedule itself}, and every result is a consequence of where that shifted
+schedule intersects the supply of nominal debt.
 
 The rest of the paper: Section~\ref{sec:literature} reviews the literature;
 Section~\ref{sec:model} lays out the model; Section~\ref{sec:theory} contains
@@ -355,130 +340,123 @@ Appendix~\ref{app:numerics}.
 \section{Related literature}\label{sec:literature}
 % ==========================================================================
 
-\paragraph{Price-level determination.} The fiscal theory of the price level
-determines $P$ from the government valuation equation under active fiscal
-policy \citep{leeper1991,sims1994,woodford1995,cochrane2023}. The Demand
-Theory of the Price Level \citep{hagedorn2026dtpl} instead determines $P$ from
-asset-market clearing under \emph{passive} fiscal policy, exploiting the
-nondegenerate asset demand created by incomplete markets; complete-markets
-economies are the indeterminate benchmark \citep{sargentwallace1975}.
-\citet{kaplannikolakoudisviolante2023} develop the closest modern
-heterogeneous-agent nominal-debt benchmark, studying price-level and
-inflation dynamics in HA economies; our steady-state object is their
-long-run anchor, and our differentiation is the climate state and the
-spending-denomination margin. \citet{hoefer2025} proves multiplicity
-results for price levels in HA models under constant primary deficits ---
-directly relevant discipline for our sunspot proposition. We adopt
-the DTPL and show that its uniqueness properties interact nontrivially with a
-physical (climate) state that feeds back into asset demand. Our anchor-
-insulation result is, to our knowledge, the first determinacy result in which
-the \emph{denomination of a spending line} (nominal versus indexed), rather
-than a policy-rule coefficient, is the decisive design margin.
+This paper sits where the theory of price-level determination meets climate
+macroeconomics, and it borrows tools from several applied literatures in
+between. We organize the discussion around that arc, from the closest
+methodological antecedents to the closest substantive competitors.
 
-\paragraph{HANK.} Quantitative heterogeneous-agent New Keynesian models
-\citep{kaplan2018,auclert2021} established that market incompleteness changes
-the transmission of monetary and fiscal policy;
-\citet{auclertrognliestraub2025} synthesize the fiscal-monetary toolkit we
-draw on for the transition exercises. Within that class,
-\citet{acharya2023optimal} derive optimal monetary policy when policy moves
-idiosyncratic risk; \citet{acharyadogra2020} show how endogenous risk alters
-determinacy; \citet{ravnsterk2021} generate feedback loops through
-unemployment risk; \citet{acharyabenhabib2024} obtain self-fulfilling
-fluctuations when risk is endogenous to beliefs; and \citet{bilbiie2024}
-provides the analytical map of these mechanisms. Our multiplicity operates in
+The starting point is how the price level is determined at all. The fiscal
+theory of the price level reads $P$ off the government valuation equation under
+active fiscal policy \citep{leeper1991,sims1994,woodford1995,cochrane2023}. The
+Demand Theory of the Price Level \citep{hagedorn2026dtpl} takes a different
+route, determining $P$ from asset-market clearing under \emph{passive} fiscal
+policy and exploiting the nondegenerate asset demand that incomplete markets
+create --- with the complete-markets economy as the indeterminate benchmark
+\citep{sargentwallace1975}. The closest modern heterogeneous-agent nominal-debt
+laboratory is \citet{kaplannikolakoudisviolante2023}, who study price-level and
+inflation dynamics in such economies; our steady-state object is their long-run
+anchor, and what differentiates us is the climate state and the
+spending-denomination margin. \citet{hoefer2025}, who proves multiplicity of
+price levels in heterogeneous-agent models under constant primary deficits,
+supplies the natural discipline for our sunspot proposition. We adopt the DTPL
+and show that its uniqueness properties interact nontrivially with a physical
+climate state that feeds back into asset demand; to our knowledge, ours is the
+first determinacy result in which the \emph{denomination of a spending line}
+(nominal versus indexed), rather than a policy-rule coefficient, is the decisive
+design margin.
+
+Our multiplicity result has a close cousin in the heterogeneous-agent New
+Keynesian literature. Quantitative HANK models \citep{kaplan2018,auclert2021}
+established that market incompleteness reshapes the transmission of monetary and
+fiscal policy, and \citet{auclertrognliestraub2025} synthesize the
+fiscal-monetary toolkit we lean on for the transition exercises. Within that
+program, \citet{acharya2023optimal} derive optimal monetary policy when the
+instrument moves idiosyncratic risk, \citet{acharyadogra2020} show how
+endogenous risk alters determinacy, \citet{ravnsterk2021} build feedback loops
+through unemployment risk, \citet{acharyabenhabib2024} obtain self-fulfilling
+fluctuations when risk is endogenous to beliefs, and \citet{bilbiie2024}
+provides the analytical map of these mechanisms. Our indeterminacy belongs to
 the same family --- beliefs move endogenous risk and precautionary demand ---
-but through a slow-moving physical stock (carbon) and the price level, so the
-resulting indeterminacy is across \emph{steady states} and is resolved by
-budget indexation rather than by the Taylor principle.
+but it runs through a slow-moving physical stock, carbon, and lands on the
+price level, so it is a multiplicity \emph{across steady states} that budget
+indexation resolves in place of the Taylor principle.
 
-\paragraph{Self-financing deficits.} \citet{angeletos2024deficits} show
-deficits partially finance themselves through boom-induced tax revenue and the
-erosion of nominal debt when households are non-Ricardian. We evaluate a
-permanent program in the long run, where the DTPL forces the price level to
-clear the asset market: the analog of their erosion channel is our
-$\nu_{\mathrm{reval}}$, and our central quantitative finding is that its
-\emph{sign flips} for green investment --- the program is disinflationary
-because it raises asset demand. The damage dividend $\nu_{\mathrm{dam}}$ is
-the permanent-program counterpart of their tax-base boom. On the credibility
-limits of revaluation financing, \citet{hurtado2023sovereign} model inflation
-as a state-contingent partial default on long-term nominal debt without
-commitment; their framework is the natural discipline for how much
-revaluation a government can credibly deliver, and the template for our
-debt-maturity extension --- all the more relevant here because our calibrated
-revaluation channel runs \emph{against} the fisc, so commitment problems cut
-toward bondholders, not away from them.
+The self-financing question we inherit most directly from
+\citet{angeletos2024deficits}, who show that deficits partly pay for themselves
+through boom-induced tax revenue and the erosion of nominal debt when
+households are non-Ricardian. We ask what that logic delivers for a
+\emph{permanent} program evaluated in the long run, where the DTPL forces the
+price level to clear the asset market. Their erosion channel is the analog of
+our revaluation term $\nu_{\mathrm{reval}}$, and our central quantitative
+finding is that its sign \emph{flips} for green investment, which raises asset
+demand and is therefore disinflationary; their tax-base boom is the analog of
+our damage dividend $\nu_{\mathrm{dam}}$. How much revaluation a government can
+credibly deliver is itself in question, and \citet{hurtado2023sovereign}, who
+model inflation as a state-contingent partial default on long-term nominal debt
+without commitment, provide both the discipline and the template for our
+debt-maturity extension --- the more so because our revaluation runs
+\emph{against} the fisc, so commitment problems here cut toward bondholders
+rather than away from them.
 
-\paragraph{Climate macroeconomics.} We build the climate sector on the
-integrated-assessment tradition: \citet{golosov2014} for the
-emissions--damages structure in general equilibrium, \citet{nordhaus2017} for
-damage calibration discipline, \citet{barrage2020} for the interaction of
-climate policy with distortionary fiscal policy. On the nominal side,
-\citet{delnegro2023green} study whether the transition is inflationary in a
-multi-sector New Keynesian model --- a sticky-price, transition-dynamics
-question complementary to our flexible-price, steady-state one; our
-disinflation result shows the long-run answer can have the opposite sign from
-the short-run one. \citet{sahucsmetsvermandel2024} estimate a New Keynesian
-climate model and \citet{nakovthomas2026} characterize climate-conscious
-monetary policy --- the representative-agent New Keynesian transition of
-Section~\ref{sec:transitions} is the natural point of contact with both. \citet{ferrarinispilandi2023} study green
-central-bank asset purchases; in our framework the central bank's balance
-sheet is not the active margin --- the denomination of the fiscal green
-budget is. On
-distributional incidence, \citet{kanzig2023carbon} documents that carbon
-policy burdens fall disproportionately on poor households, and
-\citet{fried2018} quantify the distributional effects of carbon taxes;
-\citet{bilalkanzig2024} argue macro damages are far larger than country-level
-estimates suggest. These three papers discipline, respectively, our incidence
-gradient $\psi$, its fiscal interpretation, and the level of $D$.
+The climate sector rests on the integrated-assessment tradition ---
+\citet{golosov2014} for the emissions--damages structure in general
+equilibrium, \citet{nordhaus2017} for damage-calibration discipline, and
+\citet{barrage2020} for the interaction of climate policy with distortionary
+fiscal policy. On the nominal side, \citet{delnegro2023green} ask whether the
+transition is inflationary in a multi-sector New Keynesian model; theirs is a
+sticky-price, transition-dynamics question that complements our flexible-price,
+steady-state one, and our disinflation result shows that the long-run answer
+can carry the opposite sign from the short-run one. The estimated New Keynesian
+climate model of \citet{sahucsmetsvermandel2024} and the climate-conscious
+monetary policy of \citet{nakovthomas2026} are the natural points of contact
+for the representative-agent New Keynesian transition of
+Section~\ref{sec:transitions}, while \citet{ferrarinispilandi2023}, who study
+green central-bank asset purchases, differ from us in that the active margin
+here is the denomination of the fiscal green budget rather than the central
+bank's balance sheet. The distributional inputs come from three sources that
+discipline, respectively, our incidence gradient $\psi$, its fiscal
+interpretation, and the level of damages $D$: \citet{kanzig2023carbon}
+documents that carbon-policy burdens fall disproportionately on poor
+households, \citet{fried2018} quantify the distributional effects of carbon
+taxes, and \citet{bilalkanzig2024} argue that macro damages are far larger than
+country-level estimates suggest.
 
+Several applied literatures supply the discipline for individual channels. On
+the revaluation side, \citet{doepkeschneider2006} map inflation episodes into
+redistribution of nominal wealth, \citet{auclert2019} decomposes policy
+redistribution into earnings, Fisher, and interest-rate-exposure channels,
+\citet{hallsargent2011} provide the maturity-adjusted debt accounting, and
+\citet{hilscher2022} show that maturity and holder composition leave little
+room to inflate away U.S.\ debt --- all of which bound
+Section~\ref{subsec:maturity}, with the twist that our revaluation runs toward
+bondholders, so these limits \emph{help} the fisc. On the spending side, the
+productive-public-capital literature --- \citet{baxterking1993} on the
+consumption/investment distinction, \citet{leeperwalkeryang2010} on
+implementation delays, and \citet{bomligthart2014} on the output elasticity of
+public capital --- disciplines our green-capital block and its efficiency
+parameter $q_g$. And on the financing side, work on green finance and sovereign
+risk --- \citet{gigliokellystroebel2021} on climate-risk pricing,
+\citet{bakergreenbonds} on green-bond pricing and ownership, and
+\citet{bis2025sovereign} on transition risk in sovereign yields --- bounds the
+greenium and sovereign-risk margins; we do not assume that green investment
+improves sovereign risk.
 
-
-\paragraph{Nominal-wealth redistribution and the limits of inflating away
-debt (tools).} \citet{doepkeschneider2006} map inflation episodes into
-redistribution of nominal wealth across households and sectors;
-\citet{auclert2019} decomposes policy redistribution into earnings, Fisher
-and interest-rate-exposure channels; \citet{hallsargent2011} provide the
-maturity-adjusted debt accounting; \citet{hilscher2022} show empirically
-that maturity and holder composition leave little room to inflate away
-U.S.\ debt. We import all four as discipline for
-Section~\ref{subsec:maturity} --- with the twist that our calibrated
-revaluation runs toward bondholders, so these limits \emph{help} the fisc.
-
-\paragraph{Productive public capital (tools).} \citet{baxterking1993}
-distinguish government consumption from productive public investment;
-\citet{leeperwalkeryang2010} show implementation delays reshape the fiscal
-transmission of public investment; \citet{bomligthart2014} meta-estimate
-the output elasticity of public capital. They discipline our green-capital
-block and the efficiency parameter $q_g$.
-
-\paragraph{Heterogeneous-household climate policy (competitors).}
-\citet{douennehummelpedroni} study optimal carbon and income taxation with
-heterogeneous households, and \citet{ddhp} climate policy under incomplete
-markets and fiscal constraints --- the closest climate-policy work to our
-environment. Our differentiation is the nominal side: neither models
-nominal public liabilities or price-level determination, which is where
-every result in this paper lives.
-
-\paragraph{Climate-fiscal policy institutions (competitors on the policy
-question).} \citet{imf2024climatedebt} argue that spending-heavy transition
-strategies worsen public-debt dynamics absent carbon pricing --- the policy
-claim this paper tests with an endogenous price level; our benchmark
-partially overturns it (a majority of the program cost is self-financed at
-medium damages) and partially confirms it (low program effectiveness makes
-the true cost \emph{exceed} the sticker price).
-\citet{caselli2024greenfiscalrules} survey green fiscal rules; our
-anchor-insulation corollary is a concrete rule proposal in that design
-space. \citet{ando2022sovereignclimate} document the sovereign green-bond
-market, the institutional home of the denomination margin we model.
-
-\paragraph{Green finance and sovereign risk (tools).}
-\citet{gigliokellystroebel2021} survey climate-risk pricing;
-\citet{bakergreenbonds} document green-bond pricing and ownership;
-\citet{bis2025sovereign} price transition risk in sovereign yields; and
-\citet{hurtado2023sovereign} model inflation as state-contingent partial
-default on long-term sovereign debt. These discipline the green-bond
-(greenium) and sovereign-risk margins of the mechanism; we do not assume
-green investment improves sovereign risk.
+Closest in substance are the heterogeneous-household climate-policy papers and
+the climate-fiscal-institutions literature. \citet{douennehummelpedroni} study
+optimal carbon and income taxation with heterogeneous households, and
+\citet{ddhp} study climate policy under incomplete markets and fiscal
+constraints; both are near neighbors in environment, and what sets us apart is
+the nominal side, since neither models nominal public liabilities or
+price-level determination, which is where every result of this paper lives. On
+the policy question itself, \citet{imf2024climatedebt} argue that spending-heavy
+transition strategies worsen public-debt dynamics absent carbon pricing --- the
+claim this paper subjects to an endogenous price level, and one our benchmark
+partly overturns (a majority of the program cost is self-financed at medium
+damages) and partly confirms (low program effectiveness makes the true cost
+\emph{exceed} its sticker price). \citet{caselli2024greenfiscalrules} survey
+green fiscal rules, a design space in which our anchor-insulation corollary is a
+concrete proposal, and \citet{ando2022sovereignclimate} document the sovereign
+green-bond market, the institutional home of the denomination margin we model.
 
 % ==========================================================================
 \section{Model}\label{sec:model}
@@ -1391,20 +1369,8 @@ the calibrated real rate when risk aversion is that low (the precautionary
 motive is too weak --- a restriction on the model, not a numerical failure),
 which is itself why the benchmark uses $\sigma=2$.
 
-\pfigguard{PFig20_robustness.pdf}{%
-\begin{figure}[ht]\centering
-\includegraphics[width=0.95\textwidth]{PFig20_robustness.pdf}
-\caption{Calibration robustness (steady state, calibrated scale). (a) The
-self-financing share $\nu$ over the $(D_0,\theta_g)$ plane; the white line
-is the $\nu=1$ frontier (full self-financing), and the marked column
-values $D_0\in\{0.02,0.06,0.20\}$ are the sourced damage calibrations of
-Table~\ref{tab:sources}. The red markers are the benchmark
-$\theta_g=1.2$ at the sourced columns. (b) One-at-a-time sensitivity at the
-medium column under the held debt-target protocol; the dashed line is full
-financing. ($\sigma=1$ has no bar: the debt target is infeasible at that
-risk aversion, as the text explains.)}
-\label{fig:pfig20}
-\end{figure}}
+% Figure PFig20 (calibration robustness) relocated to
+% Appendix~\ref{app:figures} (supplementary figures).
 
 % --------------------------------------------------------------------------
 \subsection{Why the price level moves: the safe-asset channel isolated}
@@ -1589,20 +1555,8 @@ incidence of Propositions~\ref{prop:sunspots} and
 same exercise tilts the insurance value toward the constrained households who
 hold the nominally-safe, really-risky bond as their only buffer.
 
-\pfigguard{PFig21_aggrisk_welfare.pdf}{%
-\begin{figure}[ht]\centering
-\includegraphics[width=0.95\textwidth]{PFig21_aggrisk_welfare.pdf}
-\caption{Aggregate-risk Stage B ($n_a=500$). (a) The self-financing
-decomposition under aggregate risk: $\nu=\nu_{\mathrm{reval}}+\nu_{\mathrm{dam}}$
-$=-0.08+0.85=0.77$, with no premium term (the premium is fiscally inert,
-\eqref{eq:premiuminert}). (b) The welfare value of the risk compression ---
-the consumption-equivalent gain from \emph{preferentially} insuring the
-severe state, holding the ergodic-mean damage reduction fixed --- by
-household group and aggregate state. The value is concentrated in the severe
-state (where the disaster is realized) and, at the benchmark's uniform
-incidence, roughly flat across the wealth distribution.}
-\label{fig:pfig21}
-\end{figure}}
+% Figure PFig21 (aggregate-risk Stage B welfare) relocated to
+% Appendix~\ref{app:figures} (supplementary figures).
 
 % --------------------------------------------------------------------------
 \subsection{Welfare incidence by wealth group}
@@ -1684,14 +1638,8 @@ bottom-half losses, and in the high-damage column all groups gain --- but
 full self-financing remains conditional on the high-damage,
 high-effectiveness region.
 
-\pfigguard{PFig16_extended_welfare_groups.pdf}{%
-\begin{figure}[ht]\centering
-\includegraphics[width=0.95\textwidth]{PFig16_extended_welfare_groups.pdf}
-\caption{Extended welfare groups (deficit vs.\ levy-plus-rebate financing):
-income-state and wealth(=bondholding) quintiles; constrained and high-MPC
-households.}
-\label{fig:pfig16}
-\end{figure}}
+% Figure PFig16 (extended welfare groups) relocated to
+% Appendix~\ref{app:figures} (supplementary figures).
 
 % --------------------------------------------------------------------------
 \subsection{Financing regimes: deficit, proportional levy, rebate, mixed}
@@ -1829,21 +1777,8 @@ percent efficiency loss forfeits roughly forty percent of self-financing
 --- quantifying why climate public-investment management
 (Climate-PIMA-style) is a fiscal issue, not only an engineering one.
 
-\pfigguard{PFig10_maturity_bounds.pdf}{%
-\begin{figure}[ht]\centering
-\includegraphics[width=0.95\textwidth]{PFig10_maturity_bounds.pdf}
-\caption{Bounding the revaluation channel: (a) fiscal $\nu^M$ under
-indexation; (b) domestic incidence under foreign holdings.}
-\label{fig:pfig10}
-\end{figure}}
-
-\pfigguard{PFig11_implementation_qg.pdf}{%
-\begin{figure}[ht]\centering
-\includegraphics[width=0.6\textwidth]{PFig11_implementation_qg.pdf}
-\caption{Implementation efficiency $q_g$ and the damage dividend
-(medium damages, calibrated scale).}
-\label{fig:pfig11}
-\end{figure}}
+% Figures PFig10 (maturity bounds) and PFig11 (implementation efficiency)
+% relocated to Appendix~\ref{app:figures} (supplementary figures).
 
 % ==========================================================================
 \section{Transition diagnostics}\label{sec:transitions}
@@ -2095,18 +2030,8 @@ regime & $\pi$ impact (ann.) & $Y$ impact & $r^b$ impact & debt (40q) & $K_g$ (4
 \end{tabular}
 \end{table}
 
-\pfigguard{PFig17_hank2_green_irfs.pdf}{%
-\begin{figure}[ht]\centering
-\includegraphics[width=0.95\textwidth]{PFig17_hank2_green_irfs.pdf}
-\caption{Two-asset heterogeneous-agent impulse responses (output, net
-quarterly inflation, government debt, the liquid-bond return, green capital,
-the equity price) to the quasi-permanent deficit-financed green-investment
-shock under four regimes. The liquid-return panel isolates the Fisher
-revaluation on households' \emph{liquid} nominal savings; the equity-price
-panel is the illiquid asset's repricing. Linearized responses, not the
-nonlinear demand-theory price-level transition.}
-\label{fig:pfig17}
-\end{figure}}
+% Figure PFig17 (two-asset HANK IRFs) relocated to
+% Appendix~\ref{app:figures} (supplementary figures).
 
 % --------------------------------------------------------------------------
 \subsection{The nonlinear price-level transition}\label{subsec:tier2}
@@ -2651,6 +2576,89 @@ curve. The optimal-policy exercise rebuilds the interpolant at each $\mu$
 (the real rate changes). Runtime: about one minute per full pass at
 $n_a=500$ on commodity hardware (68 s in the authors' benchmark run); a FAST
 mode at $n_a=100$ reproduces all qualitative results.
+
+% ==========================================================================
+\section{Supplementary figures}\label{app:figures}
+% ==========================================================================
+% Supporting figures for results whose main statements are made in the body;
+% the body carries the figures central to the narrative and refers here for
+% the bounding, robustness, extended-welfare, and two-asset detail.
+
+This appendix collects the supporting figures for four results whose headline
+magnitudes are reported in the text: the bounds on the revaluation channel
+(Section~\ref{subsec:maturity}), the calibration-robustness frontier
+(Section~\ref{subsec:robustness}), the extended welfare incidence
+(Section~\ref{subsec:regimes}), the aggregate-risk welfare decomposition
+(Section~\ref{subsec:aggrisk}), and the two-asset heterogeneous-agent
+impulse responses (Section~\ref{sec:transitions}).
+
+\pfigguard{PFig20_robustness.pdf}{%
+\begin{figure}[htbp]\centering
+\includegraphics[width=0.95\textwidth]{PFig20_robustness.pdf}
+\caption{Calibration robustness (steady state, calibrated scale). (a) The
+self-financing share $\nu$ over the $(D_0,\theta_g)$ plane; the white line
+is the $\nu=1$ frontier (full self-financing), and the marked column
+values $D_0\in\{0.02,0.06,0.20\}$ are the sourced damage calibrations of
+Table~\ref{tab:sources}. The red markers are the benchmark
+$\theta_g=1.2$ at the sourced columns. (b) One-at-a-time sensitivity at the
+medium column under the held debt-target protocol; the dashed line is full
+financing. ($\sigma=1$ has no bar: the debt target is infeasible at that
+risk aversion, as the text explains.)}
+\label{fig:pfig20}
+\end{figure}}
+
+\pfigguard{PFig10_maturity_bounds.pdf}{%
+\begin{figure}[htbp]\centering
+\includegraphics[width=0.95\textwidth]{PFig10_maturity_bounds.pdf}
+\caption{Bounding the revaluation channel: (a) fiscal $\nu^M$ under
+indexation; (b) domestic incidence under foreign holdings.}
+\label{fig:pfig10}
+\end{figure}}
+
+\pfigguard{PFig11_implementation_qg.pdf}{%
+\begin{figure}[htbp]\centering
+\includegraphics[width=0.6\textwidth]{PFig11_implementation_qg.pdf}
+\caption{Implementation efficiency $q_g$ and the damage dividend
+(medium damages, calibrated scale).}
+\label{fig:pfig11}
+\end{figure}}
+
+\pfigguard{PFig16_extended_welfare_groups.pdf}{%
+\begin{figure}[htbp]\centering
+\includegraphics[width=0.95\textwidth]{PFig16_extended_welfare_groups.pdf}
+\caption{Extended welfare groups (deficit vs.\ levy-plus-rebate financing):
+income-state and wealth(=bondholding) quintiles; constrained and high-MPC
+households.}
+\label{fig:pfig16}
+\end{figure}}
+
+\pfigguard{PFig21_aggrisk_welfare.pdf}{%
+\begin{figure}[htbp]\centering
+\includegraphics[width=0.95\textwidth]{PFig21_aggrisk_welfare.pdf}
+\caption{Aggregate-risk Stage B ($n_a=500$). (a) The self-financing
+decomposition under aggregate risk: $\nu=\nu_{\mathrm{reval}}+\nu_{\mathrm{dam}}$
+$=-0.08+0.85=0.77$, with no premium term (the premium is fiscally inert,
+\eqref{eq:premiuminert}). (b) The welfare value of the risk compression ---
+the consumption-equivalent gain from \emph{preferentially} insuring the
+severe state, holding the ergodic-mean damage reduction fixed --- by
+household group and aggregate state. The value is concentrated in the severe
+state (where the disaster is realized) and, at the benchmark's uniform
+incidence, roughly flat across the wealth distribution.}
+\label{fig:pfig21}
+\end{figure}}
+
+\pfigguard{PFig17_hank2_green_irfs.pdf}{%
+\begin{figure}[htbp]\centering
+\includegraphics[width=0.95\textwidth]{PFig17_hank2_green_irfs.pdf}
+\caption{Two-asset heterogeneous-agent impulse responses (output, net
+quarterly inflation, government debt, the liquid-bond return, green capital,
+the equity price) to the quasi-permanent deficit-financed green-investment
+shock under four regimes. The liquid-return panel isolates the Fisher
+revaluation on households' \emph{liquid} nominal savings; the equity-price
+panel is the illiquid asset's repricing. Linearized responses, not the
+nonlinear demand-theory price-level transition.}
+\label{fig:pfig17}
+\end{figure}}
 
 \bibliographystyle{plainnat}
 \bibliography{references}

@@ -13,6 +13,17 @@ function save_all_figs(fh, name, params)
     if ~isfolder(figdir)
         mkdir(figdir);
     end
+
+    % Apply the project-wide common formatting standard (fonts, sizes, axis
+    % weights, grid, legend look, minimum line width) so every exported
+    % figure shares one visual language. Never fatal.
+    try
+        if exist('style_figure', 'file') == 2
+            style_figure(fh);
+        end
+    catch
+    end
+
     png = fullfile(figdir, [name '.png']);
     pdf = fullfile(figdir, [name '.pdf']);
     figf = fullfile(figdir, [name '.fig']);
