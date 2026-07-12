@@ -256,29 +256,48 @@ for k = 1:numel(rnn)
 end
 
 % ---- PFig14: regime comparison (IRFs, deviations from steady state) ----
+% Descriptive legend labels. The green PROGRAM is identical across scenarios;
+% WEAK/TAYLOR/AGGRESSIVE vary the monetary rule's inflation coefficient, while
+% TAYLORBAL repeats the Taylor rule under near-balanced-budget financing so the
+% TAYLOR-vs-TAYLORBAL gap isolates the deficit-financing (revaluation) channel.
+lblmap = containers.Map( ...
+    {'WEAK','TAYLOR','AGGRESSIVE','GREENACCOM','TAYLORBAL'}, ...
+    {'Weakly active rule (\phi_\pi=1.1)', 'Taylor rule (\phi_\pi=1.5)', ...
+     'Aggressive targeting (\phi_\pi=3.0)', 'Green accommodation', ...
+     'Taylor, near-balanced budget'});
 cols = [0.10 0.30 0.75; 0.85 0.20 0.15; 0.85 0.55 0.10; 0.20 0.55 0.25; ...
         0.45 0.45 0.45];
 panels = {'Y','output'; 'pi','inflation (net, qtr)'; 'b','real debt'; ...
           'kg','green capital'; 'd','damages'; 'r','ex-post real return'};
 fh = figure('Name','PFig14: HANK green-program IRFs','Color','w', ...
-            'Position',[60 60 1100 640]);
+            'Position',[60 60 1100 680]);
 Tshow = 120;
 names_ok = {regimes(ok).name};
+leg_labels = cellfun(@(n) lblmap(n), names_ok, 'UniformOutput', false);
+leg_handles = gobjects(1, numel(names_ok));
 for pp = 1:size(panels,1)
     subplot(2,3,pp); hold on; box on;
+    ii = 0;
     for rgm = 1:numel(regimes)
         if ~ok(rgm), continue; end
+        ii = ii + 1;
         s = RES.(regimes(rgm).name);
         if isfield(s, panels{pp,1})
             v = s.(panels{pp,1});
-            plot(0:min(Tshow,numel(v))-1, v(1:min(Tshow,numel(v))), ...
+            h = plot(0:min(Tshow,numel(v))-1, v(1:min(Tshow,numel(v))), ...
                  'LineWidth', 1.8, 'Color', cols(rgm,:));
+            if pp == 1, leg_handles(ii) = h; end
         end
     end
-    yline(0, ':', 'Color', [0.4 0.4 0.4]);
+    yline(0, ':', 'Color', [0.4 0.4 0.4], 'HandleVisibility', 'off');
     xlabel('quarters'); title(panels{pp,2});
-    if pp == 1, legend(names_ok, 'Location','best'); end
 end
+% One shared horizontal legend across the bottom, declaring every scenario.
+valid = isgraphics(leg_handles);
+lg = legend(leg_handles(valid), leg_labels(valid), 'Orientation', 'horizontal', ...
+            'NumColumns', min(3, sum(valid)));
+lg.Position = [0.5 - lg.Position(3)/2, 0.005, lg.Position(3), lg.Position(4)];
+sgtitle('Linearized HANK impulse responses to a permanent green-investment program');
 save_all_figs(fh, 'PFig14_hank_green_irfs', pg);
 fprintf('\n  [saved] PFig14_hank_green_irfs\n');
 
