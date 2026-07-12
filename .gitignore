@@ -2,3 +2,13 @@
 # FRED API key (never commit secrets)
 research_green_deficits/data/.fred_key
 **/.fred_key
+
+# LaTeX build artifacts (the paper source is tracked; compiled output is not)
+research_green_deficits/paper/*.aux
+research_green_deficits/paper/*.bbl
+research_green_deficits/paper/*.blg
+research_green_deficits/paper/*.log
+research_green_deficits/paper/*.out
+research_green_deficits/paper/*.pdf
+research_green_deficits/paper/*.toc
+research_green_deficits/paper/*.synctex.gz
