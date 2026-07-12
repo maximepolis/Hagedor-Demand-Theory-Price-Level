@@ -2353,9 +2353,44 @@ percentage points below trend (from $+2\%$ to $-2\%$ annualized) that
 decays within two years --- front-loaded price-level news, not a
 persistent inflation differential --- scaled by the program's credibility
 and size.
-High-frequency event studies around, e.g., EU Green Deal and IRA
-legislative surprises can discriminate; \citet{kanzig2023carbon}'s
-identification strategy for carbon policy shocks is the natural template.
+We take this discrimination to the data. Market-implied expected inflation
+(the $5$-year, $5$-year-forward breakeven rate, the cleanest long-run
+measure) should \emph{fall} around credible announcements of large,
+deficit-financed green-investment programs if the demand-theory sign is
+right, and rise or not move if the New Keynesian sign is. We estimate the
+response three ways on a pre-registered set of US green-fiscal expansions
+(the American Jobs Plan, the Bipartisan Infrastructure package, and the
+Inflation Reduction Act): a per-event window study, the same study on
+breakeven changes orthogonalized to the same-day real-yield, oil, and
+volatility moves (the Fed-and-energy confound), and a Jord\`a local
+projection that traces the response over the days after an announcement.
+The marquee event is the IRA Schumer--Manchin deal of 27 July 2022 --- a
+genuine surprise, and one an ``Inflation Reduction Act'' invites us to read
+directly.
+% TODO(run): quantitative sentences enter here once
+% output/tables/e3_summary.txt is pushed -- the IRA [0,+5] breakeven move,
+% the orthogonalized version, the surprises-only mean, and the sign/shape of
+% the local-projection path beta_h (Figure~\ref{fig:pfig22}).
+We are candid about the limits: clean green-fiscal surprises are few and
+cluster in the $2021$--$22$ inflation surge, so the exercise identifies a
+\emph{sign} and its contrast with the New Keynesian prediction, not a
+precisely estimated magnitude; \citet{kanzig2023carbon}'s high-frequency
+identification for carbon-policy shocks is the natural template for the
+sharper, higher-powered test in later work, as is a euro-area panel
+(Green Deal, Next Generation EU, REPowerEU) against euro inflation swaps.
+
+\pfigguard{PFig22_e3.pdf}{%
+\begin{figure}[ht]\centering
+\includegraphics[width=0.95\textwidth]{PFig22_e3.pdf}
+\caption{E3: breakeven inflation around US green-fiscal expansions. (a) The
+per-event change in the $5$y$5$y forward breakeven over the $[0,+5]$-trading-day
+window (blue: genuine surprises). (b) Local projection of the breakeven
+response to a green-fiscal announcement, $\beta_h$ at horizons
+$h=0,\dots,15$ trading days, controlled for same-day real-yield, oil, and
+volatility moves and five lags; shaded band is $90\%$ (Newey--West). The
+demand-theory mechanism predicts $\beta_h<0$ and persistent.}
+\label{fig:pfig22}
+\end{figure}}
 
 % ==========================================================================
 \section{Conclusion}\label{sec:conclusion}
