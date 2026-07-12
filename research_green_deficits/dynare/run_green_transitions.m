@@ -144,10 +144,10 @@ lblmap = containers.Map( ...
     {'Weakly active rule (\phi_\pi=1.1)', 'Taylor rule (\phi_\pi=1.5)', ...
      'Aggressive targeting (\phi_\pi=3.0)', 'Green accommodation'});
 cols = [0.10 0.30 0.75; 0.85 0.20 0.15; 0.85 0.55 0.10; 0.20 0.55 0.25];
-panels = {'y','output'; 'ppi','inflation (net, qtr)'; 'b','real debt'; ...
+panels = {'y','output'; 'ppi','inflation (% annualized)'; 'b','real debt'; ...
           'kg','green capital'; 'd','damages'; 'tau','taxes'};
 fh = figure('Name','PFig13: RANK transition diagnostics','Color','w', ...
-            'Position',[60 60 1100 680]);
+            'Position',[60 60 1100 700]);
 Tshow = 120;
 names_ok = {regimes(ok).name};
 leg_labels = cellfun(@(n) lblmap(n), names_ok, 'UniformOutput', false);
@@ -161,20 +161,18 @@ for pp = 1:size(panels,1)
         s = RES.(regimes(rgm).name);
         if isfield(s, panels{pp,1})
             v = s.(panels{pp,1});
+            if strcmp(panels{pp,1}, 'ppi'), v = 400*v; end   % net qtr -> % ann.
             h = plot(0:min(Tshow,numel(v))-1, v(1:min(Tshow,numel(v))), ...
                  'LineWidth', 1.8, 'Color', cols(rgm,:));
             if pp == 1, leg_handles(ii) = h; end
         end
     end
     yline(0, ':', 'Color', [0.4 0.4 0.4], 'HandleVisibility', 'off');
-    xlabel('quarters'); title(panels{pp,2});
+    if pp >= 4, xlabel('quarters'); end   % bottom row only: avoids collisions
+    title(panels{pp,2});
 end
-% One shared horizontal legend across the bottom, declaring every scenario.
-valid = isgraphics(leg_handles);
-lg = legend(leg_handles(valid), leg_labels(valid), 'Orientation', 'horizontal', ...
-            'NumColumns', min(4, sum(valid)));
-lg.Position = [0.5 - lg.Position(3)/2, 0.005, lg.Position(3), lg.Position(4)];
-sgtitle('RANK transitions to a permanent green-investment program (deviations from initial steady state)');
+% One shared legend band across the bottom, declaring every scenario.
+finish_panel_legend(fh, leg_handles, leg_labels, 2);
 save_all_figs(fh, 'PFig13_rank_transitions', pg);
 fprintf('\n  [saved] PFig13_rank_transitions\n');
 

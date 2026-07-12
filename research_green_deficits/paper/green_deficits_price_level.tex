@@ -24,9 +24,22 @@
 % (sub)section that introduces it, so figures render next to the text that
 % discusses them instead of drifting to the end of the paper. Loaded only if
 % available (it is on Overleaf and full TeX Live); otherwise \FloatBarrier is
-% a no-op so a minimal distribution still compiles.
+% implemented directly (flush pending floats with \clearpage only when some
+% are actually deferred), so a minimal distribution places figures correctly
+% too.
 \IfFileExists{placeins.sty}{\usepackage[section]{placeins}}{%
-  \providecommand{\FloatBarrier}{}}
+  \makeatletter
+  \newcommand{\FloatBarrier}{\par
+    \begingroup\let\@elt\relax
+    \edef\reserved@a{\@deferlist}\endgroup
+    \ifx\reserved@a\@empty\else\clearpage\fi}
+  \makeatother}
+% Loosen the float-placement thresholds so large panel figures are placed
+% near their text instead of deferring to the end of the paper.
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.7}
+\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.7}
 
 % Figures live in figures/ on Overleaf; ../output/figures/ in the repo.
 \graphicspath{{figures/}{../output/figures/}{./}}
@@ -228,7 +241,7 @@ productivity $\theta_g$ crosses a threshold the model measures
 calibrated pass (Section~\ref{subsec:calibrated}) turns this into the paper's
 central conditional statement: at a defensible fiscal scale (debt of $1.1$
 times income, a program of $2\%$ of income), the self-financing share is
-$0.15$ under conservative DICE damages, $0.56$ under empirical
+$0.16$ under conservative DICE damages, $0.58$ under empirical
 temperature-damage estimates, and $2.0$ under high-damage estimates --- while
 the disinflationary revaluation ($\approx -0.06$) is robust across all three
 damage regimes.
@@ -269,8 +282,8 @@ level through asset demand. Lump-sum taxes strengthen precautionary demand
 (disinflation, bondholder windfall) while a proportional carbon-style levy
 weakens it (inflation, debt erosion), and at the calibrated medium column the
 levy-plus-rebate design dominates deficit financing on both margins at once ---
-more self-financing ($\nu$: $0.57 \to 0.76$) and progressive rather than
-regressive (bottom-half welfare: $-2.4\% \to +1.2\%$, top decile nearly
+more self-financing ($\nu$: $0.58 \to 0.76$) and progressive rather than
+regressive (bottom-half welfare: $-2.2\% \to +1.1\%$, top decile nearly
 unharmed) --- with identical aggregate resources
 (Proposition~\ref{prop:financingdesign}, Table~\ref{tab:regimes}).
 
@@ -964,6 +977,7 @@ Section~\ref{subsec:regimes}.
 \end{proposition}
 
 % ==========================================================================
+\FloatBarrier
 \section{Quantitative analysis}\label{sec:quant}
 % ==========================================================================
 
@@ -1003,7 +1017,7 @@ target), and the aggregate-risk section use different normalizations. Only
 dispersion $P_S/P_C$ --- are economically meaningful and comparable, and all
 reported results are stated as such.}
 
-\begin{table}[ht]
+\begin{table}[!htb]
 \centering
 \caption{Benchmark quantitative results ($n_a=500$ run).}
 \label{tab:benchmark}
@@ -1053,7 +1067,7 @@ its sticker price, again because of the disinflationary asset-demand
 response.
 
 \pfigguard{PFig1_green_steady_state.pdf}{%
-\begin{figure}[ht]\centering
+\begin{figure}[!htb]\centering
 \includegraphics[width=0.6\textwidth]{PFig1_green_steady_state.pdf}
 \caption{The green steady state: asset demand and bond supply in
 (assets, price-level) space; the dot marks $(B/P^{*},P^{*})$.}
@@ -1061,7 +1075,7 @@ response.
 \end{figure}}
 
 \pfigguard{PFig2_self_financing.pdf}{%
-\begin{figure}[ht]\centering
+\begin{figure}[!htb]\centering
 \includegraphics[width=0.95\textwidth]{PFig2_self_financing.pdf}
 \caption{Self-financing. (a) Decomposition at the benchmark:
 $\nu_{\mathrm{reval}}=-0.241$, $\nu_{\mathrm{dam}}=0.841$, $\nu=0.600$.
@@ -1090,7 +1104,7 @@ sweep $\psi\in\{0,1,2\}$ and a doubled program, at the accommodative stance
 $\mu_{\mathrm{ext}}=0.03$ and with the carbon-stock climate sector. Table~\ref{tab:frontier} reports the measured
 frontier.
 
-\begin{table}[ht]
+\begin{table}[!htb]
 \centering
 \caption{The multiplicity frontier (extended run, $n_a=500$,
 $\mu_{\mathrm{ext}}=0.03$, carbon-stock sector). ``0*'' = no stationary
@@ -1130,7 +1144,7 @@ rests --- a collapse that indexation alone does not repair
 $\mu_{\mathrm{ext}}=0.03$).
 
 \pfigguard{PFig3_sunspots_vs_mandate.pdf}{%
-\begin{figure}[ht]\centering
+\begin{figure}[!htb]\centering
 \includegraphics[width=0.95\textwidth]{PFig3_sunspots_vs_mandate.pdf}
 \caption{Determinacy diagnostics at $\theta_g=2.5$: (a) $\Phi(P)$ under the
 nominal budget and the real mandate; (b) measured $\varepsilon_S(P)$ against
@@ -1184,7 +1198,7 @@ feasible price level --- the existence failure the theory predicts, reported
 honestly by the solver rather than smoothed over.
 
 \pfigguard{PFig4_optimal_policy.pdf}{%
-\begin{figure}[ht]\centering
+\begin{figure}[!htb]\centering
 \includegraphics[width=0.6\textwidth]{PFig4_optimal_policy.pdf}
 \caption{Utilitarian welfare $W(\mu)$; the star marks $\mu^{*}=0.045$.}
 \label{fig:pfig4}
@@ -1210,13 +1224,15 @@ and \textbf{high} $D_0=0.20$ \citep{bilalkanzig2024}. Abatement productivity
 $\theta_g$ remains illustrative and is reported as a sweep.
 Table~\ref{tab:calibrated} reports the run.
 
-\begin{table}[ht]
+\begin{table}[!htb]
 \centering
 \caption{Calibrated self-financing by damage column
 ($\beta^{*}=0.9267$, debt/income $=1.10$, program $=2\%$ of income,
 $\mu=0.02$, $n_a=500$ run, calibration-consistent risk channel). The
-$\theta_g$-threshold and welfare rows are from the previous calibration
-vintage ($\beta^{*}=0.9296$) and refresh with the next full sweep.}
+$\theta_g$-threshold row is the $\nu=1$ frontier of the robustness sweep
+(Section~\ref{subsec:robustness}, same $\beta^{*}$); the welfare row is from
+the previous calibration vintage ($\beta^{*}=0.9296$) and refreshes with the
+next full sweep.}
 \label{tab:calibrated}
 \begin{tabular}{lccc}
 \toprule
@@ -1231,7 +1247,7 @@ $\nu$                          & \textbf{0.156} & \textbf{0.583} & \textbf{2.045
 \quad revaluation              & $-0.057$ & $-0.053$ & $-0.058$ \\
 \quad damage dividend          & $0.212$  & $0.636$  & $2.104$ \\
 bondholder windfall $|L|$      & 0.060  & 0.057  & 0.067 \\
-full financing at $\theta_g$   & none ($\nu\!=\!0.32$ at $2.5$) & $\approx 2.35$ & $\approx 0.57$ \\
+full financing at $\theta_g$   & none ($\nu\!=\!0.34$ at $2.5$) & $2.18$ & $0.57$ \\
 steady-state welfare $W_0 \to W_1$ & $-3.22 \to -3.72$ & $-4.09 \to -4.42$ & $-7.82 \to \mathbf{-7.23}$ \\
 \bottomrule
 \end{tabular}
@@ -1245,7 +1261,7 @@ temperature-damage range, to $2.0$ --- full self-financing twice over ---
 under high-damage estimates. The model does not claim green deficits are
 self-financing; it locates the damage regime in which they are. Second,
 under DICE damages \emph{no} abatement productivity in the swept range
-delivers full financing ($\nu = 0.32$ even at $\theta_g = 2.5$): the
+delivers full financing ($\nu = 0.34$ even at $\theta_g = 2.5$): the
 conservative-damage case is a genuine fiscal cost, which is the honest
 counterpart to the high-damage case. Third, \textbf{green disinflation is
 robust to the calibration}: the revaluation term is $-0.05$ to $-0.06$ in
@@ -1262,7 +1278,7 @@ welfare-incidence analysis (Section~\ref{subsec:welfaregroups}) and the
 dynamic extension take over.
 
 \pfigguard{PFig7_calibrated_nu.pdf}{%
-\begin{figure}[ht]\centering
+\begin{figure}[!htb]\centering
 \includegraphics[width=0.6\textwidth]{PFig7_calibrated_nu.pdf}
 \caption{Calibrated self-financing by damage column: stacked revaluation
 (negative) and damage-dividend components against the full-financing line.}
@@ -1282,7 +1298,7 @@ no study pins down is not given a point value at all, but reported as an
 axis of the answer. Table~\ref{tab:sources} states where each climate
 parameter comes from.
 
-\begin{table}[ht]
+\begin{table}[!htb]
 \centering\small
 \caption{Climate-block parameters: values, status, and sources. ``Anchored''
 parameters take their range from published estimates; ``swept'' parameters
@@ -1335,26 +1351,27 @@ $1\%$ and $4\%$) hold $\beta^{*}$ fixed (Figure~\ref{fig:pfig20}b).
 
 Three findings survive the exercise. \emph{First, the required
 effectiveness falls sharply in the damage level.} The $\nu=1$ frontier reads
-$\theta_g^{*}=2.24$ at the medium column, $0.58$ at the
+$\theta_g^{*}=2.18$ at the medium column, $0.57$ at the
 \citet{bilalkanzig2024} high column, and lies \emph{above} the swept range
 ($>3$) at the conservative DICE column --- so what one must believe for full
 self-financing is monotone and transparent: under high damages even a
 modestly effective program pays for itself, while under DICE damages no
 effectiveness in the plausible range does, and the honest answer there is
-partial financing ($\nu=0.06$--$0.39$) carried by the revaluation and a
-small dividend. The benchmark $\theta_g=1.2$ sits comfortably below the
-medium-column frontier, consistent with the partial self-financing
-($\nu=0.56$) reported above. \emph{Second, the disinflation is not a
-calibration artifact:} the revaluation component is negative at all $65$
+partial financing ($\nu=0.04$--$0.39$ over $\theta_g\in[0.5,3]$) carried by
+the damage dividend net of the revaluation loss. The benchmark $\theta_g=1.2$
+sits comfortably below the medium-column frontier, consistent with the
+partial self-financing ($\nu=0.58$) reported above. \emph{Second, the
+disinflation is not a calibration artifact:} the revaluation component is
+negative at all $65$
 nodes of the $(D_0,\theta_g)$ plane, so productive green programs raise
 safe-asset demand and lower the price level regardless of the damage or
 effectiveness assumption. \emph{Third, the self-financing share is stable to
 the household side but genuinely governed by incidence.} Holding the debt
 target fixed, $\nu$ moves little with risk aversion ($0.57$ at $\sigma=3$)
 or the damage--risk link ($0.56$--$0.61$ as $\phi_D$ runs $0$ to $1$), rises
-mechanically when green capital is longer-lived ($\nu=1.06$ at
+mechanically when green capital is longer-lived ($\nu=1.09$ at
 $\delta_g=0.05$, which doubles the capital stock per unit of spending) or
-the program is smaller ($0.62$ at $1\%$ versus $0.48$ at $4\%$, the
+the program is smaller ($0.62$ at $1\%$ versus $0.50$ at $4\%$, the
 concavity of abatement), and --- the one economically important
 non-monotonicity --- the revaluation channel \emph{flips sign} under strong
 regressive incidence: at $\psi=2$ the program becomes mildly inflationary
@@ -1394,36 +1411,38 @@ figures in this subsection are steady-state comparisons on the
 full-resolution grid ($n_a = 500$) at the calibrated medium-damage scale.
 
 This decomposition splits the total green disinflation of
-$\ln P_1 - \ln P_0 = -5.72\%$ (from $P_0 = 0.8246$ to $P_1 = 0.7788$)
+$\ln P_1 - \ln P_0 = -5.23\%$ (from $P_0 = 0.9051$ to $P_1 = 0.8590$)
 into:
 \[
-\underbrace{-7.68\%}_{\text{tax burden}}
-\;\underbrace{-\,1.59\%}_{\text{damage level/incid.}}
-\;\underbrace{+\,2.31\%}_{\text{risk}}
-\;\underbrace{+\,1.24\%}_{\text{interaction}},
+\underbrace{-5.77\%}_{\text{tax burden}}
+\;\underbrace{-\,1.57\%}_{\text{damage level/incid.}}
+\;\underbrace{+\,2.08\%}_{\text{risk}}
+\;\underbrace{+\,0.03\%}_{\text{interaction}},
 \]
-with partial-equilibrium asset demand moving from $S(\tau_0, D_0) = 1.213$
-to $S(\tau_1, D_0) = 1.305$ (taxes), $S(\tau_0, D_1^{\mathrm{lev}}) =
-1.230$ (damage level), and $S(\tau_0, D_1^{\mathrm{risk}}) = 1.186$
-(risk). Two lessons, one expected and one not. The expected one: the tax
+with partial-equilibrium asset demand moving from $S(\tau_0, D_0) = 1.105$
+to $S(\tau_1, D_0) = 1.169$ (taxes), $S(\tau_0, D_1^{\mathrm{lev}}) =
+1.122$ (damage level), and $S(\tau_0, D_1^{\mathrm{risk}}) = 1.084$
+(risk); the near-zero interaction term says the three channels are
+additive to two decimal places at this scale. Two lessons, one expected
+and one not. The expected one: the tax
 burden dominates --- lump-sum taxes push constraint-adjacent households
 toward precautionary saving, asset demand rises, and the price level
 falls, which is the core of green disinflation. The unexpected one: the
 \emph{two climate channels have opposite signs}. Avoided damages are
-themselves disinflationary ($-1.59\%$): richer households save more in
+themselves disinflationary ($-1.57\%$): richer households save more in
 levels, so the damage dividend \emph{amplifies} the bondholder windfall
 rather than offsetting it. Only the risk channel works toward inflation
-($+2.31\%$): with less climate-driven income risk, precautionary demand
+($+2.08\%$): with less climate-driven income risk, precautionary demand
 falls. Green disinflation is therefore not a tax artifact --- it survives
 even at zero program cost through the damage-level node --- and its only
 countervailing force is the insurance content of climate policy. The
 financing swap confirms the regime section at the level of asset demand:
 moving the same program from lump-sum to levy financing moves the price
-level by $+8.74$ log points, larger than the entire program effect
+level by $+8.01$ log points, larger than the entire program effect
 itself.
 
 \pfigguard{PFig15_safe_asset_decomposition.pdf}{%
-\begin{figure}[ht]\centering
+\begin{figure}[!htb]\centering
 \includegraphics[width=0.95\textwidth]{PFig15_safe_asset_decomposition.pdf}
 \caption{The safe-asset channel isolated: (a) exact log contributions of
 the tax-burden, damage, risk, and interaction margins to
@@ -1492,7 +1511,7 @@ fixed points converge. Adding the aggregate-risk term to the self-financing
 decomposition and to the welfare analysis is a natural extension.}
 
 \pfigguard{PFig19_aggrisk.pdf}{%
-\begin{figure}[ht]\centering
+\begin{figure}[!htb]\centering
 \includegraphics[width=0.95\textwidth]{PFig19_aggrisk.pdf}
 \caption{Aggregate climate risk ($n_a=500$). Two recurrent
 aggregate states (\textsc{calm}/\textsc{severe}); the nominal bond is
@@ -1541,10 +1560,10 @@ states by the same amount, so the ergodic-mean damage falls identically but
 the dispersion does not compress. The consumption-equivalent gap between the
 two is the pure value of \emph{preferentially} insuring the severe state ---
 $+0.13\%$ of permanent consumption on average, which offsets about a tenth of
-the program's steady-state welfare cost ($-1.36\%$ at the calibrated medium
+the program's steady-state welfare cost ($-1.35\%$ at the calibrated medium
 scale, before transition gains). The insurance value falls exactly where the
-mechanism says it should: it is more than five times larger for a household
-\emph{in} the severe state ($+0.43\%$) than in the calm state ($+0.08\%$) ---
+mechanism says it should: it is about six times larger for a household
+\emph{in} the severe state ($+0.46\%$) than in the calm state ($+0.08\%$) ---
 the compression is valued when the disaster bites. Across the wealth
 distribution it is essentially flat ($+0.14\%$ for the bottom quintile and
 the constrained, $+0.14\%$ for the top), because at the benchmark's
@@ -1569,7 +1588,7 @@ aggregated over baseline-distribution wealth quintiles
 (Table~\ref{tab:incidence}; generated by \texttt{main\_project\_calibrated}
 section C4).
 
-\begin{table}[ht]
+\begin{table}[!htb]
 \centering
 \caption{Consumption-equivalent welfare incidence of the program under
 deficit (lump-sum) financing, by baseline wealth quintile (percent;
@@ -1603,7 +1622,7 @@ program --- which motivates the regime comparison below, where the same real
 program is financed progressively and the ranking reverses.
 
 \pfigguard{PFig8_welfare_incidence.pdf}{%
-\begin{figure}[ht]\centering
+\begin{figure}[!htb]\centering
 \includegraphics[width=0.7\textwidth]{PFig8_welfare_incidence.pdf}
 \caption{Welfare incidence by baseline wealth quintile across damage
 columns (deficit financing).}
@@ -1620,18 +1639,18 @@ baseline policy; a proxy, labeled as such). These are steady-state
 comparisons at the calibrated medium-damage scale. Under
 \textsc{r1-deficit}, every cut of
 the population points the same way: income-state quintiles lose
-monotonically ($-3.05\%$, $-2.26\%$, $-1.83\%$, $-1.52\%$, $-1.20\%$ from
+monotonically ($-2.73\%$, $-2.01\%$, $-1.62\%$, $-1.34\%$, $-1.05\%$ from
 bottom to top; exact fractional apportioning of the seven-state process
-across quintile boundaries), constrained households ($16.6\%$ of the
-population) lose $-2.98\%$ against $-1.77\%$ for the unconstrained, and
-the high-MPC quartile loses $-2.54\%$ against $-1.77\%$ for the rest ---
+across quintile boundaries), constrained households ($17.7\%$ of the
+population) lose $-2.64\%$ against $-1.56\%$ for the unconstrained, and
+the high-MPC quartile loses $-2.25\%$ against $-1.56\%$ for the rest ---
 the program under deficit finance is paid for precisely by the households
 with the least self-insurance capacity. Under
 \textsc{r3-prop-levy-rebate} every one of those orderings \emph{reverses}:
-the income quintiles gain $+2.01\%$, $+1.11\%$, $+0.58\%$, $+0.18\%$,
-$-0.25\%$ from bottom to top, the constrained gain $+1.89\%$ against
-$+0.50\%$, and the high-MPC group $+1.35\%$ against $+0.51\%$, at an
-aggregate gain of $+0.73\%$ against the deficit regime's $-1.97\%$.
+the income quintiles gain $+1.86\%$, $+1.02\%$, $+0.53\%$, $+0.16\%$,
+$-0.24\%$ from bottom to top, the constrained gain $+1.71\%$ against
+$+0.44\%$, and the high-MPC group $+1.23\%$ against $+0.45\%$, at an
+aggregate gain of $+0.67\%$ against the deficit regime's $-1.75\%$.
 Stated conditionally: incidence is regressive under pure deficit finance
 in the low and medium damage calibrations, rebate financing reverses
 bottom-half losses, and in the high-damage column all groups gain --- but
@@ -1667,9 +1686,9 @@ comparison isolates is the pure incidence-and-price-level content of
 financing design --- which, given that the revaluation channel is an
 incidence object, is exactly where the DTPL mechanism has bite.
 Table~\ref{tab:regimes} reports the run (medium damages, calibrated scale;
-no-program baseline $P_0 = 0.8246$).
+no-program baseline $P_0 = 0.9051$).
 
-\begin{table}[ht]
+\begin{table}[!htb]
 \centering
 \caption{Financing regimes for the same real green program
 (medium damages, calibrated scale, $n_a=500$ run). $\lambda_{b50}$,
@@ -1681,10 +1700,10 @@ $\lambda_{t10}$: consumption-equivalent gains of the bottom 50\% and top
 Regime & $P^{*}$ & $\nu$ & $\nu_{\mathrm{reval}}$ & $\nu_{\mathrm{dam}}$ &
 $\lambda_{b50}$ & $\lambda_{t10}$ \\
 \midrule
-\textsc{r1-deficit} (lump-sum)      & 0.779 & 0.568 & $-0.060$ & 0.628 & $-2.42\%$ & $-1.15\%$ \\
-\textsc{r2-prop-levy}               & 0.850 & 0.668 & $+0.033$ & 0.635 & $-0.41\%$ & $-0.58\%$ \\
-\textsc{r3-prop-levy-rebate}        & 0.916 & \textbf{0.759} & $\mathbf{+0.119}$ & 0.641 & $\mathbf{+1.23\%}$ & $-0.13\%$ \\
-\textsc{r4-mixed-deficit-levy}      & 0.816 & 0.620 & $-0.012$ & 0.632 & $-1.35\%$ & $-0.84\%$ \\
+\textsc{r1-deficit} (lump-sum)      & 0.859 & 0.581 & $-0.055$ & 0.636 & $-2.16\%$ & $-1.02\%$ \\
+\textsc{r2-prop-levy}               & 0.931 & 0.672 & $+0.030$ & 0.642 & $-0.36\%$ & $-0.52\%$ \\
+\textsc{r3-prop-levy-rebate}        & 0.999 & \textbf{0.758} & $\mathbf{+0.111}$ & 0.647 & $\mathbf{+1.13\%}$ & $-0.12\%$ \\
+\textsc{r4-mixed-deficit-levy}      & 0.896 & 0.628 & $-0.011$ & 0.639 & $-1.21\%$ & $-0.76\%$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1693,7 +1712,7 @@ Three results, the first of which we regard as the sharpest in the paper.
 First, \textbf{the sign of the revaluation channel is a policy choice}
 (Proposition~\ref{prop:financingdesign}): moving from lump-sum to
 proportional financing flips green disinflation ($\nu_{\mathrm{reval}} =
--0.060$) into mild green inflation ($+0.033$; $+0.119$ with the rebate).
+-0.055$) into mild green inflation ($+0.030$; $+0.111$ with the rebate).
 The mechanism is the asset-demand incidence at the heart of the DTPL:
 lump-sum taxes push constraint-adjacent households toward their borrowing
 limit and \emph{raise} precautionary demand (the price level falls, the
@@ -1701,19 +1720,19 @@ fisc loses the revaluation); a proportional levy scales endowments and
 \emph{lowers} demand roughly proportionally (the price level rises, real
 debt erodes). Second, the progressive design wins on \emph{both} margins
 simultaneously: the levy-plus-rebate regime is the most self-financing
-($\nu = 0.759$, a fifth more than deficit financing) \emph{and} the most
-progressive (the bottom half gains $+1.23\%$ against $-2.42\%$ under
-deficit financing, while the top decile is nearly unharmed at $-0.13\%$
-versus $-1.15\%$) --- a near-Pareto dominance over the conventional deficit
+($\nu = 0.758$, a fifth more than deficit financing) \emph{and} the most
+progressive (the bottom half gains $+1.13\%$ against $-2.16\%$ under
+deficit financing, while the top decile is nearly unharmed at $-0.12\%$
+versus $-1.02\%$) --- a near-Pareto dominance over the conventional deficit
 regime. Third, the magnitudes quantify how much the DTPL incidence channel
 is worth: all four regimes purchase the identical real program with
 identical aggregate resources, yet the bottom half's welfare differs by
-$3.7$ percentage points of permanent consumption between the worst and best
+$3.3$ percentage points of permanent consumption between the worst and best
 design. Financing structure is not fiscal bookkeeping in this economy; it
 is a price-level and distribution instrument.
 
 \pfigguard{PFig9_financing_regimes.pdf}{%
-\begin{figure}[ht]\centering
+\begin{figure}[!htb]\centering
 \includegraphics[width=0.95\textwidth]{PFig9_financing_regimes.pdf}
 \caption{Financing regimes: (a) self-financing decomposition; (b) welfare
 incidence, bottom 50\% versus top 10\%.}
@@ -1749,8 +1768,10 @@ replication package reports the maturity-adjusted
 share $\nu^{M} = (1-\alpha_I)\,\nu_{\mathrm{reval}} + \nu_{\mathrm{dam}}$
 over $\alpha_I \in \{0, 0.10, 0.25\}$, the domestic-incidence table over
 $\alpha_F \in \{0, 0.30, 0.50\}$, and the duration term for the
-$\mu = 0.02 \to 0.045$ accommodation move at durations of one, five and ten
-years; the implementation-efficiency sweep $q_g \in \{0.6, 0.8, 1.0\}$
+$\mu = 0.02 \to 0.03$ accommodation move (the extended-run stance, real
+rate $1.96\% \to 0.97\%$) at coupon-decay rates $\delta_m \in \{0, 0.8,
+0.9\}$ --- durations of roughly one, five and eight years; the
+implementation-efficiency sweep $q_g \in \{0.6, 0.8, 1.0\}$
 (planning delays and procurement frictions in the spirit of
 \citealp{leeperwalkeryang2010}, disciplined by \citealp{bomligthart2014}
 and the IMF's climate public-investment framework) scales the damage
@@ -1758,21 +1779,21 @@ dividend correspondingly.
 
 The run (calibrated medium column) delivers three quantitative statements.
 First, because the revaluation channel is negative, \emph{indexation raises
-the self-financing share}: $\nu^{M} = 0.563$, $0.570$ and $0.579$ at indexed
+the self-financing share}: $\nu^{M} = 0.583$, $0.588$ and $0.596$ at indexed
 shares $\alpha_I = 0$, $0.10$ and $0.25$ --- indexed debt shields the fisc
 from the disinflation loss, the mirror image of the usual
-inflating-away logic. Second, foreign holders absorb the windfall: the
-domestic revaluation incidence shrinks from $-0.058$ to $-0.029$ as the
+inflating-away logic. Second, foreign holders absorb the windfall: by the
+incidence identity $(1-\alpha_I)(1-\alpha_F)\,\nu_{\mathrm{reval}}$, the
+domestic revaluation incidence shrinks from $-0.048$ to $-0.024$ as the
 foreign-held share rises from zero to one half (at $\alpha_I = 0.10$).
 Third, duration amplifies who gains from \emph{accommodation}: under the
-$\mu = 0.02 \to 0.045$ move the legacy bond repricing alone hands holders
-$+2.4\%$ at one-year duration, $+12.5\%$ at five years and $+25.6\%$ at ten
-years (holding revaluations including the level effect: $+9.0\%$,
-$+19.6\%$, $+33.6\%$) --- accommodation redistributes toward long-bond
+$\mu = 0.02 \to 0.03$ move the legacy bond repricing hands holders
+$+6.2\%$ at one-year duration, $+10.2\%$ at five years and $+14.7\%$ at
+eight years --- accommodation redistributes toward long-bond
 holders, in line with the \citet{hallsargent2011} accounting.
 Implementation frictions scale the damage dividend nearly linearly:
-$\nu = 0.563$, $0.449$ and $0.329$ at $q_g = 1.0$, $0.8$ and $0.6$
-(the revaluation component barely moves, $-0.064$ to $-0.069$), so a forty
+$\nu = 0.583$, $0.466$ and $0.344$ at $q_g = 1.0$, $0.8$ and $0.6$
+(the revaluation component barely moves), so a forty
 percent efficiency loss forfeits roughly forty percent of self-financing
 --- quantifying why climate public-investment management
 (Climate-PIMA-style) is a fiscal issue, not only an engineering one.
@@ -1781,6 +1802,7 @@ percent efficiency loss forfeits roughly forty percent of self-financing
 % relocated to Appendix~\ref{app:figures} (supplementary figures).
 
 % ==========================================================================
+\FloatBarrier
 \section{Transition diagnostics}\label{sec:transitions}
 % ==========================================================================
 
@@ -1865,11 +1887,15 @@ Proposition~\ref{prop:insulation}.
 \end{enumerate}
 
 \pfigguard{PFig13_rank_transitions.pdf}{%
-\begin{figure}[ht]\centering
+\begin{figure}[!htb]\centering
 \includegraphics[width=0.95\textwidth]{PFig13_rank_transitions.pdf}
 \caption{Representative-agent New Keynesian transitions: perfect-foresight
 paths for a permanent tax-financed green program (12-quarter ramp-in) under
-four monetary regimes. These paths do not implement the demand-theory
+four monetary regimes --- a weakly active rule ($\phi_\pi=1.1$), an inertial
+Taylor rule ($\phi_\pi=1.5$), strict inflation targeting ($\phi_\pi=3.0$),
+and a temporary green accommodation whose large inflation spike is the
+point of the experiment (accommodation buys inflation, not green capital).
+These paths do not implement the demand-theory
 price-level mechanism; inflation is set by the Phillips curve and the
 interest-rate rule.}
 \label{fig:pfig13}
@@ -1943,11 +1969,15 @@ magnitudes are indicative, not calibrated results: the income process is a
 three-state benchmark and the responses are linearized.
 
 \pfigguard{PFig14_hank_green_irfs.pdf}{%
-\begin{figure}[ht]\centering
+\begin{figure}[!htb]\centering
 \includegraphics[width=0.95\textwidth]{PFig14_hank_green_irfs.pdf}
 \caption{Linearized heterogeneous-agent impulse responses to a
 quasi-permanent deficit-financed green-investment shock (one percent of
-steady-state output, persistence $0.98$) under four monetary regimes.
+steady-state output, persistence $0.98$) under five monetary/financing
+regimes: three inflation-coefficient variants ($\phi_\pi = 1.1$, $1.5$,
+$3.0$), a temporary green accommodation, and the Taylor rule under
+near-balanced-budget financing (\textsc{taylorbal}), whose gap to
+\textsc{taylor} isolates the deficit-financing component.
 The ex-post real return panel is the linearized Fisher revaluation
 channel. These are linearized responses, not the nonlinear
 demand-theory price-level transition.}
@@ -2007,7 +2037,7 @@ richer household portfolio and production block; its economics are otherwise
 covered by the one-asset responses (Fisher redistribution) and by the
 nonlinear transition below (the $B/P$ margin proper).
 
-\begin{table}[ht]
+\begin{table}[!htb]
 \centering
 \caption{Two-asset heterogeneous-agent impulse responses to the
 quasi-permanent green-investment shock ($\rho_g=0.98$, one percent of
@@ -2132,7 +2162,7 @@ transition is the converged, horizon-adequate, grid-consistent run
 described in Appendix~\ref{app:numerics}.
 
 \pfigguard{PFig18_dtpl_transition.pdf}{%
-\begin{figure}[ht]\centering
+\begin{figure}[!htb]\centering
 \includegraphics[width=0.95\textwidth]{PFig18_dtpl_transition.pdf}
 \caption{The nonlinear price-level transition (converged, grid-consistent
 run, $n_a=500$, $T=80$ years, $\beta$ calibrated on this grid to the
@@ -2148,6 +2178,7 @@ equilibrium path. Residuals clear to $5\times10^{-4}$ at every date.}
 \end{figure}}
 
 % ==========================================================================
+\FloatBarrier
 \section{Conclusion}\label{sec:conclusion}
 % ==========================================================================
 
@@ -2191,6 +2222,7 @@ green-fiscal surprises.
 % ==========================================================================
 \appendix
 % ==========================================================================
+\FloatBarrier
 \section{Proofs}\label{app:proofs}
 
 \subsection{Proof of Lemma \ref{lem:S}}
@@ -2593,7 +2625,7 @@ magnitudes are reported in the text: the bounds on the revaluation channel
 impulse responses (Section~\ref{sec:transitions}).
 
 \pfigguard{PFig20_robustness.pdf}{%
-\begin{figure}[htbp]\centering
+\begin{figure}[!htbp]\centering
 \includegraphics[width=0.95\textwidth]{PFig20_robustness.pdf}
 \caption{Calibration robustness (steady state, calibrated scale). (a) The
 self-financing share $\nu$ over the $(D_0,\theta_g)$ plane; the white line
@@ -2608,7 +2640,7 @@ risk aversion, as the text explains.)}
 \end{figure}}
 
 \pfigguard{PFig10_maturity_bounds.pdf}{%
-\begin{figure}[htbp]\centering
+\begin{figure}[!htbp]\centering
 \includegraphics[width=0.95\textwidth]{PFig10_maturity_bounds.pdf}
 \caption{Bounding the revaluation channel: (a) fiscal $\nu^M$ under
 indexation; (b) domestic incidence under foreign holdings.}
@@ -2616,7 +2648,7 @@ indexation; (b) domestic incidence under foreign holdings.}
 \end{figure}}
 
 \pfigguard{PFig11_implementation_qg.pdf}{%
-\begin{figure}[htbp]\centering
+\begin{figure}[!htbp]\centering
 \includegraphics[width=0.6\textwidth]{PFig11_implementation_qg.pdf}
 \caption{Implementation efficiency $q_g$ and the damage dividend
 (medium damages, calibrated scale).}
@@ -2624,7 +2656,7 @@ indexation; (b) domestic incidence under foreign holdings.}
 \end{figure}}
 
 \pfigguard{PFig16_extended_welfare_groups.pdf}{%
-\begin{figure}[htbp]\centering
+\begin{figure}[!htbp]\centering
 \includegraphics[width=0.95\textwidth]{PFig16_extended_welfare_groups.pdf}
 \caption{Extended welfare groups (deficit vs.\ levy-plus-rebate financing):
 income-state and wealth(=bondholding) quintiles; constrained and high-MPC
@@ -2633,7 +2665,7 @@ households.}
 \end{figure}}
 
 \pfigguard{PFig21_aggrisk_welfare.pdf}{%
-\begin{figure}[htbp]\centering
+\begin{figure}[!htbp]\centering
 \includegraphics[width=0.95\textwidth]{PFig21_aggrisk_welfare.pdf}
 \caption{Aggregate-risk Stage B ($n_a=500$). (a) The self-financing
 decomposition under aggregate risk: $\nu=\nu_{\mathrm{reval}}+\nu_{\mathrm{dam}}$
@@ -2648,7 +2680,7 @@ incidence, roughly flat across the wealth distribution.}
 \end{figure}}
 
 \pfigguard{PFig17_hank2_green_irfs.pdf}{%
-\begin{figure}[htbp]\centering
+\begin{figure}[!htbp]\centering
 \includegraphics[width=0.95\textwidth]{PFig17_hank2_green_irfs.pdf}
 \caption{Two-asset heterogeneous-agent impulse responses (output, net
 quarterly inflation, government debt, the liquid-bond return, green capital,
