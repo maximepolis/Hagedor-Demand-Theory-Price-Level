@@ -204,6 +204,14 @@ if fid > 0
             cols(c).name, cols(c).D0, cols(c).nu, cols(c).nu_reval, ...
             cols(c).nu_damage, cols(c).P0, cols(c).P1, cols(c).n_roots);
     end
+    % steady-state welfare W0 -> W1 per column (Table 3's welfare row)
+    for c = 1:numel(D0_cols)
+        if ~isempty(RCAL.dec{c}) && RCAL.dec{c}.ok
+            fprintf(fid, 'W0->W1 %-15s %.4f -> %.4f (dW %+.4f)\n', ...
+                col_names{c}, RCAL.dec{c}.base.W, RCAL.dec{c}.prog.W, ...
+                RCAL.dec{c}.dW);
+        end
+    end
     for c = 1:numel(D0_cols)
         if ~isempty(wgs{c}) && wgs{c}.ok
             fprintf(fid, 'welfare %-14s %s\n', col_names{c}, wgs{c}.msg);

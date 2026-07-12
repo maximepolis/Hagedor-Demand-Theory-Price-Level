@@ -121,29 +121,22 @@ self-financing under conservative and medium damage calibrations
 estimates) and become fully self-financing only under high-damage,
 high-effectiveness assumptions ($\nu = 2.0$).
 
-The mechanism turns the arithmetic into a menu of design choices. The
-revaluation channel runs
-\emph{against} the fisc under conventional financing --- productive green
-programs are disinflationary because they raise safe-asset demand, handing
-bondholders a windfall --- but its sign is itself a design choice: a
-proportional levy with a lump-sum rebate flips the channel, raises the
-self-financing share by a fifth, improves bottom-half welfare, and converts
-a regressive program into a progressive one at identical aggregate cost.
-In the nonlinear transition --- computed as a fixed point in the
-price-level path itself, with no Phillips curve --- a credible
-announcement front-loads three quarters of the long-run disinflation into
-the announcement year: year-one inflation is minus two percent against a
-plus-two-percent trend, and bondholders collect the windfall, five percent
-of the program's present value, before any green capital is installed.
-Monetary accommodation near the welfare-preferred stance renders the
-program approximately price-level neutral. With aggregate climate risk the
-nominal safe asset is nominally safe but really risky --- it loses real
-value precisely in the severe climate state --- and green public investment
-compresses that systematic risk, making the paper's ``safe asset'' literal.
-The results imply that green fiscal rules should specify not only the scale
-of spending but its nominal indexation, its financing mix, its
-distributional rebates, and the maturity and indexation structure of the
-debt that funds it.
+The mechanism turns the arithmetic into a menu of design choices. Under
+conventional financing the revaluation channel runs \emph{against} the
+fisc --- productive green programs are disinflationary because they raise
+safe-asset demand, handing bondholders a windfall --- but a proportional
+levy with a lump-sum rebate flips the channel's sign, raises the
+self-financing share by a fifth, and converts a regressive program into a
+progressive one at identical aggregate cost. In the nonlinear transition
+--- a fixed point in the price-level path itself, with no Phillips curve
+--- a credible announcement front-loads three quarters of the long-run
+disinflation into the announcement year, and bondholders collect the
+windfall before any green capital is installed. With aggregate climate
+risk, the nominal bond loses real value precisely in the severe climate
+state, and green investment compresses that systematic risk: the ``safe
+asset'' becomes literal. Green fiscal rules should therefore specify not
+only the scale of spending but its indexation, financing mix, rebates, and
+the structure of the debt that funds it.
 \end{abstract}
 
 \bigskip
@@ -397,13 +390,18 @@ indexation resolves in place of the Taylor principle.
 The self-financing question we inherit most directly from
 \citet{angeletos2024deficits}, who show that deficits partly pay for themselves
 through boom-induced tax revenue and the erosion of nominal debt when
-households are non-Ricardian. We ask what that logic delivers for a
-\emph{permanent} program evaluated in the long run, where the DTPL forces the
-price level to clear the asset market. Their erosion channel is the analog of
+households are non-Ricardian. The objects differ in a way that matters for
+comparing magnitudes: theirs is the dynamic self-financing of a one-off
+stimulus in a demand-determined economy with nominal rigidity, ours the
+steady-state self-financing of a \emph{permanent} program under flexible
+prices, where the DTPL forces the price level to clear the asset market ---
+so the informative comparison is not the level of $\nu$ but the sign and
+source of its components. Their erosion channel is the analog of
 our revaluation term $\nu_{\mathrm{reval}}$, and our central quantitative
 finding is that its sign \emph{flips} for green investment, which raises asset
 demand and is therefore disinflationary; their tax-base boom is the analog of
-our damage dividend $\nu_{\mathrm{dam}}$. How much revaluation a government can
+our damage dividend $\nu_{\mathrm{dam}}$ --- a supply-side dividend that
+exists only because the spending is productive, not because it stimulates. How much revaluation a government can
 credibly deliver is itself in question, and \citet{hurtado2023sovereign}, who
 model inflation as a state-contingent partial default on long-term nominal debt
 without commitment, provide both the discipline and the template for our
@@ -418,8 +416,14 @@ equilibrium, \citet{nordhaus2017} for damage-calibration discipline, and
 fiscal policy. On the nominal side, \citet{delnegro2023green} ask whether the
 transition is inflationary in a multi-sector New Keynesian model; theirs is a
 sticky-price, transition-dynamics question that complements our flexible-price,
-steady-state one, and our disinflation result shows that the long-run answer
-can carry the opposite sign from the short-run one. The estimated New Keynesian
+steady-state one, and the two are not mutually exclusive --- short-run
+reallocation inflation and long-run asset-demand disinflation can coexist.
+What separates the mechanisms observationally is the announcement window:
+a Phillips-curve economy prices a deficit-financed green announcement as
+mildly inflationary demand stimulus, while the asset-demand mechanism
+prices it as an immediate disinflationary capitalization
+(Section~\ref{sec:transitions}), so the sign of expected inflation around
+credible green-fiscal news discriminates between them. The estimated New Keynesian
 climate model of \citet{sahucsmetsvermandel2024} and the climate-conscious
 monetary policy of \citet{nakovthomas2026} are the natural points of contact
 for the representative-agent New Keynesian transition of
@@ -1195,7 +1199,15 @@ climate erosion and the lower buffer return dominate and welfare declines.
 At $\mu=0.015$ no equilibrium exists on the scan range: with $r^{ss}$ that
 close to the $1/\beta-1$ asymptote, asset demand exceeds $B/P$ at every
 feasible price level --- the existence failure the theory predicts, reported
-honestly by the solver rather than smoothed over.
+honestly by the solver rather than smoothed over. Two framing caveats keep
+the result in its lane. It is a \emph{steady-state financing} statement ---
+the optimal trend inflation for a green-investing fisc, in the spirit of
+the risk-sharing motive for accommodation in \citet{acharya2023optimal} ---
+not advice about stabilization policy or about the credibility costs of
+moving an announced target, which the model has no vocabulary for; and its
+interior optimum exists precisely because the climate loop penalizes
+inflation (real spending erosion), so economies with indexed green budgets
+would rationally choose higher $\mu^{*}$.
 
 \pfigguard{PFig4_optimal_policy.pdf}{%
 \begin{figure}[!htb]\centering
@@ -1230,9 +1242,7 @@ Table~\ref{tab:calibrated} reports the run.
 ($\beta^{*}=0.9267$, debt/income $=1.10$, program $=2\%$ of income,
 $\mu=0.02$, $n_a=500$ run, calibration-consistent risk channel). The
 $\theta_g$-threshold row is the $\nu=1$ frontier of the robustness sweep
-(Section~\ref{subsec:robustness}, same $\beta^{*}$); the welfare row is from
-the previous calibration vintage ($\beta^{*}=0.9296$) and refreshes with the
-next full sweep.}
+(Section~\ref{subsec:robustness}, same $\beta^{*}$).}
 \label{tab:calibrated}
 \begin{tabular}{lccc}
 \toprule
@@ -1248,7 +1258,7 @@ $\nu$                          & \textbf{0.156} & \textbf{0.583} & \textbf{2.045
 \quad damage dividend          & $0.212$  & $0.636$  & $2.104$ \\
 bondholder windfall $|L|$      & 0.060  & 0.057  & 0.067 \\
 full financing at $\theta_g$   & none ($\nu\!=\!0.34$ at $2.5$) & $2.18$ & $0.57$ \\
-steady-state welfare $W_0 \to W_1$ & $-3.22 \to -3.72$ & $-4.09 \to -4.42$ & $-7.82 \to \mathbf{-7.23}$ \\
+steady-state welfare $W_0 \to W_1$ & $-3.13 \to -3.56$ & $-3.96 \to -4.25$ & $-7.55 \to \mathbf{-7.02}$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1269,7 +1279,7 @@ every column --- the program lowers the price level by about $5\%$ and hands
 bondholders a windfall of $6$--$7\%$ of annual mean income at every damage
 level. The sign reversal of the deficit-erosion channel is not an artifact
 of the oversized illustrative benchmark. Fourth, in the high-damage column
-the program raises steady-state welfare outright ($W$: $-7.82 \to -7.23$)
+the program raises steady-state welfare outright ($W$: $-7.55 \to -7.02$)
 even before counting transition gains --- avoided damages and reduced
 climate risk dominate the added tax burden --- whereas in the low and medium
 columns steady-state welfare falls and the case for the program rests on the
@@ -1729,7 +1739,15 @@ is worth: all four regimes purchase the identical real program with
 identical aggregate resources, yet the bottom half's welfare differs by
 $3.3$ percentage points of permanent consumption between the worst and best
 design. Financing structure is not fiscal bookkeeping in this economy; it
-is a price-level and distribution instrument.
+is a price-level and distribution instrument. The rebate design is the
+general-equilibrium cousin of carbon fee-and-dividend proposals, whose
+progressivity is documented in the incidence evidence we calibrate to
+\citep{kanzig2023carbon} and analyzed in the optimal-taxation setting of
+\citet{douennehummelpedroni}; what those real-economy analyses cannot
+deliver --- and what the DTPL adds --- is that the same rebate also moves
+the \emph{price level} and hence the self-financing share, because the
+incidence of the financing instrument is what precautionary asset demand
+prices.
 
 \pfigguard{PFig9_financing_regimes.pdf}{%
 \begin{figure}[!htb]\centering
@@ -1989,24 +2007,17 @@ two-asset version of this exercise --- liquid nominal bonds versus illiquid
 equity with convex portfolio-adjustment costs, sticky wages and prices,
 Tobin's-$Q$ investment, and endogenous government debt --- so that the
 demand for the liquid nominal asset, the $B/P$ margin at the heart of the
-model, is observable separately from total wealth. It carries one
-methodological lesson worth stating in the text: making the liquidity
-premium an \emph{endogenous convenience yield} that clears the liquid-bond
-market is boundary-singular in a truncated sequence-space system under both
-natural timings of the premium (the contemporaneous premium acts only
-through an income effect on predetermined holdings at the impact date; the
-issuance-timed premium leaves the terminal-date premium outside every
-within-horizon equation). The extension therefore closes with a single
-total-wealth clearing condition and a constant premium, and the endogenous
-convenience yield is left to future work. Because a two-asset sequence-space
-solve is numerically delicate, the responses are reported only after an
-explicit accuracy protocol clears: an oscillation diagnostic on the
-differenced responses (all four regimes score one, the minimum) and a
-refinement re-solve on a finer illiquid grid that must agree with the
-baseline before any magnitude is reported (maximum relative deviation
-$6.7\%$ over the first $120$ quarters, inside the $10\%$ gate). The grids
-remain coarse ($n_e=3$, $n_b=15$, $n_a=30$), so the magnitudes are
-indicative rather than calibrated.
+model, is observable separately from total wealth.\footnote{Two honest
+qualifications. First, making the liquidity premium an \emph{endogenous
+convenience yield} that clears the liquid-bond market is boundary-singular
+in a truncated sequence-space system under both natural timings of the
+premium; the extension therefore closes with total-wealth clearing and a
+constant premium, and the endogenous convenience yield is left to future
+work. Second, magnitudes are reported only after an explicit accuracy
+protocol clears (an oscillation diagnostic and a finer-grid refinement
+re-solve agreeing within its $10\%$ gate, at $6.7\%$); the grids remain
+coarse ($n_e=3$, $n_b=15$, $n_a=30$), so magnitudes are indicative rather
+than calibrated.}
 
 The results (Table~\ref{tab:twoasset}, Figure~\ref{fig:pfig17}) confirm the
 one-asset findings under the richer portfolio and add the two objects the
@@ -2210,7 +2221,24 @@ windfall, arrive in the announcement year. A two-state aggregate climate
 process (Section~\ref{subsec:aggrisk}) makes the nominal safe asset
 literally risky and shows that green investment compresses that
 systematic risk; the compression proves fiscally inert but valuable as
-insurance, most so in the disaster state. Adding production with brown
+insurance, most so in the disaster state.
+
+The distributional finding carries a political-economy implication worth
+stating plainly. In this economy the fiscal beneficiaries of
+deficit-financed green investment are bondholders --- wealthy households
+receive the disinflationary windfall while the lump-sum burden bites
+hardest at the borrowing constraint --- so the usual political alignment
+inverts: the constituency with the strongest fiscal stake in green
+deficits is the top of the wealth distribution, and opposition motivated
+by ``green inflation'' targets a program that, through this mechanism, is
+deflationary for the asset-owning class. Models of the politics of climate
+policy that assume the rich resist deficit-financed transition spending
+because inflation erodes nominal wealth have the sign of the incentive
+backwards here; conversely, the levy-plus-rebate design realigns the
+program with the median voter at the cost of the bondholder windfall ---
+a tradeoff between political coalitions, not just welfare weights.
+
+Adding production with brown
 capital and a carbon price \citep{barrage2020}, and a fully stochastic
 transition, are the main open modeling items. The sharpest untested
 implication is empirical: a credible, deficit-financed green-investment
