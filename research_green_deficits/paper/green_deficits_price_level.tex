@@ -1556,7 +1556,14 @@ severe state and cheap in the calm state --- washes out in expectation
 (Appendix~\ref{app:proofs}). The aggregate-risk self-financing share is
 therefore $\nu=\nu_{\mathrm{reval}}+\nu_{\mathrm{dam}}$, the ergodic average
 of the deterministic decomposition, with no separate aggregate-risk term;
-the driver confirms \eqref{eq:premiuminert} numerically to solver tolerance.
+the driver confirms \eqref{eq:premiuminert} numerically to machine precision
+(the direct ergodic bill and the closed form agree to $3\times10^{-18}$). In
+the calibrated aggregate-risk economy the self-financing share is
+$\nu=0.77$ ($\nu_{\mathrm{dam}}=0.85$, $\nu_{\mathrm{reval}}=-0.08$),
+\emph{above} the medium-column deterministic value of $0.56$ --- not because
+aggregate risk helps the budget, but because the ergodic-mean damage is
+higher when a high-damage severe state is possible, so the expected damage
+dividend is larger.
 
 The premium is instead a \emph{risk-sharing} object, and its compression is
 priced in welfare. We isolate it with an equal-mean-reduction
@@ -1564,27 +1571,34 @@ counterfactual: the actual program lowers damages more in the severe state
 (compressing the price dispersion), while the counterfactual lowers both
 states by the same amount, so the ergodic-mean damage falls identically but
 the dispersion does not compress. The consumption-equivalent gap between the
-two --- the value of \emph{preferentially} insuring the severe state ---
-is the pure risk-compression channel, and it falls where intuition says it
-must: on the constrained, bottom-wealth households who cannot self-insure
-against the disaster and hold the nominally-safe, really-risky bond as their
-only buffer.
-% TODO(run): quantitative sentence enters here once
-% output/tables/aggrisk_stageB_summary.txt is pushed -- the total CE gain,
-% the risk-compression CE overall and for the constrained/bottom quintile,
-% and the Calm-vs-Severe split (Figure~\ref{fig:pfig21}).
+two is the pure value of \emph{preferentially} insuring the severe state ---
+$+0.13\%$ of permanent consumption on average, which offsets about a tenth of
+the program's steady-state welfare cost ($-1.36\%$ at the calibrated medium
+scale, before transition gains). The insurance value falls exactly where the
+mechanism says it should: it is more than five times larger for a household
+\emph{in} the severe state ($+0.43\%$) than in the calm state ($+0.08\%$) ---
+the compression is valued when the disaster bites. Across the wealth
+distribution it is essentially flat ($+0.14\%$ for the bottom quintile and
+the constrained, $+0.14\%$ for the top), because at the benchmark's
+\emph{uniform} damage incidence ($\psi=0$) the compression is a proportional
+income gain valued alike up and down the distribution; under the regressive
+incidence of Propositions~\ref{prop:sunspots} and
+\ref{prop:financingdesign} ($\psi>0$), where damages fall on the poor, the
+same exercise tilts the insurance value toward the constrained households who
+hold the nominally-safe, really-risky bond as their only buffer.
 
 \pfigguard{PFig21_aggrisk_welfare.pdf}{%
 \begin{figure}[ht]\centering
 \includegraphics[width=0.95\textwidth]{PFig21_aggrisk_welfare.pdf}
 \caption{Aggregate-risk Stage B ($n_a=500$). (a) The self-financing
-decomposition under aggregate risk: $\nu=\nu_{\mathrm{reval}}+\nu_{\mathrm{dam}}$,
-with no premium term (the premium is fiscally inert,
+decomposition under aggregate risk: $\nu=\nu_{\mathrm{reval}}+\nu_{\mathrm{dam}}$
+$=-0.08+0.85=0.77$, with no premium term (the premium is fiscally inert,
 \eqref{eq:premiuminert}). (b) The welfare value of the risk compression ---
 the consumption-equivalent gain from \emph{preferentially} insuring the
 severe state, holding the ergodic-mean damage reduction fixed --- by
-household group and aggregate state. The value is concentrated on the
-constrained and bottom-wealth households.}
+household group and aggregate state. The value is concentrated in the severe
+state (where the disaster is realized) and, at the benchmark's uniform
+incidence, roughly flat across the wealth distribution.}
 \label{fig:pfig21}
 \end{figure}}
 
