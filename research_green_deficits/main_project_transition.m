@@ -111,45 +111,9 @@ fprintf('  %s\n', TRi.msg);
 
 save(fullfile(projdir, 'output', 'transition_results.mat'), 'TRn', 'TRi', 'pgc', 'opts');
 
-% ---- PFig18 ----
-if ~isempty(TRn.msg) && isfield(TRn, 'phat')
-    T = numel(TRn.phat);
-    fh = figure('Name','PFig18: nonlinear HANK-DTPL transition','Color','w', ...
-                'Position',[60 60 1100 640]);
-    tv = 1:T;
-    subplot(2,3,1); hold on; box on;
-    plot(tv, TRn.phat, 'LineWidth', 1.8, 'Color', [0.10 0.30 0.75]);
-    if isfield(TRi,'phat'), plot(tv, TRi.phat, 'LineWidth', 1.8, ...
-            'Color', [0.20 0.55 0.25]); end
-    yline(TRn.P0, ':k'); yline(TRn.eq1.P, '--k');
-    xlabel('years'); title('stationarized price level P_t/(1+\mu)^t');
-    legend({'nominal budget','indexed mandate'}, 'Location','best');
-    subplot(2,3,2); hold on; box on;
-    plot(tv, 100*TRn.pi_path, 'LineWidth', 1.8, 'Color', [0.10 0.30 0.75]);
-    if isfield(TRi,'pi_path'), plot(tv, 100*TRi.pi_path, 'LineWidth', 1.8, ...
-            'Color', [0.20 0.55 0.25]); end
-    yline(100*pgc.mu, ':k');
-    xlabel('years'); title('inflation (% per year)');
-    subplot(2,3,3); hold on; box on;
-    plot(tv, TRn.b_path, 'LineWidth', 1.8, 'Color', [0.10 0.30 0.75]);
-    plot(tv, TRn.S_path, '--', 'LineWidth', 1.4, 'Color', [0.85 0.20 0.15]);
-    xlabel('years'); title('real debt b_t vs asset demand S_t');
-    legend({'b_t = B_t/P_t','S_t'}, 'Location','best');
-    subplot(2,3,4); hold on; box on;
-    plot(tv, TRn.Kg_path, 'LineWidth', 1.8, 'Color', [0.20 0.55 0.25]);
-    xlabel('years'); title('green capital K_{g,t}');
-    subplot(2,3,5); hold on; box on;
-    plot(tv, TRn.D_path, 'LineWidth', 1.8, 'Color', [0.85 0.55 0.10]);
-    xlabel('years'); title('damages D_t');
-    subplot(2,3,6); hold on; box on;
-    semilogy(tv, abs(TRn.resid), 'LineWidth', 1.4, 'Color', [0.10 0.30 0.75]);
-    if isfield(TRi,'resid'), semilogy(tv, abs(TRi.resid), 'LineWidth', 1.4, ...
-            'Color', [0.20 0.55 0.25]); end
-    xlabel('years'); ylabel('|S_t - b_t|/b_t');
-    title('market-clearing residuals');
-    save_all_figs(fh, 'PFig18_dtpl_transition', pg);
-    fprintf('\n  [saved] PFig18_dtpl_transition\n');
-end
+% ---- PFig18 (plotting extracted to src_project/plot_transition_fig so the
+% figure can be re-exported from transition_results.mat without re-solving) ----
+plot_transition_fig(TRn, TRi, pgc, pg);
 
 % ---- summary ----
 sf = fullfile(pg.tabdir, 'transition_dtpl_summary.txt');
