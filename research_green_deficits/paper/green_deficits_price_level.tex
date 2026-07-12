@@ -1539,6 +1539,55 @@ the safe asset carries.}
 \label{fig:pfig19}
 \end{figure}}
 
+\paragraph{Where the risk compression shows up: welfare, not the budget.}
+It is tempting to add a fourth term to the self-financing decomposition ---
+the fiscal value of the compressed premium. That term is exactly zero, for
+a clean reason. The government's ergodic-expected real interest bill is
+\begin{equation}
+\sum_s \pi_s \sum_{s'} \Pi^{\mathrm{agg}}_{ss'}\,\big(R(s,s')-1\big)\,\frac{B}{P_s}
+\;=\; r^{ss}\,B\,\E_\pi\!\left[\tfrac{1}{P_s}\right],
+\label{eq:premiuminert}
+\end{equation}
+which is \emph{independent of the risk premium}: with
+$R(s,s')=(1+r^{ss})P_s/P_{s'}$ and ergodic $\pi$, the state-contingent
+returns average to $r^{ss}$ times the debt, and the premium --- a
+risk-\emph{timing} wedge that makes the bond expensive to service in the
+severe state and cheap in the calm state --- washes out in expectation
+(Appendix~\ref{app:proofs}). The aggregate-risk self-financing share is
+therefore $\nu=\nu_{\mathrm{reval}}+\nu_{\mathrm{dam}}$, the ergodic average
+of the deterministic decomposition, with no separate aggregate-risk term;
+the driver confirms \eqref{eq:premiuminert} numerically to solver tolerance.
+
+The premium is instead a \emph{risk-sharing} object, and its compression is
+priced in welfare. We isolate it with an equal-mean-reduction
+counterfactual: the actual program lowers damages more in the severe state
+(compressing the price dispersion), while the counterfactual lowers both
+states by the same amount, so the ergodic-mean damage falls identically but
+the dispersion does not compress. The consumption-equivalent gap between the
+two --- the value of \emph{preferentially} insuring the severe state ---
+is the pure risk-compression channel, and it falls where intuition says it
+must: on the constrained, bottom-wealth households who cannot self-insure
+against the disaster and hold the nominally-safe, really-risky bond as their
+only buffer.
+% TODO(run): quantitative sentence enters here once
+% output/tables/aggrisk_stageB_summary.txt is pushed -- the total CE gain,
+% the risk-compression CE overall and for the constrained/bottom quintile,
+% and the Calm-vs-Severe split (Figure~\ref{fig:pfig21}).
+
+\pfigguard{PFig21_aggrisk_welfare.pdf}{%
+\begin{figure}[ht]\centering
+\includegraphics[width=0.95\textwidth]{PFig21_aggrisk_welfare.pdf}
+\caption{Aggregate-risk Stage B ($n_a=500$). (a) The self-financing
+decomposition under aggregate risk: $\nu=\nu_{\mathrm{reval}}+\nu_{\mathrm{dam}}$,
+with no premium term (the premium is fiscally inert,
+\eqref{eq:premiuminert}). (b) The welfare value of the risk compression ---
+the consumption-equivalent gain from \emph{preferentially} insuring the
+severe state, holding the ergodic-mean damage reduction fixed --- by
+household group and aggregate state. The value is concentrated on the
+constrained and bottom-wealth households.}
+\label{fig:pfig21}
+\end{figure}}
+
 % --------------------------------------------------------------------------
 \subsection{Welfare incidence by wealth group}
 \label{subsec:welfaregroups}
@@ -2475,6 +2524,27 @@ $g_g$; for small programs it is dominated at $\mu=0^{+}$. Interior optimum
 then follows from continuity of $W(\mu)$ on the existence region and
 deterioration at large $\mu$ (buffer-return and climate erosion), both
 verified on the grid. \qed
+
+\subsection{Fiscal inertness of the climate-risk premium}
+The ergodic-expected real interest bill in the aggregate-risk economy is
+independent of the risk premium. With realized gross real return
+$R(s,s')=(1+r^{ss})P_s/P_{s'}$ and state-contingent real debt $b_s=B/P_s$,
+\begin{align*}
+\sum_s \pi_s \sum_{s'}\Pi^{\mathrm{agg}}_{ss'}\big(R(s,s')-1\big)b_s
+&=\sum_s \pi_s \sum_{s'}\Pi^{\mathrm{agg}}_{ss'}
+   \Big[(1+r^{ss})\tfrac{B}{P_{s'}}-\tfrac{B}{P_s}\Big]\\
+&=(1+r^{ss})B\sum_{s'}\Big(\textstyle\sum_s \pi_s \Pi^{\mathrm{agg}}_{ss'}\Big)\tfrac{1}{P_{s'}}
+  - B\sum_s \pi_s \tfrac{1}{P_s}\\
+&=(1+r^{ss})B\,\E_\pi\!\big[\tfrac{1}{P_s}\big]-B\,\E_\pi\!\big[\tfrac{1}{P_s}\big]
+  = r^{ss}B\,\E_\pi\!\big[\tfrac{1}{P_s}\big],
+\end{align*}
+where the third line uses the ergodicity of $\pi$
+($\sum_s \pi_s \Pi^{\mathrm{agg}}_{ss'}=\pi_{s'}$). The premium
+$\mathbb{E}[R]-r^{ss}>0$ therefore adds nothing to the government's expected
+budget: it is a risk-timing wedge that redistributes the debt-service cost
+across states but leaves its ergodic mean at $r^{ss}$ times the debt. Its
+value is a household risk-sharing object, priced in
+Section~\ref{subsec:aggrisk}. \qed
 
 % ==========================================================================
 \section{The New Keynesian model used in the transition

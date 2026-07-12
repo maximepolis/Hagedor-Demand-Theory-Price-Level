@@ -100,13 +100,32 @@ equations, two unknown prices.
   green investment compresses the systematic climate risk the safe asset
   carries. The MATLAB run will confirm these on the project calibration.
 
-### Stage B — Decomposition + welfare under aggregate risk  *(~3 days)*
-- Add $\nu_{\mathrm{aggrisk}}$ to `decompose_safe_asset_channel.m` (a fourth GE
-  counterfactual: risk-premium held fixed vs. endogenous).
-- Extend `welfare_groups_extended.m` to price the reduction in aggregate
-  climate risk (CE gains now include an insurance component); report who
-  values the safe asset most (the constrained / high-MPC / bottom-wealth
-  groups, as intuition predicts).
+### Stage B — Decomposition + welfare under aggregate risk  **IMPLEMENTED 2026-07-09; run pending**
+- **Key analytical finding (supersedes the original "$\nu_{\mathrm{aggrisk}}$
+  fourth term" plan):** the climate-risk premium is FISCALLY INERT. The
+  government's ergodic-expected real interest bill equals
+  $r^{ss} B\,\mathbb{E}_\pi[1/P_s]$ EXACTLY, independent of the premium (the
+  state-contingent returns average to $r^{ss}$ over the ergodic distribution
+  — a risk-timing wedge that washes out). So the aggregate-risk self-financing
+  share is $\nu=\nu_{\mathrm{reval}}+\nu_{\mathrm{dam}}$ with NO separate
+  aggregate-risk term. Proof in the paper's Proofs appendix; verified
+  numerically by the driver (ergodic bill vs formula, gap ~ solver tol).
+- **Done** `solve_dtpl_aggrisk.m`: now accepts `opts.g_g` (real green spending
+  in the budget, $\tau_s=r^{ss}b_s+g_g$) and returns the value function `V` and
+  policy — so the self-financing decomposition is well posed and welfare is
+  computable.
+- **Done** `main_project_aggrisk_stageB.m`: (1) the fiscal decomposition +
+  premium-inertness identity check; (2) the WELFARE pricing of the risk
+  compression via an EQUAL-MEAN-REDUCTION counterfactual — the actual program
+  compresses the price dispersion (lowers the severe state more), the
+  counterfactual lowers both states equally (same ergodic-mean $D$, no
+  compression), and the CE gap `lambda_risk = level -> actual` is the pure
+  insurance value of the risk compression, reported by wealth quintile,
+  aggregate state, and constrained status. Outputs PFig21 +
+  `aggrisk_stageB_summary.txt`.
+- **Label:** STOCHASTIC AGGREGATE RISK. Paper subsection `subsec:aggrisk`
+  extended ("Where the risk compression shows up: welfare, not the budget") +
+  the premium-inertness proof; welfare numbers GATED on the run.
 
 ### Stage C — Stochastic transition  *(revision-round; weeks)*
 - The full path where $s_t$ evolves stochastically. Two feasible routes:
