@@ -1,0 +1,4 @@
+
+# FRED API key (never commit secrets)
+research_green_deficits/data/.fred_key
+**/.fred_key
