@@ -85,30 +85,32 @@ fprintf('  %s\n', SA.msg);
 
 % ----- PFig15: waterfall + PE asset-demand nodes -----
 fh15 = figure('Name','PFig15: Safe-asset channel','Color','w', ...
-              'Position',[70 70 1050 430]);
+              'Position',[70 70 1200 560]);
 subplot(1,2,1); hold on; box on;
 contrib = [SA.c_tax, SA.c_damage, SA.c_risk, SA.c_interaction];
-labs    = {'tax burden','damage level+incid.','risk','interaction'};
-base = 0;
+labs    = {'tax','damage','risk','interact.'};   % short ticks; caption explains
 for k = 1:numel(contrib)
-    bar(k, contrib(k), 0.6, 'FaceColor', [0.55 0.65 0.85], 'BaseValue', 0); %#ok<*UNRCH>
-    base = base + contrib(k);
+    fc = [0.55 0.65 0.85];                       % disinflationary: blue
+    if contrib(k) > 0, fc = [0.85 0.35 0.30]; end % inflationary: red
+    bar(k, 100*contrib(k), 0.6, 'FaceColor', fc, 'BaseValue', 0); %#ok<*UNRCH>
 end
-bar(numel(contrib)+1, SA.dlnP_total, 0.6, 'FaceColor', [0.20 0.55 0.25]);
-plot([0.5 numel(contrib)+1.5], [0 0], 'k-', 'LineWidth', 0.8);
-set(gca,'XTick',1:numel(contrib)+1,'XTickLabel',[labs,{'TOTAL'}], ...
-    'XTickLabelRotation',25);
-ylabel('contribution to ln P_1 - ln P_0');
-title('(a) Why the price level moves (GE counterfactuals)');
+bar(numel(contrib)+1, 100*SA.dlnP_total, 0.6, 'FaceColor', [0.20 0.55 0.25]);
+yline(0, 'k-', 'LineWidth', 0.8);
+set(gca,'XTick',1:numel(contrib)+1,'XTickLabel',[labs,{'total'}]);
+ylabel('contribution to ln P_1 - ln P_0  (%)');
+title('(a) GE contributions');
 subplot(1,2,2); hold on; box on;
 pe = SA.PE;
 vals = [pe.S_tau0_D0, pe.S_tau1_D0, pe.S_tau0_D1level, pe.S_tau0_D1risk, pe.S_tau1_D1];
-pl   = {'S(\tau_0,D_0)','S(\tau_1,D_0)','S(\tau_0,D_1^{lev})', ...
-        'S(\tau_0,D_1^{risk})','S(\tau_1,D_1)'};
+pl   = {'(\tau_0,D_0)','(\tau_1,D_0)','(\tau_0,D_1^{lev})', ...
+        '(\tau_0,D_1^{risk})','(\tau_1,D_1)'};
 bar(1:numel(vals), vals, 0.6, 'FaceColor', [0.85 0.55 0.10]);
+% zoom to the informative range: level differences, not the zero base
+rng_ = [min(vals), max(vals)];
+ylim([rng_(1) - 0.35*diff(rng_), rng_(2) + 0.35*diff(rng_)]);
 set(gca,'XTick',1:numel(vals),'XTickLabel',pl,'XTickLabelRotation',25);
 ylabel('aggregate asset demand S');
-title('(b) Partial-equilibrium asset-demand nodes (fixed r)');
+title('(b) PE demand at fixed r');
 save_all_figs(fh15, 'PFig15_safe_asset_decomposition', pg);
 fprintf('  [saved] PFig15_safe_asset_decomposition\n');
 

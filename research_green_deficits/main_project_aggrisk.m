@@ -101,20 +101,28 @@ save(fullfile(projdir,'output','aggrisk_results.mat'), 'TRb','TRg','pg','opts','
 % ---- PFig19 ----
 if TRb.converged && TRg.converged
     fh = figure('Name','PFig19: aggregate climate risk','Color','w', ...
-                'Position',[60 60 1100 380]);
+                'Position',[60 60 1250 470]);
     lab = {'Calm','Severe'};
     subplot(1,3,1); hold on; box on;
-    bar([TRb.P(:), TRg.P(:)]);
-    set(gca,'XTick',1:2,'XTickLabel',lab); ylabel('price level P_s');
-    legend({'baseline','green'},'Location','northwest'); title('state price levels');
+    bh = bar([TRb.P(:), TRg.P(:)]);
+    set(bh(1),'FaceColor',[0.55 0.65 0.85]); set(bh(2),'FaceColor',[0.45 0.70 0.45]);
+    set(gca,'XTick',1:2,'XTickLabel',lab);
+    ylabel('price level P_s');
+    ylim([0, 1.30*max([TRb.P(:); TRg.P(:)])]);   % headroom keeps legend clear
+    legend({'baseline','green program'},'Location','northwest');
+    title('(a) state price levels');
     subplot(1,3,2); hold on; box on;
-    bar([TRb.price_disp, TRg.price_disp]);
-    set(gca,'XTick',1:2,'XTickLabel',{'baseline','green'});
-    ylabel('P_S/P_C - 1'); title('state price dispersion');
+    bar(1, TRb.price_disp, 0.55, 'FaceColor',[0.55 0.65 0.85]);
+    bar(2, TRg.price_disp, 0.55, 'FaceColor',[0.45 0.70 0.45]);
+    set(gca,'XTick',1:2,'XTickLabel',{'baseline','green'},'XLim',[0.4 2.6]);
+    ylabel('P_S/P_C - 1');
+    title('(b) price dispersion');
     subplot(1,3,3); hold on; box on;
-    bar(100*[TRb.r_disaster, TRg.r_disaster]);
-    set(gca,'XTick',1:2,'XTickLabel',{'baseline','green'});
-    ylabel('disaster real return (%)'); title('Calm\rightarrowSevere bond return');
+    bar(1, 100*TRb.r_disaster, 0.55, 'FaceColor',[0.55 0.65 0.85]);
+    bar(2, 100*TRg.r_disaster, 0.55, 'FaceColor',[0.45 0.70 0.45]);
+    set(gca,'XTick',1:2,'XTickLabel',{'baseline','green'},'XLim',[0.4 2.6]);
+    ylabel('disaster return (%)');
+    title('(c) Calm\rightarrowSevere return');
     save_all_figs(fh, 'PFig19_aggrisk', pg);
     fprintf('\n  [saved] PFig19_aggrisk\n');
 end
