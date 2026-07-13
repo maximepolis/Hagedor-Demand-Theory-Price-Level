@@ -27,6 +27,18 @@ top10        -1.02          -0.53
 constr       -2.64          -3.45         
 aggregate    -1.75          -2.08         
 
+[REBATE design]
+group        ss-to-ss (%)   transition (%)
+Q1           1.68           0.99          
+Q2           0.82           0.17          
+Q3           0.54           -0.32         
+Q4           0.28           -0.89         
+Q5           -0.03          -1.83         
+bottom50     1.13           0.44          
+top10        -0.12          -2.20         
+constr       1.71           1.03          
+aggregate    0.67           -0.36         
+
 Reading: "transition" > "ss-to-ss" for a group means the announced
 path treats that group BETTER than the steady-state comparison suggests
 (e.g. bondholders collect the announcement windfall; the poor bear
