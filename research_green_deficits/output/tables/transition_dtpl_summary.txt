@@ -16,3 +16,10 @@ tier2 indexed: fixed point CONVERGED (interior max 0.00041 @t=20), horizon OK (t
   residuals: interior(free) max 0.00041, terminal(horizon) 0.00016, mean 0.00016
   fixed point converged = 1, horizon adequate = 1, REPORTABLE = 1 (iters 72)
 
+tier2 nominal: fixed point CONVERGED (interior max 0.00045 @t=6), horizon OK (terminal resid 0.00005) in 55 iters; impact phat_1/P0 = 1.1280 (surprise inflation), terminal P = 0.9986
+  impact: phat_1/P0 = 1.1280; pi_1 = +15.06%/yr; reval stock = +0.1254 (= +17.19% of program PV)
+  path: pi(4y) +1.90%, pi(20y) +1.98%, pi(40y) +2.00% (per yr, vs trend 2.00%)
+  front-loading: 123.9% of the long-run price decline realized in the announcement year; |pi-trend|<25bp from year 4
+  residuals: interior(free) max 0.00045, terminal(horizon) 0.00005, mean 0.00009
+  fixed point converged = 1, horizon adequate = 1, REPORTABLE = 1 (iters 55)
+
