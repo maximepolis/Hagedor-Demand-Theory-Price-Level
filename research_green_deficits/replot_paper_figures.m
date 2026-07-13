@@ -33,10 +33,11 @@ end
 % ---- PFig18: nonlinear price-level transition ----
 f = fullfile(projdir, 'output', 'transition_results.mat');
 if exist(f, 'file') == 2
-    L = load(f, 'TRn', 'TRi', 'pgc');
+    L = load(f);
     pgf = struct('figdir', fullfile(projdir, 'output', 'figures'));
+    TRr = []; if isfield(L, 'TRr'), TRr = L.TRr; end
     fprintf('[replot] PFig18 from transition_results.mat ...\n');
-    plot_transition_fig(L.TRn, L.TRi, L.pgc, pgf);
+    plot_transition_fig(L.TRn, L.TRi, L.pgc, pgf, TRr);
 else
     fprintf('[replot] %s not found -- run main_project_transition first\n', f);
 end

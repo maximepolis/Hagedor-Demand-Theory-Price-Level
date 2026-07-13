@@ -37,7 +37,7 @@ if exist(f, 'file') ~= 2
     error('main_project_transition_welfare:nores', ...
         'output/transition_results.mat not found -- run main_project_transition first.');
 end
-L = load(f, 'TRn', 'TRi', 'pgc');
+L = load(f);
 pgc  = L.pgc;
 rbar = (1 + pgc.i_ss) / (1 + pgc.mu) - 1;
 
@@ -47,22 +47,32 @@ fprintf('==============================================================\n');
 
 TW = struct();
 designs = {'nominal', L.TRn; 'indexed', L.TRi};
+if isfield(L, 'TRr') && ~isempty(L.TRr)
+    designs(end+1, :) = {'rebate', L.TRr};
+end
 for d = 1:size(designs, 1)
     name = designs{d, 1};  TR = designs{d, 2};
     if isempty(TR) || ~isfield(TR, 'phat') || ~isfield(TR, 'reportable') || ~TR.reportable
         fprintf('  [%s] path not reportable -- skipped\n', name);
         continue;
     end
-    % boundary household objects on the SAME grids the path was solved on
-    [~, oI] = S_green(rbar, TR.eq0.tau, TR.eq0.D, pgc);   % baseline ss
-    [~, oT] = S_green(rbar, TR.eq1.tau, TR.eq1.D, pgc);   % green ss
+    % boundary household objects on the SAME grids the path was solved on;
+    % the rebate design's green ss carries the levy vartheta
+    pgcT = pgc;
+    if isfield(TR, 'financing') && strcmpi(TR.financing, 'rebate')
+        pgcT.vartheta = TR.eq1.vartheta;
+    end
+    [~, oI] = S_green(rbar, TR.eq0.tau, TR.eq0.D, pgc);    % baseline ss
+    [~, oT] = S_green(rbar, TR.eq1.tau, TR.eq1.D, pgcT);   % green ss
     if ~oI.feasible || ~oT.feasible
         fprintf('  [%s] boundary household problem infeasible -- skipped\n', name);
         continue;
     end
     % date-1 value of the announced path (one backward pass, no fixed point)
+    vart_path = [];
+    if isfield(TR, 'vart_path'), vart_path = TR.vart_path; end
     [~, feas, V1] = transition_backward(oT.V, TR.r_path, TR.tau_path, ...
-                                        TR.D_path, pgc);
+                                        TR.D_path, pgc, vart_path);
     if ~feas
         fprintf('  [%s] backward pass infeasible -- skipped\n', name);
         continue;

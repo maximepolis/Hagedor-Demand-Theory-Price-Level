@@ -1,4 +1,4 @@
-function [POL, feas, V1] = transition_backward(VT, r_path, tau_path, D_path, pgc)
+function [POL, feas, V1] = transition_backward(VT, r_path, tau_path, D_path, pgc, vart_path)
 % TRANSITION_BACKWARD  One Bellman step per date, backward from the terminal
 % value function of the green steady state. Extracted verbatim from
 % solve_hank_dtpl_transition so it can be re-run standalone on a SAVED
@@ -7,11 +7,16 @@ function [POL, feas, V1] = transition_backward(VT, r_path, tau_path, D_path, pgc
 % without re-solving the fixed point.
 %
 % INPUTS
-%   VT       : terminal value function (green steady state), na x ne.
-%   r_path   : realized real returns along the path (surprise at t=1).
-%   tau_path : lump-sum taxes along the path.
-%   D_path   : damages along the path.
-%   pgc      : calibrated project params (grids, income process, sigma...).
+%   VT        : terminal value function (green steady state), na x ne.
+%   r_path    : realized real returns along the path (surprise at t=1).
+%   tau_path  : lump-sum taxes along the path.
+%   D_path    : damages along the path.
+%   pgc       : calibrated project params (grids, income process, sigma...).
+%   vart_path : (optional) proportional-levy rates along the path; household
+%               resources at date t are (1-vart_path(t)) * y(e; D_t) - tau_t,
+%               the same carbon-tax-style levy semantics as S_green
+%               (pg.vartheta) and the R2/R3 regimes. Default: zeros
+%               (lump-sum financing).
 %
 % OUTPUTS
 %   POL  : per-date policy closures (.push, .aGrid_dot_dist), as used by the
@@ -22,6 +27,7 @@ function [POL, feas, V1] = transition_backward(VT, r_path, tau_path, D_path, pgc
 %          announcement-date surprise revaluation through r_path(1).
 
     T = numel(r_path);
+    if nargin < 6 || isempty(vart_path), vart_path = zeros(1, T); end
     POL = struct('push', cell(1, T), 'aGrid_dot_dist', cell(1, T));
     feas = true;
     V1 = [];
@@ -46,6 +52,7 @@ function [POL, feas, V1] = transition_backward(VT, r_path, tau_path, D_path, pgc
         else
             yv = (1 - D_path(t)) * ev;
         end
+        yv = (1 - vart_path(t)) * yv;        % proportional levy (R2/R3 semantics)
         [V, polA_idx, ok] = hh_bellman_step(Vnext, r_path(t), tau_path(t), ...
                                             yv, p, aG);
         if ~ok, feas = false; return; end
