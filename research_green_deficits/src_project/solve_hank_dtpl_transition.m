@@ -68,6 +68,12 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
 %         climate fields set; opts fields (all optional):
 %   .T (80 years) .tol (2e-3) .maxit (60) .xi (0.5) .regime ('nominal')
 %   .Gg_nom (default: pgc.Gg_nom) .verbose (true)
+%   .financing ('lumpsum' default | 'rebate'): 'rebate' runs the R3 design
+%     of the regimes section along the path -- a proportional levy at twice
+%     the program with half rebated lump-sum, vartheta_t = 2 g_t/(1-D_t)
+%     and tau_ls,t = r*b_t - g_t, satisfying the same flow identity
+%     tau_ls,t + vartheta_t (1-D_t) = r*b_t + g_t at every date -- so the
+%     transition-inclusive welfare of the progressive design is computable.
 % OUTPUT TR: .phat (1xT), .P0, .pi_path, .r_path, .tau_path, .D_path,
 %   .Kg_path, .S_path, .b_path, .resid (1xT), .iters,
 %   .eq0, .eq1 (boundary steady states), .reval_stock, .reval_pv_share,
@@ -95,6 +101,8 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
     maxit  = getopt(opts, 'maxit', 60);
     xi     = getopt(opts, 'xi', 0.5);
     regime = getopt(opts, 'regime', 'nominal');
+    financing = getopt(opts, 'financing', 'lumpsum');
+    rebate = strcmpi(financing, 'rebate');
     verbose= getopt(opts, 'verbose', true);
 
     B0   = pgc.Bnom;
@@ -116,8 +124,15 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
     rb_of = @(P) rbar * B0 ./ P;
     reg0 = struct('name','TR-BASE','Bnom',B0, 'g',@(P) 0*P, ...
         'D',@(P) 0*P + pgc.D0, 'tau_ls',@(P) rb_of(P), 'vartheta',@(P) 0);
-    reg1 = struct('name','TR-GREEN','Bnom',B0, 'g',g_of, 'D',D_of, ...
-        'tau_ls',@(P) rb_of(P) + g_of(P), 'vartheta',@(P) 0);
+    if rebate
+        % R3 design along the path: levy at twice the program, half rebated
+        reg1 = struct('name','TR-GREEN-REBATE','Bnom',B0, 'g',g_of, 'D',D_of, ...
+            'tau_ls',@(P) rb_of(P) - g_of(P), ...
+            'vartheta',@(P) 2 * g_of(P) ./ (1 - D_of(P)));
+    else
+        reg1 = struct('name','TR-GREEN','Bnom',B0, 'g',g_of, 'D',D_of, ...
+            'tau_ls',@(P) rb_of(P) + g_of(P), 'vartheta',@(P) 0);
+    end
     [eq0, o0] = solve_regime_equilibrium(pgc, reg0, rbar, [0.5, 1.3]);
     if isempty(eq0), TR.msg = ['tier2: no baseline ss: ' o0.msg]; return; end
     [eq1, o1] = solve_regime_equilibrium(pgc, reg1, rbar, [0.5, 1.3]);
@@ -127,8 +142,11 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
             eq0.P, eq1.P, eq0.D, eq1.D);
     end
 
-    % terminal household objects (green ss) and initial distribution (base ss)
-    [~, oT] = S_green(rbar, eq1.tau, eq1.D, pgc);
+    % terminal household objects (green ss) and initial distribution (base ss);
+    % under the rebate design the terminal problem carries the levy vartheta
+    pgcT = pgc;
+    if rebate, pgcT.vartheta = eq1.vartheta; end
+    [~, oT] = S_green(rbar, eq1.tau, eq1.D, pgcT);
     [~, oI] = S_green(rbar, eq0.tau, eq0.D, pgc);
     if ~oT.feasible || ~oI.feasible
         TR.msg = 'tier2: boundary household problem infeasible.'; return;
@@ -163,13 +181,21 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
         % version-1 climate map with TRANSITION Kg (not the ss shortcut)
         D_path = pgc.D0 * exp(-pgc.theta_g * Kg);
         b_path = B0 ./ phat;
-        tau_path = rbar .* b_path + g_path;
+        if rebate
+            % R3 flow identity: tau_ls + vartheta(1-D) = r*b + g at every t
+            vart_path = 2 * g_path ./ (1 - D_path);
+            tau_path  = rbar .* b_path - g_path;
+        else
+            vart_path = zeros(1, T);
+            tau_path  = rbar .* b_path + g_path;
+        end
         % realized real return: surprise jump at t=1 against P0 = eq0.P
         phat_lag = [eq0.P, phat(1:T-1)];
         r_path = (1 + rbar) .* phat_lag ./ phat - 1;
 
         % ---- backward: date-t policies from the terminal green ss ----
-        [POL, feas] = transition_backward(VT, r_path, tau_path, D_path, pgc);
+        [POL, feas] = transition_backward(VT, r_path, tau_path, D_path, pgc, ...
+                                          vart_path);
         if ~feas
             TR.msg = sprintf('tier2: infeasible household problem at iter %d.', it);
             return;
@@ -208,7 +234,7 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
             best = struct('resnorm', resnorm, 'phat', phat, 'resid', resid, ...
                 'S_path', S_path, 'b_path', b_path, 'tau_path', tau_path, ...
                 'r_path', r_path, 'D_path', D_path, 'Kg', Kg, ...
-                'g_path', g_path, 'it', it);
+                'g_path', g_path, 'vart_path', vart_path, 'it', it);
         end
         % ---- Anderson-accelerated fixed point on the log price path ----
         % Fixed point: phat_t = B0/S_t, i.e. the log residual
@@ -255,13 +281,13 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
     phat = best.phat;       resid = best.resid;
     S_path = best.S_path;   b_path = best.b_path;  tau_path = best.tau_path;
     r_path = best.r_path;   D_path = best.D_path;  Kg = best.Kg;
-    g_path = best.g_path;
+    g_path = best.g_path;   vart_path = best.vart_path;
     TR.converged = best.resnorm < tol;   % the reportable gate (tol), not ttgt
     TR.phat   = phat;   TR.P0 = eq0.P;
     TR.pi_path = (1 + pgc.mu) * phat ./ [eq0.P, phat(1:T-1)] - 1;  % actual inflation
     TR.r_path = r_path; TR.tau_path = tau_path; TR.D_path = D_path;
     TR.Kg_path = Kg;    TR.S_path = S_path;     TR.b_path = b_path;
-    TR.g_path = g_path;
+    TR.g_path = g_path; TR.vart_path = vart_path; TR.financing = financing;
     TR.resid  = resid;  TR.iters = it;  TR.best_iter = best.it;
     % split diagnostics: fixed-point convergence (free unknowns) vs horizon
     % adequacy (pinned terminal date). A reportable result needs BOTH small.

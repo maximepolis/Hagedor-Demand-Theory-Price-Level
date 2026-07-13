@@ -41,6 +41,10 @@
 \renewcommand{\textfraction}{0.07}
 \renewcommand{\floatpagefraction}{0.7}
 
+% Machine-generated result macros (export_paper_numbers.m writes this file
+% from output/*.mat, so quoted numbers cannot drift from the computation).
+\input{numbers_auto}
+
 % Figures live in figures/ on Overleaf; ../output/figures/ in the repo.
 \graphicspath{{figures/}{../output/figures/}{./}}
 
@@ -234,10 +238,10 @@ productivity $\theta_g$ crosses a threshold the model measures
 calibrated pass (Section~\ref{subsec:calibrated}) turns this into the paper's
 central conditional statement: at a defensible fiscal scale (debt of $1.1$
 times income, a program of $2\%$ of income), the self-financing share is
-$0.16$ under conservative DICE damages, $0.58$ under empirical
-temperature-damage estimates, and $2.0$ under high-damage estimates --- while
-the disinflationary revaluation ($\approx -0.06$) is robust across all three
-damage regimes.
+$\nuLowShort$ under conservative DICE damages, $\nuMedShort$ under empirical
+temperature-damage estimates, and $\nuHighShort$ under high-damage estimates
+--- while the disinflationary revaluation ($\approx -0.06$) is robust across
+all three damage regimes.
 
 That the budget is \emph{nominal} is what makes determinacy conditional. A
 higher price level lowers real abatement, raises future damages, and ---
@@ -1244,26 +1248,27 @@ Table~\ref{tab:calibrated} reports the run.
 \begin{table}[!htb]
 \centering
 \caption{Calibrated self-financing by damage column
-($\beta^{*}=0.9267$, debt/income $=1.10$, program $=2\%$ of income,
+($\beta^{*}=\betaStar$, debt/income $=1.10$, program $=2\%$ of income,
 $\mu=0.02$, $n_a=500$ run, calibration-consistent risk channel). The
 $\theta_g$-threshold row is the $\nu=1$ frontier of the robustness sweep
-(Section~\ref{subsec:robustness}, same $\beta^{*}$).}
+(Section~\ref{subsec:robustness}, same $\beta^{*}$). All numbers are
+machine-written from the saved results (\texttt{numbers\_auto.tex}).}
 \label{tab:calibrated}
 \begin{tabular}{lccc}
 \toprule
  & LOW (DICE) & MEDIUM (DJO--BHM) & HIGH (Bilal--K\"anzig) \\
 \midrule
 no-abatement damages $D_0$    & 0.02   & 0.06   & 0.20 \\
-price level $P_0 \to P_1$     & $0.925 \to 0.876$ & $0.904 \to 0.859$ & $0.855 \to 0.809$ \\
-damages $D_0 \to D_1$         & $0.020 \to 0.016$ & $0.060 \to 0.047$ & $0.200 \to 0.153$ \\
-real taxes $\tau_1$           & 0.043  & 0.044  & 0.047 \\
+price level $P_0 \to P_1$     & $\PzeroLow \to \PoneLow$ & $\PzeroMed \to \PoneMed$ & $\PzeroHigh \to \PoneHigh$ \\
+damages $D_0 \to D_1$         & $\DzeroLow \to \DoneLow$ & $\DzeroMed \to \DoneMed$ & $\DzeroHigh \to \DoneHigh$ \\
+real taxes $\tau_1$           & $\tauOneLow$  & $\tauOneMed$  & $\tauOneHigh$ \\
 \midrule
-$\nu$                          & \textbf{0.156} & \textbf{0.583} & \textbf{2.045} \\
-\quad revaluation              & $-0.057$ & $-0.053$ & $-0.058$ \\
-\quad damage dividend          & $0.212$  & $0.636$  & $2.104$ \\
-bondholder windfall $|L|$      & 0.060  & 0.057  & 0.067 \\
-full financing at $\theta_g$   & none ($\nu\!=\!0.34$ at $2.5$) & $2.18$ & $0.57$ \\
-steady-state welfare $W_0 \to W_1$ & $-3.13 \to -3.56$ & $-3.96 \to -4.25$ & $-7.55 \to \mathbf{-7.02}$ \\
+$\nu$                          & $\mathbf{\nuLow}$ & $\mathbf{\nuMed}$ & $\mathbf{\nuHigh}$ \\
+\quad revaluation              & $\nuRevalLow$ & $\nuRevalMed$ & $\nuRevalHigh$ \\
+\quad damage dividend          & $\nuDamLow$  & $\nuDamMed$  & $\nuDamHigh$ \\
+bondholder windfall $|L|$      & $\levyAbsLow$  & $\levyAbsMed$  & $\levyAbsHigh$ \\
+full financing at $\theta_g$   & none ($\nu\!=\!\nuDiceAtTwoFive$ at $2.5$) & $\thetaStarMed$ & $\thetaStarHigh$ \\
+steady-state welfare $W_0 \to W_1$ & $\WzeroLow \to \WoneLow$ & $\WzeroMed \to \WoneMed$ & $\WzeroHigh \to \mathbf{\WoneHigh}$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1271,12 +1276,12 @@ steady-state welfare $W_0 \to W_1$ & $-3.13 \to -3.56$ & $-3.96 \to -4.25$ & $-7
 Four conclusions. First --- the paper's central conditional statement ---
 \emph{whether green deficits finance themselves is a climate-damage
 question}: at a defensible fiscal scale, the self-financing share runs from
-$0.16$ under conservative DICE damages, through $0.58$ under the empirical
-temperature-damage range, to $2.0$ --- full self-financing twice over ---
-under high-damage estimates. The model does not claim green deficits are
+$\nuLowShort$ under conservative DICE damages, through $\nuMedShort$ under
+the empirical temperature-damage range, to $\nuHighShort$ --- full
+self-financing twice over --- under high-damage estimates. The model does not claim green deficits are
 self-financing; it locates the damage regime in which they are. Second,
 under DICE damages \emph{no} abatement productivity in the swept range
-delivers full financing ($\nu = 0.34$ even at $\theta_g = 2.5$): the
+delivers full financing ($\nu = \nuDiceAtTwoFive$ even at $\theta_g = 2.5$): the
 conservative-damage case is a genuine fiscal cost, which is the honest
 counterpart to the high-damage case. Third, \textbf{green disinflation is
 robust to the calibration}: the revaluation term is $-0.05$ to $-0.06$ in
@@ -1367,7 +1372,7 @@ $1\%$ and $4\%$) hold $\beta^{*}$ fixed (Figure~\ref{fig:pfig20}b).
 
 Three findings survive the exercise. \emph{First, the required
 effectiveness falls sharply in the damage level.} The $\nu=1$ frontier reads
-$\theta_g^{*}=2.18$ at the medium column, $0.57$ at the
+$\theta_g^{*}=\thetaStarMed$ at the medium column, $\thetaStarHigh$ at the
 \citet{bilalkanzig2024} high column, and lies \emph{above} the swept range
 ($>3$) at the conservative DICE column --- so what one must believe for full
 self-financing is monotone and transparent: under high damages even a
@@ -1376,9 +1381,9 @@ effectiveness in the plausible range does, and the honest answer there is
 partial financing ($\nu=0.04$--$0.39$ over $\theta_g\in[0.5,3]$) carried by
 the damage dividend net of the revaluation loss. The benchmark $\theta_g=1.2$
 sits comfortably below the medium-column frontier, consistent with the
-partial self-financing ($\nu=0.58$) reported above. \emph{Second, the
+partial self-financing ($\nu=\nuMedShort$) reported above. \emph{Second, the
 disinflation is not a calibration artifact:} the revaluation component is
-negative at all $65$
+negative at all $\nodesNeg$
 nodes of the $(D_0,\theta_g)$ plane, so productive green programs raise
 safe-asset demand and lower the price level regardless of the damage or
 effectiveness assumption. \emph{Third, the self-financing share is stable to
@@ -1731,7 +1736,7 @@ comparison isolates is the pure incidence-and-price-level content of
 financing design --- which, given that the revaluation channel is an
 incidence object, is exactly where the DTPL mechanism has bite.
 Table~\ref{tab:regimes} reports the run (medium damages, calibrated scale;
-no-program baseline $P_0 = 0.9051$).
+no-program baseline $P_0 = \PzeroRegimes$).
 
 \begin{table}[!htb]
 \centering
@@ -1745,10 +1750,10 @@ $\lambda_{t10}$: consumption-equivalent gains of the bottom 50\% and top
 Regime & $P^{*}$ & $\nu$ & $\nu_{\mathrm{reval}}$ & $\nu_{\mathrm{dam}}$ &
 $\lambda_{b50}$ & $\lambda_{t10}$ \\
 \midrule
-\textsc{r1-deficit} (lump-sum)      & 0.859 & 0.581 & $-0.055$ & 0.636 & $-2.16\%$ & $-1.02\%$ \\
-\textsc{r2-prop-levy}               & 0.931 & 0.672 & $+0.030$ & 0.642 & $-0.36\%$ & $-0.52\%$ \\
-\textsc{r3-prop-levy-rebate}        & 0.999 & \textbf{0.758} & $\mathbf{+0.111}$ & 0.647 & $\mathbf{+1.13\%}$ & $-0.12\%$ \\
-\textsc{r4-mixed-deficit-levy}      & 0.896 & 0.628 & $-0.011$ & 0.639 & $-1.21\%$ & $-0.76\%$ \\
+\textsc{r1-deficit} (lump-sum)      & $\RDefP$ & $\RDefNu$ & $\RDefRev$ & $\RDefDam$ & $\RDefBfifty\%$ & $\RDefTten\%$ \\
+\textsc{r2-prop-levy}               & $\RLevP$ & $\RLevNu$ & $\RLevRev$ & $\RLevDam$ & $\RLevBfifty\%$ & $\RLevTten\%$ \\
+\textsc{r3-prop-levy-rebate}        & $\RRebP$ & $\mathbf{\RRebNu}$ & $\mathbf{\RRebRev}$ & $\RRebDam$ & $\mathbf{\RRebBfifty\%}$ & $\RRebTten\%$ \\
+\textsc{r4-mixed-deficit-levy}      & $\RMixP$ & $\RMixNu$ & $\RMixRev$ & $\RMixDam$ & $\RMixBfifty\%$ & $\RMixTten\%$ \\
 \bottomrule
 \end{tabular}
 \end{table}

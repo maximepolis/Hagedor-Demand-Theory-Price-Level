@@ -29,7 +29,7 @@ function finish_panel_legend(fh, leg_handles, leg_labels, ncol)
         p = get(ax(k), 'Position');
         lo = min(lo, p(2)); hi = max(hi, p(2) + p(4));
     end
-    tgt_lo = band + 0.055;                % leave room for bottom-row xlabels
+    tgt_lo = band + 0.075;                % leave room for bottom-row xlabels
     tgt_hi = 0.965;
     s = (tgt_hi - tgt_lo) / max(hi - lo, eps);
     for k = 1:numel(ax)

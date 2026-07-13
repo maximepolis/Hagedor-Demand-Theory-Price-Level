@@ -26,14 +26,17 @@ MODEL_AND_THEORY.md      formal model; Definitions 1-3; Lemmas 1-3;
                          Propositions 1-5; Corollaries 1-3; proof sketches;
                          theory-to-code map
 paper/
-  green_deficits_price_level.tex   FULL JOURNAL-ARTICLE DRAFT (top-journal
-                         format): abstract, introduction, literature review,
-                         model with in-depth climate sector (carbon stock,
-                         emissions, damages with incidence gradient), all
-                         lemmas/propositions/corollaries WITH PROOFS,
-                         quantitative section using the benchmark run's
-                         numbers, empirical section (E1-E3), appendices
+  green_deficits_price_level.tex   FULL JOURNAL-ARTICLE DRAFT (theory-forward,
+                         top-journal format): abstract, introduction,
+                         literature review, model with in-depth climate
+                         sector (carbon stock, emissions, damages with
+                         incidence gradient), all lemmas/propositions/
+                         corollaries WITH PROOFS, quantitative section,
+                         transition diagnostics, appendices
+  numbers_auto.tex       machine-written result macros (export_paper_numbers)
   references.bib         bibliography (verified references only)
+REPLICATION.md           data-editor guide: requirements, one-command run,
+                         runtimes, figure/table-to-script map
 main_project_run_all.m   baseline experiments (Props 1-5, PFig1-4)
 main_project_extended.m  EXTENDED experiments: carbon-stock sector +
                          incidence gradient, sunspot frontier over (psi, Gg),

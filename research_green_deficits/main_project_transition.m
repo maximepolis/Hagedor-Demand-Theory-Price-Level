@@ -98,7 +98,7 @@ pgc.climate_version = 1;
 pgc.D0 = D0_med;
 opts.Gg_nom = Gg_cal;
 
-% ---- run both regimes ----
+% ---- run the designs ----
 fprintf('\n--- NOMINAL appropriation ---\n');
 opts.regime = 'nominal';
 TRn = solve_hank_dtpl_transition(pgc, opts);
@@ -109,11 +109,23 @@ opts.regime = 'indexed';
 TRi = solve_hank_dtpl_transition(pgc, opts);
 fprintf('  %s\n', TRi.msg);
 
-save(fullfile(projdir, 'output', 'transition_results.mat'), 'TRn', 'TRi', 'pgc', 'opts');
+% R3 financing design along the path (levy at twice the program, half
+% rebated lump-sum): the transition-inclusive counterpart of the regimes
+% section. Skippable with SKIP_REBATE = true before running.
+TRr = [];
+if ~(exist('SKIP_REBATE', 'var') == 1 && SKIP_REBATE)
+    fprintf('\n--- NOMINAL appropriation, REBATE financing (R3) ---\n');
+    optr = opts; optr.regime = 'nominal'; optr.financing = 'rebate';
+    TRr = solve_hank_dtpl_transition(pgc, optr);
+    fprintf('  %s\n', TRr.msg);
+end
+
+save(fullfile(projdir, 'output', 'transition_results.mat'), ...
+     'TRn', 'TRi', 'TRr', 'pgc', 'opts');
 
 % ---- PFig18 (plotting extracted to src_project/plot_transition_fig so the
 % figure can be re-exported from transition_results.mat without re-solving) ----
-plot_transition_fig(TRn, TRi, pgc, pg);
+plot_transition_fig(TRn, TRi, pgc, pg, TRr);
 
 % ---- summary ----
 sf = fullfile(pg.tabdir, 'transition_dtpl_summary.txt');
@@ -123,7 +135,9 @@ if fid > 0
     fprintf(fid, 'Scope: the price-level path clears the asset market at every date (ANNUAL);\n');
     fprintf(fid, 'no Phillips curve, no policy-rule inflation. na=%d, T=%d, tol=%.0e.\n\n', ...
         pg.na, opts.T, opts.tol);
-    for TRc = {TRn, TRi}
+    TRlist = {TRn, TRi};
+    if ~isempty(TRr), TRlist{end+1} = TRr; end
+    for TRc = TRlist
         TR = TRc{1};
         if ~isfield(TR, 'phat'), fprintf(fid, 'FAILED: %s\n', TR.msg); continue; end
         fprintf(fid, '%s\n', TR.msg);
