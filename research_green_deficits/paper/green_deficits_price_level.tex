@@ -293,7 +293,12 @@ shortfall --- and holders of the outstanding nominal stock collect a windfall
 of about five percent of the program's present value before any green capital
 exists. Inflation is back within a quarter-point of trend by year two while the
 capital stock accumulates for decades: the price level prices the \emph{news},
-not the spending. The same announcement, priced in a linearized
+not the spending. Priced household by household, the announced path is also
+\emph{more regressive} than the steady-state comparison suggests --- the
+windfall accrues at the top of the wealth distribution while front-loaded
+taxes bite at the constrained bottom before any damage relief arrives --- so
+the transition strengthens, rather than softens, the case for the rebate
+design. The same announcement, priced in a linearized
 heterogeneous-agent economy with a Phillips curve, delivers $+0.4\%$ impact
 inflation --- the opposite sign --- so the announcement-window inflation
 response sharply separates the two views of what determines inflation.
@@ -1280,12 +1285,13 @@ bondholders a windfall of $6$--$7\%$ of annual mean income at every damage
 level. The sign reversal of the deficit-erosion channel is not an artifact
 of the oversized illustrative benchmark. Fourth, in the high-damage column
 the program raises steady-state welfare outright ($W$: $-7.55 \to -7.02$)
-even before counting transition gains --- avoided damages and reduced
-climate risk dominate the added tax burden --- whereas in the low and medium
-columns steady-state welfare falls and the case for the program rests on the
-transition and on distributional weights, which is precisely where the
-welfare-incidence analysis (Section~\ref{subsec:welfaregroups}) and the
-dynamic extension take over.
+--- avoided damages and reduced climate risk dominate the added tax burden
+--- whereas in the low and medium columns steady-state welfare falls, and
+the transition does not rescue it: the transition-inclusive computation of
+Section~\ref{subsec:tier2} shows the announced path is \emph{more}
+regressive than the steady-state comparison, so the welfare case at
+medium damages rests on the financing design of
+Section~\ref{subsec:regimes}, not on transition gains.
 
 \pfigguard{PFig7_calibrated_nu.pdf}{%
 \begin{figure}[!htb]\centering
@@ -1395,6 +1401,30 @@ the incomplete-markets economy cannot generate debt of $1.1$ times income at
 the calibrated real rate when risk aversion is that low (the precautionary
 motive is too weak --- a restriction on the model, not a numerical failure),
 which is itself why the benchmark uses $\sigma=2$.
+
+A final exercise addresses the endowment structure itself, and shows that it
+is the \emph{conservative} modeling choice. The natural objection is that an
+endowment economy has no output margin: green public capital cannot raise
+production, so there is no tax base for the program to expand --- the
+\citet{angeletos2024deficits} boom channel is absent by construction. The
+replication package quantifies what this omits with a production layer
+$Y = (1-D(K_g))\,A(K_g)$, $A = 1 + a_Y(1 - e^{-\theta_A K_g})$, run on the
+same calibrated program: the productivity margin adds output
+$dY_{\mathrm{prod}} = (1-D_0)(A-1)$ whose fiscal take at an average
+effective tax rate $t$ is an \emph{additive} financing term
+$\nu_{\mathrm{taxbase}} = t\, dY_{\mathrm{prod}}/g_{g,1}$ (the damage
+component of the output gain is already the damage dividend and is
+recomposed, not double-counted). At output elasticities of green public
+capital $\eta_Y$ between $0.026$ and $0.053$ --- all strictly \emph{below}
+the \citet{bomligthart2014} meta-range of $0.08$--$0.12$ for core public
+capital --- the augmented share at the OECD average tax take rises from
+$\nu = 0.58$ to $\nu^{+} = 0.82$--$1.29$: the medium column crosses full
+self-financing before the productivity margin even reaches its empirical
+range. The exercise holds labor fixed and feeds no output back into the
+household problem, so it is a lower bound on the production-economy share,
+not a general-equilibrium result; its message is directional --- every
+production margin the endowment economy omits pushes $\nu$ \emph{up}, so
+the paper's headline numbers are floors, not ceilings.
 
 % Figure PFig20 (calibration robustness) relocated to
 % Appendix~\ref{app:figures} (supplementary figures).
@@ -1571,7 +1601,8 @@ the dispersion does not compress. The consumption-equivalent gap between the
 two is the pure value of \emph{preferentially} insuring the severe state ---
 $+0.13\%$ of permanent consumption on average, which offsets about a tenth of
 the program's steady-state welfare cost ($-1.35\%$ at the calibrated medium
-scale, before transition gains). The insurance value falls exactly where the
+scale; the transition-inclusive cost is larger still,
+Section~\ref{subsec:tier2}). The insurance value falls exactly where the
 mechanism says it should: it is about six times larger for a household
 \emph{in} the severe state ($+0.46\%$) than in the calm state ($+0.08\%$) ---
 the compression is valued when the disaster bites. Across the wealth
@@ -1629,7 +1660,11 @@ therefore inverted relative to the inflation-tax intuition: it is the
 \emph{poor} who carry the program and the bondholders who are compensated.
 Second, this regressivity is a property of the \emph{financing}, not of the
 program --- which motivates the regime comparison below, where the same real
-program is financed progressively and the ranking reverses.
+program is financed progressively and the ranking reverses. These are
+steady-state numbers, and they are the \emph{optimistic} reading: the
+transition-inclusive incidence (Section~\ref{subsec:tier2}) is more
+regressive still, because front-loaded taxes bite the constrained before
+damage relief arrives while the announcement windfall accrues at the top.
 
 \pfigguard{PFig8_welfare_incidence.pdf}{%
 \begin{figure}[!htb]\centering
@@ -2172,6 +2207,35 @@ contains the price-level-as-market-clearing margin the paper is about. This
 transition is the converged, horizon-adequate, grid-consistent run
 described in Appendix~\ref{app:numerics}.
 
+\paragraph{Transition-inclusive welfare.} The converged path also settles
+a question the steady-state incidence of Section~\ref{subsec:welfaregroups}
+cannot: since the program's costs are front-loaded (taxes rise at the
+announcement) while its benefits accrue over decades (damages fall as
+green capital builds), does the transition soften or deepen the
+steady-state welfare verdict? We compute, household by household, the
+consumption-equivalent transfer equating the value of remaining in the
+no-program steady state forever with the value of \emph{entering date one
+of the announced path} --- including the announcement-date revaluation ---
+aggregated over the same baseline wealth groups (the steady-state column
+reproduces Table~\ref{tab:incidence}'s medium row on the transition grids,
+a consistency check on the whole apparatus). The answer is that the
+transition \emph{deepens the regressivity} of deficit finance: the poorest
+quintile's loss grows from $-2.6\%$ to $-3.4\%$ and the constrained
+group's from $-2.6\%$ to $-3.4\%$, while the top decile's loss
+\emph{shrinks} from $-1.0\%$ to $-0.5\%$ --- the announcement windfall
+accrues at the top of the wealth distribution while front-loaded taxes
+bite at the bottom before any damage relief arrives (aggregate:
+$-1.75\%$ to $-2.1\%$). The numbers are within two hundredths of a
+percentage point across the nominal and indexed designs, as the on-path
+irrelevance of denomination requires. Two implications follow. The
+steady-state comparison \emph{understates} who pays for deficit-financed
+green investment, so the case for the medium-damage program cannot rest on
+transition gains --- there are none under this financing --- and rests
+instead on the financing design of Section~\ref{subsec:regimes}, whose
+levy-plus-rebate variant reverses the bottom-half loss in steady state;
+computing its transition-inclusive counterpart is the natural next step of
+the dynamic analysis.
+
 \pfigguard{PFig18_dtpl_transition.pdf}{%
 \begin{figure}[!htb]\centering
 \includegraphics[width=0.95\textwidth]{PFig18_dtpl_transition.pdf}
@@ -2217,7 +2281,10 @@ transition in which the price-level path is itself pinned by asset demand
 --- computed in Section~\ref{subsec:tier2} as a converged fixed point with
 no Phillips curve --- shows that the mechanism's dynamics are front-loaded:
 three quarters of the green disinflation, and the entire bondholder
-windfall, arrive in the announcement year. A two-state aggregate climate
+windfall, arrive in the announcement year, and the transition-inclusive
+welfare incidence is more regressive than the steady-state comparison ---
+the dynamics reinforce the financing-design conclusion rather than
+softening it. A two-state aggregate climate
 process (Section~\ref{subsec:aggrisk}) makes the nominal safe asset
 literally risky and shows that green investment compresses that
 systematic risk; the compression proves fiscally inert but valuable as

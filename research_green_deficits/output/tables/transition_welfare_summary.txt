@@ -1,0 +1,33 @@
+TRANSITION-INCLUSIVE WELFARE INCIDENCE (medium damages, calibrated scale)
+lambda(a,e): CE transfer equating V0 (stay in baseline ss forever)
+with V1 (enter date 1 of the converged announced path, incl. the
+announcement revaluation). Same grids/distribution as the ss column.
+
+[NOMINAL design]
+group        ss-to-ss (%)   transition (%)
+Q1           -2.60          -3.38         
+Q2           -1.90          -2.48         
+Q3           -1.67          -2.05         
+Q4           -1.43          -1.56         
+Q5           -1.12          -0.81         
+bottom50     -2.16          -2.79         
+top10        -1.02          -0.53         
+constr       -2.64          -3.42         
+aggregate    -1.75          -2.07         
+
+[INDEXED design]
+group        ss-to-ss (%)   transition (%)
+Q1           -2.60          -3.41         
+Q2           -1.90          -2.50         
+Q3           -1.67          -2.06         
+Q4           -1.43          -1.56         
+Q5           -1.12          -0.81         
+bottom50     -2.16          -2.81         
+top10        -1.02          -0.53         
+constr       -2.64          -3.45         
+aggregate    -1.75          -2.08         
+
+Reading: "transition" > "ss-to-ss" for a group means the announced
+path treats that group BETTER than the steady-state comparison suggests
+(e.g. bondholders collect the announcement windfall; the poor bear
+front-loaded taxes before damage relief arrives).
