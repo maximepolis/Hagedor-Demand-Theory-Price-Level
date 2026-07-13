@@ -155,18 +155,19 @@ RCAL.welfare_groups = wgs;
 have = find(cellfun(@(w) ~isempty(w) && w.ok, wgs));
 if ~isempty(have)
     fh8 = figure('Name','PFig8: Welfare incidence by wealth quintile', ...
-                 'Color','w','Position',[80 80 680 480]); hold on; box on;
+                 'Color','w','Position',[80 80 820 540]); hold on; box on;
     M = nan(numel(have), 5);
     for k = 1:numel(have), M(k, :) = 100 * wgs{have(k)}.lambda_q; end
     bh = bar(1:5, M', 'grouped');
     shades = [0.55 0.65 0.85; 0.45 0.70 0.45; 0.85 0.35 0.30];
     for k = 1:numel(have), set(bh(k), 'FaceColor', shades(min(k,3),:)); end
-    plot([0.5 5.5], [0 0], 'k-', 'LineWidth', 0.8);
+    yline(0, 'k-', 'LineWidth', 0.8, 'HandleVisibility', 'off');
     set(gca, 'XTick', 1:5, 'XTickLabel', {'Q1 (poorest)','Q2','Q3','Q4','Q5 (richest)'});
     ylabel('consumption-equivalent gain (%)');
-    title('Who gains from the green program? (by baseline wealth quintile)');
+    % legend BELOW the axes so it never overlaps the bars; no in-figure
+    % title (the caption carries it) -- journal layout
     legend(cellfun(@(c) col_names{c}, num2cell(have), 'UniformOutput', false), ...
-           'Location', 'best');
+           'Location', 'southoutside', 'Orientation', 'horizontal');
     save_all_figs(fh8, 'PFig8_welfare_incidence', pg);
     fprintf('  [saved] PFig8_welfare_incidence\n');
 end

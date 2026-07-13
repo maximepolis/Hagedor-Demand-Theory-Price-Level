@@ -24,12 +24,12 @@ function style_figure(fh)
 
     % ---- house style constants (single source of truth) ------------------
     FONT      = 'Times New Roman';   % falls back gracefully if unavailable
-    FS_AXIS   = 13;                  % tick labels
-    FS_LABEL  = 14;                  % x/y labels
-    FS_TITLE  = 14;                  % subplot titles
-    FS_LEGEND = 12;
+    FS_AXIS   = 14;                  % tick labels
+    FS_LABEL  = 15;                  % x/y labels
+    FS_TITLE  = 15;                  % subplot titles
+    FS_LEGEND = 13;
     LW_AXIS   = 0.9;                 % axis/box line width
-    LW_MIN    = 1.6;                 % minimum data-line width
+    LW_MIN    = 1.8;                 % minimum data-line width
     GRIDA     = 0.15;                % grid alpha (light)
 
     set(fh, 'Color', 'w');

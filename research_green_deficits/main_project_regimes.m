@@ -141,26 +141,28 @@ end
 % ----- PFig9 -----
 if ~isempty(RREG)
     fh9 = figure('Name','PFig9: Financing regimes','Color','w', ...
-                 'Position',[80 80 1000 440]);
-    nm = {RREG.name};
+                 'Position',[80 80 1200 560]);
+    nm = {'R1 deficit','R2 levy','R3 levy+rebate','R4 mixed'};  % short ticks
     subplot(1,2,1); hold on; box on;
     bh = bar([[RREG.nu_reval]; [RREG.nu_damage]]', 'stacked');
     set(bh(1),'FaceColor',[0.55 0.65 0.85]); set(bh(2),'FaceColor',[0.45 0.70 0.45]);
-    plot([0.5 numel(RREG)+0.5],[1 1],'k--','LineWidth',1.2);
-    plot(1:numel(RREG), [RREG.nu], 'ko', 'MarkerFaceColor','k');
-    set(gca,'XTick',1:numel(RREG),'XTickLabel',nm);
+    yline(1, 'k--', 'LineWidth',1.2, 'HandleVisibility','off');
+    plot(1:numel(RREG), [RREG.nu], 'ko', 'MarkerFaceColor','k', 'MarkerSize',7);
+    set(gca,'XTick',1:numel(RREG),'XTickLabel',nm,'XTickLabelRotation',20);
     ylabel('self-financing share \nu');
-    title('(a) \nu by financing regime (same real program)');
-    legend({'revaluation','damage dividend','full financing','total'}, ...
-           'Location','best');
+    title('(a) self-financing');
+    % legend BELOW the axes: never overlaps the stacked bars
+    legend({'revaluation','damage dividend','total \nu'}, ...
+           'Location','southoutside', 'Orientation','horizontal');
     subplot(1,2,2); hold on; box on;
     bh2 = bar(100*[[RREG.lam_b50]; [RREG.lam_t10]]', 'grouped');
     set(bh2(1),'FaceColor',[0.85 0.35 0.30]); set(bh2(2),'FaceColor',[0.30 0.35 0.75]);
-    plot([0.5 numel(RREG)+0.5],[0 0],'k-','LineWidth',0.8);
-    set(gca,'XTick',1:numel(RREG),'XTickLabel',nm);
+    yline(0, 'k-', 'LineWidth',0.8, 'HandleVisibility','off');
+    set(gca,'XTick',1:numel(RREG),'XTickLabel',nm,'XTickLabelRotation',20);
     ylabel('consumption-equivalent gain (%)');
-    title('(b) Incidence: bottom 50% vs top 10%');
-    legend({'bottom 50%','top 10%'}, 'Location','best');
+    title('(b) welfare incidence');
+    legend({'bottom 50%','top 10%'}, ...
+           'Location','southoutside', 'Orientation','horizontal');
     save_all_figs(fh9, 'PFig9_financing_regimes', pg);
     fprintf('\n  [saved] PFig9_financing_regimes\n');
 end

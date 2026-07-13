@@ -112,41 +112,24 @@ Appendix~\ref{app:numerics}.}}
 
 \begin{abstract}
 \noindent
-The climate transition requires public investment on a scale that standard
-fiscal analysis books as a direct addition to public debt unless it is
-contemporaneously taxed. We show that this arithmetic is incomplete in
-economies with incomplete markets and nominal public liabilities. Green
-public investment changes future climate damages and the idiosyncratic risk
-households face; that shifts the precautionary demand for nominal safe
-assets, and with it the price level, the real value of outstanding debt,
-and the distribution of nominal wealth. We derive an exact decomposition of
-the self-financing share of a permanent green program into nominal-debt
-revaluation, an avoided-damage dividend, an endogenous safe-asset-demand
-channel, maturity and indexation effects, holder-composition leakages, and
-distributional incidence, and we quantify it in a calibrated
-heterogeneous-agent economy (debt of $1.1$ times income; a program of
-$2\%$ of income). The answer is conditional: green deficits are partially
-self-financing under conservative and medium damage calibrations
-($\nu = \nuLowShort$ under DICE damages, $\nuMedShort$ under empirical
-temperature-damage estimates) and become fully self-financing only under
-high-damage, high-effectiveness assumptions ($\nu = \nuHighShort$).
-
-The mechanism turns the arithmetic into a menu of design choices. Under
-conventional financing the revaluation channel runs \emph{against} the
-fisc --- productive green programs are disinflationary because they raise
-safe-asset demand, handing bondholders a windfall --- but a proportional
-levy with a lump-sum rebate flips the channel's sign, raises the
-self-financing share by a fifth, and converts a regressive program into a
-progressive one at identical aggregate cost. In the nonlinear transition
---- a fixed point in the price-level path itself, with no Phillips curve
---- a credible announcement front-loads three quarters of the long-run
-disinflation into the announcement year, and bondholders collect the
-windfall before any green capital is installed. With aggregate climate
-risk, the nominal bond loses real value precisely in the severe climate
-state, and green investment compresses that systematic risk: the ``safe
-asset'' becomes literal. Green fiscal rules should therefore specify not
-only the scale of spending but its indexation, financing mix, rebates, and
-the structure of the debt that funds it.
+Can deficit-financed climate investment pay for itself? We study a
+heterogeneous-agent economy in which the price level clears the market for
+nominal safe assets, so green public investment --- by changing future
+damages, household risk, and the taxes that service it --- moves the
+precautionary demand for those assets, and with it the price level, the
+real value of outstanding debt, and the distribution of nominal wealth. An
+exact decomposition of the self-financing share of a permanent program
+gives a conditional answer: $\nu = \nuLowShort$ under conservative damage
+estimates, $\nuMedShort$ under the empirical temperature-damage range,
+$\nuHighShort$ under high-damage estimates. Against the inflation-tax
+intuition, green deficits are \emph{disinflationary} --- bondholders
+receive a windfall --- but the sign is a design choice: a levy-plus-rebate
+scheme flips it, raises self-financing, and makes the program progressive,
+both in steady state and along the announced transition path, where three
+quarters of the long-run disinflation arrives within the announcement
+year. Nominal green budgets can also sustain self-fulfilling
+brown-stagnation equilibria; indexing the spending line removes them at no
+fiscal cost.
 \end{abstract}
 
 \bigskip
@@ -1006,8 +989,28 @@ Section~\ref{subsec:regimes}.
 \section{Quantitative analysis}\label{sec:quant}
 % ==========================================================================
 
+This section turns the propositions into numbers, and its subsections are
+ordered as an argument rather than a list. We first establish the
+mechanism at an illustrative benchmark (Sections
+\ref{subsec:calibration}--\ref{subsec:optmu}): the program shifts asset
+demand, the price level falls, and the self-financing share decomposes
+exactly. We then ask
+what the mechanism delivers at an externally disciplined fiscal scale
+(Section~\ref{subsec:calibrated}) and what one must believe for the answer
+to change (Section~\ref{subsec:robustness}, including the production
+margin the endowment economy omits). Having established \emph{how much},
+we ask \emph{why} --- the safe-asset channel isolated node by node
+(Section~\ref{subsec:safeasset}) --- and \emph{what it is worth} when the
+climate risk is aggregate rather than idiosyncratic
+(Section~\ref{subsec:aggrisk}). The final step is \emph{who pays}: welfare
+incidence by wealth group (Section~\ref{subsec:welfaregroups}), the
+financing designs that reverse it (Section~\ref{subsec:regimes}), and the
+maturity, indexation, and implementation bounds on the channel
+(Section~\ref{subsec:maturity}). Section~\ref{sec:transitions} then puts
+the same economy in motion.
+
 % --------------------------------------------------------------------------
-\subsection{Calibration}
+\subsection{Calibration}\label{subsec:calibration}
 
 The household block inherits the replication benchmark of the underlying DTPL
 package: annual frequency, $\beta=0.96$, $\sigma=2$, $\bar a=0$, a 7-state
@@ -1093,9 +1096,12 @@ response.
 
 \pfigguard{PFig1_green_steady_state.pdf}{%
 \begin{figure}[!htb]\centering
-\includegraphics[width=0.6\textwidth]{PFig1_green_steady_state.pdf}
-\caption{The green steady state: asset demand and bond supply in
-(assets, price-level) space; the dot marks $(B/P^{*},P^{*})$.}
+\includegraphics[width=0.68\textwidth]{PFig1_green_steady_state.pdf}
+\caption{Green disinflation as a demand shift. The no-program and program
+asset-demand schedules against the bond-supply hyperbola $B/P$: the
+program \emph{raises} precautionary asset demand, so the equilibrium
+moves down the supply curve from $P_0^{*}$ to $P_1^{*}$ --- the price
+level falls and outstanding nominal debt revalues in bondholders' favor.}
 \label{fig:pfig1}
 \end{figure}}
 
@@ -1205,7 +1211,7 @@ while an unproductive program remains worse than its sticker price
 ($\nu=-0.11$ at $\theta_g=0$).
 
 % --------------------------------------------------------------------------
-\subsection{Optimal accommodation}
+\subsection{Optimal accommodation}\label{subsec:optmu}
 
 Figure~\ref{fig:pfig4} traces $W(\mu)$. Welfare is hump-shaped with an
 interior optimum $\mu^{*}=0.045$ ($W=-7.681$), against a baseline of
@@ -1512,6 +1518,7 @@ demand at the fixed-$(\tau, D)$ nodes.}
 \end{figure}}
 
 % --------------------------------------------------------------------------
+\FloatBarrier
 \subsection{Aggregate climate risk: the safe asset made literal}
 \label{subsec:aggrisk}
 
@@ -1639,6 +1646,7 @@ hold the nominally-safe, really-risky bond as their only buffer.
 % Appendix~\ref{app:figures} (supplementary figures).
 
 % --------------------------------------------------------------------------
+\FloatBarrier
 \subsection{Welfare incidence by wealth group}
 \label{subsec:welfaregroups}
 
@@ -1728,6 +1736,7 @@ high-effectiveness region.
 % Appendix~\ref{app:figures} (supplementary figures).
 
 % --------------------------------------------------------------------------
+\FloatBarrier
 \subsection{Financing regimes: deficit, proportional levy, rebate, mixed}
 \label{subsec:regimes}
 
@@ -1815,6 +1824,7 @@ incidence, bottom 50\% versus top 10\%.}
 \end{figure}}
 
 % --------------------------------------------------------------------------
+\FloatBarrier
 \subsection{Bounding the revaluation channel: maturity, indexation, holders}
 \label{subsec:maturity}
 
@@ -2281,19 +2291,20 @@ conclusion draws out.
 \includegraphics[width=0.95\textwidth]{PFig18_dtpl_transition.pdf}
 \caption{The nonlinear price-level transition (converged, grid-consistent
 run, $n_a=500$, $T=80$ years, $\beta$ calibrated on this grid to the
-$1.10$ debt target): stationarized price level, inflation, real debt
-versus asset demand, green capital, damages, and market-clearing
-residuals, for the nominal-appropriation and indexed-mandate designs; the
-price and inflation panels add the levy-plus-rebate design of
-Section~\ref{subsec:regimes}. The deficit-financed announcement jump (the
-$-3.9\%$ price-level drop between the pre-announcement level and year one)
-front-loads $77\%$ of the long-run green disinflation, and the two
+$1.10$ debt target). (a) The stationarized price level and (b) inflation
+for three designs: nominal-appropriation and indexed-mandate deficit
+finance, and the levy-plus-rebate design of Section~\ref{subsec:regimes};
+(c)--(d) the green capital stock and damages, whose slow accumulation the
+announcement jump contrasts with. The deficit-financed announcement jump
+(the $-3.9\%$ price-level drop between the pre-announcement level and year
+one) front-loads $77\%$ of the long-run green disinflation, and the two
 denomination designs are nearly indistinguishable on the equilibrium path;
 the rebate design reprices with the \emph{opposite} sign ($+12.8\%$ in the
 announcement year, a one-time capital levy on bondholders), realizing its
 positive $\nu_{\mathrm{reval}}$ dynamically. Inflation is within a
 quarter-point of the $2\%$ trend by year two (deficit) and year four
-(rebate). Residuals clear to $5\times10^{-4}$ at every date.}
+(rebate). Market-clearing residuals, reported in the transition summary of
+the replication package, clear to $5\times10^{-4}$ at every date.}
 \label{fig:pfig18}
 \end{figure}}
 
