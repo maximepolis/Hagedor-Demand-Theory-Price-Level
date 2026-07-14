@@ -54,4 +54,4 @@ loaded calibrated beta*=0.9267
   [saved] PFig19_aggrisk
   [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\aggrisk_summary.txt
 
-Elapsed: 614.7 s
+Elapsed: 654.0 s
