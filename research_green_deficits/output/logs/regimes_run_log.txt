@@ -32,5 +32,5 @@ loaded calibrated inputs: beta*=0.9267, Gg=0.01818
  R2-PROP-LEVY           P*=0.9306  nu=0.672  bottom50 -0.36%  top10 -0.52%
  R3-PROP-LEVY-REBATE    P*=0.9986  nu=0.758  bottom50 +1.13%  top10 -0.12%
  R4-MIXED-DEFICIT-LEVY  P*=0.8957  nu=0.628  bottom50 -1.21%  top10 -0.76%
- Elapsed: 48.0 s
+ Elapsed: 41.5 s
 =================================================

@@ -121,5 +121,5 @@
  LOW (DICE)             nu = 0.156 (reval -0.057 + damage 0.212)
  MEDIUM (DJO-BHM)       nu = 0.583 (reval -0.053 + damage 0.636)
  HIGH (Bilal-Kaenzig)   nu = 2.045 (reval -0.058 + damage 2.104)
- Elapsed: 191.9 s
+ Elapsed: 182.7 s
 ====================================================
