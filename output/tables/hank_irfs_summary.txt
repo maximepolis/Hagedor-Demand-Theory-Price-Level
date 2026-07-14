@@ -1,9 +1,0 @@
-U7 TIER-1: HANK IRFs to a quasi-permanent green-investment shock
-(native Dynare heterogeneity framework; LINEARIZED sequence-space
-solution; NOT the nonlinear DTPL price-level transition)
-
-WEAK        pi impact +0.00633 (annualized +2.53%), Y impact +0.00440, debt(40q) +0.0705, kg(40q) +0.1484, d(40q) -0.003221
-TAYLOR      pi impact +0.00111 (annualized +0.44%), Y impact +0.00440, debt(40q) +0.0709, kg(40q) +0.1484, d(40q) -0.003228
-AGGRESSIVE  pi impact +0.00025 (annualized +0.10%), Y impact +0.00447, debt(40q) +0.0709, kg(40q) +0.1484, d(40q) -0.003229
-GREENACCOM  pi impact +0.00163 (annualized +0.65%), Y impact +0.00442, debt(40q) +0.0708, kg(40q) +0.1484, d(40q) -0.003227
-TAYLORBAL   pi impact +0.00090 (annualized +0.36%), Y impact +0.00480, debt(40q) +0.0070, kg(40q) +0.1484, d(40q) -0.003230
