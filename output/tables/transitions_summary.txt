@@ -1,6 +1,0 @@
-U6 RANK/NK TRANSITIONS (perfect foresight, permanent program)
-HONEST SCOPE: RANK diagnostics, not the DTPL price-level mechanism.
-WEAK        CONVERGED  pi impact -0.0001 (annualized -0.04%), pi peak +0.0039, debt peak 1.004, kg(40q) 0.349, d(40q) 0.0925
-TAYLOR      CONVERGED  pi impact -0.0013 (annualized -0.52%), pi peak +0.0007, debt peak 1.004, kg(40q) 0.349, d(40q) 0.0925
-AGGRESSIVE  CONVERGED  pi impact -0.0006 (annualized -0.24%), pi peak +0.0003, debt peak 1.004, kg(40q) 0.349, d(40q) 0.0925
-GREENACCOM  CONVERGED  pi impact +0.0564 (annualized +22.55%), pi peak +0.0564, debt peak 1.004, kg(40q) 0.349, d(40q) 0.0933

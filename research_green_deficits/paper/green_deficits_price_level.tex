@@ -118,8 +118,10 @@ nominal safe assets, so green public investment --- by changing future
 damages, household risk, and the taxes that service it --- moves the
 precautionary demand for those assets, and with it the price level, the
 real value of outstanding debt, and the distribution of nominal wealth. An
-exact decomposition of the self-financing share of a permanent program
-gives a conditional answer: $\nu = \nuLowShort$ under conservative damage
+exact decomposition of the self-financing share of a permanent program ---
+a net-burden object: avoided damages accrue to households and become
+fiscal revenue only through a tax base, which we quantify --- gives a
+conditional answer: $\nu = \nuLowShort$ under conservative damage
 estimates, $\nuMedShort$ under the empirical temperature-damage range,
 $\nuHighShort$ under high-damage estimates. Against the inflation-tax
 intuition, green deficits are \emph{disinflationary} --- bondholders
@@ -214,10 +216,12 @@ inherited from \citet{angeletos2024deficits} that the nominal side of a deficit
 helps to finance it. The revaluation component is \emph{negative} ($-0.24$)
 and the damage dividend does all the work ($0.84$). The reason is an
 asset-demand effect specific to the incomplete-markets pricing of money-like
-debt: the program \emph{raises} aggregate asset demand --- avoided damages
-raise incomes, damage-exposure risk falls only modestly, and the taxes that
-service the program strengthen the precautionary motive of households pushed
-toward the borrowing constraint --- so the price level \emph{falls} ($P$:
+debt: the program \emph{raises} aggregate asset demand --- the taxes that
+service it push constraint-adjacent households toward precautionary saving,
+and the incomes raised by avoided damages scale buffer stocks up with them;
+the one countervailing force, lower climate risk weakening the precautionary
+motive, is too small to overturn the other two (the exact decomposition is
+in Section~\ref{subsec:safeasset}) --- so the price level \emph{falls} ($P$:
 $0.223 \to 0.190$). Green deficits are \emph{disinflationary} in this economy
 (Result~\ref{res:disinflation}), and the ``inflation tax'' runs backwards:
 bondholders receive a windfall rather than paying for the program. Full
@@ -250,7 +254,14 @@ cheap: \emph{index the green budget} while keeping debt nominal
 guarantee uniqueness in his economy for any shape of asset demand, lose that
 guarantee once the climate loop is active --- while preserving his insight that
 some nominal anchor is indispensable, since indexing \emph{everything} is the
-classical missing-anchor corner of \citet{sargentwallace1975}.
+classical missing-anchor corner of \citet{sargentwallace1975}. Two
+qualifications keep this result in its lane: the calibrated benchmark's
+sunspot region is \emph{empty}, so multiplicity is conditional design
+insurance rather than a measured feature of the economy; and the
+quantitatively binding failure under strong regressive incidence is not
+multiplicity but \emph{nonexistence} --- a fiscal-space collapse that
+indexation does not repair and monetary accommodation does
+(Section~\ref{subsec:sunspots}).
 
 Two policy margins follow directly. Choosing the nominal growth rate $\mu$
 trades off three forces: faster nominal growth lowers the real rate and the
@@ -293,10 +304,13 @@ taxes bite at the constrained bottom before any damage relief arrives ---
 whereas the rebate design solved along the same path keeps the bottom half
 in surplus and turns the announcement repricing into a one-time capital
 levy on bondholders: the transition strengthens, rather than softens, the
-financing-design conclusion. The same announcement, priced in a linearized
-heterogeneous-agent economy with a Phillips curve, delivers $+0.4\%$ impact
-inflation --- the opposite sign --- so the announcement-window inflation
-response sharply separates the two views of what determines inflation.
+financing-design conclusion. The same class of announcement, priced in a
+linearized heterogeneous-agent economy with a Phillips curve, delivers
+$+0.4\%$ impact inflation --- the opposite sign --- so the two mechanisms
+make opposite-signed announcement-window predictions; because the
+exercises also differ in rigidities, financing detail, and scale, we read
+the contrast as a model diagnostic, with empirical discrimination left to
+high-frequency designs that hold those differences fixed.
 
 A final extension confronts the objection that the whole analysis assumes away
 aggregate uncertainty. Introducing a two-state aggregate climate process (a
@@ -665,6 +679,22 @@ $L = B/P_0 - B/P_1$, a capital levy on (or, if negative, a windfall to)
 bondholders.
 \end{definition}
 
+Two accountings live inside \eqref{eq:nu}, and the paper keeps them
+distinct. In the \emph{government's} books only the revaluation term is
+revenue: with lump-sum taxes, $\tau = r^{ss}b + g_g$ holds whatever $D$ is,
+so the strictly fiscal self-financing share is $\nu_{\mathrm{reval}}$ alone
+--- \emph{negative} throughout our calibrations --- while the damage
+dividend accrues to households as endowment income, not to the treasury.
+$\nu$ is therefore a \emph{net-burden} (social-resource) offset: it
+measures how much of the program's real cost is returned to households
+through the sum of taxes and damages, the object that determines whether
+the program makes households poorer. Converting the damage dividend into
+\emph{fiscal} revenue requires a tax base on the induced income gain; the
+production exercise of Section~\ref{subsec:robustness} supplies exactly
+that mapping (an output-tax take $t$ turns an output gain $dY$ into
+revenue $t\,dY$), and we flag which accounting each headline number uses
+throughout.
+
 \begin{definition}[Demand elasticity]\label{def:elasticity}
 Along the demand curve,
 \[
@@ -677,6 +707,20 @@ elasticity exactly $-1$, crossings of \eqref{eq:assetmarket} are
 $\varepsilon_S>-1$ and \emph{downward} where $\varepsilon_S<-1$.
 \end{definition}
 
+A scope note on the clearing object. In the one-asset economy, aggregate
+buffer-stock saving and the demand for nominal government debt coincide,
+so \eqref{eq:assetmarket} clears \emph{total} precautionary wealth against
+the nominal liability. With richer portfolios --- private capital, equity,
+liquidity-differentiated assets --- the DTPL clearing object is the demand
+for the nominal government liability \emph{specifically}, and the size of
+the revaluation channel then depends on how substitutable that liability
+is against its alternatives. The two-asset extension of
+Section~\ref{sec:transitions} makes exactly this liquid-bond margin
+observable and finds the one-asset qualitative responses intact, but it
+closes with a constant liquidity premium; an endogenous convenience yield
+on the nominal liability is the open margin, and the one-asset magnitudes
+should be read with that caveat.
+
 \subsection{The mechanism, in one picture}\label{subsec:mechanism}
 
 Figure~\ref{fig:mechanism} collects equations \eqref{eq:Kg}--\eqref{eq:assetmarket}
@@ -687,15 +731,21 @@ level the program itself helps determine. Green capital lowers climate
 damages $D$ through the abatement channel \eqref{eq:abatement}--\eqref{eq:climatefixedpoint};
 lower damages raise \emph{effective} household income
 \eqref{eq:incidence} (net of the regressive incidence gradient) and lower
-\emph{idiosyncratic risk} $\sigma_\epsilon(D)$, both of which shift
-precautionary asset demand $\Sfun(1+r;\tau,D)$ --- income up weakens
-demand for the safe asset (less need to self-insure against a shrinking
-mean), risk down also weakens it (less need to self-insure against
-volatility), so \emph{both} climate channels push in the \emph{same}
-direction; only their signs relative to the \emph{tax} channel below
-determine the net effect. Real taxes $\tau = r^{ss}b + g_g$ enter the same
-demand function directly: financing the program raises the tax burden,
-which strengthens precautionary demand. The asset market then clears
+\emph{idiosyncratic risk} $\sigma_\epsilon(D)$, and these move
+precautionary asset demand $\Sfun(1+r;\tau,D)$ in \emph{opposite}
+directions: the income-level effect \emph{raises} demand (with CRRA
+preferences a proportionally richer household holds proportionally more
+of the buffer asset --- the scaling of Lemma~\ref{lem:S}), while lower
+risk \emph{weakens} the precautionary motive and lowers it. The exact
+counterfactual decomposition of Section~\ref{subsec:safeasset} measures
+both and finds they partially offset, with the level effect the larger of
+the two; the dominant force is the third channel: real taxes
+$\tau = r^{ss}b + g_g$ enter the same demand function directly, and
+financing the program pushes constraint-adjacent households toward
+precautionary saving. Green disinflation is thus tax-and-income driven,
+with the insurance content of climate policy the one countervailing
+force --- not a standalone story about lower climate risk reducing
+precautionary demand. The asset market then clears
 \eqref{eq:assetmarket}, pinning the price level $P^{*}=B/\Sfun(\cdot)$
 given the fixed nominal bond stock $B$ --- the DTPL mechanism itself.
 The price level does double duty on the way back: it revalues the
@@ -765,17 +815,23 @@ across steady states.
  \draw[arr] (P) -- (nu);
  \draw[arr] (nudam.south) |- (nu.east);
 
- % ---- signed channels into asset demand ----
+ % ---- signed channels into asset demand (program-induced directions,
+ %      matching the exact decomposition of Section 5.8) ----
  \draw[arr]    (tau.south)  |- (S.west)       node[lbl, pos=0.72] {$+$};
- \draw[negarr] (inc.south)  -- (S.north)      node[lbl, midway]   {$-$};
+ \draw[negarr] (inc.south)  -- (S.north)      node[lbl, midway]   {$+$};
  \draw[negarr] (risk.south) |- (S.east)       node[lbl, pos=0.72] {$-$};
 \end{tikzpicture}
-\caption{The mechanism. Solid arrows are levels; dashed arrows carry a
-sign (marked $-$/$+$) rather than a level. Both climate channels
-(effective income, idiosyncratic risk) push precautionary asset demand
-\emph{down}; the tax channel pushes it \emph{up}; the price level clears
-the difference and revalues the outstanding nominal debt stock
-accordingly. Two further channels, discussed in the text but omitted
+\caption{The mechanism. Solid arrows are levels; dashed arrows carry the
+\emph{program-induced} direction of each channel into asset demand
+(marked $-$/$+$), the signs measured by the exact decomposition of
+Section~\ref{subsec:safeasset}. The tax channel and the income-level
+channel both push precautionary asset demand \emph{up} (financing
+strengthens the precautionary motive; avoided damages make households
+proportionally richer and their buffer stocks scale with income); lower
+idiosyncratic risk is the one channel pushing demand \emph{down}, and it
+is too small to overturn them. The price level clears the net shift and
+revalues the outstanding nominal debt stock accordingly. Two further
+channels, discussed in the text but omitted
 here for legibility: the \emph{financing instrument} (which tax raises
 $\tau$, and from whom) does not touch the climate block above but flips
 the sign of $\nu_{\mathrm{reval}}$ (Proposition~\ref{prop:financingdesign});
@@ -944,6 +1000,23 @@ object from \eqref{eq:assetmarket}; $P$ is then indeterminate for the
 classical reason \citep{sargentwallace1975}. Insulation concerns \emph{where}
 the anchor sits, not whether there is one.
 \end{corollary}
+
+Three boundaries keep these results in their lane. \emph{Existence} in
+Proposition~\ref{prop:determinacy} is conditional on Assumption
+\ref{ass:feasible}'s feasibility set --- near the low-price edge, bond
+supply must exceed the bounded asset demand, which is what the proof's
+boundary condition delivers and what can fail when the tax burden exhausts
+feasible consumption. \emph{Uniqueness} in
+Proposition~\ref{prop:insulation} is conditional on existence: the mandate
+guarantees a single crossing wherever a crossing exists, not that one
+exists. And quantitatively, the binding failure mode in the calibrated
+economy is the first, not the second: the diagnostics of
+Section~\ref{subsec:sunspots} find \emph{no-equilibrium} (fiscal-space
+collapse) under strong regressive incidence, under the nominal budget
+\emph{and} the mandate alike, while the sunspot region itself is empty at
+the benchmark. Multiplicity and its indexation remedy are conditional
+design insurance; the measured constraint on green fiscal space is
+existence, and the instrument that restores it is accommodation.
 
 % --------------------------------------------------------------------------
 \subsection{Optimal accommodation}
@@ -1115,7 +1188,7 @@ $\nu_{\mathrm{reval}}=-0.241$, $\nu_{\mathrm{dam}}=0.841$, $\nu=0.600$.
 \end{figure}}
 
 % --------------------------------------------------------------------------
-\subsection{Determinacy diagnostics and the sunspot region}
+\subsection{Determinacy diagnostics and the sunspot region}\label{subsec:sunspots}
 
 At the benchmark, the equilibrium is unique for every $\theta_g\le2.5$ under
 \emph{both} regimes (Figure~\ref{fig:pfig3}): the measured demand elasticity
@@ -1184,7 +1257,7 @@ the $-1$ line.}
 \end{figure}}
 
 % --------------------------------------------------------------------------
-\subsection{The extended sector and accommodation neutrality}
+\subsection{The extended sector and accommodation neutrality}\label{subsec:extended}
 
 The extended run (carbon-stock climate sector, incidence $\psi=1$,
 accommodative stance $\mu_{\mathrm{ext}}=0.03$) delivers a unique interior
@@ -1298,7 +1371,12 @@ Four conclusions. First --- the paper's central conditional statement ---
 question}: at a defensible fiscal scale, the self-financing share runs from
 $\nuLowShort$ under conservative DICE damages, through $\nuMedShort$ under
 the empirical temperature-damage range, to $\nuHighShort$ --- full
-self-financing twice over --- under high-damage estimates. The model does not claim green deficits are
+self-financing twice over --- under high-damage estimates. These are
+net-burden numbers (Definition~\ref{def:nu}): the strictly fiscal
+component is the revaluation term, \emph{negative} in every column, so
+none of the program is fiscally self-financing in the endowment economy
+until the production margin of Section~\ref{subsec:robustness} converts
+the damage-induced income gain into revenue through a tax base. The model does not claim green deficits are
 self-financing; it locates the damage regime in which they are. Second,
 under DICE damages \emph{no} abatement productivity in the swept range
 delivers full financing ($\nu = \nuDiceAtTwoFive$ even at $\theta_g = 2.5$): the
@@ -1447,10 +1525,22 @@ capital --- the augmented share at the OECD average tax take rises from
 $\nu = 0.58$ to $\nu^{+} = 0.82$--$1.29$: the medium column crosses full
 self-financing before the productivity margin even reaches its empirical
 range. The exercise holds labor fixed and feeds no output back into the
-household problem, so it is a lower bound on the production-economy share,
-not a general-equilibrium result; its message is directional --- every
-production margin the endowment economy omits pushes $\nu$ \emph{up}, so
-the paper's headline numbers are floors, not ceilings.
+household problem, so it bounds the omitted \emph{revenue} margin, not the
+full general-equilibrium object: within this accounting every production
+margin the endowment economy omits pushes $\nu$ up, but a complete
+production economy would also move asset demand --- and hence the DTPL
+equilibrium itself --- in directions the aggregate layer cannot sign. Two
+further pieces of discipline bound the reduced form from the climate side:
+the extended sector of Section~\ref{subsec:extended} replaces the
+exponential damage shortcut with the full emissions--carbon-stock
+structure and \emph{lowers} the full-financing threshold (to
+$\theta_g \approx 1.9$ from $\approx 2.4$ at the illustrative scale), so
+the shortcut is the conservative choice; and the implementation-efficiency
+sweep $q_g$ of Section~\ref{subsec:maturity} scales the dividend for
+procurement and planning frictions. What no existing study pins down is
+$\theta_g$ itself --- a direct calibration to engineering
+marginal-abatement-cost curves is the outstanding discipline, which is why
+the paper reports frontiers in $\theta_g$ rather than point claims.
 
 % Figure PFig20 (calibration robustness) relocated to
 % Appendix~\ref{app:figures} (supplementary figures).
@@ -2237,7 +2327,15 @@ while the demand-theory computation prices its permanent program at
 $-2.0\%$ (the asset-demand shift) --- opposite signs for the same class of
 announcement, because the
 two exercises answer with different mechanisms, and only the latter
-contains the price-level-as-market-clearing margin the paper is about. This
+contains the price-level-as-market-clearing margin the paper is about.
+One caution keeps the contrast in its lane: the two computations differ
+not only in the price-determination margin but also in rigidities,
+financing detail, and shock scale, so the sign contrast is a statement
+about \emph{mechanisms within each model class} --- a model-contingent
+diagnostic, not a clean empirical sign test. An empirical implementation
+would have to hold those environmental differences fixed (the
+high-frequency design sketched in the conclusion) before the
+announcement-window sign can discriminate between the two views. This
 transition is the converged, horizon-adequate, grid-consistent run
 described in Appendix~\ref{app:numerics}.
 
@@ -2284,7 +2382,14 @@ the two designs are no longer near-Pareto-ranked --- the top decile
 strictly prefers deficit finance ($-0.5\%$ against $-2.2\%$) --- so the
 choice between them is a genuine distributional and political choice, not
 a free lunch, which is precisely the political-economy tradeoff the
-conclusion draws out.
+conclusion draws out. A second caution: an announcement-year repricing of
+this size is, economically, a one-time capital levy, and the flexible-price
+model has no vocabulary for the stabilization and credibility questions it
+raises --- households must believe the levy is once-and-for-all rather than
+the first draw from a repeated policy (the commitment problem of
+\citealp{hurtado2023sovereign}). We therefore read the rebate path as the
+mechanism's exact accounting of who pays when, not as a recommendation
+about the speed at which the repricing should be allowed to happen.
 
 \pfigguard{PFig18_dtpl_transition.pdf}{%
 \begin{figure}[!htb]\centering
@@ -2316,14 +2421,19 @@ the replication package, clear to $5\times10^{-4}$ at every date.}
 In an economy in which the price level is what clears the market for
 precautionary savings, the fiscal arithmetic of the green transition is
 neither the FTPL's nor the New Keynesian one. A permanent green investment
-program financed by nominal debt pays for a large fraction of itself, but
-through the damage dividend rather than the inflation tax: productive green
-deficits are \emph{disinflationary}, and their revaluation channel hands
-bondholders a windfall --- a distributional fact that should reshape how the
+program financed by nominal debt returns a large fraction of its cost to
+households --- in net-burden terms, through the damage dividend rather
+than the inflation tax; in strictly fiscal terms only once a tax base
+converts the income gain into revenue --- and productive green
+deficits are \emph{disinflationary}, their revaluation channel handing
+bondholders a windfall: a distributional fact that should reshape how the
 politics of green finance are modeled. The denomination of the green budget
-is a determinacy instrument: nominal appropriations expose the economy to
-self-fulfilling brown stagnation when damage incidence is regressive enough,
-while indexed mandates insulate the nominal anchor at no fiscal cost. The
+is a determinacy instrument: nominal appropriations \emph{can} expose the
+economy to self-fulfilling brown stagnation when damage incidence is
+regressive enough --- a conditional region the calibrated benchmark does
+not occupy --- while indexed mandates insulate the nominal anchor at no
+fiscal cost; against the quantitatively binding failure mode, fiscal-space
+collapse, the effective instrument is accommodation, not indexation. The
 financing mix is a price-level instrument: replacing lump-sum deficit
 financing with a proportional levy plus rebate flips the revaluation
 channel's sign, raises the self-financing share, and converts a regressive
@@ -2365,8 +2475,10 @@ decile prefers deficit finance by $1.7$ percentage points of permanent
 consumption while the bottom half prefers the rebate by $3.2$).
 
 Adding production with brown
-capital and a carbon price \citep{barrage2020}, and a fully stochastic
-transition, are the main open modeling items. The sharpest untested
+capital and a carbon price \citep{barrage2020}, an endogenous convenience
+yield on the nominal liability (the portfolio margin the two-asset
+extension holds constant), and a fully stochastic
+transition are the main open modeling items. The sharpest untested
 implication is empirical: a credible, deficit-financed green-investment
 announcement should \emph{lower} market-implied expected inflation, against
 the New Keynesian sign --- a prediction the confounded reduced-form record
