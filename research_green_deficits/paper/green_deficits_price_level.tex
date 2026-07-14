@@ -281,7 +281,7 @@ weakens it (inflation, debt erosion), and at the calibrated medium column the
 levy-plus-rebate design dominates deficit financing on both margins at once ---
 more self-financing ($\nu$: $0.58 \to 0.76$) and progressive rather than
 regressive (bottom-half welfare: $-2.2\% \to +1.1\%$, top decile nearly
-unharmed) --- with identical aggregate resources
+unharmed) --- from the same nominal appropriation
 (Proposition~\ref{prop:financingdesign}, Table~\ref{tab:regimes}).
 
 These are steady-state comparisons, and the natural objection is that the
@@ -858,14 +858,19 @@ asset bound is $-\bar a$, from the borrowing limit $a_{t+1}\ge-\bar a$).
 
 \begin{lemma}[Regularity and scaling of asset demand]\label{lem:S}
 On the feasibility set, $\Sfun(1+r;\tau,D)$ is well-defined and continuous in
-$(\tau,D)$. With $\phi_D=\psi=0$, CRRA homogeneity gives the exact scaling
+$(\tau,D)$. With $\phi_D=\psi=0$ \emph{and} a borrowing limit that is either
+zero or scales with income ($\bar a = 0$, the benchmark, or
+$\bar a \propto 1-D$), CRRA homogeneity gives the exact scaling
 \begin{equation}
 \Sfun(1+r;\tau,D) = (1-D)\,\Sfun\!\Big(1+r;\ \frac{\tau}{1-D},\ 0\Big):
 \label{eq:scaling}
 \end{equation}
 damages act as a proportional level contraction plus an effective tax
-increase. With $\psi>0$ or $\phi_D>0$, $D$ additionally moves the riskiness
-of effective income, and $D$ is a genuine second argument.
+increase. (A fixed positive $\bar a$ breaks the homogeneity, since dividing
+the damaged economy by $1-D$ maps the limit $-\bar a$ to $-\bar a/(1-D)$;
+the benchmark's $\bar a=0$ is the natural-borrowing-limit case for which the
+scaling is exact.) With $\psi>0$ or $\phi_D>0$, $D$ additionally moves the
+riskiness of effective income, and $D$ is a genuine second argument.
 \end{lemma}
 
 \begin{lemma}[Climate block]\label{lem:climate}
@@ -888,16 +893,27 @@ determination runs through the single equation $\Phi(P)=0$.
 
 \begin{proposition}[Existence and green determinacy]\label{prop:determinacy}
 Suppose $\theta_g=0$, or the green budget is indexed. Under
-Assumption~\ref{ass:feasible}:
+Assumption~\ref{ass:feasible} and the \emph{crossing condition} that the
+feasibility set extends to price levels low enough for bond supply to exceed
+the (bounded) buffer-stock demand, $\sup_{P}\{B/P - \Sfun(1+r^{ss};\tau(P),D)\}>0$:
 (i) a stationary green equilibrium exists;
-(ii) if $\varepsilon_S(P)>-1$ on the feasibility set, it is unique;
+(ii) if $\varepsilon_S(P)>-1$ wherever $\Phi=0$, it is unique;
 (iii) the climate block adds only real, recursively determined objects
 $(K_g, X, D)$ and does not alter (i)--(ii).
+The crossing condition is not implied by Assumption~\ref{ass:feasible} alone:
+when the tax burden exhausts feasible consumption before $B/P$ overtakes
+demand, no stationary equilibrium exists --- the fiscal-space collapse
+documented, under both the nominal budget and the indexed mandate, in
+Section~\ref{subsec:sunspots}.
 \end{proposition}
 
 The economic content of (iii) parallels the capital extension in
 \citet{hagedorn2026dtpl}: real state variables added to the economy absorb
 real equations; the asset market keeps its one job of pricing nominal debt.
+Existence, by contrast, is genuinely conditional --- indexation removes the
+multiplicity channel but not the possibility of collapse (Table
+\ref{tab:frontier}), so the two failure modes are distinct and only the
+first is repaired by denomination.
 
 % --------------------------------------------------------------------------
 \subsection{Self-financing and the sign of the revaluation channel}
@@ -944,6 +960,32 @@ The sign of the revaluation channel is thus an \emph{empirically diagnosable}
 object, governed by the slope of asset demand in the tax burden.
 \end{result}
 
+Because the disinflation result --- and the abstract's headline --- rests
+entirely on $\partial\Sfun/\partial\tau>0$, it is worth spelling out when a
+uniform lump-sum tax \emph{raises} aggregate demand for the safe asset,
+against the representative-agent intuition that a higher permanent tax lowers
+saving. Two forces oppose. For households away from the borrowing limit a
+higher $\tau$ is a permanent income loss and lowers desired assets in the
+standard way ($\partial\Sfun/\partial\tau<0$ locally, the sign under which
+Hagedorn's Result~1 and the \citet{angeletos2024deficits} configuration
+operate). For households at or near the constraint the tax cannot be smoothed
+against borrowing, so it \emph{tightens} the constraint and \emph{strengthens}
+the precautionary motive: they rebuild buffers, raising $\Sfun$. The
+aggregate slope is positive when the constrained-household force dominates,
+which the model makes precise --- it is stronger when (i) the borrowing limit
+$\bar a$ is tight (more mass at the constraint; the benchmark's $\bar a=0$ is
+the tightest case), (ii) risk aversion $\sigma$ is high (a steeper
+precautionary motive; the benchmark's $\sigma=2$), (iii) idiosyncratic income
+risk is large (more households near the constraint), and (iv) the debt target
+is high, so servicing it requires a $\tau$ large enough to push a nontrivial
+mass toward the limit. Each of these is a calibration the paper takes from
+the data rather than chooses to sign the result, and the benchmark sits
+squarely in the region where $\partial\Sfun/\partial\tau>0$
+(Section~\ref{subsec:safeasset} measures the elasticity directly). This is
+the same constrained-consumer force that makes lump-sum taxes contractionary
+for demand in HANK; here it operates on the buffer-stock margin and gives the
+green-disinflation sign its foundation.
+
 % --------------------------------------------------------------------------
 \subsection{Climate sunspots and anchor insulation}
 
@@ -954,8 +996,14 @@ the demand curve, with the boundary conditions of
 Proposition~\ref{prop:determinacy}(i) holding. Then $\Phi$ has at least two
 zeros $P_L^{*}<P_H^{*}$: a \emph{green boom} (high real abatement, low
 damages and risk) and a \emph{brown stagnation} (low abatement, high damages
-and risk). With $\psi>0$ or $\phi_D>0$ the equilibria are Pareto-ranked by
-utilitarian welfare, yet each is self-fulfilling: expecting the high price
+and risk). With $\psi>0$ or $\phi_D>0$ the green boom has strictly
+lower damages and risk than the brown stagnation, but it also carries the
+higher real green spending, real debt, and real taxes a lower price level
+implies, so the two need not be Pareto-ranked; whether the utilitarian
+ranking $W(P_L^{*})>W(P_H^{*})$ holds is a comparison of the full
+equilibrium objects, which we verify numerically where multiplicity arises
+rather than assert from lower damages alone. Each equilibrium is
+self-fulfilling: expecting the high price
 level means expecting low abatement and high damages concentrated on
 constrained households, whose precautionary response validates the high price
 level, and conversely. The strategic complementarity is
@@ -974,11 +1022,19 @@ households whose buffers respond most, steepening the feedback.
 
 \begin{proposition}[Anchor insulation]\label{prop:insulation}
 Under the real mandate, $D$ is constant in $P$ (Lemma~\ref{lem:climate}), so
-$\varepsilon_S(P) = \eta_\tau\, d\ln\tau/d\ln P$ with
-$d\ln\tau/d\ln P = -\,r^{ss}b/\tau \in(-1,0]$; hence
-$|\varepsilon_S|\le|\eta_\tau|$, and if the tax elasticity satisfies
-$|\eta_\tau|<1$ --- a magnitude verified numerically at the benchmark --- the
-equilibrium is unique for \emph{every} $\theta_g$, $\psi$, $\phi_D$.
+the climate channel of $\varepsilon_S$ vanishes and
+$\varepsilon_S(P) = \eta_\tau\, d\ln\tau/d\ln P$, with
+$d\ln\tau/d\ln P = -\,r^{ss}b/\tau$. When $r^{ss}\ge0$ and $\tau>0$ this
+lies in $(-1,0]$, so $|\varepsilon_S|\le|\eta_\tau|$; when accommodation
+drives $r^{ss}<0$ the derivative is positive, with magnitude
+$|r^{ss}|b/\tau<1$ precisely when $\tau>|r^{ss}|b$ (i.e.\ $g_g>2|r^{ss}|b$).
+On the region where this magnitude condition and $|\eta_\tau|<1$ both hold
+--- a magnitude verified numerically across the calibrated
+$(\theta_g,\psi,\phi_D)$ grid, not established analytically for all
+parameters --- the mandate has $|\varepsilon_S|<1$ everywhere and the
+equilibrium, \emph{if one exists} (Proposition~\ref{prop:determinacy}), is
+unique. Indexation thus removes the multiplicity channel conditionally on
+these bounds; it does not by itself guarantee existence.
 \end{proposition}
 
 \begin{corollary}[Greenness of the nominal anchor]\label{cor:anchor}
@@ -1299,12 +1355,23 @@ climate erosion and the lower buffer return dominate and welfare declines.
 At $\mu=0.015$ no equilibrium exists on the scan range: with $r^{ss}$ that
 close to the $1/\beta-1$ asymptote, asset demand exceeds $B/P$ at every
 feasible price level --- the existence failure the theory predicts, reported
-honestly by the solver rather than smoothed over. Two framing caveats keep
-the result in its lane. It is a \emph{steady-state financing} statement ---
-the optimal trend inflation for a green-investing fisc, in the spirit of
-the risk-sharing motive for accommodation in \citet{acharya2023optimal} ---
-not advice about stabilization policy or about the credibility costs of
-moving an announced target, which the model has no vocabulary for; and its
+honestly by the solver rather than smoothed over. Three framing caveats keep
+the result in its lane. \emph{First and most important}, the experiment
+varies $\mu$ holding the nominal rate $i^{ss}$ fixed, so by the Fisher
+relation $1+r^{ss}=(1+i^{ss})/(1+\mu)$ it \emph{co-varies the real rate}:
+raising $\mu$ to $0.045$ is the same object as cutting $r^{ss}$ to
+$-0.5\%$, and the welfare gain --- lower real debt service, redistribution
+away from wealth-concentrated bondholders --- is a \emph{real-rate}
+(fiscal-repression-like) gain that this design attributes to inflation only
+because $i^{ss}$ is held fixed. The clean separation --- vary $(i,\mu)$
+holding $r^{ss}$ fixed, against varying $r^{ss}$ at fixed trend inflation,
+and re-checking under transition-inclusive welfare --- would isolate the
+inflation margin from the real-rate margin, and we flag it as the disciplined
+next step rather than claim a pure inflation result. \emph{Second}, it is a
+\emph{steady-state financing} statement in the spirit of the risk-sharing
+motive for accommodation in \citet{acharya2023optimal} --- not advice about
+stabilization policy or the credibility cost of moving an announced target,
+which the flexible-price model has no vocabulary for. \emph{Third}, the
 interior optimum exists precisely because the climate loop penalizes
 inflation (real spending erosion), so economies with indexed green budgets
 would rationally choose higher $\mu^{*}$.
@@ -1831,45 +1898,65 @@ high-effectiveness region.
 \label{subsec:regimes}
 
 Green spending is not carbon policy, and financing design is a choice. The
-package compares four ways of financing the \emph{same} real program at the
-calibrated medium-damage column: (\textsc{r1-deficit}) lump-sum/deficit
+package compares four ways of financing the same \emph{nominal} green
+appropriation $G_g$ at the calibrated medium-damage column:
+(\textsc{r1-deficit}) lump-sum/deficit
 financing (the baseline); (\textsc{r2-prop-levy}) a proportional levy on
 effective endowments that funds the program; (\textsc{r3-prop-levy-rebate})
 the levy at twice the program with half rebated lump-sum (the progressive
 rebate design suggested by the incidence evidence in
 \citealp{kanzig2023carbon}); and (\textsc{r4-mixed-deficit-levy}) an even
-deficit/levy mix. All four satisfy the same aggregate budget identity
-$\tau_{ls} + \vartheta\,(1-D) = r^{ss} b + g_g$, so aggregate resources are
-identical: the regimes differ only in \emph{incidence} --- proportional
-versus lump-sum --- transmitted through precautionary asset demand to the
-price level, the self-financing share, and group welfare. In the endowment
-HA-DTPL block, the levy should be interpreted as a \emph{proportional
-financing instrument with carbon-tax-style incidence}. The Pigouvian
+deficit/levy mix. All four hold the nominal appropriation fixed and satisfy
+the same flow identity $\tau_{ls} + \vartheta\,(1-D) = r^{ss} b + g_g$ at
+their own price level, so they differ only in \emph{incidence} ---
+proportional versus lump-sum --- transmitted through precautionary asset
+demand to the price level, the self-financing share, and group welfare.
+
+One consequence of holding the \emph{nominal} budget fixed deserves stating,
+because it is a feature of the DTPL mechanism rather than an artifact: since
+each regime clears at its own price level, the real program $g_g=G_g/P^{*}$
+differs slightly across regimes (Table~\ref{tab:regimes}, $g_g$ row: $0.021$
+under deficit finance, falling to $0.018$ under the rebate as its higher
+price level erodes real spending), and with it the abatement and $D_1$. This
+is exactly why the damage-dividend component $\nu_{\mathrm{dam}} =
+(D_0-D_1)/g_{g,1}$ is not literally invariant across the columns ($0.636$ to
+$0.647$): as $P^{*}$ rises the denominator $g_{g,1}$ falls faster than the
+numerator $D_0-D_1$ shrinks, nudging $\nu_{\mathrm{dam}}$ up. The movement is
+second-order --- $0.011$ across all four regimes --- against the
+revaluation swing that is the object of the comparison ($\nu_{\mathrm{reval}}$:
+$-0.055$ to $+0.111$), so the sign flip of the revaluation channel is driven
+by financing incidence, not by the small induced variation in the real
+program. (Holding the \emph{real} program fixed instead --- letting $G_g$
+adjust per regime --- removes even this second-order drift and leaves the
+incidence conclusion unchanged; we report the fixed-nominal design because it
+is the policy-relevant one, an appropriation set in nominal terms.) In the
+endowment HA-DTPL block, the levy is a \emph{proportional
+financing instrument with carbon-tax-style incidence}; the Pigouvian
 carbon-tax margin requires the clean/dirty production extension and is not
-claimed in this section: neither instrument distorts a margin here and the
-levy carries no abatement incentive (abatement is public). What this
-comparison isolates is the pure incidence-and-price-level content of
-financing design --- which, given that the revaluation channel is an
-incidence object, is exactly where the DTPL mechanism has bite.
+claimed here (neither instrument distorts a margin, and abatement is public).
 Table~\ref{tab:regimes} reports the run (medium damages, calibrated scale;
 no-program baseline $P_0 = \PzeroRegimes$).
 
 \begin{table}[!htb]
 \centering
-\caption{Financing regimes for the same real green program
-(medium damages, calibrated scale, $n_a=500$ run). $\lambda_{b50}$,
-$\lambda_{t10}$: consumption-equivalent gains of the bottom 50\% and top
-10\% of the baseline wealth distribution.}
+\caption{Financing regimes for the same \emph{nominal} green appropriation
+(medium damages, calibrated scale, $n_a=500$ run). $g_g=G_g/P^{*}$ is the
+implied real program and $D_1$ the resulting damages --- both vary with the
+endogenous price level, which is why $\nu_{\mathrm{dam}}$ is not exactly
+invariant (text). $\lambda_{b50}$, $\lambda_{t10}$: consumption-equivalent
+gains of the bottom 50\% and top 10\% of the baseline wealth distribution.}
 \label{tab:regimes}
-\begin{tabular}{lcccccc}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcccccccc}
 \toprule
-Regime & $P^{*}$ & $\nu$ & $\nu_{\mathrm{reval}}$ & $\nu_{\mathrm{dam}}$ &
+Regime & $P^{*}$ & $g_g$ & $D_1$ & $\nu$ & $\nu_{\mathrm{reval}}$ & $\nu_{\mathrm{dam}}$ &
 $\lambda_{b50}$ & $\lambda_{t10}$ \\
 \midrule
-\textsc{r1-deficit} (lump-sum)      & $\RDefP$ & $\RDefNu$ & $\RDefRev$ & $\RDefDam$ & $\RDefBfifty\%$ & $\RDefTten\%$ \\
-\textsc{r2-prop-levy}               & $\RLevP$ & $\RLevNu$ & $\RLevRev$ & $\RLevDam$ & $\RLevBfifty\%$ & $\RLevTten\%$ \\
-\textsc{r3-prop-levy-rebate}        & $\RRebP$ & $\mathbf{\RRebNu}$ & $\mathbf{\RRebRev}$ & $\RRebDam$ & $\mathbf{\RRebBfifty\%}$ & $\RRebTten\%$ \\
-\textsc{r4-mixed-deficit-levy}      & $\RMixP$ & $\RMixNu$ & $\RMixRev$ & $\RMixDam$ & $\RMixBfifty\%$ & $\RMixTten\%$ \\
+\textsc{r1-deficit} (lump-sum)      & $\RDefP$ & $\RDefGg$ & $\RDefDone$ & $\RDefNu$ & $\RDefRev$ & $\RDefDam$ & $\RDefBfifty\%$ & $\RDefTten\%$ \\
+\textsc{r2-prop-levy}               & $\RLevP$ & $\RLevGg$ & $\RLevDone$ & $\RLevNu$ & $\RLevRev$ & $\RLevDam$ & $\RLevBfifty\%$ & $\RLevTten\%$ \\
+\textsc{r3-prop-levy-rebate}        & $\RRebP$ & $\RRebGg$ & $\RRebDone$ & $\mathbf{\RRebNu}$ & $\mathbf{\RRebRev}$ & $\RRebDam$ & $\mathbf{\RRebBfifty\%}$ & $\RRebTten\%$ \\
+\textsc{r4-mixed-deficit-levy}      & $\RMixP$ & $\RMixGg$ & $\RMixDone$ & $\RMixNu$ & $\RMixRev$ & $\RMixDam$ & $\RMixBfifty\%$ & $\RMixTten\%$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1891,8 +1978,9 @@ progressive (the bottom half gains $+1.13\%$ against $-2.16\%$ under
 deficit financing, while the top decile is nearly unharmed at $-0.12\%$
 versus $-1.02\%$) --- a near-Pareto dominance over the conventional deficit
 regime. Third, the magnitudes quantify how much the DTPL incidence channel
-is worth: all four regimes purchase the identical real program with
-identical aggregate resources, yet the bottom half's welfare differs by
+is worth: all four regimes fund the same nominal appropriation (the real
+program varies by under a sixth across them, Table~\ref{tab:regimes}), yet
+the bottom half's welfare differs by
 $3.3$ percentage points of permanent consumption between the worst and best
 design. Financing structure is not fiscal bookkeeping in this economy; it
 is a price-level and distribution instrument. The rebate design is the
@@ -2437,8 +2525,10 @@ collapse, the effective instrument is accommodation, not indexation. The
 financing mix is a price-level instrument: replacing lump-sum deficit
 financing with a proportional levy plus rebate flips the revaluation
 channel's sign, raises the self-financing share, and converts a regressive
-program into a progressive one at identical aggregate cost. And a moderate
-steady-state inflation rate is part of the optimal financing mix.
+program into a progressive one from the same nominal appropriation. And a
+moderate steady-state inflation rate is part of the optimal financing mix
+--- though, as the next point qualifies, its welfare gain operates through
+the real rate it lowers.
 The representative-agent and linearized heterogeneous-agent diagnostics of
 Section~\ref{sec:transitions}
 indicate that the announced program does not destabilize the nominal block
@@ -2502,7 +2592,11 @@ invariant distribution exist; continuity in $(\tau,D)$ follows from the
 theorem of the maximum and the continuity of the (finite-state) invariant
 distribution in the policy. Scaling: let $\lambda=1-D>0$ and scale
 $(a,\tau)\mapsto(\lambda a,\lambda\tilde\tau)$ with
-$\tilde\tau=\tau/(1-D)$. The budget set scales linearly; with CRRA,
+$\tilde\tau=\tau/(1-D)$. The budget set scales linearly \emph{and the
+borrowing constraint maps to itself} precisely when $\bar a=0$ (then
+$a'\ge0\Leftrightarrow\lambda a'\ge0$) or when $\bar a$ scales with $1-D$;
+for a fixed positive $\bar a$ the constraint becomes $-\bar a/(1-D)$ and the
+homogeneity is only approximate. Under the stated condition, with CRRA
 $u(\lambda c)=\lambda^{1-\sigma}u(c)+\text{const}$, so
 $V_\lambda(\lambda a,e)=\lambda^{1-\sigma}V_1(a,e)+\text{const}$ and the
 optimal policy satisfies $a'_\lambda(\lambda a,e)=\lambda a'_1(a,e)$. The
@@ -2533,14 +2627,17 @@ $1+r^{ss}=(1+i^{ss})/(1+\mu)$. \qed
 
 \subsection{Proof of Proposition \ref{prop:determinacy}}
 (i) $\Phi$ is continuous on the feasibility set (Lemma~\ref{lem:S};
-$D$ constant here). Low-$P$ boundary: as $P$ approaches the feasibility edge
-from above, $\tau(P)=(r^{ss}B+G_g)/P$ rises toward the bound while
-$B/P\to$ its maximal value on the set; $\Sfun$ remains bounded (buffer-stock
-target finite under $\beta(1+r)<1$), so $\Phi<0$ there for $B$ large enough
-relative to the bounded demand --- and in any case for $P$ small enough that
-$B/P$ exceeds the demand bound. High-$P$ boundary: $\tau(P)\to0$,
-$\Sfun\to\Sfun(1+r^{ss};0,D)>0$, $B/P\to0$, so $\Phi>0$. The intermediate
-value theorem yields a zero. (ii) Where $\varepsilon_S>-1$,
+$D$ constant here). High-$P$ boundary: $\tau(P)\to0$,
+$\Sfun\to\Sfun(1+r^{ss};0,D)>0$, $B/P\to0$, so $\Phi>0$. Low-$P$ boundary:
+$\Sfun$ remains bounded (buffer-stock target finite under $\beta(1+r)<1$),
+so $\Phi=\Sfun-B/P<0$ \emph{provided} the feasibility set reaches a price
+low enough that $B/P$ exceeds that demand bound --- the crossing condition
+in the proposition. This is where existence can fail: as $P$ falls,
+$\tau(P)=(r^{ss}B+G_g)/P$ rises, and if it crosses the feasibility edge
+$\min_e y(e;D)-r^{ss}\bar a$ before $B/P$ overtakes $\Sfun$, there is no
+$P$ at which $\Phi\le0$ and no equilibrium exists (the collapse of
+Section~\ref{subsec:sunspots}). Under the crossing condition, the
+intermediate value theorem yields a zero between the two boundaries. (ii) Where $\varepsilon_S>-1$,
 $d\Phi/dP=(\Sfun/P)(\varepsilon_S+1)>0$ at any zero: all crossings are upward,
 and a continuous function with only upward crossings has exactly one.
 (iii) $(K_g,X,D)$ solve \eqref{eq:Kg}--\eqref{eq:climatefixedpoint} given
@@ -2580,23 +2677,36 @@ edge and $\Phi>0$ at the high edge. A continuous function that starts
 negative, ends positive, and possesses a downward crossing must cross zero at
 least twice more around it (sign-change counting): at least two zeros in
 total, generically three with the middle one unstable under the natural
-tatonnement. Pareto ranking with $\psi>0$ or $\phi_D>0$: at $P_L^{*}$ both
-the level and the risk components of effective income improve for every
-household with $\chi(e)>0$; utilitarian $W$ is higher (and is evaluated
-exactly at each root by the package). Self-fulfillment is
-Definition~\ref{def:equilibrium}: each root satisfies every equilibrium
-condition. \qed
+tatonnement. Welfare ranking with $\psi>0$ or $\phi_D>0$: at $P_L^{*}$ the
+level and risk components of effective income improve for every household
+with $\chi(e)>0$, but the lower price level also raises real green spending
+$g_g=G_g/P$, real debt $b=B/P$, and real taxes $\tau=r^{ss}b+g_g$, which cut
+the other way for constrained households; the sign of the net utilitarian
+comparison $W(P_L^{*})-W(P_H^{*})$ is therefore not implied by lower damages
+alone and is a numerical comparison of the full equilibrium objects, which
+the package performs \emph{wherever two roots arise}. In the calibrated and
+extended experiments of Section~\ref{subsec:sunspots} no two-root case
+occurs (the region is not reached), so the ranking is a conditional property
+of the multiplicity region rather than a realized benchmark finding.
+Self-fulfillment is Definition~\ref{def:equilibrium}: each root satisfies
+every equilibrium condition. \qed
 
 \subsection{Proof of Proposition \ref{prop:insulation} and corollaries}
 Under the mandate $dD/dP=0$, so
-$\varepsilon_S=\eta_\tau\,d\ln\tau/d\ln P$ and
-$d\ln\tau/d\ln P=-(r^{ss}B/P)/\tau\in(-1,0]$ since $\tau=r^{ss}B/P+g_g\ge
-r^{ss}B/P$ (for $g_g\ge0$; when $r^{ss}<0$ the ratio is positive and small,
-and the bound holds a fortiori with $|d\ln\tau/d\ln P|=|r^{ss}|b/\tau<1$
-whenever $\tau>|r^{ss}|b$, the empirically relevant region --- the package
-checks it). Hence $|\varepsilon_S|\le|\eta_\tau|<1$ under the verified
-magnitude, and Proposition~\ref{prop:determinacy}(ii) applies for every
-$\theta_g,\psi,\phi_D$. Corollary~\ref{cor:anchor} combines this with
+$\varepsilon_S=\eta_\tau\,d\ln\tau/d\ln P$ with
+$d\ln\tau/d\ln P=-(r^{ss}B/P)/\tau$. Two regimes. If $r^{ss}\ge0$ and
+$\tau>0$, then $\tau=r^{ss}B/P+g_g\ge r^{ss}B/P$ for $g_g\ge0$, so the
+derivative lies in $(-1,0]$ and $|\varepsilon_S|\le|\eta_\tau|$. If
+accommodation makes $r^{ss}<0$, the derivative is \emph{positive},
+$|d\ln\tau/d\ln P|=|r^{ss}|b/\tau$, which is below one exactly when
+$\tau>|r^{ss}|b$ --- equivalently $g_g>2|r^{ss}|b$, since
+$\tau=g_g-|r^{ss}|b$; this is a genuine restriction, not automatic, and the
+package checks it holds on the calibrated grid. On the region where it
+holds together with $|\eta_\tau|<1$ (verified numerically across the
+calibrated $\theta_g,\psi,\phi_D$, not proved for all parameters),
+$|\varepsilon_S|<1$ and Proposition~\ref{prop:determinacy}(ii) gives
+uniqueness conditional on existence. Corollary~\ref{cor:anchor} combines
+this with
 Lemma~\ref{lem:anchor}; Corollary~\ref{cor:reversal} contrasts with the
 nominal-rule uniqueness of \citet{hagedorn2026dtpl};
 Corollary~\ref{cor:sargentwallace} is the classical argument: with no nominal
