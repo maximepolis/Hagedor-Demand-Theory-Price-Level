@@ -1,0 +1,29 @@
+CALIBRATION ROBUSTNESS (U9) -- STEADY STATE, calibrated scale
+beta*=0.9267 (debt/GDP target 1.10), program 2% of income, na=500
+
+[A] nu over (D0, theta_g); D0 sourced columns: 0.02 DICE,
+    0.06 DJO-BHM, 0.20 Bilal-Kaenzig; 0.10/0.15 interpolating.
+D0\th_g    0.00   0.25   0.50   0.75   1.00   1.25   1.50   1.75   2.00   2.25   2.50   2.75   3.00   theta*(nu=1)
+0.02     -0.060 -0.011  0.036  0.081  0.123  0.163  0.202  0.238  0.272  0.305  0.336  0.366  0.394   >3.0 (above swept range)
+0.06     -0.063  0.086  0.226  0.360  0.486  0.606  0.720  0.828  0.931  1.029  1.121  1.209  1.293       2.18
+0.10     -0.073  0.174  0.407  0.629  0.839  1.038  1.227  1.407  1.577  1.739  1.892  2.038  2.177       1.20
+0.15     -0.080  0.289  0.639  0.969  1.283  1.580  1.861  2.128  2.382  2.622  2.851  3.068  3.274       0.77
+0.20     -0.081  0.411  0.875  1.314  1.729  2.122  2.495  2.848  3.183  3.501  3.803  4.089  4.361       0.57
+sign(nu_reval): 65 of 65 computed nodes NEGATIVE (disinflationary
+revaluation; the sign result is not a calibration artifact).
+
+[B] one-at-a-time sensitivity at MEDIUM (D0=0.06), held debt target
+variant        beta*     nu       nu_reval  nu_damage  dlnP(%)  
+sigma=1        debt target INFEASIBLE (precautionary demand too weak at this parameter)
+sigma=3        0.8845    0.569    -0.067    0.635      -6.37    
+phi_D=0        0.9296    0.559    -0.075    0.634      -7.23    
+phi_D=1        0.9234    0.605    -0.033    0.638      -3.15    
+psi=1          0.9189    0.635    -0.005    0.640      -0.48    
+psi=2          0.9043    0.710    +0.066    0.644      +5.94    
+delta_g=0.05   0.9267    1.085    -0.047    1.131      -4.42    
+scale=1%       0.9267    0.624    -0.053    0.677      -2.49    
+scale=4%       0.9267    0.496    -0.060    0.556      -11.82   
+
+Protocol: variants changing the no-program economy (sigma,
+phi_D, psi) re-calibrate beta to hold debt/GDP=1.10; variants that
+do not (delta_g, program scale) keep the benchmark beta*.
