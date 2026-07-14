@@ -22,4 +22,4 @@ loaded calibrated inputs: beta*=0.9267, Gg=0.01818
   [saved] PFig16_extended_welfare_groups
   [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\welfare_groups_extended_summary.txt
 
-Elapsed: 57.1 s
+Elapsed: 51.2 s

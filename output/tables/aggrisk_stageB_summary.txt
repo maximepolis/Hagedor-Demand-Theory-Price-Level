@@ -1,0 +1,24 @@
+AGGREGATE RISK STAGE B -- STOCHASTIC AGGREGATE RISK, STEADY STATE
+na=500, beta*=0.9267, program g_g=0.020 (2% of income), i=0.040
+Pi_agg=[0.95 0.05; 0.30 0.70], ergodic pi=[0.857 0.143]
+
+[1] FISCAL DECOMPOSITION (ergodic-averaged)
+  nu = nu_reval + nu_dam = -0.077 + 0.853 = 0.777
+  climate-risk premium: 0.0044 (baseline) -> 0.0026 (green), compressed 0.0018
+  PREMIUM-INERTNESS CHECK: ergodic real interest bill
+    direct (state-contingent returns) = 0.020810
+    r^ss * B * E_pi[1/P_s]            = 0.020810
+    gap = 0.00e+00 (=> the premium adds NO fiscal term: nu has no
+    nu_aggrisk component; the premium is a welfare object)
+
+[2] WELFARE (consumption-equivalent gain, %), cut on baseline dist
+  channel     overall   Calm    Severe   Q1(poor) Q3      Q5(rich) constr
+  total       -1.345  -1.393  -1.056   -2.290  -1.242   -0.653  -2.310
+  level       -1.475  -1.471  -1.503   -2.421  -1.372   -0.788  -2.439
+  RISK        +0.132  +0.078  +0.456   +0.135  +0.131   +0.136  +0.133
+
+  "total" = baseline -> green (actual); "level" = baseline -> green
+  with the SAME ergodic-mean damage reduction spread equally across
+  states (no dispersion compression); "RISK" = level -> actual, the
+  pure value of compressing the climate-risk the safe asset carries.
+  Dg=[0.047 0.157] (actual), Dg_eq=[0.043 0.183] (equal-reduction).
