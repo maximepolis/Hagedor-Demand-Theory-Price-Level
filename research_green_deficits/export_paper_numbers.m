@@ -50,8 +50,13 @@ mac('GgCal',       sprintf('%.5f', R.Gg_cal));
 L = load(fullfile(projdir, 'output', 'regimes_results.mat'), 'RREG', 'eq0');
 G = L.RREG;
 rsuf = {'RDef', 'RLev', 'RReb', 'RMix'};
+D0med = 0.06;   % medium-column no-abatement damages (Table 3)
 for k = 1:4
+    % real program g_g1 = (D0 - D1)/nu_dam, self-consistent with the mat
+    ggk = (D0med - G(k).D) / G(k).nu_damage;
     mac([rsuf{k} 'P'],      sprintf('%.3f', G(k).P));
+    mac([rsuf{k} 'Gg'],     sprintf('%.4f', ggk));
+    mac([rsuf{k} 'Done'],   sprintf('%.4f', G(k).D));
     mac([rsuf{k} 'Nu'],     sprintf('%.3f', G(k).nu));
     mac([rsuf{k} 'Rev'],    sprintf('%+.3f', G(k).nu_reval));
     mac([rsuf{k} 'Dam'],    sprintf('%.3f', G(k).nu_damage));
