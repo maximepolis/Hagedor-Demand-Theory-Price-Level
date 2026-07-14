@@ -12,6 +12,8 @@ loaded calibrated inputs: beta*=0.9267, Gg=0.01818
   regime N4-RISK      P*=0.9241  D=0.0600  tau_ls=+0.0212  vartheta=0.0000  |Phi|=3.5e-05  gbc=0.0e+00
   regime N5-LEVY      P*=0.9306  D=0.0475  tau_ls=+0.0211  vartheta=0.0205  |Phi|=3.1e-05  gbc=0.0e+00
   dlnP = -0.0523 = tax -0.0577 + damage -0.0157 + risk +0.0208 + interaction +0.0003; financing swap (levy vs lump-sum) +0.0801
+[Warning: Exported image displays axes toolbar. To remove axes toolbar from image, export again.] 
+[Warning: Exported image displays axes toolbar. To remove axes toolbar from image, export again.] 
   [saved] PFig15_safe_asset_decomposition
   [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\safe_asset_channel_summary.txt
 
@@ -22,4 +24,4 @@ loaded calibrated inputs: beta*=0.9267, Gg=0.01818
   [saved] PFig16_extended_welfare_groups
   [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\welfare_groups_extended_summary.txt
 
-Elapsed: 71.8 s
+Elapsed: 78.7 s
