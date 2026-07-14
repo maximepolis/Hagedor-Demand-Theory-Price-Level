@@ -43,6 +43,10 @@ end
 mac('nuLowShort',  sprintf('%.2f', R.dec{1}.nu));
 mac('nuMedShort',  sprintf('%.2f', R.dec{2}.nu));
 mac('nuHighShort', sprintf('%.1f', R.dec{3}.nu));
+% resource benefit-cost ratio (= nu_damage), 2-dp abstract/prose form
+mac('bcrLow',  sprintf('%.2f', R.dec{1}.nu_damage));
+mac('bcrMed',  sprintf('%.2f', R.dec{2}.nu_damage));
+mac('bcrHigh', sprintf('%.2f', R.dec{3}.nu_damage));
 mac('betaStar',    sprintf('%.4f', R.beta_star));
 mac('GgCal',       sprintf('%.5f', R.Gg_cal));
 
