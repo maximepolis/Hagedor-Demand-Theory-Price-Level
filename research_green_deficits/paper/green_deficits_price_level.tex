@@ -45,6 +45,22 @@
 % from output/*.mat, so quoted numbers cannot drift from the computation).
 \input{numbers_auto}
 
+% Fixed-real financing-regime macros (referee round 6). These are populated by
+% export_paper_numbers.m ONLY after regimes_fixed_real.m has been run; the
+% \providecommand fallbacks let the paper compile before that run, showing a
+% clear "pending" marker instead of an undefined-control-sequence error.
+\providecommand{\pendingnum}{\textit{--}}
+\providecommand{\RDefRealP}{\pendingnum}\providecommand{\RLevRealP}{\pendingnum}
+\providecommand{\RRebRealP}{\pendingnum}\providecommand{\RMixRealP}{\pendingnum}
+\providecommand{\RDefRealRev}{\pendingnum}\providecommand{\RLevRealRev}{\pendingnum}
+\providecommand{\RRebRealRev}{\pendingnum}\providecommand{\RMixRealRev}{\pendingnum}
+\providecommand{\RDefRealNu}{\pendingnum}\providecommand{\RLevRealNu}{\pendingnum}
+\providecommand{\RRebRealNu}{\pendingnum}\providecommand{\RMixRealNu}{\pendingnum}
+\providecommand{\RDefRealBfifty}{\pendingnum}\providecommand{\RLevRealBfifty}{\pendingnum}
+\providecommand{\RRebRealBfifty}{\pendingnum}\providecommand{\RMixRealBfifty}{\pendingnum}
+\providecommand{\RDefRealTten}{\pendingnum}\providecommand{\RLevRealTten}{\pendingnum}
+\providecommand{\RRebRealTten}{\pendingnum}\providecommand{\RMixRealTten}{\pendingnum}
+
 % Figures live in figures/ on Overleaf; ../output/figures/ in the repo.
 \graphicspath{{figures/}{../output/figures/}{./}}
 
@@ -1308,7 +1324,18 @@ looser borrowing limit or a smoother income tail softens the low-endowment
 feasibility edge. So the honest claim is conditional: \emph{given}
 lump-sum finance and these primitives, strong regressive incidence can exhaust
 fiscal space, and the effective repair is accommodation --- not that green
-fiscal space collapses for any instrument. In the same spirit, the
+fiscal space collapses for any instrument. The result is best read as a
+\emph{conditional incompatibility} between the program, the incidence gradient,
+and a \emph{rigid instrument configuration} (a real rate pinned by
+$(i^{ss},\mu)$ and lump-sum finance), not as an inherent limit. Under a broader
+macroeconomic reading the very same excess-precautionary-saving pressure that
+breaks existence here would instead show up as a \emph{bound on the sustainable
+real rate}, or trigger an \emph{endogenous return adjustment} (a lower market
+$r^{ss}$ that clears the extra demand) --- the same force Aiyagari--McGrattan
+identify as the optimum-quantity-of-debt margin. Our fixed-instrument
+environment converts that adjustment margin into a nonexistence knife-edge; a
+model with an endogenous real rate would absorb it as a price. We flag this so
+the collapse is not over-read as a structural property of green fiscal space. In the same spirit, the
 indexed-mandate uniqueness of Proposition~\ref{prop:insulation} is not an
 unconditional theorem: it rests on a \emph{numerically verified} elasticity
 bound ($\varepsilon_S>-1$ wherever $\Phi=0$) that holds throughout the reported
@@ -2361,6 +2388,38 @@ $\lambda_{b50}$ & $\lambda_{t10}$ \\
 \end{tabular}
 \end{table}
 
+To isolate the incidence channel from the (second-order) real-scale drift that
+holding the \emph{nominal} appropriation fixed induces, Table~\ref{tab:regimesreal}
+recomputes the same four regimes holding the \emph{real} program $g_g$ fixed at
+its baseline value (letting $G_g$ adjust per regime) --- the convention of
+Proposition~\ref{prop:financingdesign}. By construction the damage dividend is
+then identical across regimes, so \emph{only} the revaluation share and the
+welfare incidence can move, and the cross-regime differences are pure tax
+incidence plus the price-level response they induce, with no change in the real
+green scale. The revaluation swing and the welfare reversal survive the change
+of convention; the fixed-nominal and fixed-real revaluation shares differ only
+in the third decimal.
+
+\begin{table}[!htb]
+\centering
+\caption{Financing regimes holding the \emph{real} program fixed (pure
+incidence; companion to Table~\ref{tab:regimes}). $g_g$ is common across
+regimes, so the damage dividend is identical and only $\nu_{\mathrm{reval}}$ and
+welfare move. Populated by \texttt{regimes\_fixed\_real}; entries show
+``\pendingnum'' until that driver has been run.}
+\label{tab:regimesreal}
+\begin{tabular}{lcccc}
+\toprule
+regime & $P^{*}$ & $\nu$ & $\nu_{\mathrm{reval}}$ & bottom-50\%\,/\,top-10\% \\
+\midrule
+\textsc{r1-lumpsum}         & $\RDefRealP$ & $\RDefRealNu$ & $\RDefRealRev$ & $\RDefRealBfifty\%$\,/\,$\RDefRealTten\%$ \\
+\textsc{r2-prop-levy}       & $\RLevRealP$ & $\RLevRealNu$ & $\RLevRealRev$ & $\RLevRealBfifty\%$\,/\,$\RLevRealTten\%$ \\
+\textsc{r3-prop-levy-rebate}& $\RRebRealP$ & $\RRebRealNu$ & $\RRebRealRev$ & $\RRebRealBfifty\%$\,/\,$\RRebRealTten\%$ \\
+\textsc{r4-mixed}           & $\RMixRealP$ & $\RMixRealNu$ & $\RMixRealRev$ & $\RMixRealBfifty\%$\,/\,$\RMixRealTten\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 Three results, the first of which we regard as the sharpest in the paper.
 First, \textbf{the sign of the revaluation channel is a policy choice}
 (Proposition~\ref{prop:financingdesign}): moving from lump-sum to
@@ -2753,7 +2812,13 @@ $t=1$ jump of $P_1$ against the pre-announcement price level is the
 surprise revaluation of outstanding nominal positions --- the paper's
 channel realized along a path rather than compared across steady states.
 Stationarizing by the nominal-growth trend $(1+\mu)^t$ makes the system
-autonomous; the terminal condition pins $\hat{P}_T$ at the green
+autonomous. We detrend the price level \emph{and} the nominal stock by the
+same factor: $\hat P_t\equiv P_t/(1+\mu)^t$ and $\hat B_t\equiv
+B_t/(1+\mu)^t$. Because nominal debt grows exactly at trend under the service
+rule (equation~\eqref{eq:nomtrend} below), the detrended stock is
+\emph{constant}, $\hat B_t=B_0$, so the stationarized market-clearing condition
+is $\Sfun_t=\hat B_t/\hat P_t=B_0/\hat P_t$ --- both sides detrended, no mixed
+units. The terminal condition pins $\hat{P}_T$ at the green
 steady-state price level, and the government budget holds by construction
 at every trial path.
 
@@ -2798,10 +2863,11 @@ DTPL transition. Writing \eqref{eq:nombudget}--\eqref{eq:nomtrend} out is what
 licenses reading the announcement-year result below as revaluation, not as a
 tax-timing deficit. The solver is an
 Anderson-accelerated fixed point on the log price path: the underlying map
-moves each $\hat P_t$ toward $B_t/S_t$ (excess asset demand at $t$
-\emph{lowers} $\hat P_t$, raising the real value $B_t/P_t$ of the fixed
-nominal stock until it meets demand --- the transition form of
-$P^{*}=B/S$), and because a change in $\hat P_t$ moves the realized real
+moves each $\hat P_t$ toward $\hat B_t/\Sfun_t=B_0/\Sfun_t$ (excess asset
+demand at $t$
+\emph{lowers} $\hat P_t$, raising the real value $\hat B_t/\hat P_t$ of the
+detrended nominal stock until it meets demand --- the transition form of
+$P^{*}=B/\Sfun$), and because a change in $\hat P_t$ moves the realized real
 return at dates $t$ and $t+1$ with opposite signs --- a cross-date
 coupling under which plain diagonal relaxation stalls --- the update
 combines the most recent residuals by least squares (type-II Anderson,
@@ -2821,7 +2887,8 @@ computationally heaviest object in the package.
 the announcement result is the paper's sharpest dynamic claim, we solve it a
 second, independent way and compare. The alternative is a Newton iteration in
 \emph{sequence space}: we form the general-equilibrium Jacobian
-$J_{ts}=\partial\,[\,S_t-B_t/\hat P_t\,]/\partial\ln\hat P_s$ of the
+$J_{ts}=\partial\,[\,\Sfun_t-\hat B_t/\hat P_t\,]/\partial\ln\hat P_s$ (with
+$\hat B_t=B_0$ the detrended stock) of the
 market-clearing residual along the path --- the sequence-space Jacobian of
 \citet{auclertetal2021}, here computed directly, since the aggregate unknown is
 a scalar per date --- and step $\ln\hat P \leftarrow \ln\hat P - J^{-1}H$. The

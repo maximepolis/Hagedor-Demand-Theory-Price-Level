@@ -1,0 +1,82 @@
+# What to run, and what to push back — round 6
+
+## 1. What to run (MATLAB, from `research_green_deficits/`)
+
+Everything in this round is either a text/proof fix (no run needed) or is
+already covered by an existing driver. The **one new run** you need is the
+fixed-real financing comparison; the rest refresh the numbers the paper reads.
+
+**Minimum (new this round):**
+```matlab
+cd research_green_deficits
+main_project_calibrated       % ensures output/calibrated_results.mat exists (beta*, Gg)
+main_project_regimes          % fixed-nominal Table 6 (if not already current)
+regimes_fixed_real            % NEW: fixed-real companion table (pure incidence)
+export_paper_numbers          % writes paper/numbers_auto.tex incl. the *Real* macros
+```
+Then recompile the paper (`pdflatex; bibtex; pdflatex; pdflatex`). The
+fixed-real table (Table, companion to Table 6) will switch from "–" placeholders
+to numbers automatically.
+
+**Optional robustness drivers added over the last rounds** (each writes a table
+under `output/tables/` and is wired into `run_green_deficits_master`):
+```matlab
+verify_mu_neutrality            % Theorem 2 (mu enters only through r^ss)
+sensitivity_climate_discipline  % nu / BCR over (theta_g, delta_g)
+verify_transition_ssj           % Anderson vs sequence-space Newton + determinacy
+decompose_tax_elasticity        % dS/dtau by wealth group + sign sweep
+```
+Or just run the whole pipeline: `FAST = true; run_green_deficits_master` for a
+quick pass, or `run_green_deficits_master` for the na=500 benchmark.
+
+**What to check in the output** (`output/tables/regimes_fixed_real.txt`):
+- `nu_reval` should still swing from negative (lump-sum) to positive (levy /
+  rebate), matching the fixed-nominal signs to ~third decimal;
+- the bottom-50%/top-10% welfare reversal should persist.
+If both hold, the incidence conclusion is convention-independent, which is the
+claim the paper now makes.
+
+## 2. What to push back (response to the referee)
+
+> We thank the referee. Four detailed points:
+>
+> - **A.4 (mandate boundary) and A.5 (coefficient algebra).** Both were already
+>   corrected in the previous revision; the report appears to be against the
+>   earlier PDF. In the current source the Proposition 1 proof tracks the two
+>   spending regimes separately — the high-P tax limit is `0` under a nominal
+>   appropriation and `ḡ_g` under the indexed mandate — and the Appendix A.5
+>   coefficients `τ−κg_g` (direct) and `τ−g_g` (equilibrium) are stated to differ
+>   by `(1−κ)g_g`, with the identity shown explicitly. No result changes.
+>
+> - **§6.3 stationarization (dimensional ambiguity).** Fixed. We now detrend the
+>   nominal stock along with the price level, `B̂_t ≡ B_t/(1+μ)^t = B_0`, and write
+>   the cleared supply as `Ŝ_t = B̂_t/P̂_t = B_0/P̂_t` throughout the solver and the
+>   sequence-space Jacobian — both sides detrended, no mixed units.
+>
+> - **§6.3 "deficit finance" label.** Fixed (also in the previous revision): the
+>   benchmark DTPL transition holds the service rule `τ_t = r^ss b_t + g_{g,t}`, so
+>   nominal debt grows only at trend and the real-debt path is revaluation, not a
+>   primary deficit; the announcement result is now described as occurring under
+>   *lump-sum* finance, with the genuine primary-deficit lever reserved for the
+>   low-`φ_b` Phillips-curve diagnostics.
+>
+> On the five broader points: we agree, and the revision (i) adds a
+> "contributions in order of robustness" paragraph that foregrounds the
+> stationary incidence mechanism and demotes the sunspot, anchor-insulation,
+> optimal-accommodation, and NK-contrast results to explicitly conditional
+> extensions/diagnostics; (ii) recasts the one-asset revaluations as upper bounds
+> scaled by the liquid nominal-government-debt share (`ω ≈ 0.15–0.25`), stating
+> the endogenous-convenience-yield DTPL solve as the outstanding magnitude
+> discipline; (iii) pivots the self-financing statements to frontier language,
+> with `θ_g` reported as a contour rather than a trained magnitude and the
+> mitigation/adaptation structural distinction made explicit; (iv) reframes the
+> nonexistence result as a conditional incompatibility between the program, the
+> incidence gradient, and a rigid `(i^ss,μ)`-plus-lump-sum instrument
+> configuration — under an endogenous real rate the same pressure is a bound on
+> the sustainable real rate, not a collapse; and (v) adds a **fixed-real
+> financing-regime table** beside the fixed-nominal one (Proposition 7
+> convention, `g_g` common across regimes), so the reader can separate true tax
+> incidence from the price-level revaluation it induces and from the (second-
+> order) real-scale drift. The levy-plus-rebate result is presented as a
+> distributional tradeoff — the transition version runs through a large one-time
+> bondholder revaluation — not as an unconditionally dominant recommendation.
