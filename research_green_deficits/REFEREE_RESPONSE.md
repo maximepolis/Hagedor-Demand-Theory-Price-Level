@@ -447,3 +447,37 @@ Compiles clean at 92 pages, zero undefined citations/references.
   (model-class diagnostic) are each scoped as secondary/conditional.
 
 Compiles clean at 94 pages, zero undefined citations/references.
+
+---
+
+# Sixth referee round (mostly re-review of a pre-round-5 draft)
+
+Two of the four detailed items were already fixed last round; the reviewer saw
+a stale PDF. Confirmed present in the current source:
+- **#1 (A.4 mandate):** the Prop 1 boundary argument already tracks both
+  regimes separately (`τ→0` nominal vs `τ→ḡ_g` mandate at high P). No change.
+- **#4 (A.5 arithmetic):** the coefficients already differ by **(1−κ)g_g**
+  (with the explicit identity `(τ−κg_g)−(τ−g_g)=(1−κ)g_g`). No change.
+
+Genuinely new / actioned:
+- **#3 (stationarization notation) — fixed.** §6.3 now detrends the nominal
+  stock too: `B̂_t≡B_t/(1+μ)^t=B_0`, and the clearing/Jacobian are written
+  `Ŝ_t=B̂_t/P̂_t=B_0/P̂_t` — both sides detrended, no mixed units.
+- **#2 (deficit label) — already fixed** in round 5 (line reads "disinflation on
+  impact under **lump-sum** finance"); confirmed no residual occurrence.
+- **Financing regimes, fixed-real side-by-side — built.** New driver
+  `regimes_fixed_real.m` recomputes the four regimes holding the *real* program
+  fixed (Prop 7 convention), so the damage dividend is identical and only the
+  revaluation share and welfare move — isolating pure incidence. New companion
+  **Table (fixed-real)** sits beside Table 6, populated by the driver (guarded
+  `\providecommand` macros show "–" until the run). `export_paper_numbers.m` and
+  the master runner updated.
+
+Narrative points (foreground core, one-asset magnitudes, θ_g calibration,
+nonexistence reframing) were the round-5 asks and are already in the text; this
+round added one sharper reading to the nonexistence result — that under an
+endogenous real rate the excess-precautionary-saving pressure is a *bound on the
+sustainable real rate* / an endogenous return adjustment, not an inherent
+collapse (Aiyagari–McGrattan margin).
+
+Compiles clean at 94 pages, zero undefined citations/references.

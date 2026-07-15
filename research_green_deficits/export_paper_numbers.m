@@ -69,6 +69,21 @@ for k = 1:4
 end
 mac('PzeroRegimes', sprintf('%.4f', L.eq0.P));
 
+% ---- fixed-real financing regimes (referee round 6: pure-incidence panel) ----
+% Isolates incidence from the second-order real-scale drift of the fixed-nominal
+% table. Guarded: exported only if regimes_fixed_real has been run.
+frf = fullfile(projdir, 'output', 'regimes_fixed_real_results.mat');
+if exist(frf, 'file') == 2
+    F = load(frf, 'RREG');
+    for k = 1:min(4, numel(F.RREG))
+        mac([rsuf{k} 'RealP'],   sprintf('%.3f',  F.RREG(k).P));
+        mac([rsuf{k} 'RealNu'],  sprintf('%.3f',  F.RREG(k).nu));
+        mac([rsuf{k} 'RealRev'], sprintf('%+.3f', F.RREG(k).nu_reval));
+        mac([rsuf{k} 'RealBfifty'], sprintf('%+.2f', 100*F.RREG(k).lam_b50));
+        mac([rsuf{k} 'RealTten'],   sprintf('%+.2f', 100*F.RREG(k).lam_t10));
+    end
+end
+
 % ---- robustness frontier (Sec 5.7, Table 3 threshold row) ----
 L = load(fullfile(projdir, 'output', 'robustness_results.mat'), 'RB');
 S = L.RB.surface;
