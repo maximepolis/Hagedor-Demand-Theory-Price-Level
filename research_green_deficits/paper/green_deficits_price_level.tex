@@ -542,8 +542,8 @@ Appendix~\ref{app:nkmodel}; we flag the connection at the relevant points
 below.
 
 \paragraph{The scenarios, up front.} To orient the reader, the paper studies
-one economy under a small, fixed menu of \emph{financing designs} and a small
-menu of \emph{environments}. The financing designs are all balanced-budget
+one economy under a fixed menu of \emph{financing designs} and a short list
+of \emph{environments}. The financing designs are all balanced-budget
 choices of the unified tax pair $(\tau_{ls},\vartheta)$ of
 Section~\ref{subsec:households}: the \emph{lump-sum} benchmark ($\vartheta=0$),
 a \emph{proportional levy} ($\vartheta>0$, $\tau_{ls}$ covering only service), a
@@ -617,33 +617,7 @@ fraction $q_g \in (0,1]$ becomes effective capital --- implementation
 efficiency capturing planning delays, procurement frictions and project
 selection \citep[in the spirit of][and the IMF's Climate-PIMA
 framework]{leeperwalkeryang2010}, so $K_g = q_g\, g_g/\delta_g$ (benchmark
-$q_g = 1$, swept in Section~\ref{subsec:maturity}). A remark on
-interpretation, because the two physical readings map onto the model's two
-climate specifications differently, and the mapping should be exact. The
-carbon-stock specification (version~2, \eqref{eq:emissions}--\eqref{eq:damages}
-below) is \emph{mitigation}: $K_g$ lowers gross emissions, which lowers the
-carbon stock $X$, which lowers damages. In a closed economy this understates
-the true global externality --- one country's abatement does not, by itself,
-move the global $X$ --- so read as mitigation the carbon-stock block is
-literally one country's share of a \emph{coordinated} program, or the
-world-planner's instrument. The reduced-form specification (version~1,
-$D=D_0e^{-\theta_g K_g}$) is instead the natural home for \emph{adaptation}:
-$K_g$ --- sea walls, hardened infrastructure, resilient public health and water
-systems --- lowers a country's \emph{own} damages taking the global carbon
-stock as \emph{exogenous} \citep{fried2022seawalls,konradtweder2023}, so it does
-not run through the emissions--stock equations and the closed-economy
-mapping from own spending to own damages is exact. Under that reading
-$\theta_g$ is a hardening elasticity, not an abatement effectiveness. The two
-are therefore structurally distinct --- adaptation acts on $D$ at fixed $X$,
-mitigation acts on $X$ --- and only the reduced form supports the closed-economy
-interpretation cleanly; the carbon-stock version requires the coordinated
-reading. What the mechanism needs is common to both: public capital that lowers
-future damages. Crucially, $\theta_g$ has no clean empirical counterpart under
-\emph{either} reading (Section~\ref{subsec:robustness} reports it as a frontier,
-not a point), so the quantitative benefit--cost ratios below should be read as
-identifying the \emph{internal region} of $(\theta_g,\delta_g,D_0)$ space in
-which the program pays for itself, not as magnitudes trained on a calibrated
-mitigation or adaptation technology. With $q_g$ suppressed
+$q_g = 1$, swept in Section~\ref{subsec:maturity}). With $q_g$ suppressed
 for notation:
 \begin{equation}
 K_g = \frac{g_g}{\delta_g}, \qquad g_g = \frac{G_g}{P}
@@ -709,6 +683,33 @@ which exists, is unique, and is decreasing in $g_g$
 exposition, $D = D_0 e^{-\theta_g K_g}$, is the version implemented as
 ``climate version 1'' in the package; \eqref{eq:climatefixedpoint} is
 ``climate version 2.''
+
+\paragraph{Mitigation or adaptation?} The two physical readings of green
+capital map onto the two climate specifications differently, and the mapping
+should be exact. The carbon-stock specification (version~2,
+\eqref{eq:emissions}--\eqref{eq:damages}) is \emph{mitigation}: $K_g$ lowers
+gross emissions, which lowers the carbon stock $X$, which lowers damages. In
+a closed economy this understates the true global externality --- one
+country's abatement does not, by itself, move the global $X$ --- so read as
+mitigation the carbon-stock block is literally one country's share of a
+\emph{coordinated} program, or the world-planner's instrument. The
+reduced-form specification (version~1, $D=D_0e^{-\theta_g K_g}$) is instead
+the natural home for \emph{adaptation}: $K_g$ --- sea walls, hardened
+infrastructure, resilient public health and water systems --- lowers a
+country's \emph{own} damages taking the global carbon stock as exogenous
+\citep{fried2022seawalls,konradtweder2023}, so it does not run through the
+emissions--stock equations and the closed-economy mapping from own spending
+to own damages is exact. Under that reading $\theta_g$ is a hardening
+elasticity, not an abatement effectiveness. The two are structurally distinct
+--- adaptation acts on $D$ at fixed $X$, mitigation acts on $X$ --- and only
+the reduced form supports the closed-economy interpretation cleanly. What the
+mechanism needs is common to both: public capital that lowers future damages.
+Crucially, $\theta_g$ has no clean empirical counterpart under either reading
+(Section~\ref{subsec:robustness} reports it as a frontier, not a point), so
+the quantitative benefit--cost ratios below identify the \emph{internal
+region} of $(\theta_g,\delta_g,D_0)$ space in which the program pays for
+itself; they are not magnitudes trained on a calibrated mitigation or
+adaptation technology.
 
 % --------------------------------------------------------------------------
 \subsection{Government}\label{subsec:government}
@@ -862,7 +863,9 @@ financing the program pushes constraint-adjacent households toward
 precautionary saving. Green disinflation is thus tax-and-income driven,
 with the insurance content of climate policy the one countervailing
 force --- not a standalone story about lower climate risk reducing
-precautionary demand. The asset market then clears
+precautionary demand.
+
+The asset market then clears
 \eqref{eq:assetmarket}, pinning the price level $P^{*}=B/\Sfun(\cdot)$
 given the fixed nominal bond stock $B$ --- the DTPL mechanism itself.
 The price level does double duty on the way back: it revalues the
@@ -872,19 +875,20 @@ depending on its sign), and, under a nominal budget, it resets real green
 spending for next period, closing the loop between the price level and
 the climate block. The avoided damages themselves are the
 $\nu_{\mathrm{dam}}$ term, and $\nu=\nu_{\mathrm{reval}}+\nu_{\mathrm{dam}}$
-is the self-financing share of Section~\ref{sec:theory}. Figure~\ref{fig:mechanism}
-draws this forward chain only; two further channels described above but
-omitted from the picture for legibility have no bearing on the climate
-block yet a first-order effect on the sign of $\nu_{\mathrm{reval}}$: which
-tax instrument raises $\tau$, and from whom
-(Section~\ref{subsec:financingdesign}, Proposition~\ref{prop:financingdesign})
---- the same real program can be revaluation-negative or
-revaluation-positive depending on financing, which is why ``does the
-green transition cause inflation'' has no answer independent of ``how is
-it paid for'' --- and the feedback from $P^{*}$ back into next period's
-real spending under a nominal budget, which is exactly the loop the
-transition of Section~\ref{subsec:tier2} traces out over time rather than
-across steady states.
+is the self-financing share of Section~\ref{sec:theory}.
+
+Figure~\ref{fig:mechanism} draws this forward chain only; two channels are
+omitted from the picture for legibility. The first is the financing
+instrument. Which tax raises $\tau$, and from whom, touches nothing in the
+climate block yet has a first-order effect on the sign of
+$\nu_{\mathrm{reval}}$ (Section~\ref{subsec:financingdesign},
+Proposition~\ref{prop:financingdesign}): the same real program can be
+revaluation-negative or revaluation-positive depending on how it is paid
+for, which is why ``does the green transition cause inflation?'' has no
+answer independent of ``who pays for it?'' The second is the feedback from
+$P^{*}$ into next period's real spending under a nominal budget --- the loop
+the transition of Section~\ref{subsec:tier2} traces out over time rather
+than across steady states.
 
 \begin{figure}[H]
 \centering
@@ -962,7 +966,14 @@ Section~\ref{subsec:tier2} traces out over time.}
 \section{Theoretical results}\label{sec:theory}
 % ==========================================================================
 
-Throughout, Assumption~\ref{ass:feasible} holds.
+This section develops the theory in the order the mechanism suggests: when
+an equilibrium exists and is unique (determinacy); what the government can
+and cannot choose about it (nominal neutrality and demand-determined real
+debt); how much of the program comes back, and to whom (the self-financing
+decomposition and the sign of the revaluation channel); when the climate
+loop itself destabilizes the price level (sunspots and anchor insulation);
+and which levers remain once those constraints bind (accommodation and
+financing design). Throughout, Assumption~\ref{ass:feasible} holds.
 
 \begin{assumption}\label{ass:feasible}
 $\beta(1+r^{ss})<1$, and the feasibility set
@@ -1096,7 +1107,9 @@ factor (holding $G_g/B$ fixed) raises $P$ in the same proportion and leaves
 the entire real allocation unchanged (Lemma~\ref{lem:neutrality}). Raising
 $B$ \emph{alone}, at a fixed nominal program $G_g$, is not neutral:
 it lowers the real scale $G_g/B$ and therefore does change the real
-allocation --- it is a smaller real program, not more real debt. \emph{There
+allocation --- it is a smaller real program, not more real debt.
+
+\emph{There
 is therefore no stationary deficit to finance:} taxes adjust to
 $\tau=r^{ss}b+g_g$ every period, so a permanent program is
 contemporaneously tax-financed, and the financing designs of
@@ -1111,7 +1124,9 @@ Appendix~\ref{app:nkmodel}); the benchmark nonlinear DTPL transition of
 Section~\ref{subsec:tier2} does not take it --- it holds the service rule
 $\tau_t=r^{ss}b_t+g_{g,t}$, so its real-debt dynamics are the \emph{revaluation}
 of the predetermined nominal stock, not a primary deficit
-(Section~\ref{subsec:tier2} makes the accounting explicit). We recast the
+(Section~\ref{subsec:tier2} makes the accounting explicit).
+
+We recast the
 determinacy conditions in $b$ accordingly: $\varepsilon_S(P)<-1$ is
 equivalent to $d\ln\Sfun/d\ln b>1$ (asset demand steeper than the
 $45^{\circ}$ line in real debt), which is the transparent form of the
@@ -1213,7 +1228,9 @@ intuitive ingredient --- it is what makes the net effect disinflationary rather
 than inflationary --- so we spell out when a
 uniform lump-sum tax raises aggregate demand for the safe asset,
 against the representative-agent intuition that a higher permanent tax lowers
-saving. Two forces oppose. For households away from the borrowing limit a
+saving.
+
+Two forces oppose. For households away from the borrowing limit a
 higher $\tau$ is a permanent income loss and lowers desired assets in the
 standard way ($\partial\Sfun/\partial\tau<0$ locally, the sign under which
 Hagedorn's Result~1 and the \citet{angeletos2024deficits} configuration
@@ -1341,7 +1358,7 @@ robustness check): the mechanism of collapse is the tax burden exhausting
 \emph{aggregate} feasible consumption, which the floor does not remove, rather
 than a single divergent tail, which it does (Appendix~\ref{app:numerics}).
 
-Being explicit about what the nonexistence result does and does not identify.
+We close by stating what the nonexistence result does and does not identify.
 The collapse is a property of a specific set of baseline instruments and
 feasibility assumptions, not a universal fiscal-space limit: it uses
 \emph{uniform lump-sum} taxes (so the burden cannot be shifted off the
@@ -1359,7 +1376,9 @@ fiscal space, and the effective repair is accommodation --- not that green
 fiscal space collapses for any instrument. The result is best read as a
 \emph{conditional incompatibility} between the program, the incidence gradient,
 and a \emph{rigid instrument configuration} (a real rate pinned by
-$(i^{ss},\mu)$ and lump-sum finance), not as an inherent limit. Under a broader
+$(i^{ss},\mu)$ and lump-sum finance), not as an inherent limit.
+
+Under a broader
 macroeconomic reading the very same excess-precautionary-saving pressure that
 breaks existence here would instead show up as a \emph{bound on the sustainable
 real rate}, or trigger an \emph{endogenous return adjustment} (a lower market
@@ -1376,6 +1395,13 @@ conditional on their verified hypotheses rather than as universal claims.
 
 % --------------------------------------------------------------------------
 \subsection{Optimal accommodation}
+
+The preceding subsection left accommodation --- a higher $\mu$, hence a
+lower $r^{ss}$ --- as the instrument that restores existence where
+indexation cannot. That raises the natural question of how far to push it:
+a lower real rate shrinks the interest bill the taxes must cover, but a
+higher price level erodes the real program under a nominal budget. The
+tradeoff has an interior optimum.
 
 \begin{proposition}[Optimal nominal growth]\label{prop:optimalmu}
 Let $W(\mu)=\int V\,\dd\Omega$ be utilitarian steady-state welfare along the
@@ -1395,6 +1421,10 @@ interior optimum; proof in Appendix~\ref{app:proofs}.
 
 % --------------------------------------------------------------------------
 \subsection{Financing design and the revaluation channel}\label{subsec:financingdesign}
+
+The last result formalizes the channel Figure~\ref{fig:mechanism} flagged:
+the financing instrument touches nothing in the climate block, yet it sets
+the sign of the revaluation term --- and with it who ultimately pays.
 
 \begin{proposition}[Financing design controls the revaluation channel]
 \label{prop:financingdesign}
@@ -1550,8 +1580,10 @@ the $-1$ line.}
 % --------------------------------------------------------------------------
 \subsection{The extended sector and accommodation neutrality}\label{subsec:extended}
 
-The extended run (carbon-stock climate sector, incidence $\psi=1$,
-accommodative stance $\mu_{\mathrm{ext}}=0.03$) delivers a unique interior
+The worked example used the reduced-form climate block; before moving to
+the calibrated pass we verify that nothing about the mechanism hinges on
+that shortcut. The extended run (carbon-stock climate sector, incidence
+$\psi=1$, accommodative stance $\mu_{\mathrm{ext}}=0.03$) delivers a unique interior
 green steady state: $P^{*}=0.2826$, $D=0.0709$ (against no-abatement damages
 $D(0)=0.0991$), $\tau=0.0768$. Its self-financing decomposition sharpens the
 benchmark's message:
@@ -2446,9 +2478,12 @@ response has the \emph{opposite sign} to the two Phillips-curve exercises'.
 That opposite sign is the paper's \emph{model-class diagnostic}, not a
 matched horse race: the first two exercises differ from the third in price
 rigidity, financing rule, and persistence as well as in price determination,
-so they bound transition shape and locate the sign, and a clean
-DTPL-versus-NK sign test --- holding path, scale, and financing fixed ---
-is left as the outstanding empirical design (Section~\ref{sec:conclusion}).
+so they bound transition shape and locate the sign. A matched
+DTPL-versus-NK run --- same near-permanent path, same scale, same
+balanced financing, labor margin shut, so that only the price-determination
+block differs up to linearization and frequency --- is included in the
+replication package and described, with its empirical counterpart, in
+Section~\ref{sec:conclusion}.
 
 \subsection{Representative-agent New Keynesian transitions}
 \label{subsec:ranktrans}
