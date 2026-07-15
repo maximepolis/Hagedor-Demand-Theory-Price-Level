@@ -97,5 +97,32 @@ mac('nodesTot', sprintf('%d', ntot));
 [~, i25] = min(abs(S.th_grid - 2.5));
 mac('nuDiceAtTwoFive', sprintf('%.2f', S.NU(1, i25)));
 
+% ---- tax semi-elasticity map (Sec 5.8; referee round 7) ----
+% Guarded: exported only if decompose_tax_elasticity has been run.
+tef = fullfile(projdir, 'output', 'tax_elasticity_results.mat');
+if exist(tef, 'file') == 2
+    T = load(tef);
+    mac('epsTau',   sprintf('%+.2f', T.eps_tau));            % baseline d ln S/d tau
+    mac('epsLevy',  sprintf('%+.2f', T.eps_levy));           % d ln S/d vartheta (<0)
+    % share of the tax-induced demand shift from the bottom two baseline quintiles
+    if isfield(T,'dS_q') && isfield(T,'dS_tot') && T.dS_tot ~= 0
+        mac('epsBotShare', sprintf('%.0f', 100*sum(T.dS_q(1:2))/T.dS_tot));
+    end
+    % endpoints of each sign-sweep (ordered vals): first / last
+    if isfield(T,'sweeps')
+        sw = T.sweeps;
+        endp = @(v) [v(1) v(end)];
+        for s = 1:numel(sw)
+            e = endp(sw(s).eps);
+            switch s
+                case 1, mac('epsAbarLo', sprintf('%+.2f',e(1))); mac('epsAbarHi', sprintf('%+.2f',e(2)));
+                case 2, mac('epsRiskLo', sprintf('%+.2f',e(1))); mac('epsRiskHi', sprintf('%+.2f',e(2)));
+                case 3, mac('epsSigLo',  sprintf('%+.2f',e(1))); mac('epsSigHi',  sprintf('%+.2f',e(2)));
+                case 4, mac('epsBetaLo', sprintf('%+.2f',e(1))); mac('epsBetaHi', sprintf('%+.2f',e(2)));
+            end
+        end
+    end
+end
+
 fclose(fid);
 fprintf('[export_paper_numbers] wrote %s\n', outf);
