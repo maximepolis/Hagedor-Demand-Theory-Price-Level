@@ -1,4 +1,6 @@
-# Response to Referee Reports — *Can Green Deficits Finance Themselves?*
+# Response to Referee Reports — *Who Pays for Green Public Investment?*
+
+(Formerly *Can Green Deficits Finance Themselves?* — retitled per Part V.)
 
 This memo maps every point in the two referee reports and the integration
 roadmap to a concrete action, and marks each with a status:
@@ -238,3 +240,88 @@ FAST = true; sensitivity_climate_discipline  % M7 (theta_g, delta_g) surface
 export_paper_numbers                          % refresh paper/numbers_auto.tex
 ```
 Both drivers are also stages 13–14 of `run_green_deficits_master.m`.
+
+---
+
+# Second referee round (framing + three inconsistencies)
+
+## Headline flip to the levy — DONE (no MATLAB run needed)
+The proportional-levy regime was already computed and stored, so the flip is a
+macro swap, not a re-computation. The abstract and introduction now lead with
+the levy as the policy-relevant case: financing the appropriation by a
+proportional levy plus rebate **raises** the price level (`\RLevP`=0.931 from a
+no-program `\PzeroRegimes`=0.905; revaluation share `\RLevRev`=+0.030) and is
+progressive; the lump-sum tax is the contrast that **lowers** it (`\RDefP`=0.859;
+`\RDefRev`=−0.055). The durable object is the incidence, not the sign of ΔP.
+
+## Framing of the fiscal object (N1) — DONE
+Retitled already; abstract/intro reframed so the stationary experiment is a
+**nominal appropriation financed by a tax-mix change, never a deficit**. The
+word "deficit" is now reserved for the transitional tax-timing paths. The
+§5.10–5.11 steady-state text drops "deficit finance" for "lump-sum finance",
+the `R1-DEFICIT` regime is relabeled `R1-LUMPSUM` (with an explicit naming
+caveat that these are tax-instrument labels, not a deficit-vs-tax choice, since
+Lemma neutrality removes the stationary deficit), and the Angeletos comparison
+is recast as one of mechanism, not shared deficit-financing accounting.
+
+## Discipline on the safe-asset demand channel (N2) — DONE
+§5.8 now foregrounds the **primitive**: the semi-elasticity
+`∂ln S/∂τ ≈ +2.9`, reported as a *measured elasticity with stated conditioning*
+(weakens as the borrowing limit loosens or σ falls; σ=1 infeasible; reverses
+under the levy), not a robust sign. A new paragraph states that the one-asset
+economy makes the nominal safe asset the household's *only* store of value, so
+the headline magnitudes are **upper bounds**; the two-asset extension
+(now labeled `subsec:twoasset`) scales them by the liquid-bond share, and
+anchoring that share to micro portfolio data + endogenizing the convenience
+yield is flagged as the outstanding discipline (Woodford 1990).
+
+## Abatement productivity as conditional (N3) — DONE
+Abstract and intro now state the BCR triple and the calibrated shares are
+**conditional on an illustrative abatement technology** whose effectiveness
+θ_g is reported as a *frontier, not a point*, and that the damage dividend —
+not nominal-financing magic — does the work.
+
+## Self-fulfilling / sunspot demoted (N4) — DONE
+The intro paragraph is rewritten to present multiplicity/anchor-insulation as a
+**secondary, theoretical finding that does not bind in the disciplined
+economy**: the calibrated sunspot region is empty (no multiple-root case in the
+frontier), Prop (sunspots) conditions on a transversal crossing rather than
+deriving it, and mandate-uniqueness rests on a numerical elasticity bound. The
+empirically relevant determinacy risk is the fiscal-space collapse, not the
+sunspot. The title already dropped "self-fulfilling price levels".
+
+## Transition accounting + DTPL-vs-NK claim (N5) — DONE
+§6.3 now writes the **full dynamic nominal budget constraint**
+`B_t = (1+i^ss)B_{t-1} + P_t(g_{g,t}−τ_t)` (eq:nombudget), derives the real
+recursion, and separates the three objects the steady-state comparison folds
+together: (i) the surprise revaluation at t=1, (ii) the debt-growth wedge — the
+genuine transitional deficit, and (iii) the service transfer that cancels in
+Definition 2. The DTPL-vs-NK contrast is narrowed to a **model-class
+diagnostic** (opposite-signed predictions), with the confounders (rigidity,
+financing rule, persistence) stated and a matched experiment / high-frequency
+identification named as the outstanding empirical design.
+
+## Three specific inconsistencies — DONE
+- **Appendix A.10 gross/net**: premium written `E[R]−(1+r^ss)` (R gross) — fixed.
+- **Appendix B.1 ambiguous B**: the fiscal target is now `\bar b` (steady-state
+  *real* debt), explicitly distinguished from the nominal stock B — fixed.
+- **Appendix B continuity**: the opening no longer claims the PC exercises embed
+  the stationary government block (11)–(13); it states they use a real
+  debt-stabilization rule and a quasi-permanent real green process instead — fixed.
+
+## RANK / two-asset placement — reasoned NO-CUT
+My earlier draft flagged cutting RANK and demoting the two-asset exercise. The
+second referee round **supersedes** that: N5 wants the RANK/NK exercises kept as
+the *model-class diagnostic* for the sign contrast, and N2 leans on the
+two-asset exercise as important magnitude discipline. Cutting them would undercut
+both responses. Their placement is already appropriate — the full NK model is in
+Appendix B, the two-asset is a labeled paragraph, and §6's intro already frames
+the Phillips-curve exercises as "what they are not." I sharpened that framing
+(model-class diagnostic) rather than cutting. **If you still want them cut, say
+so and I will — but I recommend against it now.**
+
+## Endogenous convenience yield (M5 / Stage 5) — deferred (genuine extension)
+Still a real two-asset model extension I cannot validate without MATLAB. It is
+flagged in the conclusion's open-items and in the §5.8 discipline paragraph as
+the outstanding step that would convert the sign result into a robust
+quantitative one. Not built, to avoid asserting un-validated numbers.
