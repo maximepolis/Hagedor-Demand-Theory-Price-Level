@@ -325,3 +325,75 @@ Still a real two-asset model extension I cannot validate without MATLAB. It is
 flagged in the conclusion's open-items and in the §5.8 discipline paragraph as
 the outstanding step that would convert the sign result into a robust
 quantitative one. Not built, to avoid asserting un-validated numbers.
+
+---
+
+# Fourth referee round (terminology, elasticity, climate, determinacy, comparability)
+
+## Two analytical corrections (detailed feedback)
+- **Transition budget accounting (D#1) — corrected.** The reviewer is right: under
+  the benchmark service rule `τ_t=r^ss b_t+g_{g,t}`, the spending term cancels in
+  the real recursion, giving `(1+r^ss)b_t=(1+r_t)b_{t-1}` (equivalently
+  `B_t=(1+μ)B_{t-1}`). So there is **no primary deficit** on the benchmark path —
+  nominal debt grows only at trend, and `b_t−b_{t-1}` is a **valuation** effect
+  (ex-post return gap `r_t−r^ss`), the announced disinflation marking the
+  predetermined stock up. The paragraph is rewritten: I retract the earlier
+  "genuine transitional deficit" label for `b_t−b_{t-1}`; a genuine primary
+  deficit is the separate low-`φ_b` lever of the Phillips-curve exercises, not the
+  DTPL benchmark. The abstract, §4.3, and the transition section are aligned to
+  this (new eq. `eq:nomtrend`).
+- **Prop 3(ii) coefficient (D#2) — corrected.** The coefficient `τ*−κg_g` is the
+  *direct-change* form (`dg_g=dG_g/P` at fixed `P`); under the main text's
+  *equilibrium* convention `ε_P≡dlnP/dg_g` it is `τ*−g_g`. They differ by `κg_g`
+  away from `g_g=0` and coincide there. Since the proposition is stated *at* the
+  no-program margin, `eq:marginal` now reads `dN=(1−κ)dg_g−τ*ε_P dg_g` with a
+  parenthetical (and an expanded appendix derivation) stating the away-from-margin
+  convention dependence.
+
+## Fiscal terminology and experimental design (R1)
+- **§4.3 neutrality (R1b) — corrected.** Neutrality (Lemma 4) is a *joint*
+  proportional rescaling of `(B,G_g)`. Raising `B` alone at fixed `G_g` is **not**
+  neutral — it lowers `G_g/B`, a smaller *real* program. The "issuing more nominal
+  debt merely raises P" prose is fixed.
+- **Table 6 vs Prop 7 (R1c).** Made explicit that Table 6 holds the *nominal*
+  appropriation fixed while Prop 7 holds the *real* program fixed; quantified that
+  the induced real-scale drift is second-order (`ν_dam` 0.636→0.647) and that the
+  fixed-real recomputation leaves both the self-financing ordering and the welfare
+  reversal intact, isolating incidence.
+- **Vocabulary (R1a).** Scrubbed the remaining "green deficits" / "deficit-financed"
+  in the intro, contributions, robustness, and conclusion where the object is the
+  stationary appropriation or the lump-sum benchmark; "deficit-financed" is kept
+  only for the genuinely primary-deficit RANK/HANK exercises.
+
+## Elasticity discipline (R2)
+§5.8 now gives an explicit **primitive map** of the +2.9 tax semi-elasticity
+(borrowing limit, risk aversion, income-tail risk / regressive incidence,
+tax-transfer progressivity, asset substitution — each signed), and states that the
+two-asset exercise (constant premium, not a nonlinear DTPL solve) **cannot validate
+the 5% repricing** — flagged as an open item, not a portfolio-validated number.
+
+## Climate technology (R3)
+Made the mitigation/adaptation distinction **structural**: version-2
+(emissions→X→D) is mitigation and needs the coordinated-program reading;
+version-1 (`D=D_0e^{-θ_g K_g}`) is the adaptation-compatible reduced form (lowers
+own `D` at *exogenous* global `X`). Since `θ_g` has no empirical counterpart under
+either reading, the BCRs are framed as identifying the **internal
+`(θ_g,δ_g,D_0)` region** that permits self-financing, not calibrated
+mitigation/adaptation magnitudes.
+
+## Determinacy / fiscal space (R4)
+The §5.3 collapse discussion now states the nonexistence result is **conditional on
+its baseline instruments** — uniform lump-sum taxes, finite income states, zero
+borrowing limit, low-endowment feasibility — each load-bearing, and that a levy,
+monetary accommodation, or a looser limit relaxes it. Prop 5 uniqueness is stated
+as resting on a **numerically verified** elasticity bound, not an a-priori theorem.
+
+## Transition comparability (R5)
+The intro NK-vs-DTPL contrast is toned down to a **model-class diagnostic** that
+*locates* a testable sign, explicitly noting the confounders (rigidity, financing
+rule — the NK announcement is primary-deficit-financed while the DTPL benchmark is
+revaluation-driven — persistence, household block) and that isolating the
+price-determination channel needs a matched experiment. The conclusion already
+carried this; the abstract does not over-claim it.
+
+Compiles clean at 92 pages, zero undefined citations/references.
