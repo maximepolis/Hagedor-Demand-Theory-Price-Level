@@ -397,3 +397,53 @@ price-determination channel needs a matched experiment. The conclusion already
 carried this; the abstract does not over-claim it.
 
 Compiles clean at 92 pages, zero undefined citations/references.
+
+---
+
+# Fifth referee round (four technical fixes + five narrative points)
+
+## Four detailed technical corrections
+- **A.5 convention (D#3, my own slip) — fixed.** The two price-response
+  coefficients differ by **(1−κ)g_g**, not κg_g (I had it wrong); reworded to
+  avoid an em-dash reading as `−ε_P`, and rechecked the full derivation
+  (`τ−g_g` equilibrium / `τ−κg_g` direct, both `→τ*` at g_g=0).
+- **B.3 HA Euler (D#2) — fixed.** Added the conditional expectation
+  `E[·|e]` over next-period idiosyncratic states (a_t chosen before e′);
+  clarified only the idiosyncratic state is integrated out (aggregate path is
+  perfect-foresight).
+- **B.1 fiscal rule (D#1) — fixed.** The level rule omitted steady-state green
+  spending, so a permanent program was unfinanced at b̄. Rewrote around the new
+  green steady state: `τ_t=(r^ss b̄+ḡ_g)+φ_b(b_{t-1}−b̄)` (stationary at (b̄,ḡ_g)),
+  and the program process now converges to a positive `ḡ_g`, not zero.
+- **A.4 Prop 1 proof (D#4) — fixed.** Added the indexed-mandate boundary case
+  (`τ(P)→ḡ_g` at high P, not 0), with the analogous crossing condition; the
+  mandate shifts the feasibility edge by `ḡ_g` but leaves the structure intact.
+
+## Five narrative points
+- **O1 elasticity (decomposition + sweep).** New driver
+  `decompose_tax_elasticity.m`: decomposes `∂lnS/∂τ` by baseline wealth quintile
+  and constraint status, and sweeps its sign over borrowing limit, income-risk
+  scale, CRRA, and debt target (plus the lump-sum→levy sign flip). Wired into the
+  master runner; §5.8 points to it. Shows green disinflation is a general
+  buffer-stock property, not a knife-edge.
+- **O2 revaluation magnitudes.** §5.8 now explicitly recasts the 5% / 77% / levy
+  numbers as **upper bounds** scaled by the liquid nominal-government-debt share
+  `ω≈0.15–0.25`, giving an empirically-relevant repricing nearer `ω×5%≈1–1.3%` —
+  stated as a scaling exercise, not a computed equilibrium; the endogenous
+  convenience-yield DTPL solve remains the open item.
+- **O3 climate framing.** Conclusion pivoted to frontier-based language:
+  ν≈0.6 is a point on the disciplined frontier under an illustrative abatement
+  technology, not a trained magnitude; the policy statement is the conditional
+  frontier.
+- **O4 label harmonization.** Renamed the `R4-MIXED-DEFICIT-LEVY` table row to
+  `R4-MIXED`; fixed the DTPL transition figure caption and surrounding text that
+  called the service-rule (revaluation) transition "deficit finance"; scrubbed
+  the remaining stationary/benchmark "deficit" labels (kept only for the genuinely
+  primary-deficit RANK/HANK exercises).
+- **O5 hierarchy.** Added a "Contributions, in order of robustness" paragraph:
+  the financing-incidence mechanism is the core; self-financing magnitudes
+  (frontier), sunspot multiplicity (never exhibited), anchor insulation (numerical
+  bound), optimal-accommodation (= optimal real rate), and the NK contrast
+  (model-class diagnostic) are each scoped as secondary/conditional.
+
+Compiles clean at 94 pages, zero undefined citations/references.
