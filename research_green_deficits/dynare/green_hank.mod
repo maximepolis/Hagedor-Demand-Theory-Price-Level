@@ -64,6 +64,16 @@
 @#ifndef THORIZON
   @#define THORIZON = 400
 @#endif
+// Matched DTPL-vs-NK experiment hooks (run_matched_dtpl_nk.m). Defaults
+// reproduce the standard run exactly; the matched run passes -DFRISCH=0.01
+// (shuts the labor margin so the household block matches the DTPL endowment
+// economy) and -DGSTD to match the DTPL program scale.
+@#ifndef FRISCH
+  @#define FRISCH = 0.5
+@#endif
+@#ifndef GSTD
+  @#define GSTD = 0.009
+@#endif
 // PHIB is the FINANCING-SPEED margin: 0.10 = slow debt stabilization
 // (deficit-financed on impact, the benchmark); 0.75 = near-balanced-budget
 // financing of the same program. Comparing the two isolates how much of
@@ -119,7 +129,7 @@ parameters
 
 Z       = 1;
 eis     = 0.5;
-frisch  = 0.5;
+frisch  = @{FRISCH}; // 0.5 standard; ~0 shuts the labor margin (matched run)
 kappa   = 0.1;
 mu      = 1.2;
 phi     = @{PHIPI};
@@ -271,7 +281,7 @@ end;
 
 // Aggregate shock: 1% of steady-state output of green investment on impact
 shocks;
-    var e_g; stderr 0.009;
+    var e_g; stderr @{GSTD}; // 0.009 standard; matched run rescales to the DTPL program
 end;
 
 //==========================================================================

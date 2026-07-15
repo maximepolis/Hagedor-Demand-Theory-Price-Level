@@ -133,3 +133,25 @@ run `verify_mu_neutrality`, `sensitivity_climate_discipline`,
 > strictly as an internal DTPL prediction, with the opposite-signed NK result not
 > leaned on absent a matched experiment; and the fixed-real financing table is
 > now populated, confirming the incidence conclusion is convention-independent.
+
+---
+
+# Round 9 additions — matched experiment + structural trim
+
+## New run (Dynare machine)
+```matlab
+cd research_green_deficits          % MATLAB with the heterogeneity-framework Dynare
+main_project_transition             % if transition_results.mat is stale
+cd dynare
+run_matched_dtpl_nk                 % the matched DTPL-vs-NK announcement experiment
+```
+Writes `output/tables/matched_dtpl_nk.txt` with the announcement-window
+inflation signs under the matched design (permanent path, DTPL scale, balanced
+financing, labor margin shut, pure Taylor) and a SIGN VERDICT line. The paper's
+§6.3 references the driver; quote the numbers only after this run.
+
+## Structural trim done in the paper
+The worked-example detail (parameters, benchmark table, ν(θ_g) sweep) and the
+optimal-accommodation exercise now live in Appendix "Supplementary results";
+the body keeps a one-paragraph worked example (with the demand-shift figure)
+and a one-paragraph optimal-real-rate summary.

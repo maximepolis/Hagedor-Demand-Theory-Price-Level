@@ -323,8 +323,9 @@ prediction: a Phillips-curve economy prices the same class of announcement
 with the opposite sign ($+0.4\%$ impact inflation), but the two exercises
 differ in rigidity, financing, persistence, scale, and the household block,
 so the contrast is a model-class diagnostic locating a testable prediction
---- a matched experiment, or high-frequency identification around
-green-fiscal surprises, would be needed to adjudicate it.
+--- adjudicating it requires the matched experiment included in the
+replication package (Section~\ref{subsec:tier2}) or high-frequency
+identification around green-fiscal surprises.
 
 A final extension confronts the objection that the whole analysis assumes away
 aggregate uncertainty. Introducing a two-state aggregate climate process (a
@@ -1430,125 +1431,46 @@ $\vartheta$); proof in Appendix~\ref{app:proofs}.
 % ==========================================================================
 
 This section turns the propositions into numbers, and its subsections are
-ordered as an argument rather than a list. We first exhibit the
-mechanism on a transparent \emph{worked example} (Sections
-\ref{subsec:calibration}--\ref{subsec:optmu}) whose only purpose is to make
-the moving parts visible: the program shifts asset
-demand, the price level falls, and the self-financing share decomposes
-exactly. \emph{No headline number rests on this example} --- its climate
-parameters are deliberately illustrative and its damage scale is large, so
-it magnifies the mechanism; it is not a calibration. Every quantitative claim in the
-paper is stated on the externally disciplined damage columns of
-Section~\ref{subsec:calibrated} (debt-to-income and program scale calibrated,
-damages anchored to DICE / DJO--BHM / Bilal--K\"anzig), and we ask there
-what the mechanism delivers and what one must believe for the answer
-to change (Section~\ref{subsec:robustness}, including the production
-margin the endowment economy omits). Having established \emph{how much},
-we ask \emph{why} --- the safe-asset channel isolated node by node
+ordered as an argument rather than a list. A brief worked example
+(Section~\ref{subsec:calibration}) makes the moving parts visible; no
+headline number rests on it. Every quantitative claim is stated on the
+externally disciplined damage columns of Section~\ref{subsec:calibrated}
+(debt-to-income and program scale calibrated, damages anchored to DICE /
+DJO--BHM / Bilal--K\"anzig), and Section~\ref{subsec:robustness} asks what one
+must believe for the answers to change, including the production margin the
+endowment economy omits. Having established \emph{how much}, we ask
+\emph{why} --- the safe-asset channel isolated node by node
 (Section~\ref{subsec:safeasset}) --- and \emph{what it is worth} when the
 climate risk is aggregate rather than idiosyncratic
 (Section~\ref{subsec:aggrisk}). The final step is \emph{who pays}: welfare
-incidence by wealth group (Section~\ref{subsec:welfaregroups}), the
-financing designs that reverse it (Section~\ref{subsec:regimes}), and the
-maturity, indexation, and implementation bounds on the channel
-(Section~\ref{subsec:maturity}). Section~\ref{sec:transitions} then puts
-the same economy in motion.
+incidence by wealth group (Section~\ref{subsec:welfaregroups}) and the
+financing designs that reverse it (Section~\ref{subsec:regimes}).
+Section~\ref{sec:transitions} then puts the same economy in motion; the
+worked-example detail, the optimal-accommodation exercise, and the bounding
+sweeps are collected in Appendix~\ref{app:supp}.
 
 % --------------------------------------------------------------------------
 \subsection{A worked example}\label{subsec:calibration}
 
-The parameters here are chosen for \emph{transparency}, not discipline: a
-large damage scale and a sizable program make every channel move visibly, so
-the reader can trace the mechanism before it is confronted with credible
-magnitudes. Nothing in the paper's contribution rests on these numbers; the
-disciplined calibration is Section~\ref{subsec:calibrated}, and this
-subsection magnifies the propositions so each moving part is visible.
-
-The household block inherits the replication benchmark of the underlying DTPL
-package: annual frequency, $\beta=0.96$, $\sigma=2$, $\bar a=0$, a 7-state
-Rouwenhorst chain with $\rho=0.90$, $\sigma_{\epsilon,0}=0.20$ (unit mean),
-$B=1$, $i^{ss}=0.04$, baseline $\mu=0.02$ (so $r^{ss}=0.0196$). The climate
-block is \emph{deliberately illustrative and deliberately large}: $D_0=0.10$
-(no-abatement damages of 10\% of
-endowments, at the upper end of what \citealp{bilalkanzig2024} argue is
-conservative), $\theta_g=1.2$, $\delta_g=0.10$, risk channel $\phi_D=0.5$,
-nominal green budget $G_g=0.012$ (real spending of roughly 5--6\% of mean
-endowment at the equilibrium price level --- several times a realistic
-public green-investment share, chosen so the price response is large enough
-to read off a table). Version-2 climate parameters:
-$D_{\max}=0.25$, $\varepsilon_0=1$, $\delta_x=0.05$, $\gamma_x=0.028$,
-$\alpha_A=0.9$; incidence $\psi\in\{0,1,2\}$. Numerical method in
-Appendix~\ref{app:numerics}. Because these parameters are an expository
-device, no headline result rests on them: the self-financing share is
-reported across low-, medium-, and high-damage columns
-(Section~\ref{subsec:calibrated}), Section~\ref{subsec:robustness} states
-each parameter's source and reports the headline objects over the full
-swept ranges, and the qualitative findings --- the disinflationary
-revaluation, its sign reversal under financing design, and the compression
-of aggregate climate risk --- hold across the range.
-
-% --------------------------------------------------------------------------
-\subsection{The mechanism at the worked example}
-
-Table~\ref{tab:benchmark} reports the worked example (full-resolution,
-$n_a=500$); read it as an existence demonstration of the channels, not as a
-prediction.\footnote{The \emph{level} of $P^{*}$ is not comparable across
-subsections: it scales with the nominal debt normalization $B$ and the
-calibration, so the benchmark ($B=1$), the calibrated pass
-(Section~\ref{subsec:calibrated}, $B$ set to the $1.1$ debt-to-income
-target), and the aggregate-risk section use different normalizations. Only
-\emph{changes} in $P$ --- the disinflation $\ln P_1-\ln P_0$ and the state
-dispersion $P_S/P_C$ --- are economically meaningful and comparable, and all
-reported results are stated as such.}
-
-\begin{table}[!htb]
-\centering
-\caption{Benchmark quantitative results ($n_a=500$ run).}
-\label{tab:benchmark}
-\begin{tabular}{lcc}
-\toprule
- & no program & green program \\
-\midrule
-price level $P^{*}$            & 0.2226 & 0.1897 \\
-damages $D$                    & 0.1000 & 0.0468 \\
-real green spending $g_g$      & 0      & 0.0633 \\
-real taxes $\tau$              & 0.0881 & 0.1666 \\
-utilitarian welfare $W$        & $-7.807$ & $-8.954$ \\
-\midrule
-self-financing $\nu$           & \multicolumn{2}{c}{$0.600$} \\
-\quad revaluation $\nu_{\mathrm{reval}}$ & \multicolumn{2}{c}{$-0.241$} \\
-\quad damage dividend $\nu_{\mathrm{dam}}$ & \multicolumn{2}{c}{$0.841$} \\
-one-time revaluation $L$       & \multicolumn{2}{c}{$-0.778$ (bondholder windfall)} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Three observations. First, the program is strongly but not fully
-self-financing: $\nu=0.60$. Second --- the sign surprise of
-Result~\ref{res:disinflation} --- the entire financing contribution comes from
-the damage dividend; the revaluation channel is \emph{negative} because the
-program is disinflationary ($\ln P_1/P_0 = -16\%$): avoided damages raise
-effective incomes, and the higher taxes that service the program strengthen
-precautionary saving (the measured benchmark has
-$\partial\Sfun/\partial\tau>0$; see the interpolant nodes in the run log,
-where $\Sfun$ rises from $3.49$ to $5.80$ as $\tau$ moves from $-0.05$ to
-$0.22$ at $D=0$). Both forces raise $\Sfun$, and $P=B/\Sfun$ falls.
-Bondholders receive a one-time windfall $|L|=0.78$ --- 78\% of annual mean
-income --- concentrated at the top of the wealth distribution. Green deficits
-in this economy transfer resources \emph{to} rentiers, not from them: the
-mirror image of the inflation-erosion intuition, with the opposite
-distributional politics. Third, the naive welfare comparison
-($W_1<W_0$) is not the policy-relevant object --- it compares steady states
-with different tax burdens, ignoring transition gains from lower damages
-accruing along the path; the optimal-policy exercise below chooses among
-program designs directly.
-
-Figure~\ref{fig:pfig2}(b) traces $\nu(\theta_g)$: the damage dividend is the
-engine, and full self-financing $\nu\ge1$ arrives at
-$\theta_g\approx2.4$. At $\theta_g=0$ (pure resource cost, no abatement
-payoff) $\nu=-0.275<0$: an unproductive nominal program is \emph{worse} than
-its sticker price, again because of the disinflationary asset-demand
-response.
+Before the disciplined calibration, we exhibit the mechanism on a
+deliberately magnified example: the household block of the replication
+benchmark ($\beta=0.96$, $\sigma=2$, $\bar a=0$), no-abatement damages of
+$10\%$ of endowments, and a program several times a realistic scale, chosen
+so that every channel is visible (the full parameterization, the benchmark
+table, and the $\nu(\theta_g)$ sweep are in
+Appendix~\ref{subsec:workedexample}). The example makes three points that
+survive at the disciplined scale. The program \emph{raises} precautionary
+asset demand --- avoided damages raise effective incomes, and the taxes that
+service the program tighten constraint-adjacent households --- so the price
+level falls (Figure~\ref{fig:pfig1}); the revaluation channel is negative and
+the entire financing contribution comes from the damage dividend ($\nu=0.60$
+with $\nu_{\mathrm{reval}}=-0.24$ and $\nu_{\mathrm{dam}}=0.84$). Bondholders
+collect a one-time windfall concentrated at the top of the wealth
+distribution. And an unproductive nominal program ($\theta_g=0$) is
+\emph{worse} than its sticker price ($\nu=-0.28$), because the
+disinflationary asset-demand response operates whatever the abatement
+payoff. Nothing in the paper's contribution rests on these magnitudes; the
+disciplined columns are in Section~\ref{subsec:calibrated}.
 
 \pfigguard{PFig1_green_steady_state.pdf}{%
 \begin{figure}[!htb]\centering
@@ -1559,15 +1481,6 @@ program \emph{raises} precautionary asset demand, so the equilibrium
 moves down the supply curve from $P_0^{*}$ to $P_1^{*}$ --- the price
 level falls and outstanding nominal debt revalues in bondholders' favor.}
 \label{fig:pfig1}
-\end{figure}}
-
-\pfigguard{PFig2_self_financing.pdf}{%
-\begin{figure}[!htb]\centering
-\includegraphics[width=0.95\textwidth]{PFig2_self_financing.pdf}
-\caption{Self-financing. (a) Decomposition at the benchmark:
-$\nu_{\mathrm{reval}}=-0.241$, $\nu_{\mathrm{dam}}=0.841$, $\nu=0.600$.
-(b) $\nu(\theta_g)$ crosses full financing near $\theta_g\approx2.4$.}
-\label{fig:pfig2}
 \end{figure}}
 
 % --------------------------------------------------------------------------
@@ -1667,50 +1580,16 @@ while an unproductive program remains worse than its sticker price
 ($\nu=-0.11$ at $\theta_g=0$).
 
 % --------------------------------------------------------------------------
-\subsection{Optimal accommodation}\label{subsec:optmu}
-
-Figure~\ref{fig:pfig4} traces $W(\mu)$. Welfare is hump-shaped with an
-interior optimum $\mu^{*}=0.045$ ($W=-7.681$), against a baseline of
-$\mu=0.02$ ($W=-8.981$): the optimal policy accommodates the green program
-with roughly $4.5\%$ steady-state inflation. The mechanism matches
-Proposition~\ref{prop:optimalmu}: moving from $\mu=0.02$ to $0.045$ cuts the
-real rate from $2.0\%$ to $-0.5\%$, the real interest burden collapses
-($\tau$ falls from $0.167$ to $0.011$ despite unchanged real green spending
-financed within the budget), and the price level roughly triples so real
-green spending per unit of nominal budget falls --- at $\mu>0.045$ the
-climate erosion and the lower buffer return dominate and welfare declines.
-At $\mu=0.015$ no equilibrium exists on the scan range: with $r^{ss}$ that
-close to the $1/\beta-1$ asymptote, asset demand exceeds $B/P$ at every
-feasible price level --- the existence failure the theory predicts, reported
-by the solver rather than smoothed over. Three framing caveats keep
-the result strictly scoped. \emph{First and most important}, this is not an
-inflation result at all: by Proposition~\ref{prop:muneutral} the steady
-state depends on $\mu$ only through $r^{ss}=(1+i^{ss})/(1+\mu)-1$, so varying
-$\mu$ at fixed $i^{ss}$ \emph{is} varying the real rate, and holding
-$r^{ss}$ fixed while moving $(i^{ss},\mu)$ leaves $W$ exactly invariant. The
-reported $\mu^{*}=0.045$ is the optimal real rate $r^{ss*}\approx-0.5\%$; the
-welfare gain --- the collapse of the real interest bill on debt of several
-times income, a transfer away from wealth-concentrated bondholders --- is
-the \citet{aiyagarimcgrattan1998} optimal-quantity-of-debt force in a climate
-economy. A design that separated the two margins cleanly --- vary
-$(i^{ss},\mu)$ holding $r^{ss}$ fixed (welfare flat, by
-Proposition~\ref{prop:muneutral}) against varying $r^{ss}$ at fixed trend
-inflation --- would confirm there is no inflation margin here; we state the
-optimum as an optimal-$r^{ss}$ result accordingly. \emph{Second}, it is a
-\emph{steady-state financing} statement in the spirit of the risk-sharing
-motive for accommodation in \citet{acharya2023optimal} --- not advice about
-stabilization policy or the credibility cost of moving an announced target,
-which the flexible-price model has no vocabulary for. \emph{Third}, the
-interior optimum exists precisely because the climate loop penalizes
-inflation (real spending erosion), so economies with indexed green budgets
-would rationally choose higher $\mu^{*}$.
-
-\pfigguard{PFig4_optimal_policy.pdf}{%
-\begin{figure}[!htb]\centering
-\includegraphics[width=0.6\textwidth]{PFig4_optimal_policy.pdf}
-\caption{Utilitarian welfare $W(\mu)$; the star marks $\mu^{*}=0.045$.}
-\label{fig:pfig4}
-\end{figure}}
+\paragraph{Optimal accommodation is an optimal real rate.} Welfare along the
+nominal growth rate is hump-shaped with an interior optimum $\mu^{*}=0.045$
+--- but by Proposition~\ref{prop:muneutral} this is not an inflation result:
+varying $\mu$ at fixed $i^{ss}$ \emph{is} varying the real rate, so the
+optimum is the optimal real rate $r^{ss*}\approx-0.5\%$, and the welfare gain
+is the collapse of the real interest bill --- the
+\citet{aiyagarimcgrattan1998} optimal-quantity-of-debt force in a climate
+economy, disciplined by the climate loop (real-spending erosion), which is
+what makes the optimum interior. The full exercise, its existence boundary,
+and its scoping are in Appendix~\ref{subsec:optmu}.
 
 % --------------------------------------------------------------------------
 \subsection{The calibrated pass: low, medium, and high damages}
@@ -3087,17 +2966,21 @@ and a New Keynesian economy make \emph{opposite-signed} predictions for the
 inflation response to a credible, deficit-financed green-investment
 announcement --- the former disinflationary (nominal debt revalues up as
 precautionary demand rises), the latter inflationary (a demand expansion under
-sticky prices). The comparison should not be overclaimed: our own
+sticky prices). The comparison should not be overclaimed: our standard
 Phillips-curve exercises (Appendix~\ref{app:nkmodel}) differ from the
 demand-theory transition not only in price determination but in price
 rigidity, financing rule, and shock persistence, so they diagnose transition
-\emph{shape}, not a clean sign horse race. A decisive test needs one of two
-things, and both are outstanding: a \emph{perfectly matched} DTPL-versus-NK
-experiment holding the spending path, scale, persistence, and financing fixed
-so that only the price-determination block differs; or high-frequency
-identification of the market-implied-inflation response to green-fiscal
-surprises. The sign is the object; the current confounded reduced-form record
-cannot yet adjudicate it.
+\emph{shape}, not a clean sign horse race. The replication package therefore
+includes a \emph{matched} DTPL-versus-NK experiment
+(\texttt{run\_matched\_dtpl\_nk}): the NK-HANK of Appendix~\ref{app:nkhank}
+re-run with a near-permanent program at the DTPL scale, balanced
+(service-rule-speed) financing, no accommodation, and the labor margin shut
+--- so that, up to linearization and frequency, only the price-determination
+block differs; the comparison object is the announcement-window inflation
+sign, and the matched-run number is reported once the driver has run. The
+complementary test is empirical: high-frequency identification of the
+market-implied-inflation response to green-fiscal surprises. The sign is the
+object; the current confounded reduced-form record cannot yet adjudicate it.
 
 % ==========================================================================
 \appendix
@@ -3758,6 +3641,158 @@ regime & $\pi$ impact (ann.) & $Y$ impact & $r^b$ impact & debt (40q) & $K_g$ (4
 \end{tabular}
 \end{table}
 
+\subsection{The worked example in full}\label{subsec:workedexample}
+
+The parameters here are chosen for \emph{transparency}, not discipline: a
+large damage scale and a sizable program make every channel move visibly, so
+the reader can trace the mechanism before it is confronted with credible
+magnitudes. Nothing in the paper's contribution rests on these numbers; the
+disciplined calibration is Section~\ref{subsec:calibrated}, and this
+subsection magnifies the propositions so each moving part is visible.
+
+The household block inherits the replication benchmark of the underlying DTPL
+package: annual frequency, $\beta=0.96$, $\sigma=2$, $\bar a=0$, a 7-state
+Rouwenhorst chain with $\rho=0.90$, $\sigma_{\epsilon,0}=0.20$ (unit mean),
+$B=1$, $i^{ss}=0.04$, baseline $\mu=0.02$ (so $r^{ss}=0.0196$). The climate
+block is \emph{deliberately illustrative and deliberately large}: $D_0=0.10$
+(no-abatement damages of 10\% of
+endowments, at the upper end of what \citealp{bilalkanzig2024} argue is
+conservative), $\theta_g=1.2$, $\delta_g=0.10$, risk channel $\phi_D=0.5$,
+nominal green budget $G_g=0.012$ (real spending of roughly 5--6\% of mean
+endowment at the equilibrium price level --- several times a realistic
+public green-investment share, chosen so the price response is large enough
+to read off a table). Version-2 climate parameters:
+$D_{\max}=0.25$, $\varepsilon_0=1$, $\delta_x=0.05$, $\gamma_x=0.028$,
+$\alpha_A=0.9$; incidence $\psi\in\{0,1,2\}$. Numerical method in
+Appendix~\ref{app:numerics}. Because these parameters are an expository
+device, no headline result rests on them: the self-financing share is
+reported across low-, medium-, and high-damage columns
+(Section~\ref{subsec:calibrated}), Section~\ref{subsec:robustness} states
+each parameter's source and reports the headline objects over the full
+swept ranges, and the qualitative findings --- the disinflationary
+revaluation, its sign reversal under financing design, and the compression
+of aggregate climate risk --- hold across the range.
+
+
+
+Table~\ref{tab:benchmark} reports the worked example (full-resolution,
+$n_a=500$); read it as an existence demonstration of the channels, not as a
+prediction.\footnote{The \emph{level} of $P^{*}$ is not comparable across
+subsections: it scales with the nominal debt normalization $B$ and the
+calibration, so the benchmark ($B=1$), the calibrated pass
+(Section~\ref{subsec:calibrated}, $B$ set to the $1.1$ debt-to-income
+target), and the aggregate-risk section use different normalizations. Only
+\emph{changes} in $P$ --- the disinflation $\ln P_1-\ln P_0$ and the state
+dispersion $P_S/P_C$ --- are economically meaningful and comparable, and all
+reported results are stated as such.}
+
+\begin{table}[!htb]
+\centering
+\caption{Benchmark quantitative results ($n_a=500$ run).}
+\label{tab:benchmark}
+\begin{tabular}{lcc}
+\toprule
+ & no program & green program \\
+\midrule
+price level $P^{*}$            & 0.2226 & 0.1897 \\
+damages $D$                    & 0.1000 & 0.0468 \\
+real green spending $g_g$      & 0      & 0.0633 \\
+real taxes $\tau$              & 0.0881 & 0.1666 \\
+utilitarian welfare $W$        & $-7.807$ & $-8.954$ \\
+\midrule
+self-financing $\nu$           & \multicolumn{2}{c}{$0.600$} \\
+\quad revaluation $\nu_{\mathrm{reval}}$ & \multicolumn{2}{c}{$-0.241$} \\
+\quad damage dividend $\nu_{\mathrm{dam}}$ & \multicolumn{2}{c}{$0.841$} \\
+one-time revaluation $L$       & \multicolumn{2}{c}{$-0.778$ (bondholder windfall)} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Three observations. First, the program is strongly but not fully
+self-financing: $\nu=0.60$. Second --- the sign surprise of
+Result~\ref{res:disinflation} --- the entire financing contribution comes from
+the damage dividend; the revaluation channel is \emph{negative} because the
+program is disinflationary ($\ln P_1/P_0 = -16\%$): avoided damages raise
+effective incomes, and the higher taxes that service the program strengthen
+precautionary saving (the measured benchmark has
+$\partial\Sfun/\partial\tau>0$; see the interpolant nodes in the run log,
+where $\Sfun$ rises from $3.49$ to $5.80$ as $\tau$ moves from $-0.05$ to
+$0.22$ at $D=0$). Both forces raise $\Sfun$, and $P=B/\Sfun$ falls.
+Bondholders receive a one-time windfall $|L|=0.78$ --- 78\% of annual mean
+income --- concentrated at the top of the wealth distribution. Green deficits
+in this economy transfer resources \emph{to} rentiers, not from them: the
+mirror image of the inflation-erosion intuition, with the opposite
+distributional politics. Third, the naive welfare comparison
+($W_1<W_0$) is not the policy-relevant object --- it compares steady states
+with different tax burdens, ignoring transition gains from lower damages
+accruing along the path; the optimal-policy exercise of Appendix~\ref{subsec:optmu} chooses among
+program designs directly.
+
+Figure~\ref{fig:pfig2}(b) traces $\nu(\theta_g)$: the damage dividend is the
+engine, and full self-financing $\nu\ge1$ arrives at
+$\theta_g\approx2.4$. At $\theta_g=0$ (pure resource cost, no abatement
+payoff) $\nu=-0.275<0$: an unproductive nominal program is \emph{worse} than
+its sticker price, again because of the disinflationary asset-demand
+response.
+
+
+
+\pfigguard{PFig2_self_financing.pdf}{%
+\begin{figure}[!htb]\centering
+\includegraphics[width=0.95\textwidth]{PFig2_self_financing.pdf}
+\caption{Self-financing. (a) Decomposition at the benchmark:
+$\nu_{\mathrm{reval}}=-0.241$, $\nu_{\mathrm{dam}}=0.841$, $\nu=0.600$.
+(b) $\nu(\theta_g)$ crosses full financing near $\theta_g\approx2.4$.}
+\label{fig:pfig2}
+\end{figure}}
+
+% --------------------------------------------------------------------------
+\subsection{Optimal accommodation}\label{subsec:optmu}
+
+Figure~\ref{fig:pfig4} traces $W(\mu)$. Welfare is hump-shaped with an
+interior optimum $\mu^{*}=0.045$ ($W=-7.681$), against a baseline of
+$\mu=0.02$ ($W=-8.981$): the optimal policy accommodates the green program
+with roughly $4.5\%$ steady-state inflation. The mechanism matches
+Proposition~\ref{prop:optimalmu}: moving from $\mu=0.02$ to $0.045$ cuts the
+real rate from $2.0\%$ to $-0.5\%$, the real interest burden collapses
+($\tau$ falls from $0.167$ to $0.011$ despite unchanged real green spending
+financed within the budget), and the price level roughly triples so real
+green spending per unit of nominal budget falls --- at $\mu>0.045$ the
+climate erosion and the lower buffer return dominate and welfare declines.
+At $\mu=0.015$ no equilibrium exists on the scan range: with $r^{ss}$ that
+close to the $1/\beta-1$ asymptote, asset demand exceeds $B/P$ at every
+feasible price level --- the existence failure the theory predicts, reported
+by the solver rather than smoothed over. Three framing caveats keep
+the result strictly scoped. \emph{First and most important}, this is not an
+inflation result at all: by Proposition~\ref{prop:muneutral} the steady
+state depends on $\mu$ only through $r^{ss}=(1+i^{ss})/(1+\mu)-1$, so varying
+$\mu$ at fixed $i^{ss}$ \emph{is} varying the real rate, and holding
+$r^{ss}$ fixed while moving $(i^{ss},\mu)$ leaves $W$ exactly invariant. The
+reported $\mu^{*}=0.045$ is the optimal real rate $r^{ss*}\approx-0.5\%$; the
+welfare gain --- the collapse of the real interest bill on debt of several
+times income, a transfer away from wealth-concentrated bondholders --- is
+the \citet{aiyagarimcgrattan1998} optimal-quantity-of-debt force in a climate
+economy. A design that separated the two margins cleanly --- vary
+$(i^{ss},\mu)$ holding $r^{ss}$ fixed (welfare flat, by
+Proposition~\ref{prop:muneutral}) against varying $r^{ss}$ at fixed trend
+inflation --- would confirm there is no inflation margin here; we state the
+optimum as an optimal-$r^{ss}$ result accordingly. \emph{Second}, it is a
+\emph{steady-state financing} statement in the spirit of the risk-sharing
+motive for accommodation in \citet{acharya2023optimal} --- not advice about
+stabilization policy or the credibility cost of moving an announced target,
+which the flexible-price model has no vocabulary for. \emph{Third}, the
+interior optimum exists precisely because the climate loop penalizes
+inflation (real spending erosion), so economies with indexed green budgets
+would rationally choose higher $\mu^{*}$.
+
+\pfigguard{PFig4_optimal_policy.pdf}{%
+\begin{figure}[!htb]\centering
+\includegraphics[width=0.6\textwidth]{PFig4_optimal_policy.pdf}
+\caption{Utilitarian welfare $W(\mu)$; the star marks $\mu^{*}=0.045$.}
+\label{fig:pfig4}
+\end{figure}}
+
+% --------------------------------------------------------------------------
 \subsection{Aggregate-risk welfare: the insurance decomposition}
 \label{subsec:aggriskwelfare}
 
