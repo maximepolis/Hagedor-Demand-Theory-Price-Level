@@ -35,9 +35,11 @@ function ad2 = build_S_interp_green(r, pg, taugrid, Dgrid)
     if isfield(pg,'psi_inc') && ~isempty(pg.psi_inc), psi = pg.psi_inc; end
     Dmid = Dgrid(max(1, ceil(numel(Dgrid)/2)));
     ev   = pg.eGrid(:); wst = pg.stationary_e(:);
+    floor_s = 0.05;
+    if isfield(pg,'scale_floor') && ~isempty(pg.scale_floor), floor_s = pg.scale_floor; end
     if psi > 0
         chi   = (ev.^(-psi)) / (wst' * (ev.^(1-psi)));
-        y_min = min(max(1 - Dmid*chi, 0.05) .* ev);
+        y_min = min(max(1 - Dmid*chi, floor_s) .* ev);
     else
         y_min = (1 - Dmid) * min(ev);
     end

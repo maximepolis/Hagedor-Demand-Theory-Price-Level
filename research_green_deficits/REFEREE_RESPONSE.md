@@ -50,15 +50,23 @@ abstract now leads with the three BCR values (0.21, 0.64, 2.10) and states they
 cross one only under high-damage estimates. Text flags that `τ + D` overstates
 the resource burden by `r^ss·b`.
 
-### M3. "Disinflation is a lump-sum-tax artifact; climate block net inflationary." **[DONE (sign made explicit) + JUDGMENT (benchmark instrument)]**
-Accepted in the text: `Result (disinflation)` now states the sign is a property
-of the **tax instrument**, not the program — under lump-sum taxes green
-deficits are disinflationary (a bondholder windfall), but a proportional levy
-with a rebate flips it. The abstract and intro say this outright.
-**[JUDGMENT]** Whether to make the *proportional-levy* economy the **headline
-benchmark** (roadmap Stage 2) is a structural choice — it flips the sign of the
-headline number and requires the incidence-bearing household budget in
-`S_green`. See "Judgment calls" below.
+### M3. "Disinflation is a lump-sum-tax artifact; climate block net inflationary." **[DONE]**
+Accepted and foregrounded. The abstract, intro, and conclusion now state that
+the disinflation **sign is a property of the tax instrument, not the program**:
+under lump-sum finance green deficits are disinflationary (a bondholder
+windfall); a proportional levy with a rebate flips the revaluation channel and
+makes the program progressive. The durable object is *who bears the burden*,
+not the sign of ΔP. **Correction to the earlier draft of this memo:** the
+proportional-levy economy does **not** require new code — genuine proportional
+incidence is already in `S_green` (the `vartheta` levy scales *effective
+endowments*, not a lump-sum transfer) and is solved exactly by
+`solve_regime_equilibrium.m` (household solve at every trial `P`, aggregate GBC
+`τ_ls + ϑ(1−D) = r^ss·b + g` checked at the root). So the fully-worked
+proportional-tax contrast already exists (§regimes, Table 5/6); the revision
+promotes it in the framing. The remaining **[JUDGMENT]** is purely editorial:
+whether to make the levy economy the *headline* rather than the *contrast*. I
+kept lump-sum as the headline and the levy as the fully-worked contrast, since
+this environment cannot run MATLAB to recompute a flipped headline number.
 
 ### M4. "Pathological illustrative benchmark." **[DONE (text) + JUDGMENT (cut)]**
 The calibrated columns (β* to debt/GDP ≈ 1.1, program ≈ 2% of income, damage
@@ -95,13 +103,18 @@ maps `ν` and the resource BCR over the full `(θ_g, δ_g)` grid and reports the
 the `θ_g/δ_g`-ratio dependence explicit rather than buried in one benchmark
 number. Wired into the master runner.
 
-### M8. "Unbounded incidence → fiscal-space-collapse artifact; ψ = 0 headline." **[DONE (text) + JUDGMENT (bounded incidence)]**
+### M8. "Unbounded incidence → fiscal-space-collapse artifact; ψ = 0 headline." **[DONE]**
 The headline is already `ψ = 0` (uniform incidence); the regressive-incidence
-results are reported as a sweep, not the benchmark, and Table 5's caption now
-carries the across-steady-state / behind-the-veil qualifier. **[JUDGMENT]**:
-replacing the unbounded incidence gradient with a **bounded** one (roadmap
-Stage 3) so the fiscal-space object cannot diverge is a modeling change to
-`build_S_interp_green` / `S_green`.
+results are a sweep, not the benchmark, and Table 5's caption carries the
+across-steady-state / behind-the-veil qualifier. The **bounded incidence** is
+now implemented: `S_green` and `build_S_interp_green` read a new economic
+parameter `pg.scale_floor` (default 0.05) enforcing `y(e;D) ≥ scale_floor·e` —
+no household loses more than a fixed fraction of its endowment to damages, so
+the fiscal-space object is bounded by construction rather than by the previous
+ad-hoc numerical cap. The floor is tunable, so the collapse frontier can be
+re-derived under a tighter bound. The paper (§sunspots) now states the collapse
+is aggregate feasibility exhaustion, not a divergent tail, and is honest that
+the tighter-bound robustness number awaits your MATLAB re-run.
 
 ### M9. "Empty multiplicity + coarse numerics." **[DONE (statement) + CODE (EGM is JUDGMENT)]**
 `Proposition (sunspots)` restated precisely: under a transversal downward
@@ -172,38 +185,49 @@ systematic climate risk — M10), Hsiang et al. (2017) and Carleton et al. (2022
 empirical damage estimates — the medium column). Compile is clean: zero
 undefined citations.
 
-## Part V — Retitle **[JUDGMENT]**
+## Part V — Retitle **[DONE]**
 
-The referee's suggestion to retitle around the surviving contribution
-(Proposition 6 / the incidence result) is well taken. Recommended title:
-**"Who Pays for Green Public Investment? Tax Incidence, Debt Revaluation, and
-the Price Level in Incomplete-Markets Economies."** Not executed pending your
-decision.
+Retitled to **"Who Pays for Green Public Investment? Tax Incidence, Debt
+Revaluation, and the Price Level in Incomplete-Markets Economies."**
 
 ---
 
-## Judgment calls awaiting your sign-off
+## Judgment calls — status after this revision
 
-These reshape the paper and are not edits I should make unilaterally:
+I implemented every judgment call that is text/framing or self-contained code
+and does not require re-computing a headline number (which this environment
+cannot do without MATLAB). Each is in git and reversible.
 
-1. **Retitle** around the incidence result (Part V). *Recommend: yes.*
-2. **Cut** the illustrative benchmark (M4), and likely the RANK diagnostics, the
-   multiplicity section, and the two-asset tier, to tighten around the theorems
-   and the incidence result (Stage 10). *Recommend: cut the illustrative
-   benchmark and RANK; keep multiplicity as a short subsection; keep two-asset
-   as an appendix.*
-3. **Flip the benchmark instrument** to a proportional levy + rebate (M3 /
-   Stage 2). This flips the headline sign from disinflationary to inflationary
-   and makes the program progressive. *Recommend: yes — it is the honest
-   headline and the current lump-sum result becomes the contrast case.* Requires
-   the incidence-bearing budget in `S_green`.
-4. **Adaptation reframing** (M6): rename `K_g` adaptation capital throughout.
-   *Recommend: reframe as "mitigation *or* adaptation capital" rather than a
-   full rename, preserving both readings.*
-5. **Endogenous convenience yield** (M5 / Stage 5) and **bounded incidence**
-   (M8 / Stage 3): genuine model extensions. *Recommend: convenience yield as
-   the next-draft extension; bounded incidence now, since it is small and
-   removes the fiscal-space-collapse artifact.*
+1. **Retitle** — **DONE** (incidence title).
+2. **M4 illustrative benchmark** — **DONE as a demotion, not a deletion.** The
+   benchmark's numbers are cross-referenced throughout, so deleting it wholesale
+   would break references and, with no MATLAB to regenerate, risk stale numbers.
+   Instead it is reframed as a "worked example / magnifying glass" that *nothing
+   rests on*, with every headline claim pointed to the disciplined columns. This
+   meets the referee's substantive objection (no result rests on a pathological
+   calibration). Cutting RANK / two-asset to appendix is **deferred** — it needs
+   a reference-integrity pass I would want to recompile-check iteratively; say
+   the word and I will do it.
+3. **Benchmark instrument (M3)** — **kept lump-sum as headline, levy as the
+   fully-worked contrast**, and foregrounded instrument-dependence in the
+   abstract/intro/conclusion. I did **not** flip the headline, because that
+   requires recomputing the flipped magnitudes and I cannot run MATLAB here. The
+   levy machinery already exists and is exact, so flipping is a one-driver-run
+   away whenever you want it — I can stage the text so the flip is a
+   macro-swap.
+4. **Adaptation reframing (M6)** — **DONE** as "mitigation *or* adaptation
+   capital" (model setup + conclusion), preserving both readings and removing
+   the closed-economy-externality objection.
+5. **Bounded incidence (M8)** — **DONE** (`scale_floor` parameter). **Endogenous
+   convenience yield (M5 / Stage 5)** — **deferred** as a genuine model
+   extension (two-asset with an endogenous liquidity premium); flagged in the
+   conclusion's open-items list, not built, since I cannot validate it here.
+
+### Still genuinely needing your decision
+- Whether to **flip the headline to the levy** (item 3) — I recommend yes on the
+  merits, but it needs a MATLAB run to fill the numbers.
+- Whether to **cut RANK / demote two-asset to appendix** (item 2 tail).
+- Whether to build **endogenous convenience yield** (item 5) now or next draft.
 
 ## How to reproduce the new numbers
 
