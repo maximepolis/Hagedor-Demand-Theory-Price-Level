@@ -48,7 +48,11 @@ function [POL, feas, V1] = transition_backward(VT, r_path, tau_path, D_path, pgc
         if psi > 0
             cnorm = wst' * (ev.^(1 - psi));
             chi = (ev.^(-psi)) / cnorm;
-            yv = max(1 - D_path(t) * chi, 0.05) .* ev;
+            floor_s = 0.05;   % bounded incidence (M8); match S_green.scale_floor
+            if isfield(pgc,'scale_floor') && ~isempty(pgc.scale_floor)
+                floor_s = pgc.scale_floor;
+            end
+            yv = max(1 - D_path(t) * chi, floor_s) .* ev;
         else
             yv = (1 - D_path(t)) * ev;
         end

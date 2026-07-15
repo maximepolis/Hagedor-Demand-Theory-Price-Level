@@ -2653,7 +2653,28 @@ equal $B_T/P_T$ by construction. A path that is not both converged and
 horizon-adequate is returned as such and cannot be presented as a result.
 Each iteration costs $T$ exact Bellman steps plus $T$
 distribution pushes on the full $(a,e)$ grids --- deliberately the
-computationally heaviest object in the package. Two experiments run by
+computationally heaviest object in the package.
+
+\paragraph{Cross-check and a sequence-space determinacy diagnostic.} Because
+the announcement result is the paper's sharpest dynamic claim, we solve it a
+second, independent way and compare. The alternative is a Newton iteration in
+\emph{sequence space}: we form the general-equilibrium Jacobian
+$J_{ts}=\partial\,[\,S_t-B_t/\hat P_t\,]/\partial\ln\hat P_s$ of the
+market-clearing residual along the path --- the sequence-space Jacobian of
+\citet{auclertetal2021}, here computed directly, since the aggregate unknown is
+a scalar per date --- and step $\ln\hat P \leftarrow \ln\hat P - J^{-1}H$. The
+first Newton step from the log-linear bridge reproduces the model's linear
+impulse response exactly, a built-in correctness gate, and the two solvers are
+built on two \emph{independent} residual implementations, so their agreement is
+a genuine cross-validation rather than a shared-code tautology. The same
+Jacobian yields a \emph{dynamic} determinacy diagnostic that complements the
+steady-state elasticity test of Definition~\ref{def:elasticity}: the transition
+is locally determinate where $J$ is well conditioned (smallest singular value
+bounded away from zero), and a near-singular $J$ is the sequence-space
+signature of the flat-demand multiplicity region of
+Proposition~\ref{prop:sunspots}. Both the cross-check and the diagnostic are
+produced by the replication driver \texttt{verify\_transition\_ssj}; no
+announcement number is quoted unless the two solvers agree. Two experiments run by
 default: the \emph{nominal appropriation} (the anchor-exposed design) and
 the \emph{indexed mandate} (the anchor-insulated design of
 Proposition~\ref{prop:insulation}); the comparison of their announcement
