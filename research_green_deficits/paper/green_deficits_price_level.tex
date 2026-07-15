@@ -598,6 +598,23 @@ an interest-rate rule --- which is stated in full in
 Appendix~\ref{app:nkmodel}; we flag the connection at the relevant points
 below.
 
+\paragraph{The scenarios, up front.} To orient the reader, the paper studies
+one economy under a small, fixed menu of \emph{financing designs} and a small
+menu of \emph{environments}. The financing designs are all balanced-budget
+choices of the unified tax pair $(\tau_{ls},\vartheta)$ of
+Section~\ref{subsec:households}: the \emph{lump-sum} benchmark ($\vartheta=0$),
+a \emph{proportional levy} ($\vartheta>0$, $\tau_{ls}$ covering only service), a
+\emph{levy-plus-rebate} (levy above the program, half rebated), and an even
+\emph{mix} (Section~\ref{subsec:regimes}). The environments are: the
+deterministic stationary economy (Sections~\ref{sec:theory}--\ref{sec:quant});
+its \emph{indexed-mandate} variant, in which the green line is denominated in
+real terms (Section~\ref{subsec:sunspots}); a \emph{two-state aggregate-climate}
+extension (Section~\ref{subsec:aggrisk}); and the \emph{announcement transition}
+of Section~\ref{sec:transitions}, computed both in the nonlinear DTPL economy
+and, as diagnostics, in representative-agent and heterogeneous-agent New
+Keynesian versions. Every quantitative headline is a stationary object; the
+transition and NK exercises are dynamics and diagnostics, labeled as such.
+
 % --------------------------------------------------------------------------
 \subsection{Households}\label{subsec:households}
 
@@ -610,24 +627,40 @@ u(c)=\frac{c^{1-\sigma}-1}{1-\sigma},\quad \sigma>0,
 and face idiosyncratic endowment risk: $e_t$ follows a finite-state Markov
 chain with transition matrix $\Pi$ (a Rouwenhorst discretization of an AR(1)
 in logs with persistence $\rho$ and innovation standard deviation
-$\sigma_\epsilon$), normalized so that $\E[e]=1$. The budget constraint is
+$\sigma_\epsilon$), normalized so that $\E[e]=1$. We specify the fiscal side as
+a \emph{unified tax schedule} from the outset, so that the financing-incidence
+comparisons of Section~\ref{subsec:regimes} are structural rather than bolted
+on: taxes combine a real lump-sum component $\tau_{ls}$ (a rebate when negative)
+and a proportional levy at rate $\vartheta\in[0,1)$ on effective endowments. The
+budget constraint is
 \begin{equation}
-c_t + a_{t+1} = (1+r_t)\,a_t + y(e_t; D_t) - \tau_t,
+c_t + a_{t+1} = (1+r_t)\,a_t + (1-\vartheta_t)\,y(e_t; D_t) - \tau_{ls,t},
 \qquad a_{t+1}\ge -\bar a,
 \label{eq:budget}
 \end{equation}
-where $a$ is the real value of nominal government bonds held, $\tau$ a real
-lump-sum tax, and $y(e;D)$ the \emph{effective} endowment after climate
-damages, defined in \eqref{eq:incidence} below. The borrowing limit is
-$\bar a = 0$ in the benchmark.
+where $a$ is the real value of nominal government bonds held and $y(e;D)$ the
+\emph{effective} endowment after climate damages, defined in
+\eqref{eq:incidence} below. The borrowing limit is $\bar a = 0$ in the
+benchmark. The instruments are linked to spending by the aggregate government
+identity $\tau_{ls}+\vartheta\,(1-D)=r^{ss}b+g_g$; a financing regime is a
+choice of the pair $(\tau_{ls},\vartheta)$ satisfying it (Section~\ref{subsec:regimes}).
 
 The household problem gives a value function $V(a,e)$, a savings policy
 $a'(a,e)$, and an invariant distribution $\Omega$ over $(a,e)$. Aggregate
-asset demand is
+asset demand is the single object
 \begin{equation}
-\Sfun\big(1+r;\ \tau,\ D\big) \;=\; \int a \,\dd\Omega .
+\Sfun\big(1+r;\ \tau_{ls},\ \vartheta,\ D\big) \;=\; \int a \,\dd\Omega .
 \label{eq:Sdef}
 \end{equation}
+The \emph{lump-sum benchmark} sets $\vartheta=0$, in which case we abbreviate
+$\tau\equiv\tau_{ls}$ and write $\Sfun(1+r;\tau,D)$ for
+$\Sfun(1+r;\tau,0,D)$ throughout; the proportional-levy and rebate designs
+(Section~\ref{subsec:regimes}) activate $\vartheta>0$ in the \emph{same} object,
+so the incidence results are read off one asset-demand schedule, not a separate
+construction. A pure proportional levy scales effective endowments by
+$(1-\vartheta)$ and, by the homotheticity of Lemma~\ref{lem:S}, contracts asset
+demand roughly one-for-one; the lump-sum component enters through the
+constraint-tightening channel of Section~\ref{subsec:safeasset}.
 
 % --------------------------------------------------------------------------
 \subsection{The climate sector}\label{subsec:climate}
@@ -994,6 +1027,27 @@ $\{P:\ \tau(P) < \min_e y(e;D(P)) - r^{ss}\bar a\}$ is nonempty (the lower
 asset bound is $-\bar a$, from the borrowing limit $a_{t+1}\ge-\bar a$).
 \end{assumption}
 
+\paragraph{The analytical status of the results, up front.} The formal
+statements below are uniformly labeled but are \emph{not} of uniform logical
+strength, and we flag the status of each so a theory-facing reader can weight
+them. Three are \textbf{proved from primitives} and carry the paper's weight:
+the nominal neutrality of debt issuance (Lemma~\ref{lem:neutrality}),
+steady-state monetary neutrality (Proposition~\ref{prop:muneutral}), and the
+exact self-financing decomposition (Proposition~\ref{prop:selffinancing}). The
+rest are explicitly qualified. Existence and uniqueness
+(Proposition~\ref{prop:determinacy}) hold under the stated crossing and
+regularity conditions (R1)--(R2). The multiplicity result
+(Proposition~\ref{prop:sunspots}) is \textbf{conditional}: it assumes a
+transversal downward crossing, which the calibrated frontier never exhibits.
+Anchor insulation (Proposition~\ref{prop:insulation}) rests on a
+\textbf{numerically verified} elasticity bound. Optimal accommodation
+(Proposition~\ref{prop:optimalmu}) is an analytic \emph{reduction} to a
+real-rate problem plus a \textbf{numerically located} interior optimum.
+Financing design (Proposition~\ref{prop:financingdesign}) uses an
+\textbf{approximate} homogeneity (exact only in the homothetic limit). Each
+statement carries a pointer to its proof in Appendix~\ref{app:proofs}, and the
+qualifier is repeated at the statement so it is not lost.
+
 % --------------------------------------------------------------------------
 \subsection{Preliminaries}
 
@@ -1047,6 +1101,9 @@ demand, no stationary equilibrium exists --- the fiscal-space collapse
 documented, under both the nominal budget and the indexed mandate, in
 Section~\ref{subsec:sunspots}.
 \end{proposition}
+\noindent\emph{Status:} \textbf{proved from primitives} under the crossing
+condition and the maintained regularity conditions (R1)--(R2) stated in the
+proof; proof in Appendix~\ref{app:proofs}.
 
 The economic content of (iii) parallels the capital extension in
 \citet{hagedorn2026dtpl}: real state variables added to the economy absorb
@@ -1082,6 +1139,8 @@ $(B,G_g)$: a proportional rescaling of the nominal debt stock and the
 nominal green appropriation rescales the price level one-for-one and leaves
 every real object unchanged.
 \end{lemma}
+\noindent\emph{Status:} \textbf{proved from primitives} (homogeneity of the
+real fixed point in the nominal anchors); the argument is displayed above.
 
 Two implications reframe the paper's fiscal question. First, in the
 stationary equilibrium real debt $b$ is a fixed point of household asset
@@ -1123,6 +1182,8 @@ allocation and utilitarian welfare $W$ exactly invariant. Steady-state
 inflation is neutral at a fixed real rate: $W(\mu)$ computed at fixed
 $i^{ss}$ equals $W\big(r^{ss}(\mu)\big)$ relabelled.
 \end{proposition}
+\noindent\emph{Status:} \textbf{proved from primitives} (substitution into the
+real fixed point); the argument is the one displayed above.
 
 Proposition~\ref{prop:muneutral} settles the interpretation of the
 optimal-accommodation exercise (Section~\ref{subsec:optmu}) by proof rather
@@ -1171,9 +1232,15 @@ threshold, where the damage dividend must exceed unity to offset the
 negative revaluation.
 (iii) The one-time revaluation $L=B/P_0-B/P_1$ falls on bondholders in
 proportion to holdings; because wealth is more concentrated than income in
-the invariant distribution, $|L|$ is progressive when positive and regressive
-when negative.
+the invariant distribution, $|L|$ is progressive \emph{by wealth rank} when
+positive and regressive when negative (income/welfare progressivity is the
+numerical welfare-group finding of Section~\ref{subsec:welfaregroups}, not a
+corollary of the wealth ranking).
 \end{proposition}
+\noindent\emph{Status:} (i)--(ii) \textbf{proved from primitives} (exact
+decomposition and the marginal identity at $g_g=0$); (iii) the wealth-rank
+statement is exact, the income/welfare reading numerical. Proof in
+Appendix~\ref{app:proofs}.
 
 \begin{result}[Green disinflation]\label{res:disinflation}
 When $r^{ss}>0$, $\nu_{\mathrm{reval}}<0$ iff $P_1<P_0$ iff
@@ -1187,15 +1254,20 @@ becomes a levy. The benchmark has $r^{ss}=2\%>0$.) Sufficient conditions: $\part
 (the constraint-tightening precautionary effect of lump-sum taxes, which the
 benchmark calibration exhibits; see Section~\ref{sec:quant}) together with a
 damage dividend that does not lower demand. Under the opposite sign
---- $\partial\Sfun/\partial\tau<0$, as in Hagedorn's Result 1 under his
-conditions --- a sufficiently tax-heavy program is inflationary and
+(that is, $\partial\Sfun/\partial\tau<0$, as in Hagedorn's Result 1 under his
+conditions) a sufficiently tax-heavy program is inflationary and
 $\nu_{\mathrm{reval}}>0$, the \citet{angeletos2024deficits} configuration.
 The sign of the revaluation channel is thus an \emph{empirically diagnosable}
 object, governed by the slope of asset demand in the tax burden.
 \end{result}
 
-Because the disinflation result --- and the abstract's headline --- rests
-entirely on $\partial\Sfun/\partial\tau>0$, it is worth spelling out when a
+The disinflation sign is set by the \emph{total} change in $\Sfun(\tau,D)$
+across the two steady states (Result~\ref{res:disinflation}): the tax slope
+$\partial\Sfun/\partial\tau$ is its dominant term, but the damage and risk
+channels (decomposed below) also enter, and the result requires them not to
+overturn the tax term. That said, the tax slope is the pivotal and least
+intuitive ingredient --- it is what makes the net effect disinflationary rather
+than inflationary --- so it is worth spelling out when a
 uniform lump-sum tax \emph{raises} aggregate demand for the safe asset,
 against the representative-agent intuition that a higher permanent tax lowers
 saving. Two forces oppose. For households away from the borrowing limit a
@@ -1251,6 +1323,9 @@ level, and conversely. The strategic complementarity is
 \ \longrightarrow\ \Sfun \ \longrightarrow\ P=\tfrac{B}{\Sfun}.
 \end{equation*}
 \end{proposition}
+\noindent\emph{Status:} \textbf{conditional} on the hypothesized transversal
+downward crossing, which the calibrated frontier does not exhibit
+(Section~\ref{subsec:sunspots}); proof in Appendix~\ref{app:proofs}.
 
 The incidence gradient $\psi$ is quantitatively central here: it determines
 whether the damage channel of $\varepsilon_S$ is strong enough to cross $-1$.
@@ -1274,6 +1349,9 @@ equilibrium, \emph{if one exists} (Proposition~\ref{prop:determinacy}), is
 unique. Indexation thus removes the multiplicity channel conditionally on
 these bounds; it does not by itself guarantee existence.
 \end{proposition}
+\noindent\emph{Status:} \textbf{numerically verified} elasticity bound (holds
+across the calibrated grid, not proved for all parameters); proof in
+Appendix~\ref{app:proofs}.
 
 \begin{corollary}[Greenness of the nominal anchor]\label{cor:anchor}
 Determinacy requires insulating the nominal anchor from the climate loop:
@@ -1373,6 +1451,9 @@ the first effect is first-order at small $\mu$ while the climate cost is
 proportional to the program size; the optimum $\mu^{*}$ is then interior and
 strictly positive. Its magnitude is quantitative.
 \end{proposition}
+\noindent\emph{Status:} analytic \textbf{reduction} to a real-rate problem
+(via Proposition~\ref{prop:muneutral}) plus a \textbf{numerically located}
+interior optimum; proof in Appendix~\ref{app:proofs}.
 
 % --------------------------------------------------------------------------
 \subsection{Financing design and the revaluation channel}\label{subsec:financingdesign}
@@ -1396,6 +1477,10 @@ design, not a structural constant of the green program. The mechanism holds
 under the stated sign conditions; the magnitudes are quantified in
 Section~\ref{subsec:regimes}.
 \end{proposition}
+\noindent\emph{Status:} sign result under the stated conditions, using the
+\textbf{approximate} degree-one homogeneity of Lemma~\ref{lem:S} (exact in the
+homothetic limit; the residual non-homotheticity is second-order for small
+$\vartheta$); proof in Appendix~\ref{app:proofs}.
 
 % ==========================================================================
 \FloatBarrier
@@ -2332,33 +2417,21 @@ columns (lump-sum financing).}
 \label{fig:pfig8}
 \end{figure}}
 
-\paragraph{Extended groups.} The package additionally reports incidence by
-income-state quintile, by bondholding quintile (in the one-asset economy
-the only asset \emph{is} the government bond, so wealth and bondholding
-quintiles coincide --- a fact worth stating rather than hiding), for
-constrained versus unconstrained households, and for a high-MPC proxy
-group (the top quartile of the consumption-policy slope $dC/dA$ on the
-baseline policy; a proxy, labeled as such). These are steady-state
-comparisons at the calibrated medium-damage scale. Under
-\textsc{r1-lumpsum}, every cut of
-the population points the same way: income-state quintiles lose
-monotonically ($-2.73\%$, $-2.01\%$, $-1.62\%$, $-1.34\%$, $-1.05\%$ from
-bottom to top; exact fractional apportioning of the seven-state process
-across quintile boundaries), constrained households ($17.7\%$ of the
-population) lose $-2.64\%$ against $-1.56\%$ for the unconstrained, and
-the high-MPC quartile loses $-2.25\%$ against $-1.56\%$ for the rest ---
-the program under lump-sum finance is paid for precisely by the households
-with the least self-insurance capacity. Under
-\textsc{r3-prop-levy-rebate} every one of those orderings \emph{reverses}:
-the income quintiles gain $+1.86\%$, $+1.02\%$, $+0.53\%$, $+0.16\%$,
-$-0.24\%$ from bottom to top, the constrained gain $+1.71\%$ against
-$+0.44\%$, and the high-MPC group $+1.23\%$ against $+0.45\%$, at an
-aggregate gain of $+0.67\%$ against the lump-sum regime's $-1.75\%$.
-Stated conditionally: incidence is regressive under pure lump-sum finance
-in the low and medium damage calibrations, rebate financing reverses
-bottom-half losses, and in the high-damage column all groups gain --- but
-full self-financing remains conditional on the high-damage,
-high-effectiveness region.
+\paragraph{Extended groups.} The package additionally cuts incidence by
+income-state quintile, by bondholding quintile (which coincides with wealth in
+the one-asset economy), by constrained/unconstrained status, and by a high-MPC
+proxy group, at the calibrated medium column (full breakdown in the replication
+tables). The pattern is uniform and is the point: under \textsc{r1-lumpsum}
+\emph{every} cut of the population loses monotonically from the bottom up --- the
+constrained ($17.7\%$ of the population) lose $-2.64\%$ against $-1.56\%$ for the
+unconstrained --- so the program is paid for precisely by the households with
+the least self-insurance capacity; under \textsc{r3-prop-levy-rebate} every one
+of those orderings \emph{reverses}, with the bottom half in surplus and an
+aggregate gain of $+0.67\%$ against the lump-sum regime's $-1.75\%$. Incidence
+is thus regressive under pure lump-sum finance and progressive under the rebate
+across every grouping, not just the headline wealth quintiles --- while full
+self-financing remains conditional on the high-damage, high-effectiveness
+region.
 
 % Figure PFig16 (extended welfare groups) relocated to
 % Appendix~\ref{app:figures} (supplementary figures).
@@ -2913,8 +2986,9 @@ stock up in real terms. So the transitional ``deficit'' in the benchmark is
 purely the bondholder-revaluation channel: (i) the surprise revaluation at
 $t=1$, worth $(P_0/P_1-1)\,b_0$ in real terms, and (ii) its continuation as
 $r_t-r^{ss}$ decays back to zero --- both valuation, neither a primary deficit.
-A \emph{genuine} primary deficit --- $\tau_t$ set below $r^{ss}b_t+g_{g,t}$, so
-that \eqref{eq:nombudget} issues nominal debt \emph{above} trend --- is a
+A \emph{genuine} primary deficit (a positive primary gap $g_{g,t}-\tau_t>0$,
+i.e.\ $\tau_t$ set below the service level $r^{ss}b_t+g_{g,t}$, so that
+\eqref{eq:nombudget} issues nominal debt \emph{above} trend) is a
 distinct financing choice: it is the low-$\phi_b$ debt-stabilization lever of
 the Phillips-curve exercises (Appendix~\ref{app:nkmodel}), not the benchmark
 DTPL transition. Writing \eqref{eq:nombudget}--\eqref{eq:nomtrend} out is what
