@@ -56,11 +56,17 @@ function [S, out] = S_green(r, tau, D, pg)
         cnorm = wst' * (ev.^(1 - psi));           % E[e^(1-psi)]
         chi   = (ev.^(-psi)) / cnorm;             % E[chi(e) e] = 1
         scale = 1 - D * chi;
-        if any(scale < 0.05)
-            % cap extreme incidence so effective income stays positive
-            scale = max(scale, 0.05);
-            warning('S_green:incidence_cap', ...
-                'Incidence gradient capped at scale=0.05 for some states (D=%.3f, psi=%.2f).', D, psi);
+        % BOUNDED INCIDENCE (M8): no household loses more than (1-floor) of its
+        % endowment to damages, so the fiscal-space object cannot diverge from
+        % an unbounded incidence tail. floor is an ECONOMIC parameter (default
+        % 0.05, = the previous hard cap); binds only under strong regressive
+        % incidence (large psi, large D).
+        floor_s = 0.05;
+        if isfield(pg,'scale_floor') && ~isempty(pg.scale_floor)
+            floor_s = pg.scale_floor;
+        end
+        if any(scale < floor_s)
+            scale = max(scale, floor_s);
         end
         p.eGrid = (scale .* ev)';
     else

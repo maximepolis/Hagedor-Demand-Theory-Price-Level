@@ -41,6 +41,19 @@ function pg = setup_params_green()
     % preserving the original benchmark; the extended experiments sweep it.
     pg.psi_inc = 0;
 
+    % BOUNDED INCIDENCE (referee M8). The raw gradient chi(e) is unbounded as
+    % psi grows, so the poorest household's damage share D*chi(e) can exceed 1
+    % and effective income goes negative -- which forces NONEXISTENCE and can
+    % make the "fiscal-space collapse" region an artifact of an unbounded tail
+    % rather than an economic feature. scale_floor imposes an ECONOMIC bound:
+    % no household loses more than (1 - scale_floor) of its endowment to
+    % climate damages, i.e. effective income y(e;D) >= scale_floor * e. The
+    % fiscal-space object is then bounded by construction and the nonexistence
+    % region is robust to the tail. Default 0.05 matches the previous hard cap;
+    % raise it (e.g. 0.25) to test whether a collapse result survives a tighter
+    % bound. S_green reads this; with psi_inc = 0 it never binds.
+    pg.scale_floor = 0.05;
+
     % ------------------------------------------------------------------
     % Climate version 2: carbon-stock sector (climate_block2)
     %   A = 1-exp(-theta_g*Kg); E = eps0*(1-alpha_A*A)*(1-D);
