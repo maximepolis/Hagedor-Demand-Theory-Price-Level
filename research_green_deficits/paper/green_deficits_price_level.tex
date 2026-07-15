@@ -2325,33 +2325,17 @@ aggregate risk helps the budget, but because the ergodic-mean damage is
 higher when a high-damage severe state is possible, so the expected damage
 dividend is larger.
 
-The premium is instead a \emph{risk-sharing} object, and its compression is
-priced in welfare --- the state-contingent-real-value role that nominal
-debt plays in the optimal-fiscal-policy literature with incomplete markets
-\citep{begs2017,begs2021}. We isolate it with an equal-mean-reduction
-counterfactual: the actual program lowers damages more in the severe state
-(compressing the price dispersion), while the counterfactual lowers both
-states by the same amount, so the ergodic-mean damage falls identically but
-the dispersion does not compress. The consumption-equivalent gap between the
-two is the pure value of \emph{preferentially} insuring the severe state ---
-$+0.13\%$ of permanent consumption on average, which offsets about a tenth of
-the program's steady-state welfare cost ($-1.35\%$ at the calibrated medium
-scale; the transition-inclusive cost is larger still,
-Section~\ref{subsec:tier2}). The insurance value falls exactly where the
-mechanism says it should: it is about six times larger for a household
-\emph{in} the severe state ($+0.46\%$) than in the calm state ($+0.08\%$) ---
-the compression is valued when the disaster bites. Across the wealth
-distribution it is essentially flat ($+0.14\%$ for the bottom quintile and
-the constrained, $+0.14\%$ for the top), because at the benchmark's
-\emph{uniform} damage incidence ($\psi=0$) the compression is a proportional
-income gain valued alike up and down the distribution; under the regressive
-incidence of Propositions~\ref{prop:sunspots} and
-\ref{prop:financingdesign} ($\psi>0$), where damages fall on the poor, the
-same exercise tilts the insurance value toward the constrained households who
-hold the nominally-safe, really-risky bond as their only buffer.
-
-% Figure PFig21 (aggregate-risk Stage B welfare) relocated to
-% Appendix~\ref{app:figures} (supplementary figures).
+The premium is instead a \emph{risk-sharing} object, priced in welfare rather
+than the budget --- the state-contingent-real-value role of nominal debt in the
+incomplete-markets optimal-fiscal-policy literature
+\citep{begs2017,begs2021}. An equal-mean-reduction counterfactual isolates the
+value of \emph{preferentially} insuring the severe state at $+0.13\%$ of
+permanent consumption on average (about a tenth of the program's steady-state
+welfare cost), concentrated where the mechanism predicts --- six times larger
+for a household \emph{in} the severe state, and, under regressive incidence,
+tilted toward the constrained households who hold the nominally-safe,
+really-risky bond as their only buffer. The full Stage-B welfare decomposition
+is in Appendix~\ref{subsec:aggriskwelfare}.
 
 % --------------------------------------------------------------------------
 \FloatBarrier
@@ -2593,66 +2577,19 @@ incidence, bottom 50\% versus top 10\%.}
 
 % --------------------------------------------------------------------------
 \FloatBarrier
-\subsection{Bounding the revaluation channel: maturity, indexation, holders}
-\label{subsec:maturity}
-
-The inflating-away literature disciplines how much fiscal room nominal-debt
-revaluation can really provide: \citet{hilscher2022} show that maturity,
-holder composition and the persistence of inflation sharply limit it;
-\citet{hallsargent2011} supply the maturity-adjusted accounting;
-\citet{doepkeschneider2006} and \citet{auclert2019} the redistribution
-mapping. Our framework adds a clarifying twist. In steady-state comparisons
-at unchanged $(i,\mu)$, the program moves the price level once --- a
-\emph{level jump} --- and a level jump revalues all nominal promises
-proportionally \emph{regardless of maturity}: duration neither shields nor
-amplifies it. The binding limits are instead (i) \emph{indexation leakage}
---- a share $\alpha_I$ of indexed debt does not revalue, so the fiscal
-component scales by $(1-\alpha_I)$; and (ii) \emph{holder composition} ---
-a share $\alpha_F$ of foreign-held nominal debt leaves the fiscal gain
-unchanged but reallocates the domestic incidence by
-$(1-\alpha_I)(1-\alpha_F)$. Because our calibrated revaluation channel is
-\emph{negative} (green disinflation), these leakages work in the
-government's favor: indexed debt shrinks the fiscal loss, and foreign
-holders absorb part of the bondholder windfall that would otherwise accrue
-to wealthy domestic households. Duration proper enters only where the real
-rate moves --- the accommodation experiments --- through the repricing of
-legacy long bonds (geometric-coupon price $q = 1/(1+r-\delta_m)$). The
-replication package reports the maturity-adjusted
-share $\nu^{M} = (1-\alpha_I)\,\nu_{\mathrm{reval}} + \nu_{\mathrm{dam}}$
-over $\alpha_I \in \{0, 0.10, 0.25\}$, the domestic-incidence table over
-$\alpha_F \in \{0, 0.30, 0.50\}$, and the duration term for the
-$\mu = 0.02 \to 0.03$ accommodation move (the extended-run stance, real
-rate $1.96\% \to 0.97\%$) at coupon-decay rates $\delta_m \in \{0, 0.8,
-0.9\}$ --- durations of roughly one, five and eight years; the
-implementation-efficiency sweep $q_g \in \{0.6, 0.8, 1.0\}$
-(planning delays and procurement frictions in the spirit of
-\citealp{leeperwalkeryang2010}, disciplined by \citealp{bomligthart2014}
-and the IMF's climate public-investment framework) scales the damage
-dividend correspondingly.
-
-The run (calibrated medium column) delivers three quantitative statements.
-First, because the revaluation channel is negative, \emph{indexation raises
-the self-financing share}: $\nu^{M} = 0.583$, $0.588$ and $0.596$ at indexed
-shares $\alpha_I = 0$, $0.10$ and $0.25$ --- indexed debt shields the fisc
-from the disinflation loss, the mirror image of the usual
-inflating-away logic. Second, foreign holders absorb the windfall: by the
-incidence identity $(1-\alpha_I)(1-\alpha_F)\,\nu_{\mathrm{reval}}$, the
-domestic revaluation incidence shrinks from $-0.048$ to $-0.024$ as the
-foreign-held share rises from zero to one half (at $\alpha_I = 0.10$).
-Third, duration amplifies who gains from \emph{accommodation}: under the
-$\mu = 0.02 \to 0.03$ move the legacy bond repricing hands holders
-$+6.2\%$ at one-year duration, $+10.2\%$ at five years and $+14.7\%$ at
-eight years --- accommodation redistributes toward long-bond
-holders, in line with the \citet{hallsargent2011} accounting.
-Implementation frictions scale the damage dividend nearly linearly:
-$\nu = 0.583$, $0.466$ and $0.344$ at $q_g = 1.0$, $0.8$ and $0.6$
-(the revaluation component barely moves), so a forty
-percent efficiency loss forfeits roughly forty percent of self-financing
---- quantifying why climate public-investment management
-(Climate-PIMA-style) is a fiscal issue, not only an engineering one.
-
-% Figures PFig10 (maturity bounds) and PFig11 (implementation efficiency)
-% relocated to Appendix~\ref{app:figures} (supplementary figures).
+\paragraph{Bounding the revaluation channel.} Because the revaluation channel
+is the fiscal side of the mechanism, its magnitude is bounded by the classic
+inflating-away limits --- debt maturity, indexation leakage, holder composition
+--- and by implementation efficiency. In steady-state comparisons a level jump
+in $P$ revalues all nominal promises proportionally regardless of maturity, so
+the binding limits are indexation (a share $\alpha_I$ of indexed debt does not
+revalue) and foreign holding (a share $\alpha_F$ shifts domestic incidence);
+because green disinflation makes the channel \emph{negative}, both leakages work
+in the government's favor. The maturity-adjusted shares, the foreign-incidence
+table, the duration term for the accommodation move, and the
+implementation-efficiency ($q_g$) sweep are reported in
+Appendix~\ref{app:supp} (they leave the qualitative conclusions intact and are
+supplementary to the incidence result).
 
 % ==========================================================================
 \FloatBarrier
@@ -2842,80 +2779,17 @@ demand-theory price-level transition.}
 \label{fig:pfig14}
 \end{figure}}
 
-\paragraph{A two-asset extension.}\label{subsec:twoasset} The replication
-package also implements a
-two-asset version of this exercise --- liquid nominal bonds versus illiquid
-equity with convex portfolio-adjustment costs, sticky wages and prices,
-Tobin's-$Q$ investment, and endogenous government debt --- so that the
-demand for the liquid nominal asset, the $B/P$ margin at the heart of the
-model, is observable separately from total wealth.\footnote{Two honest
-qualifications. First, making the liquidity premium an \emph{endogenous
-convenience yield} that clears the liquid-bond market is boundary-singular
-in a truncated sequence-space system under both natural timings of the
-premium; the extension therefore closes with total-wealth clearing and a
-constant premium, and the endogenous convenience yield is left to future
-work. Second, magnitudes are reported only after an explicit accuracy
-protocol clears (an oscillation diagnostic and a finer-grid refinement
-re-solve agreeing within its $10\%$ gate, at $6.7\%$); the grids remain
-coarse ($n_e=3$, $n_b=15$, $n_a=30$), so magnitudes are indicative rather
-than calibrated.}
-
-The results (Table~\ref{tab:twoasset}, Figure~\ref{fig:pfig17}) confirm the
-one-asset findings under the richer portfolio and add the two objects the
-extension was built to see. Three findings carry over. \emph{The real green
-path is again rule-independent}: green capital after forty quarters is
-$+0.165$ and avoided damages $-0.0039$ in \emph{every} regime, identical to
-three decimals --- the monetary rule moves nominal quantities, not the
-accumulation of abatement capital. \emph{Deficit financing buys the debt
-path, not the inflation path}: the balanced-budget comparator
-(\textsc{taylorbal}) accumulates real debt of only $+0.008$ after forty
-quarters against $+0.074$--$+0.077$ under the slow debt-stabilizing rule ---
-a tenfold gap --- while impact inflation is essentially unchanged
-($+0.03\%$ against $+0.04\%$ annualized). And \emph{the richer supply side
-dampens impact inflation}: under the Taylor rule it is $+0.04\%$ annualized
-(against $+0.44\%$ in the one-asset exercise), reinforcing the message that
-the inflationary margin is the \emph{financing}, not the program. The two
-new objects are the point of the extension. The \emph{liquid-bond return}
-$r^b$ falls on impact and mirrors inflation almost exactly (e.g.\ $-0.0017$
-against $\pi=+0.0017$ under \textsc{weak}): the Fisher revaluation lands
-specifically on households' \emph{liquid} nominal savings --- the $B/P$
-margin the one-asset exercise cannot separate --- rather than on total
-wealth. And the \emph{equity price} drops $5$--$7\%$ on impact as the
-illiquid asset reprices against the program's future debt and tax path,
-most (a $7.2\%$ drop) under the balanced-budget rule, where taxes rise
-fastest. The extension thus makes the liquid-safe-asset margin at the heart
-of the paper directly observable, and it does so under a substantially
-richer household portfolio and production block; its economics are otherwise
-covered by the one-asset responses (Fisher redistribution) and by the
-nonlinear transition below (the $B/P$ margin proper).
-
-\begin{table}[!htb]
-\centering
-\caption{Two-asset heterogeneous-agent impulse responses to the
-quasi-permanent green-investment shock ($\rho_g=0.98$, one percent of
-output) under four monetary/financing regimes. Impact inflation and the
-liquid return are per quarter (inflation also annualized); debt and green
-capital are at forty quarters; the equity-price response is on impact.
-Green capital is rule-independent; the balanced-budget regime
-(\textsc{taylorbal}) isolates the deficit-financing component. Both accuracy
-gates pass (see text).}
-\label{tab:twoasset}
-\footnotesize
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lcccccc}
-\toprule
-regime & $\pi$ impact (ann.) & $Y$ impact & $r^b$ impact & debt (40q) & $K_g$ (40q) & equity (impact) \\
-\midrule
-\textsc{weak}       & $+0.67\%$ & $+0.0048$ & $-0.0017$ & $+0.074$ & $+0.165$ & $-6.7\%$ \\
-\textsc{taylor}     & $+0.04\%$ & $+0.0052$ & $-0.0001$ & $+0.077$ & $+0.165$ & $-5.2\%$ \\
-\textsc{greenaccom} & $+0.27\%$ & $+0.0054$ & $-0.0007$ & $+0.076$ & $+0.165$ & $-5.4\%$ \\
-\textsc{taylorbal}  & $+0.03\%$ & $+0.0026$ & $-0.0001$ & $+0.008$ & $+0.165$ & $-7.2\%$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-% Figure PFig17 (two-asset HANK IRFs) relocated to
-% Appendix~\ref{app:figures} (supplementary figures).
+\paragraph{A two-asset extension.} The replication package also implements a
+linearized \emph{two-asset} version of this exercise --- liquid nominal bonds
+versus illiquid equity, with a constant liquidity premium --- so that the
+demand for the liquid nominal asset, the $B/P$ margin at the heart of the model,
+is observable separately from total wealth. It confirms the one-asset findings
+under the richer portfolio and shows the Fisher revaluation landing specifically
+on households' liquid nominal savings; but it is a linearized New Keynesian
+exercise with a \emph{constant} premium, not a nonlinear DTPL fixed point with an
+endogenous convenience yield, so it locates the portfolio margin without
+validating its magnitude. The full results, table, and the two honest accuracy
+qualifications are in Appendix~\ref{subsec:twoasset}.
 
 % --------------------------------------------------------------------------
 \subsection{The nonlinear price-level transition}\label{subsec:tier2}
@@ -3797,6 +3671,172 @@ curve. The optimal-policy exercise rebuilds the interpolant at each $\mu$
 (the real rate changes). Runtime: about one minute per full pass at
 $n_a=500$ on commodity hardware (68 s in the authors' benchmark run); a FAST
 mode at $n_a=100$ reproduces all qualitative results.
+
+% ==========================================================================
+\section{Supplementary results}\label{app:supp}
+% ==========================================================================
+This appendix collects three supporting results whose headline conclusions are
+stated in the body: the bounds on the revaluation channel (maturity,
+indexation, holders, implementation efficiency), the aggregate-risk welfare
+(insurance) decomposition, and the linearized two-asset extension. Each is a
+robustness or extension of a main-text result, not a headline object.
+
+\subsection{Bounding the revaluation channel: maturity, indexation, holders}
+\label{subsec:maturity}
+
+The inflating-away literature disciplines how much fiscal room nominal-debt
+revaluation can really provide: \citet{hilscher2022} show that maturity,
+holder composition and the persistence of inflation sharply limit it;
+\citet{hallsargent2011} supply the maturity-adjusted accounting;
+\citet{doepkeschneider2006} and \citet{auclert2019} the redistribution
+mapping. Our framework adds a clarifying twist. In steady-state comparisons
+at unchanged $(i,\mu)$, the program moves the price level once --- a
+\emph{level jump} --- and a level jump revalues all nominal promises
+proportionally \emph{regardless of maturity}: duration neither shields nor
+amplifies it. The binding limits are instead (i) \emph{indexation leakage}
+--- a share $\alpha_I$ of indexed debt does not revalue, so the fiscal
+component scales by $(1-\alpha_I)$; and (ii) \emph{holder composition} ---
+a share $\alpha_F$ of foreign-held nominal debt leaves the fiscal gain
+unchanged but reallocates the domestic incidence by
+$(1-\alpha_I)(1-\alpha_F)$. Because our calibrated revaluation channel is
+\emph{negative} (green disinflation), these leakages work in the
+government's favor: indexed debt shrinks the fiscal loss, and foreign
+holders absorb part of the bondholder windfall that would otherwise accrue
+to wealthy domestic households. Duration proper enters only where the real
+rate moves --- the accommodation experiments --- through the repricing of
+legacy long bonds (geometric-coupon price $q = 1/(1+r-\delta_m)$). The
+replication package reports the maturity-adjusted
+share $\nu^{M} = (1-\alpha_I)\,\nu_{\mathrm{reval}} + \nu_{\mathrm{dam}}$
+over $\alpha_I \in \{0, 0.10, 0.25\}$, the domestic-incidence table over
+$\alpha_F \in \{0, 0.30, 0.50\}$, and the duration term for the
+$\mu = 0.02 \to 0.03$ accommodation move (the extended-run stance, real
+rate $1.96\% \to 0.97\%$) at coupon-decay rates $\delta_m \in \{0, 0.8,
+0.9\}$ --- durations of roughly one, five and eight years; the
+implementation-efficiency sweep $q_g \in \{0.6, 0.8, 1.0\}$
+(planning delays and procurement frictions in the spirit of
+\citealp{leeperwalkeryang2010}, disciplined by \citealp{bomligthart2014}
+and the IMF's climate public-investment framework) scales the damage
+dividend correspondingly.
+
+The run (calibrated medium column) delivers three quantitative statements.
+First, because the revaluation channel is negative, \emph{indexation raises
+the self-financing share}: $\nu^{M} = 0.583$, $0.588$ and $0.596$ at indexed
+shares $\alpha_I = 0$, $0.10$ and $0.25$ --- indexed debt shields the fisc
+from the disinflation loss, the mirror image of the usual
+inflating-away logic. Second, foreign holders absorb the windfall: by the
+incidence identity $(1-\alpha_I)(1-\alpha_F)\,\nu_{\mathrm{reval}}$, the
+domestic revaluation incidence shrinks from $-0.048$ to $-0.024$ as the
+foreign-held share rises from zero to one half (at $\alpha_I = 0.10$).
+Third, duration amplifies who gains from \emph{accommodation}: under the
+$\mu = 0.02 \to 0.03$ move the legacy bond repricing hands holders
+$+6.2\%$ at one-year duration, $+10.2\%$ at five years and $+14.7\%$ at
+eight years --- accommodation redistributes toward long-bond
+holders, in line with the \citet{hallsargent2011} accounting.
+Implementation frictions scale the damage dividend nearly linearly:
+$\nu = 0.583$, $0.466$ and $0.344$ at $q_g = 1.0$, $0.8$ and $0.6$
+(the revaluation component barely moves), so a forty
+percent efficiency loss forfeits roughly forty percent of self-financing
+--- quantifying why climate public-investment management
+(Climate-PIMA-style) is a fiscal issue, not only an engineering one.
+
+\subsection{The linearized two-asset extension}\label{subsec:twoasset}
+
+The replication package implements a
+two-asset version of the transition exercise --- liquid nominal bonds versus illiquid
+equity with convex portfolio-adjustment costs, sticky wages and prices,
+Tobin's-$Q$ investment, and endogenous government debt --- so that the
+demand for the liquid nominal asset, the $B/P$ margin at the heart of the
+model, is observable separately from total wealth.\footnote{Two honest
+qualifications. First, making the liquidity premium an \emph{endogenous
+convenience yield} that clears the liquid-bond market is boundary-singular
+in a truncated sequence-space system under both natural timings of the
+premium; the extension therefore closes with total-wealth clearing and a
+constant premium, and the endogenous convenience yield is left to future
+work. Second, magnitudes are reported only after an explicit accuracy
+protocol clears (an oscillation diagnostic and a finer-grid refinement
+re-solve agreeing within its $10\%$ gate, at $6.7\%$); the grids remain
+coarse ($n_e=3$, $n_b=15$, $n_a=30$), so magnitudes are indicative rather
+than calibrated.}
+
+The results (Table~\ref{tab:twoasset}, Figure~\ref{fig:pfig17}) confirm the
+one-asset findings under the richer portfolio and add the two objects the
+extension was built to see. Three findings carry over. \emph{The real green
+path is again rule-independent}: green capital after forty quarters is
+$+0.165$ and avoided damages $-0.0039$ in \emph{every} regime, identical to
+three decimals --- the monetary rule moves nominal quantities, not the
+accumulation of abatement capital. \emph{Deficit financing buys the debt
+path, not the inflation path}: the balanced-budget comparator
+(\textsc{taylorbal}) accumulates real debt of only $+0.008$ after forty
+quarters against $+0.074$--$+0.077$ under the slow debt-stabilizing rule ---
+a tenfold gap --- while impact inflation is essentially unchanged
+($+0.03\%$ against $+0.04\%$ annualized). And \emph{the richer supply side
+dampens impact inflation}: under the Taylor rule it is $+0.04\%$ annualized
+(against $+0.44\%$ in the one-asset exercise), reinforcing the message that
+the inflationary margin is the \emph{financing}, not the program. The two
+new objects are the point of the extension. The \emph{liquid-bond return}
+$r^b$ falls on impact and mirrors inflation almost exactly (e.g.\ $-0.0017$
+against $\pi=+0.0017$ under \textsc{weak}): the Fisher revaluation lands
+specifically on households' \emph{liquid} nominal savings --- the $B/P$
+margin the one-asset exercise cannot separate --- rather than on total
+wealth. And the \emph{equity price} drops $5$--$7\%$ on impact as the
+illiquid asset reprices against the program's future debt and tax path,
+most (a $7.2\%$ drop) under the balanced-budget rule, where taxes rise
+fastest. The extension thus makes the liquid-safe-asset margin at the heart
+of the paper directly observable under a substantially
+richer household portfolio and production block; its economics are otherwise
+covered by the one-asset responses (Fisher redistribution) and by the
+nonlinear transition of Section~\ref{subsec:tier2} (the $B/P$ margin proper).
+
+\begin{table}[!htb]
+\centering
+\caption{Two-asset heterogeneous-agent impulse responses to the
+quasi-permanent green-investment shock ($\rho_g=0.98$, one percent of
+output) under four monetary/financing regimes. Impact inflation and the
+liquid return are per quarter (inflation also annualized); debt and green
+capital are at forty quarters; the equity-price response is on impact.
+Green capital is rule-independent; the balanced-budget regime
+(\textsc{taylorbal}) isolates the deficit-financing component. Both accuracy
+gates pass (see text).}
+\label{tab:twoasset}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lcccccc}
+\toprule
+regime & $\pi$ impact (ann.) & $Y$ impact & $r^b$ impact & debt (40q) & $K_g$ (40q) & equity (impact) \\
+\midrule
+\textsc{weak}       & $+0.67\%$ & $+0.0048$ & $-0.0017$ & $+0.074$ & $+0.165$ & $-6.7\%$ \\
+\textsc{taylor}     & $+0.04\%$ & $+0.0052$ & $-0.0001$ & $+0.077$ & $+0.165$ & $-5.2\%$ \\
+\textsc{greenaccom} & $+0.27\%$ & $+0.0054$ & $-0.0007$ & $+0.076$ & $+0.165$ & $-5.4\%$ \\
+\textsc{taylorbal}  & $+0.03\%$ & $+0.0026$ & $-0.0001$ & $+0.008$ & $+0.165$ & $-7.2\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Aggregate-risk welfare: the insurance decomposition}
+\label{subsec:aggriskwelfare}
+
+The compressed climate-risk premium of Section~\ref{subsec:aggrisk} is a
+\emph{risk-sharing} object, priced in welfare. We isolate it with an
+equal-mean-reduction counterfactual: the actual program lowers damages more in
+the severe state (compressing the price dispersion), while the counterfactual
+lowers both states by the same amount, so the ergodic-mean damage falls
+identically but the dispersion does not compress. The consumption-equivalent gap
+between the two is the pure value of \emph{preferentially} insuring the severe
+state --- $+0.13\%$ of permanent consumption on average, which offsets about a
+tenth of the program's steady-state welfare cost ($-1.35\%$ at the calibrated
+medium scale; the transition-inclusive cost is larger still,
+Section~\ref{subsec:tier2}). The insurance value falls exactly where the
+mechanism says it should: it is about six times larger for a household
+\emph{in} the severe state ($+0.46\%$) than in the calm state ($+0.08\%$) ---
+the compression is valued when the disaster bites. Across the wealth
+distribution it is essentially flat ($+0.14\%$ for the bottom quintile and
+the constrained, $+0.14\%$ for the top), because at the benchmark's
+\emph{uniform} damage incidence ($\psi=0$) the compression is a proportional
+income gain valued alike up and down the distribution; under the regressive
+incidence of Propositions~\ref{prop:sunspots} and
+\ref{prop:financingdesign} ($\psi>0$), where damages fall on the poor, the
+same exercise tilts the insurance value toward the constrained households who
+hold the nominally-safe, really-risky bond as their only buffer.
 
 % ==========================================================================
 \section{Supplementary figures}\label{app:figures}
