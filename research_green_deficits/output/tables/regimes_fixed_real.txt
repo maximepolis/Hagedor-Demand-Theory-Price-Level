@@ -1,0 +1,16 @@
+FINANCING REGIMES -- FIXED REAL PROGRAM (pure incidence)
+g_real=0.0201 held constant; nu_damage identical across regimes.
+baseline P0=0.9051
+
+regime                  P*       nu      nu_rev   nu_dam   b50%     t10%
+R1-LUMPSUM              0.8624  0.586  -0.053  0.640  -2.03   -0.96
+R2-PROP-LEVY            0.9309  0.670  +0.030  0.640  -0.38   -0.54
+R3-PROP-LEVY-REBATE     1.0090  0.751  +0.111  0.640  +1.23   -0.15
+R4-MIXED                0.8957  0.629  -0.011  0.640  -1.20   -0.75
+
+COMPARISON to fixed-nominal (Table 6): nu_reval swing
+  fixed-nominal nu_reval: [-0.0549 0.0304 0.111 -0.0112]
+  fixed-real    nu_reval: [-0.0534 0.0299 0.111 -0.0113]
+  => the incidence ordering and the revaluation sign flip are the
+     same under both conventions; the real-scale drift in Table 6 is
+     second-order, as the text claims.
