@@ -67,6 +67,18 @@
 \providecommand{\epsRiskLo}{\pendingnum}\providecommand{\epsRiskHi}{\pendingnum}
 \providecommand{\epsSigLo}{\pendingnum}\providecommand{\epsSigHi}{\pendingnum}
 \providecommand{\epsBetaLo}{\pendingnum}\providecommand{\epsBetaHi}{\pendingnum}
+% Decile-resolution welfare incidence, populated by welfare_incidence_deciles.
+\providecommand{\WDecBotMed}{\pendingnum}\providecommand{\WDecTopMed}{\pendingnum}
+\providecommand{\WTopFiveMed}{\pendingnum}\providecommand{\WTopOneMed}{\pendingnum}
+\providecommand{\WShareTopOneMed}{\pendingnum}
+\providecommand{\RDefDecBot}{\pendingnum}\providecommand{\RDefDecTop}{\pendingnum}
+\providecommand{\RDefTopOne}{\pendingnum}
+\providecommand{\RLevDecBot}{\pendingnum}\providecommand{\RLevDecTop}{\pendingnum}
+\providecommand{\RLevTopOne}{\pendingnum}
+\providecommand{\RRebDecBot}{\pendingnum}\providecommand{\RRebDecTop}{\pendingnum}
+\providecommand{\RRebTopOne}{\pendingnum}
+\providecommand{\RMixDecBot}{\pendingnum}\providecommand{\RMixDecTop}{\pendingnum}
+\providecommand{\RMixTopOne}{\pendingnum}
 
 % Figures live in figures/ on Overleaf; ../output/figures/ in the repo.
 \graphicspath{{figures/}{../output/figures/}{./}}
@@ -2270,6 +2282,27 @@ is thus regressive under pure lump-sum finance and progressive under the rebate
 across every grouping, not just the headline wealth quintiles --- while full
 self-financing remains conditional on the high-damage, high-effectiveness
 region.
+
+\paragraph{Decile resolution.} Quintile cuts blur exactly the two groups the
+mechanism singles out: the bottom quintile pools borrowing-limit households
+with buffer-stock savers, and the top quintile pools the merely comfortable
+with the bondholders who receive most of the revaluation. The driver
+\texttt{welfare\_incidence\_deciles} therefore re-cuts the same
+consumption-equivalent object at deciles plus top-5\% and top-1\% tails,
+splitting borrowing-limit mass points fractionally so that every decile
+holds exactly ten percent of baseline mass. At the medium column under
+lump-sum finance the bottom decile's CE change is \WDecBotMed\% against
+\WDecTopMed\% for the top decile, \WTopFiveMed\% for the top 5\%, and
+\WTopOneMed\% for the top 1\%; under the levy-plus-rebate design the same
+three cuts give \RRebDecBot\%, \RRebDecTop\%, and \RRebTopOne\%. Two caveats
+attach to the tails. The model's top 1\% holds \WShareTopOneMed\% of wealth,
+and the one-asset Aiyagari tail is thin relative to the roughly one-third
+observed in U.S. data, so the concentration of the bondholder windfall is
+more plausibly understated than overstated by these cuts. And below the
+median, resolution is limited by the borrowing-limit mass point --- the
+constrained share of the population occupies a single asset state --- so
+bottom-decile numbers are exact for the model but should not be read as
+fine empirical percentiles.
 
 % Figure PFig16 (extended welfare groups) relocated to
 % Appendix~\ref{app:figures} (supplementary figures).
