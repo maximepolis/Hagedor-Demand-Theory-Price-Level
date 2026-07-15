@@ -60,6 +60,13 @@
 \providecommand{\RRebRealBfifty}{\pendingnum}\providecommand{\RMixRealBfifty}{\pendingnum}
 \providecommand{\RDefRealTten}{\pendingnum}\providecommand{\RLevRealTten}{\pendingnum}
 \providecommand{\RRebRealTten}{\pendingnum}\providecommand{\RMixRealTten}{\pendingnum}
+% Tax semi-elasticity map (referee round 7), populated by decompose_tax_elasticity.
+\providecommand{\epsTau}{\pendingnum}\providecommand{\epsLevy}{\pendingnum}
+\providecommand{\epsBotShare}{\pendingnum}
+\providecommand{\epsAbarLo}{\pendingnum}\providecommand{\epsAbarHi}{\pendingnum}
+\providecommand{\epsRiskLo}{\pendingnum}\providecommand{\epsRiskHi}{\pendingnum}
+\providecommand{\epsSigLo}{\pendingnum}\providecommand{\epsSigHi}{\pendingnum}
+\providecommand{\epsBetaLo}{\pendingnum}\providecommand{\epsBetaHi}{\pendingnum}
 
 % Figures live in figures/ on Overleaf; ../output/figures/ in the repo.
 \graphicspath{{figures/}{../output/figures/}{./}}
@@ -150,9 +157,12 @@ proportional levy plus rebate \emph{raises} the price level (to $\RLevP$
 from a no-program $\PzeroRegimes$; revaluation share $\RLevRev$) and makes
 the program progressive; financing the same appropriation by lump-sum tax
 instead \emph{lowers} it (to $\RDefP$; revaluation share $\RDefRev$),
-handing bondholders a windfall. What is robust is not the sign of the price
-change but the incidence: who holds the nominally safe asset when its real
-value moves. Two results need no computation: nominal debt issuance is neutral
+handing bondholders a windfall. What is robust is not the \emph{size} of the
+price change but the sign and the incidence: who holds the nominally safe asset
+when its real value moves. The magnitudes are \emph{one-asset upper bounds} ---
+in the baseline all precautionary wealth is nominal government debt, so they
+scale down with the share of household portfolios held in liquid nominal
+government liabilities. Two results need no computation: nominal debt issuance is neutral
 (so the stationary object is appropriation-and-tax, never deficit), and
 steady-state inflation is exactly neutral at a fixed real rate, so ``optimal
 accommodation'' is an optimal-real-rate result. Real debt genuinely moves only
@@ -346,13 +356,19 @@ taxes bite at the constrained bottom before any damage relief arrives ---
 whereas the rebate design solved along the same path keeps the bottom half
 in surplus and turns the announcement repricing into a one-time capital
 levy on bondholders: the transition strengthens, rather than softens, the
-financing-design conclusion. The same class of announcement, priced in a
+financing-design conclusion. We present this disinflationary front-loading strictly as an \emph{internal
+DTPL prediction}. The same class of announcement, priced in a
 linearized heterogeneous-agent economy with a Phillips curve, delivers
-$+0.4\%$ impact inflation --- the opposite sign --- so the two mechanisms
-make opposite-signed announcement-window predictions; because the
-exercises also differ in rigidities, financing detail, and scale, we read
-the contrast as a model diagnostic, with empirical discrimination left to
-high-frequency designs that hold those differences fixed.
+$+0.4\%$ impact inflation --- the opposite sign --- but we do not lean on that
+contrast as evidence, because the two exercises are \emph{not matched}: they
+differ in price rigidity, financing rule, persistence, scale, and the household
+block as well as in price determination. A clean sign test would require a
+matched DTPL-versus-NK experiment holding all of those fixed so that only the
+price-determination block differs (or high-frequency identification around
+green-fiscal surprises); absent that, the opposite sign is a model-class
+diagnostic that \emph{locates} a testable prediction, not a validated
+discriminating result. The internal prediction --- disinflation on impact under
+the DTPL mechanism --- stands on its own.
 
 A final extension confronts the objection that the whole analysis assumes away
 aggregate uncertainty. Introducing a two-state aggregate climate process (a
@@ -1843,7 +1859,21 @@ effectiveness in the plausible range does, and the honest answer there is
 partial financing ($\nu=0.04$--$0.39$ over $\theta_g\in[0.5,3]$) carried by
 the damage dividend net of the revaluation loss. The benchmark $\theta_g=1.2$
 sits comfortably below the medium-column frontier, consistent with the
-partial self-financing ($\nu=\nuMedShort$) reported above. \emph{Second, the
+partial self-financing ($\nu=\nuMedShort$) reported above. We read these
+thresholds strictly as \emph{internal technology frontiers}, not as
+physically-calibrated policy numbers: $\theta_g$ has no clean empirical
+counterpart under either the mitigation reading (where $K_g$ acts on the global
+carbon stock, so the closed-economy mapping is a coordinated-program stand-in)
+or the adaptation reading (where $K_g$ hardens the domestic economy at an
+exogenous carbon stock), and the paper straddles the two. So $\theta_g^{*}=
+\thetaStarMed$ (medium) and $\thetaStarHigh$ (high) answer ``what abatement or
+hardening effectiveness would a $2\%$-of-income program need to break even'',
+\emph{not} ``a $2\%$ program delivers this damage reduction''. Converting the
+frontier into physical units --- engineering marginal-abatement-cost curves for
+the mitigation reading, or damage-avoided-per-dollar adaptation-cost estimates
+for the hardening reading --- is the outstanding external-calibration step; the
+statements here are contour results in $(D_0,\theta_g)$ space, and we present
+them as such. \emph{Second, the
 disinflation is not a calibration artifact:} the revaluation component is
 negative at all $\nodesNeg$
 nodes of the $(D_0,\theta_g)$ plane, so productive green programs raise
@@ -2013,8 +2043,36 @@ borrowing limit, the income-risk scale, the CRRA coefficient, and the debt
 target --- confirming a positive sign across the swept region and a clean
 reversal under the proportional levy. That the sign survives the sweep is what
 distinguishes green disinflation as a \emph{general} DTPL buffer-stock property
-from a knife-edge of one calibration (a result quoted only once the driver has
-run; magnitudes are grid-dependent).
+from a knife-edge of one calibration. Table~\ref{tab:elasticitymap} reports the
+map itself in the main text --- the semi-elasticity at the endpoints of each
+primitive sweep --- rather than relegating it to the package: the sign is
+positive at every node, and the demand shift is concentrated in the
+constraint-adjacent bottom of the distribution ($\epsBotShare\%$ of the total
+comes from the bottom two baseline wealth quintiles), which is the mechanism the
+regressive-incidence and disinflation results both inherit.
+
+\begin{table}[!htb]
+\centering
+\caption{The tax semi-elasticity of safe-asset demand, $\partial\ln\Sfun/\partial\tau$,
+across the primitives that govern it (endpoints of each sweep; baseline
+$\epsTau$). Positive throughout under lump-sum finance; the proportional levy
+reverses it. Populated by \texttt{decompose\_tax\_elasticity}; entries show
+``\pendingnum'' until that driver has been run.}
+\label{tab:elasticitymap}
+\begin{tabular}{lcc}
+\toprule
+primitive swept & low end & high end \\
+\midrule
+borrowing limit $\bar a$ (loose\,$\to$\,tight) & $\epsAbarLo$ & $\epsAbarHi$ \\
+income-risk scale $\sigma_\epsilon$            & $\epsRiskLo$ & $\epsRiskHi$ \\
+risk aversion $\sigma$                         & $\epsSigLo$  & $\epsSigHi$ \\
+debt target (via $\beta$)                      & $\epsBetaLo$ & $\epsBetaHi$ \\
+\midrule
+instrument: lump-sum $\partial\ln\Sfun/\partial\tau$ & \multicolumn{2}{c}{$\epsTau$} \\
+instrument: prop.\ levy $\partial\ln\Sfun/\partial\vartheta$ & \multicolumn{2}{c}{$\epsLevy$} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 The \emph{magnitude} of the price-level response carries a second, sharper
 caveat, and it is a discipline the one-asset economy cannot supply on its own.
@@ -3198,15 +3256,29 @@ $1+r^{ss}=(1+i^{ss})/(1+\mu)$. \qed
 
 \subsection{Proof of Proposition \ref{prop:determinacy}}
 (i) $\Phi$ is continuous on the feasibility set (Lemma~\ref{lem:S};
-$D$ constant here). We give the argument for both spending regimes.
+$D$ constant here). We use two maintained regularity conditions, both
+properties of the incomplete-markets calibration rather than implications of
+Assumption~\ref{ass:feasible} alone, and we state them as such: \textbf{(R1)}
+\emph{strictly positive limiting asset demand}, $\Sfun(1+r^{ss};\tau,D)>0$ at
+the relevant limiting tax --- with a binding precautionary motive and
+$\beta(1+r^{ss})<1$ the buffer-stock target is strictly positive; and
+\textbf{(R2)} \emph{feasibility of the limiting tax}, i.e.\ it lies strictly
+below the poorest household's resources. We give the boundary argument for both
+spending regimes.
 \emph{Nominal appropriation} ($g_g=G_g/P$, so $\tau(P)=(r^{ss}B+G_g)/P$).
-High-$P$ boundary: $\tau(P)\to0$,
-$\Sfun\to\Sfun(1+r^{ss};0,D)>0$, $B/P\to0$, so $\Phi>0$. \emph{Indexed real
+High-$P$ boundary: $\tau(P)\to0$, so by (R1)
+$\Sfun\to\Sfun(1+r^{ss};0,D)>0$, $B/P\to0$, and $\Phi>0$. \emph{Indexed real
 mandate} ($g_g=\bar g_g$ fixed, so $\tau(P)=r^{ss}B/P+\bar g_g$). High-$P$
-boundary: $\tau(P)\to\bar g_g$ (not $0$), so
-$\Sfun\to\Sfun(1+r^{ss};\bar g_g,D)>0$ --- finite and positive as long as the
-household is feasible at the constant tax $\bar g_g$, which holds since
-$\bar g_g$ is a small fraction of income --- while $B/P\to0$, so $\Phi>0$ again.
+boundary: $\tau(P)\to\bar g_g$ (not $0$), so by (R1)
+$\Sfun\to\Sfun(1+r^{ss};\bar g_g,D)>0$, while $B/P\to0$, so $\Phi>0$ again ---
+requiring (R2) at the constant tax $\bar g_g$, i.e.\ $\bar g_g<\min_e y(e;D)$,
+which holds since $\bar g_g$ is a small fraction of income. On the
+\emph{negative-real-rate} case ($r^{ss}<0$, relevant to the
+optimal-accommodation region of Section~\ref{subsec:optmu}): the
+interest-service term $r^{ss}B/P$ is then \emph{negative} and \emph{helps}
+feasibility as $P$ falls (it lowers the required tax), so (R2) is easier to meet
+at finite $P$; the high-$P$ limit is unchanged since $r^{ss}B/P\to0$ regardless
+of the sign of $r^{ss}$.
 In both regimes the low-$P$ boundary has the same structure:
 $\Sfun$ remains bounded (buffer-stock target finite under $\beta(1+r)<1$),
 so $\Phi=\Sfun-B/P<0$ \emph{provided} the feasibility set reaches a price
@@ -3259,8 +3331,21 @@ coefficients coincide at $g_g=0$, where they equal $\tau^{*}$ and
 $dg_g=dg_g^{\mathrm{direct}}$; evaluating there --- the point at which the
 proposition is stated --- gives \eqref{eq:marginal},
 $dN=(1-\kappa)\,dg_g-\tau^{*}\epsilon_P\,dg_g$.
-(iii) is the incidence statement plus the Gini comparison computed at the
-invariant distribution. Result~\ref{res:disinflation}: $P=B/\Sfun$ at both
+(iii) The mechanical part is exact: the revaluation transfer is proportional to
+nominal bond holdings $a$, so it is progressive \emph{by wealth rank} in the
+one-asset economy (the constrained hold none and the top holds most), which the
+wealth-Gini comparison computed at the invariant distribution captures directly.
+We are careful about scope here: a Gini (Lorenz) statement establishes
+progressivity in the \emph{wealth} ranking only; progressivity relative to
+\emph{income}, \emph{consumption}, or \emph{welfare} does not follow from it
+without an additional monotonicity (a positive wealth--income association) or
+Lorenz-dominance condition. We therefore do not claim income/welfare
+progressivity analytically; it is the \emph{numerical} finding of the
+welfare-by-group computation (Section~\ref{subsec:welfaregroups},
+Table~\ref{tab:incidence}), where the consumption-equivalent transfers are
+monotone across baseline wealth and income groups at the calibration --- a
+computed result, not a corollary of the Gini. Result~\ref{res:disinflation}:
+$P=B/\Sfun$ at both
 steady states, so $P_1<P_0 \iff \Sfun_1>\Sfun_0$;
 $\nu_{\mathrm{reval}}\propto(1/P_0-1/P_1)=(\Sfun_0-\Sfun_1)/B$. The stated
 sufficient conditions each raise $\Sfun_1$ relative to $\Sfun_0$. \qed
@@ -3330,23 +3415,47 @@ design extends the same perturbation past $\tau_{ls} = r^{ss}b$ into
 negative lump-sum territory ($\tau_{ls} < r^{ss}b$), and with
 $\Sfun_{\tau} \ge 0$ each further unit of rebate financed by the levy
 continues to lower $\Sfun$. The ordering
-$P^{*}_{\text{deficit}} < P^{*}_{\text{mixed}} < P^{*}_{\text{levy}} <
+$P^{*}_{\text{lump-sum}} < P^{*}_{\text{mixed}} < P^{*}_{\text{levy}} <
 P^{*}_{\text{rebate}}$ and the associated $\nu_{\mathrm{reval}}$ ranking are
-verified exactly in Table~\ref{tab:regimes}. \qed
+verified exactly in Table~\ref{tab:regimes} (all four are balanced stationary
+tax-incidence regimes --- the label ``lump-sum'' is the financing instrument,
+not a deficit). \qed
 
 \subsection{Proof of Proposition \ref{prop:optimalmu}}
-By the envelope theorem on the household problem, the welfare effect of a
-small change $d\tau<0$ funded by the revaluation is
-$-\int u'(c)\,d\tau\,\dd\Omega>0$ weighted by population marginal utilities,
-while the bondholders' capital loss (or forgone windfall) is weighted by
-$\int u'(c)\,a\,\dd\Omega / \int a\,\dd\Omega$, the asset-weighted marginal
-utility, which is strictly smaller when wealth and consumption are positively
-associated and wealth is concentrated. The climate cost of $d\mu$ operates
-through $dg_g=-g_g\,d\ln P<0$ and is proportional to the program size
-$g_g$; for small programs it is dominated at $\mu=0^{+}$. Interior optimum
-then follows from continuity of $W(\mu)$ on the existence region and
-deterioration at large $\mu$ (buffer-return and climate erosion), both
-verified on the grid. \qed
+The proposition is a \emph{reduction} plus a numerical characterization; we are
+explicit about which part is which. By Proposition~\ref{prop:muneutral},
+steady-state welfare depends on $\mu$ (at fixed $i^{ss}$) \emph{only} through the
+real service rate $r^{ss}=(1+i^{ss})/(1+\mu)-1$, which is strictly decreasing in
+$\mu$. Hence $W(\mu)=\widetilde W\big(r^{ss}(\mu)\big)$ and the $\mu$-optimum is
+the $\mu$ that implements the welfare-maximizing real rate: this is the
+\citet{aiyagarimcgrattan1998} optimum-quantity-of-debt problem in the present
+climate economy. Crucially, $\widetilde W$ is the \emph{steady-state} welfare
+function --- as $r^{ss}$ moves, the value function $V$, the invariant
+distribution $\Omega$, real debt $b$, taxes $\tau$, the price level $P$, real
+green spending $g_g$ and damages $D$ all re-solve --- so the derivative below is
+the \emph{total} steady-state derivative, not a fixed-distribution envelope and
+not an unanticipated revaluation of currently-held debt.
+
+Two steady-state forces sign $d\widetilde W/dr^{ss}$ near the top of the
+debt-value region. (i) \emph{The interest-bill channel.} The steady-state real
+service $r^{ss}b$ is a transfer from taxpayers to bondholders; a marginal
+reduction in $r^{ss}$ shrinks it, moving resources from the
+\emph{asset-weighted} marginal utility $\int u'(c)\,a\,\dd\Omega/\int a\,\dd\Omega$
+(low, since wealth and consumption are positively associated and wealth is
+concentrated) toward the \emph{population-weighted} marginal utility
+$\int u'(c)\,\dd\Omega$ (high) --- a first-order welfare gain, and the standard
+incomplete-markets force, evaluated here as a comparison of stationary equilibria
+rather than a transition windfall. (ii) \emph{The climate channel.} A lower
+$r^{ss}$ (higher $\mu$) raises the equilibrium price level, so real green
+spending $g_g=G_g/P$ falls and damages rise, a welfare cost proportional to the
+program size $g_g$ and hence subdominant at $\mu=0^{+}$ for the calibrated
+program. What we do \emph{not} claim in closed form is the existence and interior
+location of the optimum: that $\widetilde W$ rises then falls, with maximum at
+$r^{ss*}\approx-0.5\%$ ($\mu^{*}\approx4.5\%$), is \emph{verified numerically}
+on the grid (Section~\ref{subsec:optmu}), exactly as the optimum-quantity-of-debt
+level is numerical in \citet{aiyagarimcgrattan1998}. The proposition should be
+read accordingly: analytic reduction to a real-rate problem, numerical location
+of its interior maximum. \qed
 
 \subsection{Fiscal inertness of the climate-risk premium}
 The ergodic-expected real interest bill in the aggregate-risk economy is

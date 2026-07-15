@@ -481,3 +481,51 @@ sustainable real rate* / an endogenous return adjustment, not an inherent
 collapse (Aiyagari–McGrattan margin).
 
 Compiles clean at 94 pages, zero undefined citations/references.
+
+---
+
+# Seventh referee round (four proof issues + narrative reinforcement)
+
+## Four detailed proof corrections
+- **A.9 / Prop 6 (optimal μ) — rewritten.** The old argument mixed a
+  steady-state comparison with transition "capital loss / forgone windfall"
+  language and a fixed-distribution envelope. Now: reduce to r^ss via Theorem 2
+  (so *everything* — V, Ω, b, τ, P, g_g, D — enters only through the real rate),
+  present the two forces (interest-bill redistribution as a genuine steady-state
+  transfer; climate cost) as total steady-state derivatives, and state
+  explicitly that the interior optimum (r^ss*≈−0.5%) is **verified numerically**,
+  as in Aiyagari–McGrattan — analytic reduction, numerical location.
+- **A.4 / Prop 1 boundary — assumptions stated.** Added two maintained
+  regularity conditions: (R1) strictly-positive limiting asset demand and (R2)
+  feasibility of the limiting tax, both flagged as calibration properties, not
+  implications of Assumption 1. Added the negative-r^ss case (the interest-
+  service term helps feasibility as P falls).
+- **A.5 / Prop 3(iii) progressivity — scoped.** The Gini establishes
+  progressivity by **wealth rank** only; income/consumption/welfare progressivity
+  needs monotonicity/Lorenz-dominance and is the **numerical** welfare-by-group
+  finding, not a corollary of the Gini.
+- **A.8 label — fixed.** `P*_deficit` → `P*_lumpsum` in the price-level ordering
+  (Table 6 regimes are balanced stationary tax-incidence, not deficits).
+
+## Narrative reinforcement
+- **Elasticity map in the main text.** New **Table (elasticity map)** in §5.8
+  reports `∂lnS/∂τ` at the endpoints of every primitive sweep (borrowing limit,
+  income risk, risk aversion, debt target) plus the lump-sum vs levy instrument
+  flip, and the constrained-share of the demand shift — driven by
+  `decompose_tax_elasticity`, guarded so it self-populates on the run. The
+  elasticity is now presented as a central quantitative object, not a diagnostic.
+- **One-asset magnitudes in the abstract.** Added a clause: the price-level
+  magnitudes are one-asset upper bounds that scale down with the liquid
+  nominal-government-debt share; sign and incidence are the robust objects.
+- **θ_g thresholds.** §5.7 now reads `θ_g*`=2.18/0.57 strictly as *internal
+  technology frontiers* ("what effectiveness would break even", not "a 2% program
+  delivers this"), notes the mitigation/adaptation straddle, and names the
+  external physical calibration as the outstanding step.
+- **Announcement contrast.** The intro now presents the disinflationary
+  front-loading strictly as an *internal DTPL prediction*; the opposite-signed NK
+  result is explicitly not leaned on absent a matched experiment.
+- **Fixed-real financing table — populated** (from your `regimes_fixed_real`
+  run): ν_reval [-0.053,+0.030,+0.111,-0.011], matching fixed-nominal and
+  confirming the incidence conclusion is convention-independent.
+
+Compiles clean at 96 pages, zero undefined citations/references.
