@@ -82,6 +82,10 @@
 % Matched DTPL-vs-NK announcement experiment, populated by run_matched_dtpl_nk.
 \providecommand{\matchedNKimpact}{\pendingnum}
 \providecommand{\matchedDTPLimpact}{\pendingnum}
+% Wealth-concentration (superstar) fit, populated by wealth_concentration_fit.
+\providecommand{\SupTopOneShare}{\pendingnum}\providecommand{\SupNuReval}{\pendingnum}
+\providecommand{\SupDecBot}{\pendingnum}\providecommand{\SupDecTop}{\pendingnum}
+\providecommand{\SupTopOne}{\pendingnum}
 
 % Figures live in figures/ on Overleaf; ../output/figures/ in the repo.
 \graphicspath{{figures/}{../output/figures/}{./}}
@@ -2309,7 +2313,16 @@ decile, not a broad tax. Two caveats
 attach to the tails. The model's top 1\% holds \WShareTopOneMed\% of wealth,
 and the one-asset Aiyagari tail is thin relative to the roughly one-third
 observed in U.S. data, so the concentration of the bondholder windfall is
-more plausibly understated than overstated by these cuts. And below the
+more plausibly understated than overstated by these cuts. The package
+quantifies this directly rather than leaving it as a caveat: an optional
+rare high-income state in the spirit of \citet{castaneda2003} re-targets
+the model's top-1\% wealth share to the data (driver
+\texttt{wealth\_concentration\_fit}, with the discount factor re-bisected
+in the augmented economy to hold the same debt target); under the fitted
+concentration --- a top-1\% share of \SupTopOneShare\% --- the
+medium-column revaluation term is \SupNuReval{} and the decile gradient
+runs from \SupDecBot\% at the bottom to \SupDecTop\% at the top decile
+(top 1\%: \SupTopOne\%). And below the
 median, resolution is limited by the borrowing-limit mass point --- the
 constrained share of the population occupies a single asset state --- so
 bottom-decile numbers are exact for the model but should not be read as
@@ -3564,13 +3577,21 @@ acceleration on a 500-node exponentially spaced asset grid (choices on the
 grid; no reliance on monotonicity), the invariant distribution by exact power
 iteration on the sparse joint transition (no simulation), both inherited from
 the underlying replication package and validated against its 10-point check
-suite. The package additionally contains an endogenous-grid solver
+suite. The package also contains an endogenous-grid solver
 \citep{carroll2006egm} with continuous policies and a lottery-method
-invariant distribution \citep{young2010}, together with a cross-validation
-driver (\texttt{verify\_egm\_vs\_vfi}) that solves the calibrated steady
-states under both methods and reports off-grid Euler-equation errors on a
-common scale; every published number uses the grid-choice solver unless the
-validation table says otherwise. Aggregate asset demand on the $(\tau,D)$ plane is precomputed on a
+invariant distribution \citep{young2010}. A cross-validation on the six
+calibrated steady states (\texttt{verify\_egm\_vs\_vfi}) finds the two
+solvers agree on aggregate asset demand to within $0.4\%$, while the
+endogenous-grid method reduces mean off-grid Euler-equation errors from
+$10^{-2.1}$ to $10^{-5.4}$ (maxima: $10^{-1.2}$ to $10^{-2.5}$) at roughly
+a third of the wall-clock. Because the $0.4\%$ gap exceeds the reporting
+precision of the price level, the endogenous-grid solver is the package
+default going forward and the steady-state tables regenerate under it at
+each replication pass; the grid-choice solver remains available
+(\texttt{pg.hh\_solver='vfi'}) and the validation table ships with the
+package. The tier-2 transition keeps its own finite-horizon backward
+recursion either way, cross-checked by the sequence-space solve of
+Section~\ref{subsec:tier2}. Aggregate asset demand on the $(\tau,D)$ plane is precomputed on a
 $7\times4$ node grid at the policy real rate and interpolated bilinearly;
 every reported equilibrium is \emph{re-solved exactly} at the root (the
 interpolation residual is reported). Roots of $\Phi$ are found by a dense

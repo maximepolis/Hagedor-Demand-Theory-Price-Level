@@ -137,4 +137,29 @@ function pg = setup_params_green()
     pg.fast.nP_scan     = 120;
     pg.fast.theta_sweep = [0.0, 1.2, 2.5];
     pg.fast.mu_grid     = [0.015, 0.03, 0.06];
+
+    % ------------------------------------------------------------------
+    % Household solver default (Round 12). The EGM cross-validation
+    % (verify_egm_vs_vfi, run 2026-07-16) measured mean off-grid Euler
+    % errors of 1e-5.4 (EGM) vs 1e-2.1 (grid-choice VFI) with S agreement
+    % within 0.37% -- above the paper's reporting precision -- so per the
+    % pre-registered decision rule the EGM solver is the default and the
+    % steady-state tables regenerate under it. Set 'vfi' to reproduce the
+    % pre-Round-12 numbers. The tier-2 transition keeps its own
+    % finite-horizon backward machinery either way.
+    % ------------------------------------------------------------------
+    pg.hh_solver = 'egm';
+
+    % ------------------------------------------------------------------
+    % Superstar income state (wealth-concentration fit; Castaneda-Diaz-
+    % Gimenez-Rios-Rull 2003 device). OFF by default -- activated by the
+    % wealth_concentration_fit driver, which recalibrates beta to the same
+    % debt target and re-targets the model's top-1% wealth share to the
+    % data before re-examining tail incidence.
+    %   mult  : superstar endowment as a multiple of the top regular state
+    %   p_in  : per-period entry probability (from every regular state)
+    %   p_out : per-period exit probability (back to the median state)
+    % ------------------------------------------------------------------
+    pg.superstar = struct('active', false, 'mult', 12, ...
+                          'p_in', 2e-4, 'p_out', 0.06);
 end

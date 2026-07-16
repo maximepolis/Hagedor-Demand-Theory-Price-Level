@@ -161,5 +161,19 @@ if exist(wdf, 'file') == 2
     end
 end
 
+% ---- wealth-concentration fit (wealth_concentration_fit) ----
+% Guarded: exported only if the superstar-fit driver has been run.
+wff = fullfile(projdir, 'output', 'wealth_fit_results.mat');
+if exist(wff, 'file') == 2
+    Wf = load(wff, 'best', 'dec', 'wd');
+    mac('SupTopOneShare', sprintf('%.0f', 100*Wf.best.top1));
+    mac('SupNuReval',     sprintf('%+.3f', Wf.dec.nu_reval));
+    if isfield(Wf, 'wd') && Wf.wd.ok
+        mac('SupDecBot', sprintf('%+.2f', 100*Wf.wd.lambda_dec(1)));
+        mac('SupDecTop', sprintf('%+.2f', 100*Wf.wd.lambda_dec(10)));
+        mac('SupTopOne', sprintf('%+.2f', 100*Wf.wd.lambda_top1));
+    end
+end
+
 fclose(fid);
 fprintf('[export_paper_numbers] wrote %s\n', outf);
