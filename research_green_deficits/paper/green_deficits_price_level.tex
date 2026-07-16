@@ -2854,7 +2854,15 @@ bounded away from zero), and a near-singular $J$ is the sequence-space
 signature of the flat-demand multiplicity region of
 Proposition~\ref{prop:sunspots}. Both the cross-check and the diagnostic are
 produced by the replication driver \texttt{verify\_transition\_ssj}; no
-announcement number is quoted unless the two solvers agree. Two experiments run by
+announcement number is quoted unless the two solvers agree. Agreement is
+assessed at the precision the discretization supports: because both solvers
+share a discrete-choice ($n_a=500$) household problem, whose market-clearing
+residual has a floor near the grid resolution, the sequence-space Newton is
+run to that floor (interior residual $\sim2\times10^{-3}$, the same gate the
+Anderson solve meets) and the two price paths are required to agree to
+within one percent --- point agreement to the grid floor, not to machine
+precision, which the reported announcement objects (impact sign, magnitude
+to two digits, front-loading share) easily clear. Two experiments run by
 default: the \emph{nominal appropriation} (the anchor-exposed design) and
 the \emph{indexed mandate} (the anchor-insulated design of
 Proposition~\ref{prop:insulation}); the comparison of their announcement

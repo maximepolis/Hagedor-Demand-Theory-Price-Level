@@ -42,6 +42,21 @@ calf = fullfile(projdir, 'output', 'calibrated_results.mat');
 assert(exist(calf, 'file') == 2, 'wealth_concentration_fit: run main_project_calibrated first.');
 L = load(calf, 'RCAL', 'pgc');
 RCAL = L.RCAL; pgc = L.pgc;
+
+% SOLVER + GRID for the augmented economy. Pin to the grid-choice VFI: the
+% EGM extrapolation is unreliable for the superstar column (a 8-16x income
+% state saves far past amax, and interp1-extrap on its endogenous grid can
+% return nonfinite consumption). Extend amax so the high earners have room
+% to accumulate -- otherwise their mass piles at the top node and the
+% top-1% share cannot reach the data target regardless of beta.
+pgc.hh_solver = 'vfi';
+if isfield(pgc, 'amax') && isfield(pgc, 'na') && isfield(pgc, 'abar') ...
+        && exist('make_asset_grid', 'file') == 2
+    acurv = 2.5; if isfield(pgc, 'acurv'), acurv = pgc.acurv; end
+    pgc.amax  = max(pgc.amax, 300);           % headroom for the superstar tail
+    pgc.aGrid = make_asset_grid(-pgc.abar, pgc.amax, pgc.na, acurv);
+end
+
 r_cal  = (1 + pgc.i_ss)/(1 + pgc.mu) - 1;
 cmed   = 2;                                   % medium column, as elsewhere
 assert(~isempty(RCAL.dec{cmed}) && RCAL.dec{cmed}.ok, 'medium column missing.');
@@ -90,7 +105,25 @@ for k = 1:numel(configs)
 end
 
 okF = FIT([FIT.ok]);
-assert(~isempty(okF), 'no superstar config solved.');
+if isempty(okF)
+    % Graceful exit (not a crash) so run_green_deficits_master continues:
+    % write a diagnostic table and a NO-FIT results file instead of erroring.
+    warning('wealth_concentration_fit:nofit', ...
+        'No superstar config solved; writing NO-FIT diagnostic and returning.');
+    tabdir = fullfile(projdir, 'output', 'tables');
+    if ~isfolder(tabdir), mkdir(tabdir); end
+    fid = fopen(fullfile(tabdir, 'wealth_fit.txt'), 'w');
+    fprintf(fid, 'WEALTH-CONCENTRATION FIT -- NO CONFIG SOLVED\n');
+    fprintf(fid, ['Every (mult,p_in) config returned a non-bracketing or ' ...
+        'infeasible beta bisection.\nCheck: amax headroom for the superstar ' ...
+        'tail, feasibility of tau=r*b at\nthe augmented min-endowment state, ' ...
+        'and the [%.3f, ...] beta bracket.\n'], 0.85);
+    fclose(fid);
+    save(fullfile(projdir, 'output', 'wealth_fit_results.mat'), ...
+         'FIT', 'r_cal', 'TOP1_TARGET', 'B_TARGET');
+    fprintf('Wrote NO-FIT diagnostic. Elapsed %.1f s\n', toc(t0));
+    return;
+end
 [~, ib] = min(abs([okF.top1] - TOP1_TARGET));
 best = okF(ib);
 fprintf('Selected: mult %.0f, p_in %.0e (top1 %.1f%% vs target %.0f%%).\n', ...
@@ -144,7 +177,15 @@ function [beta_star, b_star, ok] = local_bisect_beta(pgs, r, D, b_target)
 % Bisect beta so the no-program fixed point b = S(1+r; tau = r*b, D) hits
 % b_target, INSIDE the augmented economy (S_green carries the superstar
 % chain; the root calibrate_beta does not).
-    lo = 0.88; hi = min(0.999, (1 - 1e-4) / (1 + r)); ok = false; b_star = NaN;
+    % hi must keep beta*(1+r) safely BELOW betaR_max (=0.999): the old
+    % min(0.999,(1-1e-4)/(1+r)) gave beta*(1+r)=0.99984>=0.999 at r=0.0196,
+    % so S_green returned Inf and every config aborted with NaN. Match
+    % calibrate_beta's safe ceiling. Adding the superstar state raises
+    % aggregate saving, so the beta that hits the SAME debt target is LOWER
+    % than the baseline betaStar, and [0.85,0.955] brackets it.
+    betaR_max = 0.999; if isfield(pgs,'betaR_max'), betaR_max = pgs.betaR_max; end
+    lo = 0.85; hi = min(0.955, 0.9985 * betaR_max / (1 + r));
+    ok = false; b_star = NaN;
     f = @(bta) local_b_fixed_point(pgs, bta, r, D);
     flo = f(lo) - b_target; fhi = f(hi) - b_target;
     if ~(isfinite(flo) && isfinite(fhi)) || flo * fhi > 0

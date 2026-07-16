@@ -166,6 +166,7 @@ end
 wff = fullfile(projdir, 'output', 'wealth_fit_results.mat');
 if exist(wff, 'file') == 2
     Wf = load(wff, 'best', 'dec', 'wd');
+    if isfield(Wf, 'best') && isfield(Wf, 'dec')     % skip the NO-FIT case
     mac('SupTopOneShare', sprintf('%.0f', 100*Wf.best.top1));
     mac('SupNuReval',     sprintf('%+.3f', Wf.dec.nu_reval));
     if isfield(Wf, 'wd') && Wf.wd.ok
@@ -173,6 +174,7 @@ if exist(wff, 'file') == 2
         mac('SupDecTop', sprintf('%+.2f', 100*Wf.wd.lambda_dec(10)));
         mac('SupTopOne', sprintf('%+.2f', 100*Wf.wd.lambda_top1));
     end
+    end                                              % NO-FIT skip
 end
 
 fclose(fid);

@@ -79,7 +79,15 @@ fprintf('  %s\n', TA.msg);
 % ---- (2) SSJ Newton (independent residual + GE Jacobian) ----
 fprintf('\n--- (2) sequence-space Newton ---\n');
 optsN = opts;
-optsN.newton_maxit = 12; optsN.newton_tol = 5e-4; optsN.fd_step = 1e-4;
+% The transition residual runs a DISCRETE-CHOICE (grid) backward pass, so it
+% is piecewise-constant at fine scales: fd_step must average across policy
+% flips (the old 1e-4 gave a noise Jacobian and the Newton stalled at the
+% bridge). freeze_jac reuses the first good Jacobian for cheap chord steps
+% (rebuilt automatically on any stall), so a larger iteration cap is
+% affordable. newton_tol is 2e-3 -- the na=500 grid's residual floor, the
+% same gate the Anderson solver meets -- not an unreachable 5e-4.
+optsN.newton_maxit = 30; optsN.newton_tol = 2e-3;
+optsN.fd_step = 5e-3;    optsN.freeze_jac = true;
 TS = solve_transition_ssj(pg, optsN);
 fprintf('  %s\n', TS.msg);
 
