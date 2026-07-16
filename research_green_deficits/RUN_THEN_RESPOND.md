@@ -402,3 +402,50 @@ transition_ssj.txt and I will either raise newton_maxit further or freeze
 the cross-check band at the grid floor it actually reaches. If the wealth
 sweep brackets 33% only at the high-mult end, tell me the top1 column and
 I will recentre the (mult,p_in) grid.
+
+---
+
+# Round 14 — incidence theorem, grid convergence, number ledger, theory audit
+
+## What changed in the paper (no new numbers asserted)
+1. NEW central proposition (Sec 4, "The incidence formula"): the
+   sufficient-statistic price response dlnP*/dg = -eta_g/(1+eps_S), stated
+   for ANY productive public program and specialized to climate. Every
+   headline result is now presented as a reading of it: financing design =
+   the numerator sign; sunspots = the denominator through zero; insulation =
+   deleting D(P) from eps_S; the Table 4 map = the formula's measured
+   inputs. Proof (implicit function theorem at the crossing) in Appendix A;
+   status: proved from primitives under differentiability at the crossing.
+   Intro contributions paragraph reframed around it.
+2. Theory audit (docs/theory_audit.md): all 12 formal statements audited
+   adversarially — assumptions, domains, kink risks, local/global,
+   counterexample attempts. Three fixes applied: the eta_tau
+   elasticity/semi-elasticity notation clash between prop:insulation and the
+   new formula (real referee bait — |eta_tau|<1 vs measured +2.60 are
+   different objects, now both defined explicitly); the portfolio-scaling
+   clause demoted from proposition to discussion; eta_tau formally defined
+   in prop:insulation. No open gaps remain.
+
+## New run (MATLAB)
+```matlab
+cd research_green_deficits
+verify_grid_convergence     % na = 125/250/500 x {vfi, egm} on the medium
+                            % column: S, b0, eps_tau, gini, constrained mass
+                            % -> output/tables/grid_convergence.txt + verdict
+```
+Expect PASS (medium->research changes below 1e-3 on aggregates, 5e-2 on the
+derivative). If FAIL, push the table — a grid-sensitive moment would need a
+denser grid before submission.
+
+## New tool (run locally anytime; no MATLAB needed)
+```bash
+cd research_green_deficits/paper
+python3 check_manuscript_numbers.py     # exit 1 while unapproved literals remain
+```
+Scans the manuscript for numeric literals not sourced from numbers_auto.tex.
+approved_literals.txt whitelists calibration INPUTS and transcribed-and-
+checked run values (marked [transcribed]). Current ledger: ~377 literals,
+dominated by appendix worked-example tables and the incidence-table
+quintiles — the same hard-coded values already queued for reconciliation at
+the EGM regeneration. The goal over time: convert [transcribed] entries to
+exporter macros and shrink the ledger toward zero.

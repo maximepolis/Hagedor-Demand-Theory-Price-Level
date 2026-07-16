@@ -368,6 +368,14 @@ lump-sum versus proportional levy --- sets the sign of the revaluation
 channel, and with it the price-level response and its distribution, from an
 unchanged nominal appropriation (Propositions \ref{prop:selffinancing},
 \ref{prop:financingdesign}; Tables \ref{tab:calibrated}, \ref{tab:regimes}).
+The mechanism is organized by one analytical object, a sufficient-statistic
+formula for the price response to any productive public program
+(Proposition~\ref{prop:suffstat}): the financing instrument sets the sign
+through the numerator, the determinacy margin lives in the denominator, and
+the formula's inputs are measured, not assumed
+(Table~\ref{tab:elasticitymap}) --- an incidence theorem for nominal public
+liabilities of which the climate application is the disciplined special
+case.
 Everything else is secondary or conditional: the self-financing
 \emph{magnitudes} are frontiers conditional on climate damages and an
 illustrative abatement technology (Section~\ref{subsec:robustness}); the
@@ -988,11 +996,14 @@ Section~\ref{subsec:tier2} traces out over time.}
 This section develops the theory in the order the mechanism suggests: when
 an equilibrium exists and is unique (determinacy); what the government can
 and cannot choose about it (nominal neutrality and demand-determined real
-debt); how much of the program comes back, and to whom (the self-financing
-decomposition and the sign of the revaluation channel); when the climate
-loop itself destabilizes the price level (sunspots and anchor insulation);
-and which levers remain once those constraints bind (accommodation and
-financing design). Throughout, Assumption~\ref{ass:feasible} holds.
+debt); the sufficient-statistic formula through which every remaining
+result can be read (the incidence formula,
+Section~\ref{subsec:suffstat}); how much of the program comes back, and to
+whom (the self-financing decomposition and the sign of the revaluation
+channel); when the climate loop itself destabilizes the price level
+(sunspots and anchor insulation); and which levers remain once those
+constraints bind (accommodation and financing design). Throughout,
+Assumption~\ref{ass:feasible} holds.
 
 \begin{assumption}\label{ass:feasible}
 $\beta(1+r^{ss})<1$, and the feasibility set
@@ -1003,9 +1014,11 @@ asset bound is $-\bar a$, from the borrowing limit $a_{t+1}\ge-\bar a$).
 \paragraph{The analytical status of the results, up front.} The formal
 statements below are uniformly labeled but are not of uniform logical
 strength, and we flag the status of each so a theory-facing reader can weight
-them. Three are \textbf{proved from primitives} and carry the paper's weight:
+them. Four are \textbf{proved from primitives} and carry the paper's weight:
 the nominal neutrality of debt issuance (Lemma~\ref{lem:neutrality}),
-steady-state monetary neutrality (Proposition~\ref{prop:muneutral}), and the
+steady-state monetary neutrality (Proposition~\ref{prop:muneutral}), the
+sufficient-statistic incidence formula (Proposition~\ref{prop:suffstat},
+under differentiability at the crossing), and the
 exact self-financing decomposition (Proposition~\ref{prop:selffinancing}). The
 rest are explicitly qualified. Existence and uniqueness
 (Proposition~\ref{prop:determinacy}) hold under the stated crossing and
@@ -1175,6 +1188,108 @@ $B/P_s$ of the nominal bond makes the nominal level payoff-relevant
 (Sections~\ref{subsec:aggrisk},~\ref{subsec:tier2}).
 
 % --------------------------------------------------------------------------
+\subsection{The incidence formula}\label{subsec:suffstat}
+
+The results that follow --- the sign of the revaluation channel, its
+dependence on the financing instrument, the multiplicity region, and the
+insulation value of indexation --- are all local statements about one
+equation, the market-clearing condition $\Sfun(P,g)=B/P$. It is worth
+extracting the common structure once, as a sufficient-statistic formula, and
+then reading each result off it. We state it for a \emph{general} productive
+public program, because nothing in the argument is specific to climate: let
+$g$ index any permanent public spending that reaches household asset demand
+through a vector of channels --- the taxes that finance it, the level of
+effective income it changes, the idiosyncratic risk it changes --- and write
+equilibrium asset demand as the composite
+\begin{equation}
+\Sfun(P,g) \;=\;
+\Sfun\!\big(1+r^{ss};\ \tau(P,g),\ D(P,g),\ \sigma_\epsilon(P,g)\big),
+\label{eq:Scomposite}
+\end{equation}
+where the $P$-arguments collect every equilibrium feedback already present in
+Definition~\ref{def:elasticity} (the interest bill $r^{ss}B/P$ inside
+$\tau$; under a nominal budget, the erosion $g_g=G_g/P$ inside $D$) and the
+$g$-arguments collect the program's direct effects at a fixed price level.
+
+\begin{proposition}[The price response to public spending: a sufficient
+statistic]\label{prop:suffstat}
+Let $(P^{*},g)$ satisfy $\Phi(P^{*},g)\equiv\Sfun(P^{*},g)-B/P^{*}=0$, and
+suppose $\Sfun$ is differentiable at $(P^{*},g)$ with
+$\varepsilon_S(P^{*})\neq-1$, where
+$\varepsilon_S\equiv\partial\ln\Sfun/\partial\ln P|_{g}$ is the demand
+elasticity of Definition~\ref{def:elasticity}. Then $P^{*}(g)$ is locally the
+unique differentiable equilibrium branch, and
+\begin{equation}
+\frac{d\ln P^{*}}{dg}
+\;=\;
+-\,\frac{\eta_g}{1+\varepsilon_S},
+\qquad
+\eta_g \;\equiv\; \frac{\partial\ln \Sfun}{\partial g}\Big|_{P}
+\;=\;
+\frac{\partial\ln\Sfun}{\partial\tau}\,\frac{\partial\tau}{\partial g}
++\frac{\partial\ln\Sfun}{\partial D}\,\frac{\partial D}{\partial g}
++\frac{\partial\ln\Sfun}{\partial\sigma_\epsilon}\,
+ \frac{\partial\sigma_\epsilon}{\partial g},
+\label{eq:suffstat}
+\end{equation}
+all partials at a fixed price level.
+In particular: (i) on the locally determinate region $\varepsilon_S>-1$, the
+\emph{sign} of the price response is the sign of $-\eta_g$ --- a property of
+the program's financing and its income/risk content, not of the asset
+market; and (ii) the \emph{magnitude} is amplified by $1/(1+\varepsilon_S)$,
+which diverges as $\varepsilon_S\downarrow-1$, the boundary of the
+multiplicity region.
+\end{proposition}
+\noindent\emph{Status:} \textbf{proved from primitives} (implicit function
+theorem at the crossing) under differentiability of $\Sfun$ at the
+equilibrium, the regularity that (R1)--(R2) supply; proof in
+Appendix~\ref{app:proofs}.
+
+Every headline result in this paper is a reading of \eqref{eq:suffstat}.
+The financing-design result (Proposition~\ref{prop:financingdesign}) is the
+\emph{numerator}: lump-sum finance sets $\partial\tau_{ls}/\partial g=1$ and
+activates the tax semi-elasticity $\partial\ln\Sfun/\partial\tau_{ls}\ge0$
+(measured at $\epsTau$ in
+Section~\ref{subsec:safeasset}), while a proportional levy replaces that
+term with $\partial\ln\Sfun/\partial\vartheta<0$ (measured at $\epsLevy$)
+--- the same real
+program flips the sign of $d\ln P/dg$ because the financing instrument flips
+the sign of $\eta_g$, with the denominator untouched. Green disinflation
+(Result~\ref{res:disinflation}) is the statement that under lump-sum finance
+the tax and income-level terms of $\eta_g$ dominate the risk term. The
+sunspot region (Proposition~\ref{prop:sunspots}) is the \emph{denominator}:
+$1+\varepsilon_S$ passing through zero is exactly the transversal downward
+crossing that generates multiplicity, and anchor insulation
+(Proposition~\ref{prop:insulation}) works by deleting the climate feedback
+$D(P)$ from $\varepsilon_S$, holding the denominator away from zero for any
+program size. The marginal self-financing condition of
+Proposition~\ref{prop:selffinancing}(ii) below uses
+$\epsilon_P\equiv d\ln P/dg_g$, which is this object evaluated at the
+no-program point. The formula also locates the portfolio bound: in a
+two-asset economy $\Sfun$ is the demand for the nominal government
+liability specifically, so the channel semi-elasticities are computed on
+the liquid margin and scale with the liquid share $\omega$ --- which is
+where the magnitude discipline of Section~\ref{subsec:safeasset} enters,
+an interpretation the two-asset extension makes concrete rather than a
+part of the proposition. Finally, the measured elasticity map of
+Section~\ref{subsec:safeasset} (Table~\ref{tab:elasticitymap}) is precisely
+the empirical content of the formula: it measures
+$\partial\ln\Sfun/\partial\tau$ and $\partial\ln\Sfun/\partial\vartheta$
+and their dependence on primitives, so the sign claims stand
+or fall with measurable objects rather than with the climate block.
+
+Nothing above referenced climate. Any permanent program that changes the
+after-tax income process households insure against --- public adaptation
+capital, conventional infrastructure, public R\&D --- obeys
+\eqref{eq:suffstat}; the climate sector of Section~\ref{subsec:climate} is
+one particular map $g\mapsto(\tau,D,\sigma_\epsilon)$, chosen because it
+supplies an empirically disciplined income-and-risk channel and a
+policy question in which the financing instrument is genuinely contested.
+Read this way, the paper's analytical contribution is an incidence theorem
+for nominal public liabilities; the climate application supplies its
+quantitative discipline.
+
+% --------------------------------------------------------------------------
 \subsection{Self-financing and the sign of the revaluation channel}
 
 \begin{proposition}[Self-financing decomposition]\label{prop:selffinancing}
@@ -1321,7 +1436,10 @@ households whose buffers respond most, steepening the feedback.
 \begin{proposition}[Anchor insulation]\label{prop:insulation}
 Under the real mandate, $D$ is constant in $P$ (Lemma~\ref{lem:climate}), so
 the climate channel of $\varepsilon_S$ vanishes and
-$\varepsilon_S(P) = \eta_\tau\, d\ln\tau/d\ln P$, with
+$\varepsilon_S(P) = \eta_\tau\, d\ln\tau/d\ln P$, where
+$\eta_\tau \equiv \partial\ln\Sfun/\partial\ln\tau$ is the tax
+\emph{elasticity} of asset demand (the semi-elasticity of
+Table~\ref{tab:elasticitymap} times $\tau$) and
 $d\ln\tau/d\ln P = -\,r^{ss}b/\tau$. When $r^{ss}\ge0$ and $\tau>0$ this
 lies in $(-1,0]$, so $|\varepsilon_S|\le|\eta_\tau|$; when accommodation
 drives $r^{ss}<0$ the derivative is positive, with magnitude
@@ -1449,7 +1567,9 @@ interior optimum; proof in Appendix~\ref{app:proofs}.
 
 The last result formalizes the channel Figure~\ref{fig:mechanism} flagged:
 the financing instrument touches nothing in the climate block, yet it sets
-the sign of the revaluation term --- and with it who ultimately pays.
+the sign of the revaluation term --- and with it who ultimately pays. In
+the language of Proposition~\ref{prop:suffstat}, it is a statement about
+the numerator of the incidence formula, holding the denominator fixed.
 
 \begin{proposition}[Financing design controls the revaluation channel]
 \label{prop:financingdesign}
@@ -1994,7 +2114,11 @@ the liquid-asset share (next paragraph).
 We therefore report the elasticity as a measured object with a stated primitive
 map, not as a robust sign. Table~\ref{tab:elasticitymap} reports the map in the
 main text --- the semi-elasticity at the endpoints of each primitive sweep ---
-and it sharpens the mechanism in two ways the benchmark alone cannot. First,
+and these are exactly the $\partial\ln\Sfun/\partial\tau$ and
+$\partial\ln\Sfun/\partial\vartheta$ inputs of the
+incidence formula \eqref{eq:suffstat}, so the table is the formula's
+empirical content. It sharpens the mechanism in two ways the benchmark
+alone cannot. First,
 the sign is robust where liquidity constraints \emph{bind} and only there: the
 elasticity is positive and stable across the income-risk, risk-aversion, and
 debt-target sweeps, and positive and \emph{rising} as the borrowing limit
@@ -3229,6 +3353,38 @@ and a continuous function with only upward crossings has exactly one.
 (iii) $(K_g,X,D)$ solve \eqref{eq:Kg}--\eqref{eq:climatefixedpoint} given
 $g_g$; with $\theta_g=0$ or the mandate, $D$ does not vary with $P$, so the
 block is recursive and does not enter $\Phi$'s dependence on $P$. \qed
+
+\subsection{Proof of Proposition \ref{prop:suffstat}}
+Write $\Phi(P,g)=\Sfun(P,g)-B/P$ with $\Sfun$ the composite
+\eqref{eq:Scomposite}. At the crossing $\Sfun(P^{*},g)=B/P^{*}$, so
+\[
+\Phi_P
+=\Sfun_P+\frac{B}{P^{*2}}
+=\frac{\Sfun}{P^{*}}\Big(\frac{P^{*}}{\Sfun}\Sfun_P+1\Big)
+=\frac{\Sfun}{P^{*}}\,\big(\varepsilon_S+1\big),
+\]
+which is nonzero exactly when $\varepsilon_S\neq-1$. The implicit function
+theorem then delivers a locally unique differentiable branch $P^{*}(g)$ with
+\[
+\frac{dP^{*}}{dg}=-\frac{\Phi_g}{\Phi_P}
+=-\frac{\Sfun_g}{(\Sfun/P^{*})(1+\varepsilon_S)}
+\quad\Longrightarrow\quad
+\frac{d\ln P^{*}}{dg}=-\frac{\eta_g}{1+\varepsilon_S},
+\qquad \eta_g=\frac{\Sfun_g}{\Sfun}.
+\]
+The channel decomposition of $\eta_g$ is the chain rule applied to
+\eqref{eq:Scomposite} at a fixed price level. Part (i) is immediate since
+$1+\varepsilon_S>0$ there; part (ii) reads off the denominator, whose zero is
+the tangency at which the upward crossing of
+Proposition~\ref{prop:determinacy} degenerates and beyond which the downward
+crossing of Proposition~\ref{prop:sunspots} exists. On differentiability: $\Sfun$ aggregates
+household policies over the invariant distribution, so borrowing-constraint
+kinks at the household level are integrated over a nonatomic distribution of
+states; the maintained hypothesis is differentiability of the aggregate at
+the crossing --- the same regularity (R1)--(R2) under which
+Proposition~\ref{prop:determinacy}(ii) operates --- verified numerically at
+every reported equilibrium, where the measured $\varepsilon_S$ is far from
+$-1$ (Section~\ref{subsec:sunspots}). \qed
 
 \subsection{Proof of Proposition \ref{prop:selffinancing} and
 Result \ref{res:disinflation}}
