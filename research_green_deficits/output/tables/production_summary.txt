@@ -1,13 +1,13 @@
 PRODUCTION STAGE 1 -- TAX-BASE MARGIN (calibrated MEDIUM column)
 Y=(1-D(Kg))*A(Kg), A=1+aY(1-exp(-thA*Kg)), N=1 fixed. Additive piece only:
 nu_taxbase = trb*dY_product/g_g1 (damage component already in nu_dam; recomposed, not added).
-Endowment benchmark: nu=0.578 (reval -0.057, dam 0.635), g_g1=0.02127
+Endowment benchmark: nu=0.583 (reval -0.053, dam 0.636), g_g1=0.02116
 
 aY     eta_Y   dY_dam    dY_prod   interact  | nu+ (trb=.25) nu+ (trb=.34)
-0.00   0.012   0.0135    0.0000    0.0000    | 0.578        0.578       
-0.10   0.027   0.0135    0.0147    0.0002    | 0.751        0.814       
-0.20   0.040   0.0135    0.0294    0.0004    | 0.924        1.049       
-0.30   0.054   0.0135    0.0441    0.0006    | 1.097        1.284       
+0.00   0.012   0.0135    0.0000    0.0000    | 0.583        0.583       
+0.10   0.026   0.0135    0.0146    0.0002    | 0.755        0.818       
+0.20   0.040   0.0135    0.0293    0.0004    | 0.928        1.053       
+0.30   0.053   0.0135    0.0439    0.0006    | 1.101        1.288       
 
 Discipline: eta_Y = dlnY/dlnKg at the program Kg; Bom-Ligthart (2014) meta-range for core public capital: 0.08-0.12.
 trb = average effective tax take on output (0.34 = OECD tax/GDP).

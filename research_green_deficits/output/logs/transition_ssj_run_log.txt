@@ -3,134 +3,85 @@
 ==============================================================
 
 --- (1) Anderson fixed point ---
-  boundary steady states: P0=0.9033 -> P1=0.8553 (D: 0.0600 -> 0.0465)
-  iter  1: interior max|S-b|/b = 0.03833, terminal(horizon) = 0.00913 (mem=0)
-  iter  2: interior max|S-b|/b = 0.03198, terminal(horizon) = 0.00683 (mem=1)
-  iter  3: interior max|S-b|/b = 0.03128, terminal(horizon) = 0.00895 (mem=2)
-  iter  4: interior max|S-b|/b = 0.02452, terminal(horizon) = 0.01216 (mem=3)
-  iter  5: interior max|S-b|/b = 0.01895, terminal(horizon) = 0.01697 (mem=4)
-  iter  6: interior max|S-b|/b = 0.01530, terminal(horizon) = 0.01374 (mem=5)
-  iter  7: interior max|S-b|/b = 0.01081, terminal(horizon) = 0.00938 (mem=5)
-  iter  8: interior max|S-b|/b = 0.00835, terminal(horizon) = 0.00202 (mem=5)
-  iter  9: interior max|S-b|/b = 0.00705, terminal(horizon) = 0.00187 (mem=5)
-  iter 10: interior max|S-b|/b = 0.00606, terminal(horizon) = 0.00111 (mem=5)
-  iter 11: interior max|S-b|/b = 0.00462, terminal(horizon) = 0.00050 (mem=5)
-  iter 12: interior max|S-b|/b = 0.00483, terminal(horizon) = 0.00014 (mem=5)
-  iter 13: interior max|S-b|/b = 0.00444, terminal(horizon) = 0.00015 (mem=5)
-  iter 14: interior max|S-b|/b = 0.00454, terminal(horizon) = 0.00072 (mem=5)
-  iter 15: interior max|S-b|/b = 0.00397, terminal(horizon) = 0.00013 (mem=5)
-  iter 16: interior max|S-b|/b = 0.00286, terminal(horizon) = 0.00024 (mem=5)
-  iter 17: interior max|S-b|/b = 0.00320, terminal(horizon) = 0.00017 (mem=5)
-  iter 18: interior max|S-b|/b = 0.00261, terminal(horizon) = 0.00018 (mem=5)
-  iter 19: interior max|S-b|/b = 0.00249, terminal(horizon) = 0.00034 (mem=5)
-  iter 20: interior max|S-b|/b = 0.00209, terminal(horizon) = 0.00036 (mem=5)
-  iter 21: interior max|S-b|/b = 0.00200, terminal(horizon) = 0.00009 (mem=5)
-  iter 22: interior max|S-b|/b = 0.00189, terminal(horizon) = 0.00002 (mem=5)
-  iter 23: interior max|S-b|/b = 0.00200, terminal(horizon) = 0.00030 (mem=5)
-  iter 24: interior max|S-b|/b = 0.00165, terminal(horizon) = 0.00042 (mem=5)
-  iter 25: interior max|S-b|/b = 0.00192, terminal(horizon) = 0.00036 (mem=5)
-  iter 26: interior max|S-b|/b = 0.00199, terminal(horizon) = 0.00052 (mem=5)
-  iter 27: interior max|S-b|/b = 0.00191, terminal(horizon) = 0.00040 (mem=5)
-  iter 28: interior max|S-b|/b = 0.00146, terminal(horizon) = 0.00047 (mem=5)
-  iter 29: interior max|S-b|/b = 0.00136, terminal(horizon) = 0.00041 (mem=5)
-  iter 30: interior max|S-b|/b = 0.00130, terminal(horizon) = 0.00042 (mem=5)
-  iter 31: interior max|S-b|/b = 0.00130, terminal(horizon) = 0.00037 (mem=5)
-  iter 32: interior max|S-b|/b = 0.00127, terminal(horizon) = 0.00039 (mem=5)
-  iter 33: interior max|S-b|/b = 0.00101, terminal(horizon) = 0.00041 (mem=5)
-  iter 34: interior max|S-b|/b = 0.00090, terminal(horizon) = 0.00040 (mem=5)
-  iter 35: interior max|S-b|/b = 0.00093, terminal(horizon) = 0.00040 (mem=5)
-  iter 36: interior max|S-b|/b = 0.00084, terminal(horizon) = 0.00039 (mem=5)
-  iter 37: interior max|S-b|/b = 0.00092, terminal(horizon) = 0.00040 (mem=5)
-  iter 38: interior max|S-b|/b = 0.00089, terminal(horizon) = 0.00040 (mem=5)
-  iter 39: interior max|S-b|/b = 0.00087, terminal(horizon) = 0.00037 (mem=5)
-  iter 40: interior max|S-b|/b = 0.00077, terminal(horizon) = 0.00037 (mem=5)
-  iter 41: interior max|S-b|/b = 0.00065, terminal(horizon) = 0.00036 (mem=5)
-  iter 42: interior max|S-b|/b = 0.00071, terminal(horizon) = 0.00036 (mem=5)
-  iter 43: interior max|S-b|/b = 0.00067, terminal(horizon) = 0.00036 (mem=5)
-  iter 44: interior max|S-b|/b = 0.00067, terminal(horizon) = 0.00036 (mem=5)
-  iter 45: interior max|S-b|/b = 0.00076, terminal(horizon) = 0.00035 (mem=5)
-  iter 46: interior max|S-b|/b = 0.00067, terminal(horizon) = 0.00036 (mem=5)
-  iter 47: interior max|S-b|/b = 0.00053, terminal(horizon) = 0.00035 (mem=5)
-  iter 48: interior max|S-b|/b = 0.00052, terminal(horizon) = 0.00035 (mem=5)
-  iter 49: interior max|S-b|/b = 0.00053, terminal(horizon) = 0.00036 (mem=5)
-  iter 50: interior max|S-b|/b = 0.00062, terminal(horizon) = 0.00036 (mem=5)
-  iter 51: interior max|S-b|/b = 0.00046, terminal(horizon) = 0.00035 (mem=5)
-  tier2 nominal/lumpsum: fixed point CONVERGED (interior max 0.00046 @t=5), horizon OK (terminal resid 0.00035) in 51 iters; impact phat_1/P0 = 0.9622 (surprise DISINFLATION), terminal P = 0.8553
+  boundary steady states: P0=0.9051 -> P1=0.8590 (D: 0.0600 -> 0.0465)
+  iter  1: interior max|S-b|/b = 0.04054, terminal(horizon) = 0.01268 (mem=0)
+  iter  2: interior max|S-b|/b = 0.03341, terminal(horizon) = 0.00668 (mem=1)
+  iter  3: interior max|S-b|/b = 0.03312, terminal(horizon) = 0.00997 (mem=2)
+  iter  4: interior max|S-b|/b = 0.02565, terminal(horizon) = 0.01178 (mem=3)
+  iter  5: interior max|S-b|/b = 0.01763, terminal(horizon) = 0.01274 (mem=4)
+  iter  6: interior max|S-b|/b = 0.01519, terminal(horizon) = 0.00917 (mem=5)
+  iter  7: interior max|S-b|/b = 0.01148, terminal(horizon) = 0.00303 (mem=5)
+  iter  8: interior max|S-b|/b = 0.00772, terminal(horizon) = 0.00248 (mem=5)
+  iter  9: interior max|S-b|/b = 0.00685, terminal(horizon) = 0.00233 (mem=5)
+  iter 10: interior max|S-b|/b = 0.00572, terminal(horizon) = 0.00063 (mem=5)
+  iter 11: interior max|S-b|/b = 0.00428, terminal(horizon) = 0.00145 (mem=5)
+  iter 12: interior max|S-b|/b = 0.00426, terminal(horizon) = 0.00114 (mem=5)
+  iter 13: interior max|S-b|/b = 0.00368, terminal(horizon) = 0.00116 (mem=5)
+  iter 14: interior max|S-b|/b = 0.00411, terminal(horizon) = 0.00094 (mem=5)
+  iter 15: interior max|S-b|/b = 0.00401, terminal(horizon) = 0.00107 (mem=5)
+  iter 16: interior max|S-b|/b = 0.00329, terminal(horizon) = 0.00099 (mem=5)
+  iter 17: interior max|S-b|/b = 0.00310, terminal(horizon) = 0.00115 (mem=5)
+  iter 18: interior max|S-b|/b = 0.00279, terminal(horizon) = 0.00087 (mem=5)
+  iter 19: interior max|S-b|/b = 0.00270, terminal(horizon) = 0.00055 (mem=5)
+  iter 20: interior max|S-b|/b = 0.00276, terminal(horizon) = 0.00050 (mem=5)
+  iter 21: interior max|S-b|/b = 0.00267, terminal(horizon) = 0.00081 (mem=5)
+  iter 22: interior max|S-b|/b = 0.00233, terminal(horizon) = 0.00076 (mem=5)
+  iter 23: interior max|S-b|/b = 0.00190, terminal(horizon) = 0.00125 (mem=5)
+  iter 24: interior max|S-b|/b = 0.00182, terminal(horizon) = 0.00087 (mem=5)
+  iter 25: interior max|S-b|/b = 0.00189, terminal(horizon) = 0.00077 (mem=5)
+  iter 26: interior max|S-b|/b = 0.00176, terminal(horizon) = 0.00042 (mem=5)
+  iter 27: interior max|S-b|/b = 0.00165, terminal(horizon) = 0.00038 (mem=5)
+  iter 28: interior max|S-b|/b = 0.00178, terminal(horizon) = 0.00078 (mem=5)
+  iter 29: interior max|S-b|/b = 0.00188, terminal(horizon) = 0.00080 (mem=5)
+  iter 30: interior max|S-b|/b = 0.00173, terminal(horizon) = 0.00064 (mem=5)
+  iter 31: interior max|S-b|/b = 0.00157, terminal(horizon) = 0.00002 (mem=5)
+  iter 32: interior max|S-b|/b = 0.00151, terminal(horizon) = 0.00034 (mem=5)
+  iter 33: interior max|S-b|/b = 0.00182, terminal(horizon) = 0.00031 (mem=5)
+  iter 34: interior max|S-b|/b = 0.00204, terminal(horizon) = 0.00039 (mem=5)
+  iter 35: interior max|S-b|/b = 0.00201, terminal(horizon) = 0.00040 (mem=5)
+  iter 36: interior max|S-b|/b = 0.00185, terminal(horizon) = 0.00018 (mem=5)
+  iter 37: interior max|S-b|/b = 0.00178, terminal(horizon) = 0.00002 (mem=5)
+  iter 38: interior max|S-b|/b = 0.00155, terminal(horizon) = 0.00002 (mem=5)
+  iter 39: interior max|S-b|/b = 0.00154, terminal(horizon) = 0.00004 (mem=5)
+  iter 40: interior max|S-b|/b = 0.00153, terminal(horizon) = 0.00024 (mem=5)
+  iter 41: interior max|S-b|/b = 0.00148, terminal(horizon) = 0.00051 (mem=5)
+  iter 42: interior max|S-b|/b = 0.00148, terminal(horizon) = 0.00031 (mem=5)
+  iter 43: interior max|S-b|/b = 0.00114, terminal(horizon) = 0.00015 (mem=5)
+  iter 44: interior max|S-b|/b = 0.00109, terminal(horizon) = 0.00006 (mem=5)
+  iter 45: interior max|S-b|/b = 0.00098, terminal(horizon) = 0.00010 (mem=5)
+  iter 46: interior max|S-b|/b = 0.00098, terminal(horizon) = 0.00014 (mem=5)
+  iter 47: interior max|S-b|/b = 0.00107, terminal(horizon) = 0.00001 (mem=5)
+  iter 48: interior max|S-b|/b = 0.00105, terminal(horizon) = 0.00020 (mem=5)
+  iter 49: interior max|S-b|/b = 0.00097, terminal(horizon) = 0.00028 (mem=5)
+  iter 50: interior max|S-b|/b = 0.00102, terminal(horizon) = 0.00048 (mem=5)
+  iter 51: interior max|S-b|/b = 0.00128, terminal(horizon) = 0.00036 (mem=5)
+  iter 52: interior max|S-b|/b = 0.00134, terminal(horizon) = 0.00044 (mem=5)
+  iter 53: interior max|S-b|/b = 0.00134, terminal(horizon) = 0.00021 (mem=5)
+  iter 54: interior max|S-b|/b = 0.00145, terminal(horizon) = 0.00017 (mem=5)
+  iter 55: interior max|S-b|/b = 0.00115, terminal(horizon) = 0.00028 (mem=5)
+  iter 56: interior max|S-b|/b = 0.00086, terminal(horizon) = 0.00031 (mem=5)
+  iter 57: interior max|S-b|/b = 0.00108, terminal(horizon) = 0.00026 (mem=5)
+  iter 58: interior max|S-b|/b = 0.00106, terminal(horizon) = 0.00027 (mem=5)
+  iter 59: interior max|S-b|/b = 0.00091, terminal(horizon) = 0.00003 (mem=5)
+  iter 60: interior max|S-b|/b = 0.00071, terminal(horizon) = 0.00002 (mem=5)
+  tier2 nominal/lumpsum: fixed point CONVERGED (interior max 0.00071 @t=33), horizon OK (terminal resid 0.00002) in 60 iters; impact phat_1/P0 = 0.9607 (surprise DISINFLATION), terminal P = 0.8590
 
 --- (2) sequence-space Newton ---
-  ssj boundary steady states: P0=0.9033 -> P1=0.8553 (D: 0.0600 -> 0.0465)
-  [ssj-newton] iter  1  max|S-b|/b = 3.833e-02
-  [ssj-newton] iter  2  max|S-b|/b = 1.107e+01
-  [ssj-newton] iter  3  max|S-b|/b = Inf
-[Warning: Matrix is singular, close to singular or badly scaled. Results may be inaccurate. RCOND = NaN.] 
-[> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('solve_transition_ssj', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_transition_ssj.m', 88)" style="font-weight:bold">solve_transition_ssj</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_transition_ssj.m',88,0)">line 88</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('verify_transition_ssj', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_transition_ssj.m', 83)" style="font-weight:bold">verify_transition_ssj</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_transition_ssj.m',83,0)">line 83</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_green_deficits_master', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m', 131)" style="font-weight:bold">run_green_deficits_master</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m',131,0)">line 131</a>)
-] 
-  [ssj-newton] iter  4  max|S-b|/b = NaN
-[Warning: Matrix is singular, close to singular or badly scaled. Results may be inaccurate. RCOND = NaN.] 
-[> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('solve_transition_ssj', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_transition_ssj.m', 88)" style="font-weight:bold">solve_transition_ssj</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_transition_ssj.m',88,0)">line 88</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('verify_transition_ssj', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_transition_ssj.m', 83)" style="font-weight:bold">verify_transition_ssj</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_transition_ssj.m',83,0)">line 83</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_green_deficits_master', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m', 131)" style="font-weight:bold">run_green_deficits_master</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m',131,0)">line 131</a>)
-] 
-  [ssj-newton] iter  5  max|S-b|/b = NaN
-[Warning: Matrix is singular, close to singular or badly scaled. Results may be inaccurate. RCOND = NaN.] 
-[> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('solve_transition_ssj', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_transition_ssj.m', 88)" style="font-weight:bold">solve_transition_ssj</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_transition_ssj.m',88,0)">line 88</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('verify_transition_ssj', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_transition_ssj.m', 83)" style="font-weight:bold">verify_transition_ssj</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_transition_ssj.m',83,0)">line 83</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_green_deficits_master', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m', 131)" style="font-weight:bold">run_green_deficits_master</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m',131,0)">line 131</a>)
-] 
-  [ssj-newton] iter  6  max|S-b|/b = NaN
-[Warning: Matrix is singular, close to singular or badly scaled. Results may be inaccurate. RCOND = NaN.] 
-[> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('solve_transition_ssj', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_transition_ssj.m', 88)" style="font-weight:bold">solve_transition_ssj</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_transition_ssj.m',88,0)">line 88</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('verify_transition_ssj', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_transition_ssj.m', 83)" style="font-weight:bold">verify_transition_ssj</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_transition_ssj.m',83,0)">line 83</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_green_deficits_master', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m', 131)" style="font-weight:bold">run_green_deficits_master</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m',131,0)">line 131</a>)
-] 
-  [ssj-newton] iter  7  max|S-b|/b = NaN
-[Warning: Matrix is singular, close to singular or badly scaled. Results may be inaccurate. RCOND = NaN.] 
-[> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('solve_transition_ssj', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_transition_ssj.m', 88)" style="font-weight:bold">solve_transition_ssj</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_transition_ssj.m',88,0)">line 88</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('verify_transition_ssj', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_transition_ssj.m', 83)" style="font-weight:bold">verify_transition_ssj</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_transition_ssj.m',83,0)">line 83</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_green_deficits_master', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m', 131)" style="font-weight:bold">run_green_deficits_master</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m',131,0)">line 131</a>)
-] 
-  [ssj-newton] iter  8  max|S-b|/b = NaN
-[Warning: Matrix is singular, close to singular or badly scaled. Results may be inaccurate. RCOND = NaN.] 
-[> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('solve_transition_ssj', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_transition_ssj.m', 88)" style="font-weight:bold">solve_transition_ssj</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_transition_ssj.m',88,0)">line 88</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('verify_transition_ssj', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_transition_ssj.m', 83)" style="font-weight:bold">verify_transition_ssj</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_transition_ssj.m',83,0)">line 83</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_green_deficits_master', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m', 131)" style="font-weight:bold">run_green_deficits_master</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m',131,0)">line 131</a>)
-] 
-  [ssj-newton] iter  9  max|S-b|/b = NaN
-[Warning: Matrix is singular, close to singular or badly scaled. Results may be inaccurate. RCOND = NaN.] 
-[> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('solve_transition_ssj', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_transition_ssj.m', 88)" style="font-weight:bold">solve_transition_ssj</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_transition_ssj.m',88,0)">line 88</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('verify_transition_ssj', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_transition_ssj.m', 83)" style="font-weight:bold">verify_transition_ssj</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_transition_ssj.m',83,0)">line 83</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_green_deficits_master', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m', 131)" style="font-weight:bold">run_green_deficits_master</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m',131,0)">line 131</a>)
-] 
-  [ssj-newton] iter 10  max|S-b|/b = NaN
-[Warning: Matrix is singular, close to singular or badly scaled. Results may be inaccurate. RCOND = NaN.] 
-[> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('solve_transition_ssj', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_transition_ssj.m', 88)" style="font-weight:bold">solve_transition_ssj</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_transition_ssj.m',88,0)">line 88</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('verify_transition_ssj', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_transition_ssj.m', 83)" style="font-weight:bold">verify_transition_ssj</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_transition_ssj.m',83,0)">line 83</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_green_deficits_master', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m', 131)" style="font-weight:bold">run_green_deficits_master</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m',131,0)">line 131</a>)
-] 
-  [ssj-newton] iter 11  max|S-b|/b = NaN
-[Warning: Matrix is singular, close to singular or badly scaled. Results may be inaccurate. RCOND = NaN.] 
-[> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('solve_transition_ssj', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_transition_ssj.m', 88)" style="font-weight:bold">solve_transition_ssj</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_transition_ssj.m',88,0)">line 88</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('verify_transition_ssj', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_transition_ssj.m', 83)" style="font-weight:bold">verify_transition_ssj</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_transition_ssj.m',83,0)">line 83</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_green_deficits_master', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m', 131)" style="font-weight:bold">run_green_deficits_master</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m',131,0)">line 131</a>)
-] 
-  [ssj-newton] iter 12  max|S-b|/b = NaN
-[Warning: Matrix is singular, close to singular or badly scaled. Results may be inaccurate. RCOND = NaN.] 
-[> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('solve_transition_ssj', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_transition_ssj.m', 88)" style="font-weight:bold">solve_transition_ssj</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_transition_ssj.m',88,0)">line 88</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('verify_transition_ssj', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_transition_ssj.m', 83)" style="font-weight:bold">verify_transition_ssj</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_transition_ssj.m',83,0)">line 83</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_green_deficits_master', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m', 131)" style="font-weight:bold">run_green_deficits_master</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m',131,0)">line 131</a>)
-] 
-  ssj-newton: interior resid=NaN, terminal=1.00e+00, sigma_min(J)=NaN, cond(J)=NaN, determinate=0
+  ssj boundary steady states: P0=0.9051 -> P1=0.8590 (D: 0.0600 -> 0.0465)
+  [ssj-newton] iter  1  max|S-b|/b = 4.054e-02
+  [ssj-newton]    (step damped to 0.0625)
+  [ssj-newton] iter  2  max|S-b|/b = 3.992e-02
+  [ssj-newton] line search found no descent at iter 2 -- stopping.
+  ssj-newton: interior resid=3.99e-02, terminal=1.66e-02, sigma_min(J)=6.26e-03, cond(J)=1.5e+03, determinate=1
 
 ================ CROSS-CHECK ================
- max relative price-path gap   |dphat|/phat = 0.000e+00
- max inflation-path gap        |dpi|        = NaN
+ max relative price-path gap   |dphat|/phat = 4.367e-02
+ max inflation-path gap        |dpi|        = 4.616e-02
  Anderson reportable=1;  SSJ reportable=0
- sequence-space determinacy:  sigma_min(J)=NaN  cond(J)=NaN  determinate=0
- => PASS: the two independent solvers agree on the announcement path.
+ sequence-space determinacy:  sigma_min(J)=6.263e-03  cond(J)=1.47e+03  determinate=1
+ => CHECK: the two independent solvers disagree -- inspect.
 =============================================
   [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\transition_ssj.txt
   [saved] PFig_transition_ssj
 
-Elapsed: 1167.3 s
+Elapsed: 327.7 s

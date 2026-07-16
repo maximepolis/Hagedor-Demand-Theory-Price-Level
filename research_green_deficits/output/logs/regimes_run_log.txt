@@ -5,32 +5,32 @@
 loaded calibrated inputs: beta*=0.9267, Gg=0.01818
 
 --- no-program baseline ---
-  regime BASELINE     P*=0.9033  D=0.0600  tau_ls=+0.0217  vartheta=0.0000  |Phi|=1.1e-04  gbc=0.0e+00
+  regime BASELINE     P*=0.9051  D=0.0600  tau_ls=+0.0217  vartheta=0.0000  |Phi|=3.3e-05  gbc=0.0e+00
 
 --- R1-DEFICIT ---
-  regime R1-DEFICIT   P*=0.8553  D=0.0465  tau_ls=+0.0442  vartheta=0.0000  |Phi|=5.9e-06  gbc=0.0e+00
-  welfare: CE gains by wealth quintile (%): [-2.63 -1.93 -1.68 -1.44 -1.13] | top10 -1.03, bottom50 -2.17, aggregate -1.77
+  regime R1-DEFICIT   P*=0.8590  D=0.0465  tau_ls=+0.0440  vartheta=0.0000  |Phi|=9.2e-05  gbc=0.0e+00
+  welfare: CE gains by wealth quintile (%): [-2.6 -1.9 -1.67 -1.43 -1.12] | top10 -1.02, bottom50 -2.16, aggregate -1.75
 
 --- R2-PROP-LEVY ---
-  regime R2-PROP-LEVY P*=0.9288  D=0.0474  tau_ls=+0.0211  vartheta=0.0206  |Phi|=8.6e-05  gbc=0.0e+00
-  welfare: CE gains by wealth quintile (%): [-0.27 -0.41 -0.46 -0.49 -0.52] | top10 -0.52, bottom50 -0.36, aggregate -0.43
+  regime R2-PROP-LEVY P*=0.9306  D=0.0475  tau_ls=+0.0211  vartheta=0.0205  |Phi|=3.1e-05  gbc=0.0e+00
+  welfare: CE gains by wealth quintile (%): [-0.27 -0.41 -0.45 -0.49 -0.52] | top10 -0.52, bottom50 -0.36, aggregate -0.43
 
 --- R3-PROP-LEVY-REBATE ---
-  regime R3-PROP-LEVY-REBATE P*=0.9973  D=0.0482  tau_ls=+0.0014  vartheta=0.0383  |Phi|=8.1e-05  gbc=0.0e+00
-  welfare: CE gains by wealth quintile (%): [1.69 0.84 0.55 0.28 -0.02] | top10 -0.12, bottom50 1.13, aggregate 0.67
+  regime R3-PROP-LEVY-REBATE P*=0.9986  D=0.0482  tau_ls=+0.0014  vartheta=0.0383  |Phi|=5.8e-05  gbc=0.0e+00
+  welfare: CE gains by wealth quintile (%): [1.68 0.82 0.54 0.28 -0.03] | top10 -0.12, bottom50 1.13, aggregate 0.67
 
 --- R4-MIXED-DEFICIT-LEVY ---
-  regime R4-MIXED-DEFICIT-LEVY P*=0.8928  D=0.0470  tau_ls=+0.0321  vartheta=0.0107  |Phi|=1.1e-04  gbc=0.0e+00
-  welfare: CE gains by wealth quintile (%): [-1.39 -1.13 -1.04 -0.94 -0.81] | top10 -0.76, bottom50 -1.22, aggregate -1.06
+  regime R4-MIXED-DEFICIT-LEVY P*=0.8957  D=0.0470  tau_ls=+0.0320  vartheta=0.0107  |Phi|=6.3e-05  gbc=6.9e-18
+  welfare: CE gains by wealth quintile (%): [-1.38 -1.12 -1.03 -0.93 -0.8] | top10 -0.76, bottom50 -1.21, aggregate -1.05
 
   [saved] PFig9_financing_regimes
   [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\regimes_summary.txt
 
 ================ REGIMES SUMMARY ================
- baseline P0=0.9033 (no program, lump-sum)
- R1-DEFICIT             P*=0.8553  nu=0.578  bottom50 -2.17%  top10 -1.03%
- R2-PROP-LEVY           P*=0.9288  nu=0.672  bottom50 -0.36%  top10 -0.52%
- R3-PROP-LEVY-REBATE    P*=0.9973  nu=0.759  bottom50 +1.13%  top10 -0.12%
- R4-MIXED-DEFICIT-LEVY  P*=0.8928  nu=0.626  bottom50 -1.22%  top10 -0.76%
- Elapsed: 25.6 s
+ baseline P0=0.9051 (no program, lump-sum)
+ R1-DEFICIT             P*=0.8590  nu=0.581  bottom50 -2.16%  top10 -1.02%
+ R2-PROP-LEVY           P*=0.9306  nu=0.672  bottom50 -0.36%  top10 -0.52%
+ R3-PROP-LEVY-REBATE    P*=0.9986  nu=0.758  bottom50 +1.13%  top10 -0.12%
+ R4-MIXED-DEFICIT-LEVY  P*=0.8957  nu=0.628  bottom50 -1.21%  top10 -0.76%
+ Elapsed: 46.9 s
 =================================================

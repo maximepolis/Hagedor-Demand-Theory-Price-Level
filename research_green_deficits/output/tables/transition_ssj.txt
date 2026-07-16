@@ -1,18 +1,18 @@
 TRANSITION CROSS-CHECK (Anderson vs sequence-space Newton). na=500, T=80
 
 Announcement-year (t=1) objects:
-  Anderson: pi_1 = -0.0186, P_1/P_0 = 0.9622
-  SSJ     : pi_1 = NaN, P_1/P_0 = NaN
+  Anderson: pi_1 = -0.0201, P_1/P_0 = 0.9607
+  SSJ     : pi_1 = +0.0204, P_1/P_0 = 1.0004
 
 Cross-check:
-  max |dphat|/phat = 0.000e+00
-  max |dpi|        = NaN
+  max |dphat|/phat = 4.367e-02
+  max |dpi|        = 4.616e-02
 
 Sequence-space determinacy (SSJ GE Jacobian at the solution):
-  sigma_min(J) = NaN
-  cond(J)      = NaN
-  det sign     = NaN
-  determinate  = 0 (sigma_min above tol)
+  sigma_min(J) = 6.263e-03
+  cond(J)      = 1.471e+03
+  det sign     = +1
+  determinate  = 1 (sigma_min above tol)
 
 Reading: a well-conditioned J with sigma_min bounded away from 0 is the
 sequence-space counterpart of a transversal, locally unique asset-market

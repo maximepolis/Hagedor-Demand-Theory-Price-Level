@@ -3,20 +3,20 @@
 ==============================================================
 
 ----- (a) decomposition of dS by baseline wealth group -----
-  S(tau0)=1.1068  S(tau1)=1.1699  d ln S/d tau = +2.772
-  total dS = +0.06310; by baseline quintile (Q1..Q5): [6.7e-06 0.000198 0.000382 0.00933 0.0532]
-  share of dS from each quintile (%): [0.0106 0.314 0.606 14.8 84.3]
-  constrained mass change -0.0147 (a=-0.00); its dS contribution +0.00000
+  S(tau0)=1.1049  S(tau1)=1.1638  d ln S/d tau = +2.595
+  total dS = +0.05887; by baseline quintile (Q1..Q5): [3.86e-05 0.000562 0.000985 0.0113 0.046]
+  share of dS from each quintile (%): [0.0655 0.955 1.67 19.2 78.1]
+  constrained mass change -0.0133 (a=-0.00); its dS contribution +0.00000
 
 ----- (b) sign sweep of d ln S/d tau -----
-  borrowing limit abar         vals=[0 0.5 1 2]  eps=[2.75 4.94 18.2 -4.96]  (all>0: 0)
-  income-risk sig_eps          vals=[0.15 0.2 0.25]  eps=[3.23 2.78 2.6]  (all>0: 1)
-  CRRA sigma                   vals=[1.5 2 3]  eps=[3.08 2.75 2.41]  (all>0: 1)
-  discount beta (debt target)  vals=[0.899 0.927 0.955]  eps=[3.47 2.75 1.98]  (all>0: 1)
+  borrowing limit abar         vals=[0 0.5 1 2]  eps=[2.58 4.44 16.8 -4.89]  (all>0: 0)
+  income-risk sig_eps          vals=[0.15 0.2 0.25]  eps=[3.45 2.61 2.56]  (all>0: 1)
+  CRRA sigma                   vals=[1.5 2 3]  eps=[3.07 2.58 2.31]  (all>0: 1)
+  discount beta (debt target)  vals=[0.899 0.927 0.955]  eps=[3.44 2.58 2.46]  (all>0: 1)
 
 ----- (c) instrument: lump-sum vs proportional levy -----
-  lump-sum   d ln S/d tau      = +2.748  (raises demand => disinflation)
-  prop levy  d ln S/d vartheta = -0.946  (lowers demand => inflation)
+  lump-sum   d ln S/d tau      = +2.583  (raises demand => disinflation)
+  prop levy  d ln S/d vartheta = -1.079  (lowers demand => inflation)
   => the sign of the price-level response is the tax instrument, as Result 1 states.
   [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\tax_elasticity.txt
 [Warning: Error in state of SceneNode.
@@ -26,8 +26,7 @@ String scalar or character vector must have valid interpreter syntax:
 [> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('defaulterrorcallback', 'C:\Program Files\MATLAB\R2025b\toolbox\matlab\graphics\graphics\objectsystem\defaulterrorcallback.m', 12)" style="font-weight:bold">defaulterrorcallback</a> (<a href="matlab: opentoline('C:\Program Files\MATLAB\R2025b\toolbox\matlab\graphics\graphics\objectsystem\defaulterrorcallback.m',12,0)">line 12</a>)
 In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('print', 'C:\Program Files\MATLAB\R2025b\toolbox\matlab\graphics\graphics\printing\print.m', 31)" style="font-weight:bold">print</a> (<a href="matlab: opentoline('C:\Program Files\MATLAB\R2025b\toolbox\matlab\graphics\graphics\printing\print.m',31,0)">line 31</a>)
 In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('save_all_figs', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\src\save_all_figs.m', 41)" style="font-weight:bold">save_all_figs</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\src\save_all_figs.m',41,0)">line 41</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('decompose_tax_elasticity', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\decompose_tax_elasticity.m', 208)" style="font-weight:bold">decompose_tax_elasticity</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\decompose_tax_elasticity.m',208,0)">line 208</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_green_deficits_master', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m', 131)" style="font-weight:bold">run_green_deficits_master</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m',131,0)">line 131</a>)] 
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('decompose_tax_elasticity', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\decompose_tax_elasticity.m', 208)" style="font-weight:bold">decompose_tax_elasticity</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\decompose_tax_elasticity.m',208,0)">line 208</a>)] 
 [Warning: Error in state of SceneNode.
 String scalar or character vector must have valid interpreter syntax:
 borrowing limit \\bar a
@@ -35,8 +34,7 @@ borrowing limit \\bar a
 [> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('defaulterrorcallback', 'C:\Program Files\MATLAB\R2025b\toolbox\matlab\graphics\graphics\objectsystem\defaulterrorcallback.m', 12)" style="font-weight:bold">defaulterrorcallback</a> (<a href="matlab: opentoline('C:\Program Files\MATLAB\R2025b\toolbox\matlab\graphics\graphics\objectsystem\defaulterrorcallback.m',12,0)">line 12</a>)
 In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('print', 'C:\Program Files\MATLAB\R2025b\toolbox\matlab\graphics\graphics\printing\print.m', 31)" style="font-weight:bold">print</a> (<a href="matlab: opentoline('C:\Program Files\MATLAB\R2025b\toolbox\matlab\graphics\graphics\printing\print.m',31,0)">line 31</a>)
 In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('save_all_figs', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\src\save_all_figs.m', 41)" style="font-weight:bold">save_all_figs</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\src\save_all_figs.m',41,0)">line 41</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('decompose_tax_elasticity', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\decompose_tax_elasticity.m', 208)" style="font-weight:bold">decompose_tax_elasticity</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\decompose_tax_elasticity.m',208,0)">line 208</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_green_deficits_master', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m', 131)" style="font-weight:bold">run_green_deficits_master</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m',131,0)">line 131</a>)] 
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('decompose_tax_elasticity', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\decompose_tax_elasticity.m', 208)" style="font-weight:bold">decompose_tax_elasticity</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\decompose_tax_elasticity.m',208,0)">line 208</a>)] 
   [saved] PFig_tax_elasticity
 
-Elapsed: 11.6 s
+Elapsed: 86.1 s

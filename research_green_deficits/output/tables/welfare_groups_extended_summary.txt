@@ -3,18 +3,18 @@ medium damages, calibrated scale; wealth quintiles = BONDHOLDING
 quintiles (one-asset economy); MPC groups are a dC/dA PROXY.
 
 [DEFICIT]
-  income-q (%):  [-2.75 -2.03 -1.64 -1.35 -1.06]
-  wealth-q (%):  [-2.63 -1.93 -1.68 -1.44 -1.13]
-  constrained -2.66% (mass 17.8%)  unconstrained -1.57%
-  high-MPC -2.61%  low-MPC -1.47%  (dC/dA threshold 0.266)
+  income-q (%):  [-2.73 -2.01 -1.62 -1.34 -1.05]
+  wealth-q (%):  [-2.6 -1.9 -1.67 -1.43 -1.12]
+  constrained -2.64% (mass 17.7%)  unconstrained -1.56%
+  high-MPC -2.25%  low-MPC -1.56%  (dC/dA threshold 1.020)
   exposure groups: INACTIVE (psi_inc = 0 at this calibration)
-  aggregate: -1.77%
+  aggregate: -1.75%
 
 [REBATE]
-  income-q (%):  [1.86 1.03 0.54 0.16 -0.24]
-  wealth-q (%):  [1.69 0.84 0.55 0.28 -0.02]
-  constrained +1.72% (mass 17.8%)  unconstrained +0.44%
-  high-MPC +1.67%  low-MPC +0.32%  (dC/dA threshold 0.266)
+  income-q (%):  [1.86 1.02 0.53 0.16 -0.24]
+  wealth-q (%):  [1.68 0.82 0.54 0.28 -0.03]
+  constrained +1.71% (mass 17.7%)  unconstrained +0.44%
+  high-MPC +1.23%  low-MPC +0.45%  (dC/dA threshold 1.020)
   exposure groups: INACTIVE (psi_inc = 0 at this calibration)
   aggregate: +0.67%
 
