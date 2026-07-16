@@ -3812,7 +3812,18 @@ precision of the price level, the endogenous-grid solver is the package
 default going forward and the steady-state tables regenerate under it at
 each replication pass; the grid-choice solver remains available
 (\texttt{pg.hh\_solver='vfi'}) and the validation table ships with the
-package. The tier-2 transition keeps its own finite-horizon backward
+package. A three-grid convergence audit ($n_a=125/250/500$,
+\texttt{verify\_grid\_convergence}; all parameters including the calibrated
+$\beta$ held fixed) makes the same case independently: between the medium
+and research grids the endogenous-grid solution moves by less than
+$5\times10^{-4}$ on every audited moment --- aggregate asset demand, the
+no-program real-debt fixed point, the wealth Gini, the constrained mass ---
+and its tax semi-elasticity is stable to three digits across all three
+grids, while the grid-choice solution still moves by roughly $10^{-2}$ on
+aggregates at $n_a=500$ and its finite-difference semi-elasticity is
+dominated by grid-snap noise. The research-grid tables therefore meet the
+stated convergence tolerances under the endogenous-grid solver, which is a
+second, independent reason it is the package default. The tier-2 transition keeps its own finite-horizon backward
 recursion either way, cross-checked by the sequence-space solve of
 Section~\ref{subsec:tier2}; its boundary steady states, terminal value
 function, and pre-announcement distribution are pinned to the same

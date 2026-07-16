@@ -1,0 +1,17 @@
+GRID CONVERGENCE (medium column; all parameters incl. beta held fixed)
+Grids: na = [125 250 500]; both household solvers.
+
+grid      solver     S_base     S_prog        b0   eps_tau      gini    constr    t(s)
+coarse    vfi     1.087180   1.145468   1.08718    +0.012    0.6661    0.1790     4.5
+coarse    egm     1.109876   1.171530   1.11009    +2.724    0.6697    0.1790     5.0
+medium    vfi     1.094137   1.153713   1.09407    +1.557    0.6701    0.1761     7.8
+medium    egm     1.107698   1.169137   1.10777    +2.722    0.6693    0.1781     5.9
+research  vfi     1.104910   1.164258   1.10491    +1.258    0.6694    0.1773    28.3
+research  egm     1.107184   1.168545   1.10723    +2.724    0.6692    0.1775    10.0
+
+Relative change, medium -> research grid:
+  vfi   |dS| 9.85e-03  |db0| 9.91e-03  |deps| 1.92e-01  |dgini| 1.08e-03  |dcon| 6.80e-03  -> FAIL
+  egm   |dS| 4.64e-04  |db0| 4.93e-04  |deps| 5.43e-04  |dgini| 1.29e-04  |dcon| 3.36e-03  -> PASS
+
+VERDICT: CHECK -- reported research-grid (na=500) outcomes are NOT stable to grid refinement
+at the stated tolerances (aggregates 1e-3; derivative 5e-2; distribution stats 1e-2).

@@ -449,3 +449,40 @@ dominated by appendix worked-example tables and the incidence-table
 quintiles — the same hard-coded values already queued for reconciliation at
 the EGM regeneration. The goal over time: convert [transcribed] entries to
 exporter macros and shrink the ledger toward zero.
+
+---
+
+# Round 15 — grid-convergence verdict banked; the EGM regeneration is now REQUIRED
+
+## What your Round 14 run established
+verify_grid_convergence (na = 125/250/500 x {vfi, egm}, medium column):
+- EGM: medium->research changes < 5e-4 on EVERY audited moment; the tax
+  semi-elasticity is +2.724 / +2.722 / +2.724 across the three grids. PASS.
+- VFI: aggregates still move ~1e-2 at na=500 (above the paper's own 1e-3
+  tolerance), and the FD semi-elasticity is grid-snap noise
+  (+0.012 / +1.557 / +1.258). FAIL.
+Two independent diagnostics (Euler errors, grid refinement) now both say
+the grid-choice numbers do not meet the stated tolerances; the EGM ones do.
+The numerical appendix reports this. Consequence: the EGM steady-state
+regeneration is no longer optional pre-submission polish — the published
+VFI-based tables carry ~1% grid error that the paper's own appendix now
+documents.
+
+## THE run (MATLAB; the one big regeneration)
+```matlab
+cd research_green_deficits
+run_green_deficits_master        % full pass under the EGM default
+```
+(or the minimum set: main_project_calibrated; main_project_regimes;
+regimes_fixed_real; main_project_robustness; decompose_tax_elasticity;
+welfare_incidence_deciles; wealth_concentration_fit; export_paper_numbers)
+
+Expect: aggregates shift by up to ~1% (the grid error being removed), the
+tax semi-elasticity moves from +2.60 toward ~+2.7 (the EGM-stable value),
+signs and orderings unchanged. Push ALL of output/ + numbers_auto.tex.
+
+## After your push (my job, flagged in advance)
+Reconcile every [transcribed] literal in paper/approved_literals.txt and
+the hard-coded tables (incidence quintiles, extended run, worked example)
+against the regenerated output — the macros self-update, the typed numbers
+do not. check_manuscript_numbers.py is the checklist.
