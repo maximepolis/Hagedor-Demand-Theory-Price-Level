@@ -133,3 +133,60 @@ run `verify_mu_neutrality`, `sensitivity_climate_discipline`,
 > strictly as an internal DTPL prediction, with the opposite-signed NK result not
 > leaned on absent a matched experiment; and the fixed-real financing table is
 > now populated, confirming the incidence conclusion is convention-independent.
+
+---
+
+# Round 9 additions — matched experiment + structural trim
+
+## New run (Dynare machine)
+```matlab
+cd research_green_deficits          % MATLAB with the heterogeneity-framework Dynare
+main_project_transition             % if transition_results.mat is stale
+cd dynare
+run_matched_dtpl_nk                 % the matched DTPL-vs-NK announcement experiment
+```
+Writes `output/tables/matched_dtpl_nk.txt` with the announcement-window
+inflation signs under the matched design (permanent path, DTPL scale, balanced
+financing, labor margin shut, pure Taylor) and a SIGN VERDICT line. The paper's
+§6.3 references the driver; quote the numbers only after this run.
+
+## Structural trim done in the paper
+The worked-example detail (parameters, benchmark table, ν(θ_g) sweep) and the
+optimal-accommodation exercise now live in Appendix "Supplementary results";
+the body keeps a one-paragraph worked example (with the demand-shift figure)
+and a one-paragraph optimal-real-rate summary.
+
+---
+
+# Round 10 — decile-resolution incidence (+ the standing Round 9 runs)
+
+## Run this (MATLAB, from `research_green_deficits/`)
+```matlab
+cd research_green_deficits
+% prerequisites if their .mat files are stale or missing:
+main_project_calibrated       % -> output/calibrated_results.mat
+main_project_regimes          % -> output/regimes_results.mat
+% the new driver:
+welfare_incidence_deciles     % -> output/welfare_deciles_results.mat
+                              %    + output/tables/welfare_deciles.txt
+export_paper_numbers          % writes the \WDec* / \R*DecBot|DecTop|TopOne macros
+```
+Then recompile the paper. The "Decile resolution" paragraph in the
+welfare-incidence subsection switches from "--" placeholders to numbers.
+
+**What to check in `output/tables/welfare_deciles.txt`:**
+- decile means should average to the aggregate (the driver warns if not);
+- the lump-sum gradient should be monotone bottom-up (D1 worst), and the
+  rebate gradient should reverse it, matching the quintile table's message;
+- top-1% wealth share: expect well below the ~1/3 U.S. share (thin
+  one-asset tail) — this number feeds the paper's tail-honesty caveat.
+
+## Still pending from Round 9 (Dynare machine)
+```matlab
+cd research_green_deficits
+main_project_transition       % if transition_results.mat is stale
+cd dynare
+run_matched_dtpl_nk           % -> output/tables/matched_dtpl_nk.txt (SIGN VERDICT)
+```
+Optionally commit `output/tax_elasticity_results.mat` so export_paper_numbers
+repopulates the eps* macros automatically instead of the hand transcription.

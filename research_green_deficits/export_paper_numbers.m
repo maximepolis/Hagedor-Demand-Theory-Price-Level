@@ -124,5 +124,30 @@ if exist(tef, 'file') == 2
     end
 end
 
+% ---- decile-resolution welfare incidence (welfare_incidence_deciles) ----
+% Guarded: exported only if the decile driver has been run. Medium column
+% is index 2 (as for thetaStarMed); regime order matches rsuf (lump-sum,
+% levy, levy+rebate, mixed).
+wdf = fullfile(projdir, 'output', 'welfare_deciles_results.mat');
+if exist(wdf, 'file') == 2
+    Wd = load(wdf, 'WD');
+    if numel(Wd.WD.cols) >= 2 && ~isempty(Wd.WD.cols{2}) && Wd.WD.cols{2}.ok
+        wm = Wd.WD.cols{2};
+        mac('WDecBotMed',     sprintf('%+.2f', 100*wm.lambda_dec(1)));
+        mac('WDecTopMed',     sprintf('%+.2f', 100*wm.lambda_dec(10)));
+        mac('WTopFiveMed',    sprintf('%+.2f', 100*wm.lambda_top5));
+        mac('WTopOneMed',     sprintf('%+.2f', 100*wm.lambda_top1));
+        mac('WShareTopOneMed', sprintf('%.0f', 100*wm.wshare_top1));
+    end
+    for k = 1:min(4, numel(Wd.WD.regimes))
+        if ~isempty(Wd.WD.regimes{k}) && Wd.WD.regimes{k}.ok
+            wr = Wd.WD.regimes{k};
+            mac([rsuf{k} 'DecBot'], sprintf('%+.2f', 100*wr.lambda_dec(1)));
+            mac([rsuf{k} 'DecTop'], sprintf('%+.2f', 100*wr.lambda_dec(10)));
+            mac([rsuf{k} 'TopOne'], sprintf('%+.2f', 100*wr.lambda_top1));
+        end
+    end
+end
+
 fclose(fid);
 fprintf('[export_paper_numbers] wrote %s\n', outf);
