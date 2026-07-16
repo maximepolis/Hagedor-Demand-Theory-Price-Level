@@ -1,0 +1,52 @@
+# approved_literals.txt -- numeric literals the manuscript may type directly.
+# One entry per line; everything after '#' is a comment. Two classes only:
+#   (a) calibration INPUTS and structural constants (chosen, not computed);
+#   (b) transcribed-and-checked values from pushed run tables, pending
+#       conversion to exporter macros (mark with [transcribed]).
+# Computed RESULTS must come from numbers_auto.tex macros, never this list.
+
+# ---- calibration inputs / structural constants ----
+1.1        # debt target (real debt / mean income), calibrated pass
+1.10       # same, two-decimal form
+0.96       # worked-example discount factor
+0.9267     # calibrated beta* (also \betaStar macro; appears in prose)
+0.02       # mu = 2% trend inflation; program scale 2% of income
+0.045      # mu* = 4.5% optimal accommodation (also in prose as macro context)
+-0.5       # r^ss* ~ -0.5% optimal real rate
+0.06       # medium-column D0
+0.10       # low/benchmark D0; delta_g
+0.20       # high-column D0
+1.2        # theta_g benchmark
+2.5        # theta_g sweep edge; grid curvature
+0.05       # scale floor (bounded incidence)
+0.15       # omega lower bound (liquid share)
+0.25       # omega upper bound
+500        # research asset grid nodes
+125        # coarse grid nodes
+250        # medium grid nodes
+100        # fast grid nodes
+80         # transition horizon T (years)
+300        # RANK transition horizon (quarters); extended amax
+60         # asset grid upper bound
+1.5        # phi_pi Taylor coefficient; sigma sweep edge
+0.75       # phi_b matched-experiment financing speed
+0.9999     # RHOG matched-experiment persistence
+0.01       # FRISCH matched-experiment labor margin
+0.98       # HANK spending persistence
+0.5        # Frisch default; damping; mixed-regime share
+3.5        # (reserved)
+7          # income states (Rouwenhorst)
+65         # frontier nodes (also \nodesTot macro)
+
+# ---- transcribed-and-checked run-table values [transcribed] ----
+77         # front-loading share, transition table [transcribed]
+0.4        # matched HANK impact inflation +0.4% [transcribed]
+37         # aggregate-risk price dispersion [transcribed]
+17.7       # constrained population share, extended groups [transcribed]
+12.8       # rebate announcement repricing [transcribed]
+15.1       # rebate year-one inflation [transcribed]
+17.2       # announcement capital levy, % of PV [transcribed]
+5.3        # lump-sum announcement windfall, % of PV [transcribed]
+3.9        # announcement impact repricing [transcribed]
+-2.0       # year-one inflation deviation [transcribed]
+-5.1       # long-run disinflation across steady states [transcribed]
