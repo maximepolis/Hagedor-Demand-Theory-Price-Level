@@ -259,3 +259,39 @@ welfare_incidence_deciles; wealth_concentration_fit; export_paper_numbers
 - If transition residuals degrade under the EGM terminal steady state
   (check `transition_dtpl_summary.txt`), set `pg.hh_solver='vfi'` for the
   transition stage only and tell me.
+
+---
+
+# Round 12b — SSJ Newton fix (after the EGM default flip)
+
+## What broke and why
+`verify_transition_ssj` diverged (residual 0.038 -> 11 -> Inf, singular-J
+warnings): the transition's boundary objects (steady states, terminal V,
+initial distribution) were being solved by the NEW EGM default while the
+transition interior and its finite-difference Jacobian run the grid-choice
+backward recursion — an inconsistent linearization. The Anderson solver
+survived (it only needs residuals); the Newton did not.
+
+## The fix (already committed)
+1. `solve_hank_dtpl_transition` and `solve_transition_ssj` now pin their
+   LOCAL params copy to `hh_solver='vfi'`, so tier-2 is a self-contained
+   grid-choice object regardless of the global EGM default.
+2. The SSJ Newton is hardened: nonfinite-J/residual guards, pinv fallback
+   when rcond(J) < 1e-14, and a backtracking line search (step halved up to
+   7 times; only strictly-descending finite steps accepted).
+
+## Re-run (MATLAB; regenerates the transition family under the pin)
+```matlab
+cd research_green_deficits
+main_project_transition           % boundaries back to the VFI steady states
+main_project_transition_welfare
+verify_transition_ssj             % should now converge as in Round 8
+export_paper_numbers
+cd dynare
+run_matched_dtpl_nk               % DTPL side re-read from transition_results
+```
+Expect: Anderson and Newton agree again; the Newton log may print
+"(step damped to ...)" once or twice — that is the line search working, not
+a problem. Boundary P0 returns to ~0.9051 (VFI), while the EGM steady-state
+tables show ~0.9033 — the appendix now discloses this 0.4%-bounded solver
+gap explicitly. Push output/ + numbers_auto.tex as usual.

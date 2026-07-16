@@ -105,6 +105,16 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
     rebate = strcmpi(financing, 'rebate');
     verbose= getopt(opts, 'verbose', true);
 
+    % SOLVER CONSISTENCY (Round 12): the transition interior is computed by
+    % the finite-horizon GRID-CHOICE backward recursion (hh_bellman_step) and
+    % an on-grid forward distribution, so the boundary steady states, the
+    % terminal value function VT, and the pre-announcement distribution dist0
+    % must come from the SAME household method. Pin the local copy to 'vfi'
+    % regardless of the global default (pg.hh_solver='egm' since Round 12);
+    % mixing EGM boundaries with grid-VFI interior steps leaves a spurious
+    % terminal wedge and (in the Newton solver) an inconsistent linearization.
+    pgc.hh_solver = 'vfi';
+
     B0   = pgc.Bnom;
     rbar = (1 + pgc.i_ss)/(1 + pgc.mu) - 1;
     % program-size default: the params struct's own calibrated program
