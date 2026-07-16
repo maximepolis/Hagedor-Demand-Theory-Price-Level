@@ -2,15 +2,15 @@ TRANSITION CROSS-CHECK (Anderson vs sequence-space Newton). na=500, T=80
 
 Announcement-year (t=1) objects:
   Anderson: pi_1 = -0.0201, P_1/P_0 = 0.9607
-  SSJ     : pi_1 = +0.0204, P_1/P_0 = 1.0004
+  SSJ     : pi_1 = -0.0197, P_1/P_0 = 0.9611
 
 Cross-check:
-  max |dphat|/phat = 4.367e-02
-  max |dpi|        = 4.616e-02
+  max |dphat|/phat = 2.591e-03
+  max |dpi|        = 2.642e-03
 
 Sequence-space determinacy (SSJ GE Jacobian at the solution):
-  sigma_min(J) = 6.263e-03
-  cond(J)      = 1.471e+03
+  sigma_min(J) = 1.554e-01
+  cond(J)      = 2.746e+01
   det sign     = +1
   determinate  = 1 (sigma_min above tol)
 
