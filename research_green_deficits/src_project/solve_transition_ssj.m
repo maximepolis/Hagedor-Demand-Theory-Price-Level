@@ -53,7 +53,13 @@ function TR = solve_transition_ssj(pgc, opts)
     verbose = getopt(opts, 'verbose', true);
     nmaxit  = getopt(opts, 'newton_maxit', 12);
     ntol    = getopt(opts, 'newton_tol', 5e-4);
-    hfd     = getopt(opts, 'fd_step', 1e-4);
+    % FD step in log price. The residual runs a DISCRETE-CHOICE backward
+    % pass, so it is piecewise constant at fine scales: a step below the
+    % policy-flip resolution (the old 1e-4) produces a near-zero/garbage
+    % Jacobian and the Newton stalls at the initial bridge. 5e-3 averages
+    % across policy flips (a chord Jacobian); the loop below also enlarges
+    % h adaptively when the line search finds no descent.
+    hfd     = getopt(opts, 'fd_step', 5e-3);
     freeze  = getopt(opts, 'freeze_jac', false);
     damping = getopt(opts, 'damping', 1);
 
@@ -121,6 +127,18 @@ function TR = solve_transition_ssj(pgc, opts)
             step = step / 2;
         end
         if ~accepted
+            % No descent along this direction: most often the chord step h
+            % is still below the residual's grid-flip resolution, so the
+            % Jacobian was noise. Enlarge h and rebuild before giving up.
+            if hfd < 4e-2
+                hfd = 4 * hfd;
+                Jfrozen = [];                  % force a J rebuild next pass
+                if verbose
+                    fprintf(['  [ssj-newton] no descent at iter %d -- ' ...
+                             'enlarging fd_step to %.1e and rebuilding J.\n'], k, hfd);
+                end
+                continue;
+            end
             if verbose
                 fprintf('  [ssj-newton] line search found no descent at iter %d -- stopping.\n', k);
             end
