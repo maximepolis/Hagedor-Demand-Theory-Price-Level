@@ -2,24 +2,24 @@ U7 TIER 2: NONLINEAR HANK-DTPL TRANSITION (Anderson-accelerated fixed point)
 Scope: the price-level path clears the asset market at every date (ANNUAL);
 no Phillips curve, no policy-rule inflation. na=500, T=80, tol=2e-03.
 
-tier2 nominal/lumpsum: fixed point CONVERGED (interior max 0.00041 @t=79), horizon OK (terminal resid 0.00045) in 88 iters; impact phat_1/P0 = 0.9607 (surprise DISINFLATION), terminal P = 0.8590
-  impact: phat_1/P0 = 0.9607; pi_1 = -2.01%/yr; reval stock = -0.0452 (= -5.32% of program PV)
-  path: pi(4y) +1.85%, pi(20y) +1.98%, pi(40y) +2.02% (per yr, vs trend 2.00%)
-  front-loading: 77.1% of the long-run price decline realized in the announcement year; |pi-trend|<25bp from year 2
-  residuals: interior(free) max 0.00041, terminal(horizon) 0.00045, mean 0.00018
-  fixed point converged = 1, horizon adequate = 1, REPORTABLE = 1 (iters 88)
+tier2 nominal/lumpsum: fixed point CONVERGED (interior max 0.00046 @t=5), horizon OK (terminal resid 0.00035) in 51 iters; impact phat_1/P0 = 0.9622 (surprise DISINFLATION), terminal P = 0.8553
+  impact: phat_1/P0 = 0.9622; pi_1 = -1.86%/yr; reval stock = -0.0435 (= -5.13% of program PV)
+  path: pi(4y) +1.94%, pi(20y) +1.98%, pi(40y) +2.01% (per yr, vs trend 2.00%)
+  front-loading: 71.3% of the long-run price decline realized in the announcement year; |pi-trend|<25bp from year 2
+  residuals: interior(free) max 0.00046, terminal(horizon) 0.00035, mean 0.00015
+  fixed point converged = 1, horizon adequate = 1, REPORTABLE = 1 (iters 51)
 
-tier2 indexed/lumpsum: fixed point CONVERGED (interior max 0.00041 @t=20), horizon OK (terminal resid 0.00016) in 72 iters; impact phat_1/P0 = 0.9609 (surprise DISINFLATION), terminal P = 0.8590
-  impact: phat_1/P0 = 0.9609; pi_1 = -1.98%/yr; reval stock = -0.0449 (= -5.28% of program PV)
-  path: pi(4y) +1.88%, pi(20y) +2.00%, pi(40y) +1.99% (per yr, vs trend 2.00%)
-  front-loading: 76.7% of the long-run price decline realized in the announcement year; |pi-trend|<25bp from year 2
-  residuals: interior(free) max 0.00041, terminal(horizon) 0.00016, mean 0.00016
-  fixed point converged = 1, horizon adequate = 1, REPORTABLE = 1 (iters 72)
+tier2 indexed/lumpsum: fixed point CONVERGED (interior max 0.00044 @t=2), horizon OK (terminal resid 0.00037) in 58 iters; impact phat_1/P0 = 0.9623 (surprise DISINFLATION), terminal P = 0.8553
+  impact: phat_1/P0 = 0.9623; pi_1 = -1.85%/yr; reval stock = -0.0434 (= -5.08% of program PV)
+  path: pi(4y) +1.96%, pi(20y) +1.97%, pi(40y) +2.02% (per yr, vs trend 2.00%)
+  front-loading: 71.2% of the long-run price decline realized in the announcement year; |pi-trend|<25bp from year 2
+  residuals: interior(free) max 0.00044, terminal(horizon) 0.00037, mean 0.00011
+  fixed point converged = 1, horizon adequate = 1, REPORTABLE = 1 (iters 58)
 
-tier2 nominal/rebate: fixed point CONVERGED (interior max 0.00045 @t=6), horizon OK (terminal resid 0.00005) in 55 iters; impact phat_1/P0 = 1.1280 (surprise inflation), terminal P = 0.9986
-  impact: phat_1/P0 = 1.1280; pi_1 = +15.06%/yr; reval stock = +0.1254 (= +17.19% of program PV)
-  path: pi(4y) +1.90%, pi(20y) +1.98%, pi(40y) +2.00% (per yr, vs trend 2.00%)
-  front-loading: 123.9% of the long-run price decline realized in the announcement year; |pi-trend|<25bp from year 4
-  residuals: interior(free) max 0.00045, terminal(horizon) 0.00005, mean 0.00009
-  fixed point converged = 1, horizon adequate = 1, REPORTABLE = 1 (iters 55)
+tier2 nominal/rebate: fixed point CONVERGED (interior max 0.00039 @t=2), horizon OK (terminal resid 0.00011) in 52 iters; impact phat_1/P0 = 1.1299 (surprise inflation), terminal P = 0.9973
+  impact: phat_1/P0 = 1.1299; pi_1 = +15.25%/yr; reval stock = +0.1273 (= +17.44% of program PV)
+  path: pi(4y) +1.90%, pi(20y) +1.97%, pi(40y) +1.99% (per yr, vs trend 2.00%)
+  front-loading: 124.8% of the long-run price decline realized in the announcement year; |pi-trend|<25bp from year 4
+  residuals: interior(free) max 0.00039, terminal(horizon) 0.00011, mean 0.00010
+  fixed point converged = 1, horizon adequate = 1, REPORTABLE = 1 (iters 52)
 

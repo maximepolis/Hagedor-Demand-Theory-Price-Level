@@ -6,192 +6,192 @@
 
 --- D0 = 0.02 (sourced column) ---
   [S(tau,D) interpolant at r=+0.0196: 5 x 3 nodes]
-    node (tau=-0.010, D=0.000): S=  0.9834
-    node (tau=+0.012, D=0.000): S=  1.0440
-    node (tau=+0.035, D=0.000): S=  1.1063
-    node (tau=+0.058, D=0.000): S=  1.1705
-    node (tau=+0.080, D=0.000): S=  1.2449
-    node (tau=-0.010, D=0.010): S=  0.9920
+    node (tau=-0.010, D=0.000): S=  0.9864
+    node (tau=+0.012, D=0.000): S=  1.0438
+    node (tau=+0.035, D=0.000): S=  1.1066
+    node (tau=+0.058, D=0.000): S=  1.1754
+    node (tau=+0.080, D=0.000): S=  1.2516
+    node (tau=-0.010, D=0.010): S=  0.9921
     node (tau=+0.012, D=0.010): S=  1.0504
-    node (tau=+0.035, D=0.010): S=  1.1135
-    node (tau=+0.058, D=0.010): S=  1.1797
-    node (tau=+0.080, D=0.010): S=  1.2565
-    node (tau=-0.010, D=0.020): S=  0.9965
-    node (tau=+0.012, D=0.020): S=  1.0564
-    node (tau=+0.035, D=0.020): S=  1.1206
-    node (tau=+0.058, D=0.020): S=  1.1874
-    node (tau=+0.080, D=0.020): S=  1.2661
+    node (tau=+0.035, D=0.010): S=  1.1141
+    node (tau=+0.058, D=0.010): S=  1.1841
+    node (tau=+0.080, D=0.010): S=  1.2615
+    node (tau=-0.010, D=0.020): S=  0.9977
+    node (tau=+0.012, D=0.020): S=  1.0567
+    node (tau=+0.035, D=0.020): S=  1.1214
+    node (tau=+0.058, D=0.020): S=  1.1925
+    node (tau=+0.080, D=0.020): S=  1.2713
 
 [self-financing, Proposition 2]
-  baseline: P0=0.9248, D0=0.0200, tau0=0.0212, W0=-3.1257
-  program : P1=0.8760, D1=0.0156, tau1=0.0431, g_g=0.0208, W1=-3.5585
-  nu = 0.156  (revaluation -0.057 + damage dividend 0.212)  => partially self-financing
-  one-time bondholder levy L = -0.0603;  identity resid = 3.47e-18
-  sweep theta_g=0.00: n_roots=1, nu=-0.060
-  sweep theta_g=0.25: n_roots=1, nu=-0.011
-  sweep theta_g=0.50: n_roots=1, nu=0.036
-  sweep theta_g=0.75: n_roots=1, nu=0.081
-  sweep theta_g=1.00: n_roots=1, nu=0.123
-  sweep theta_g=1.25: n_roots=1, nu=0.163
-  sweep theta_g=1.50: n_roots=1, nu=0.202
-  sweep theta_g=1.75: n_roots=1, nu=0.238
-  sweep theta_g=2.00: n_roots=1, nu=0.272
-  sweep theta_g=2.25: n_roots=1, nu=0.305
-  sweep theta_g=2.50: n_roots=1, nu=0.336
-  sweep theta_g=2.75: n_roots=1, nu=0.366
-  sweep theta_g=3.00: n_roots=1, nu=0.394
+  baseline: P0=0.9244, D0=0.0200, tau0=0.0212, W0=-3.1266
+  program : P1=0.8741, D1=0.0156, tau1=0.0432, g_g=0.0208, W1=-3.5577
+  nu = 0.154  (revaluation -0.059 + damage dividend 0.212)  => partially self-financing
+  one-time bondholder levy L = -0.0622;  identity resid = 3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.062
+  sweep theta_g=0.25: n_roots=1, nu=-0.013
+  sweep theta_g=0.50: n_roots=1, nu=0.034
+  sweep theta_g=0.75: n_roots=1, nu=0.079
+  sweep theta_g=1.00: n_roots=1, nu=0.121
+  sweep theta_g=1.25: n_roots=1, nu=0.162
+  sweep theta_g=1.50: n_roots=1, nu=0.200
+  sweep theta_g=1.75: n_roots=1, nu=0.236
+  sweep theta_g=2.00: n_roots=1, nu=0.271
+  sweep theta_g=2.25: n_roots=1, nu=0.303
+  sweep theta_g=2.50: n_roots=1, nu=0.334
+  sweep theta_g=2.75: n_roots=1, nu=0.364
+  sweep theta_g=3.00: n_roots=1, nu=0.392
 
 --- D0 = 0.06 (sourced column) ---
   [S(tau,D) interpolant at r=+0.0196: 5 x 3 nodes]
-    node (tau=-0.010, D=0.000): S=  0.9834
-    node (tau=+0.012, D=0.000): S=  1.0440
-    node (tau=+0.035, D=0.000): S=  1.1063
-    node (tau=+0.058, D=0.000): S=  1.1705
-    node (tau=+0.080, D=0.000): S=  1.2449
-    node (tau=-0.010, D=0.030): S=  1.0025
-    node (tau=+0.012, D=0.030): S=  1.0620
-    node (tau=+0.035, D=0.030): S=  1.1256
-    node (tau=+0.058, D=0.030): S=  1.1934
-    node (tau=+0.080, D=0.030): S=  1.2784
-    node (tau=-0.010, D=0.060): S=  1.0186
-    node (tau=+0.012, D=0.060): S=  1.0809
-    node (tau=+0.035, D=0.060): S=  1.1436
-    node (tau=+0.058, D=0.060): S=  1.2180
-    node (tau=+0.080, D=0.060): S=  1.3098
+    node (tau=-0.010, D=0.000): S=  0.9864
+    node (tau=+0.012, D=0.000): S=  1.0438
+    node (tau=+0.035, D=0.000): S=  1.1066
+    node (tau=+0.058, D=0.000): S=  1.1754
+    node (tau=+0.080, D=0.000): S=  1.2516
+    node (tau=-0.010, D=0.030): S=  1.0030
+    node (tau=+0.012, D=0.030): S=  1.0629
+    node (tau=+0.035, D=0.030): S=  1.1285
+    node (tau=+0.058, D=0.030): S=  1.2008
+    node (tau=+0.080, D=0.030): S=  1.2810
+    node (tau=-0.010, D=0.060): S=  1.0177
+    node (tau=+0.012, D=0.060): S=  1.0800
+    node (tau=+0.035, D=0.060): S=  1.1485
+    node (tau=+0.058, D=0.060): S=  1.2244
+    node (tau=+0.080, D=0.060): S=  1.3089
 
 [self-financing, Proposition 2]
-  baseline: P0=0.9037, D0=0.0600, tau0=0.0217, W0=-3.9606
-  program : P1=0.8591, D1=0.0465, tau1=0.0440, g_g=0.0212, W1=-4.2476
-  nu = 0.583  (revaluation -0.053 + damage dividend 0.636)  => partially self-financing
-  one-time bondholder levy L = -0.0575;  identity resid = 0.00e+00
-  sweep theta_g=0.00: n_roots=1, nu=-0.063
-  sweep theta_g=0.25: n_roots=1, nu=0.086
-  sweep theta_g=0.50: n_roots=1, nu=0.226
-  sweep theta_g=0.75: n_roots=1, nu=0.360
-  sweep theta_g=1.00: n_roots=1, nu=0.486
-  sweep theta_g=1.25: n_roots=1, nu=0.606
-  sweep theta_g=1.50: n_roots=1, nu=0.720
-  sweep theta_g=1.75: n_roots=1, nu=0.828
-  sweep theta_g=2.00: n_roots=1, nu=0.931
-  sweep theta_g=2.25: n_roots=1, nu=1.029
-  sweep theta_g=2.50: n_roots=1, nu=1.121
-  sweep theta_g=2.75: n_roots=1, nu=1.209
-  sweep theta_g=3.00: n_roots=1, nu=1.293
+  baseline: P0=0.9024, D0=0.0600, tau0=0.0217, W0=-3.9589
+  program : P1=0.8548, D1=0.0465, tau1=0.0442, g_g=0.0213, W1=-4.2452
+  nu = 0.578  (revaluation -0.057 + damage dividend 0.635)  => partially self-financing
+  one-time bondholder levy L = -0.0618;  identity resid = 0.00e+00
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.25: n_roots=1, nu=0.082
+  sweep theta_g=0.50: n_roots=1, nu=0.222
+  sweep theta_g=0.75: n_roots=1, nu=0.356
+  sweep theta_g=1.00: n_roots=1, nu=0.482
+  sweep theta_g=1.25: n_roots=1, nu=0.602
+  sweep theta_g=1.50: n_roots=1, nu=0.716
+  sweep theta_g=1.75: n_roots=1, nu=0.824
+  sweep theta_g=2.00: n_roots=1, nu=0.927
+  sweep theta_g=2.25: n_roots=1, nu=1.024
+  sweep theta_g=2.50: n_roots=1, nu=1.117
+  sweep theta_g=2.75: n_roots=1, nu=1.204
+  sweep theta_g=3.00: n_roots=1, nu=1.288
 
 --- D0 = 0.10 (interpolating node) ---
   [S(tau,D) interpolant at r=+0.0196: 5 x 3 nodes]
-    node (tau=-0.010, D=0.000): S=  0.9834
-    node (tau=+0.012, D=0.000): S=  1.0440
-    node (tau=+0.035, D=0.000): S=  1.1063
-    node (tau=+0.058, D=0.000): S=  1.1705
-    node (tau=+0.080, D=0.000): S=  1.2449
-    node (tau=-0.010, D=0.050): S=  1.0131
-    node (tau=+0.012, D=0.050): S=  1.0748
-    node (tau=+0.035, D=0.050): S=  1.1384
-    node (tau=+0.058, D=0.050): S=  1.2086
-    node (tau=+0.080, D=0.050): S=  1.3004
-    node (tau=-0.010, D=0.100): S=  1.0322
-    node (tau=+0.012, D=0.100): S=  1.0953
-    node (tau=+0.035, D=0.100): S=  1.1624
-    node (tau=+0.058, D=0.100): S=  1.2544
-    node (tau=+0.080, D=0.100): S=  1.3426
+    node (tau=-0.010, D=0.000): S=  0.9864
+    node (tau=+0.012, D=0.000): S=  1.0438
+    node (tau=+0.035, D=0.000): S=  1.1066
+    node (tau=+0.058, D=0.000): S=  1.1754
+    node (tau=+0.080, D=0.000): S=  1.2516
+    node (tau=-0.010, D=0.050): S=  1.0130
+    node (tau=+0.012, D=0.050): S=  1.0745
+    node (tau=+0.035, D=0.050): S=  1.1421
+    node (tau=+0.058, D=0.050): S=  1.2168
+    node (tau=+0.080, D=0.050): S=  1.2998
+    node (tau=-0.010, D=0.100): S=  1.0339
+    node (tau=+0.012, D=0.100): S=  1.0996
+    node (tau=+0.035, D=0.100): S=  1.1723
+    node (tau=+0.058, D=0.100): S=  1.2530
+    node (tau=+0.080, D=0.100): S=  1.3436
 
 [self-financing, Proposition 2]
-  baseline: P0=0.8899, D0=0.1000, tau0=0.0220, W0=-4.8733
-  program : P1=0.8421, D1=0.0772, tau1=0.0449, g_g=0.0216, W1=-4.9887
-  nu = 0.999  (revaluation -0.058 + damage dividend 1.057)  => partially self-financing
-  one-time bondholder levy L = -0.0637;  identity resid = 6.94e-18
-  sweep theta_g=0.00: n_roots=1, nu=-0.073
-  sweep theta_g=0.25: n_roots=1, nu=0.174
-  sweep theta_g=0.50: n_roots=1, nu=0.407
-  sweep theta_g=0.75: n_roots=1, nu=0.629
-  sweep theta_g=1.00: n_roots=1, nu=0.839
-  sweep theta_g=1.25: n_roots=1, nu=1.038
-  sweep theta_g=1.50: n_roots=1, nu=1.227
-  sweep theta_g=1.75: n_roots=1, nu=1.407
-  sweep theta_g=2.00: n_roots=1, nu=1.577
-  sweep theta_g=2.25: n_roots=1, nu=1.739
-  sweep theta_g=2.50: n_roots=1, nu=1.892
-  sweep theta_g=2.75: n_roots=1, nu=2.038
-  sweep theta_g=3.00: n_roots=1, nu=2.177
+  baseline: P0=0.8843, D0=0.1000, tau0=0.0222, W0=-4.8683
+  program : P1=0.8379, D1=0.0771, tau1=0.0451, g_g=0.0217, W1=-4.9754
+  nu = 1.000  (revaluation -0.057 + damage dividend 1.056)  => partially self-financing
+  one-time bondholder levy L = -0.0626;  identity resid = -3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.071
+  sweep theta_g=0.25: n_roots=1, nu=0.175
+  sweep theta_g=0.50: n_roots=1, nu=0.409
+  sweep theta_g=0.75: n_roots=1, nu=0.630
+  sweep theta_g=1.00: n_roots=1, nu=0.840
+  sweep theta_g=1.25: n_roots=1, nu=1.039
+  sweep theta_g=1.50: n_roots=1, nu=1.228
+  sweep theta_g=1.75: n_roots=1, nu=1.406
+  sweep theta_g=2.00: n_roots=1, nu=1.576
+  sweep theta_g=2.25: n_roots=1, nu=1.738
+  sweep theta_g=2.50: n_roots=1, nu=1.891
+  sweep theta_g=2.75: n_roots=1, nu=2.036
+  sweep theta_g=3.00: n_roots=1, nu=2.174
 
 --- D0 = 0.15 (interpolating node) ---
   [S(tau,D) interpolant at r=+0.0196: 5 x 3 nodes]
-    node (tau=-0.010, D=0.000): S=  0.9834
-    node (tau=+0.012, D=0.000): S=  1.0440
-    node (tau=+0.035, D=0.000): S=  1.1063
-    node (tau=+0.058, D=0.000): S=  1.1705
-    node (tau=+0.080, D=0.000): S=  1.2449
-    node (tau=-0.010, D=0.075): S=  1.0236
-    node (tau=+0.012, D=0.075): S=  1.0868
-    node (tau=+0.035, D=0.075): S=  1.1513
-    node (tau=+0.058, D=0.075): S=  1.2333
-    node (tau=+0.080, D=0.075): S=  1.3232
-    node (tau=-0.010, D=0.150): S=  1.0451
-    node (tau=+0.012, D=0.150): S=  1.1107
-    node (tau=+0.035, D=0.150): S=  1.1972
-    node (tau=+0.058, D=0.150): S=  1.2815
-    node (tau=+0.080, D=0.150): S=  1.3789
+    node (tau=-0.010, D=0.000): S=  0.9864
+    node (tau=+0.012, D=0.000): S=  1.0438
+    node (tau=+0.035, D=0.000): S=  1.1066
+    node (tau=+0.058, D=0.000): S=  1.1754
+    node (tau=+0.080, D=0.000): S=  1.2516
+    node (tau=-0.010, D=0.075): S=  1.0242
+    node (tau=+0.012, D=0.075): S=  1.0878
+    node (tau=+0.035, D=0.075): S=  1.1579
+    node (tau=+0.058, D=0.075): S=  1.2356
+    node (tau=+0.080, D=0.075): S=  1.3223
+    node (tau=-0.010, D=0.150): S=  1.0486
+    node (tau=+0.012, D=0.150): S=  1.1186
+    node (tau=+0.035, D=0.150): S=  1.1966
+    node (tau=+0.058, D=0.150): S=  1.2840
+    node (tau=+0.080, D=0.150): S=  1.3830
 
 [self-financing, Proposition 2]
-  baseline: P0=0.8701, D0=0.1500, tau0=0.0225, W0=-6.1182
-  program : P1=0.8221, D1=0.1150, tau1=0.0460, g_g=0.0221, W1=-5.9459
-  nu = 1.521  (revaluation -0.059 + damage dividend 1.581)  => FULLY self-financing
-  one-time bondholder levy L = -0.0671;  identity resid = 0.00e+00
-  sweep theta_g=0.00: n_roots=1, nu=-0.080
-  sweep theta_g=0.25: n_roots=1, nu=0.289
-  sweep theta_g=0.50: n_roots=1, nu=0.639
-  sweep theta_g=0.75: n_roots=1, nu=0.969
-  sweep theta_g=1.00: n_roots=1, nu=1.283
+  baseline: P0=0.8668, D0=0.1500, tau0=0.0226, W0=-6.1304
+  program : P1=0.8202, D1=0.1150, tau1=0.0461, g_g=0.0222, W1=-5.9560
+  nu = 1.522  (revaluation -0.058 + damage dividend 1.580)  => FULLY self-financing
+  one-time bondholder levy L = -0.0656;  identity resid = 0.00e+00
+  sweep theta_g=0.00: n_roots=1, nu=-0.078
+  sweep theta_g=0.25: n_roots=1, nu=0.292
+  sweep theta_g=0.50: n_roots=1, nu=0.641
+  sweep theta_g=0.75: n_roots=1, nu=0.971
+  sweep theta_g=1.00: n_roots=1, nu=1.284
   sweep theta_g=1.25: n_roots=1, nu=1.580
   sweep theta_g=1.50: n_roots=1, nu=1.861
   sweep theta_g=1.75: n_roots=1, nu=2.128
-  sweep theta_g=2.00: n_roots=1, nu=2.382
-  sweep theta_g=2.25: n_roots=1, nu=2.622
-  sweep theta_g=2.50: n_roots=1, nu=2.851
-  sweep theta_g=2.75: n_roots=1, nu=3.068
-  sweep theta_g=3.00: n_roots=1, nu=3.274
+  sweep theta_g=2.00: n_roots=1, nu=2.381
+  sweep theta_g=2.25: n_roots=1, nu=2.620
+  sweep theta_g=2.50: n_roots=1, nu=2.848
+  sweep theta_g=2.75: n_roots=1, nu=3.064
+  sweep theta_g=3.00: n_roots=1, nu=3.269
 
 --- D0 = 0.20 (sourced column) ---
   [S(tau,D) interpolant at r=+0.0196: 5 x 3 nodes]
-    node (tau=-0.010, D=0.000): S=  0.9834
-    node (tau=+0.012, D=0.000): S=  1.0440
-    node (tau=+0.035, D=0.000): S=  1.1063
-    node (tau=+0.058, D=0.000): S=  1.1705
-    node (tau=+0.080, D=0.000): S=  1.2449
-    node (tau=-0.010, D=0.100): S=  1.0322
-    node (tau=+0.012, D=0.100): S=  1.0953
-    node (tau=+0.035, D=0.100): S=  1.1624
-    node (tau=+0.058, D=0.100): S=  1.2544
-    node (tau=+0.080, D=0.100): S=  1.3426
-    node (tau=-0.010, D=0.200): S=  1.0483
-    node (tau=+0.012, D=0.200): S=  1.1328
-    node (tau=+0.035, D=0.200): S=  1.2126
-    node (tau=+0.058, D=0.200): S=  1.3035
-    node (tau=+0.080, D=0.200): S=  1.4125
+    node (tau=-0.010, D=0.000): S=  0.9864
+    node (tau=+0.012, D=0.000): S=  1.0438
+    node (tau=+0.035, D=0.000): S=  1.1066
+    node (tau=+0.058, D=0.000): S=  1.1754
+    node (tau=+0.080, D=0.000): S=  1.2516
+    node (tau=-0.010, D=0.100): S=  1.0339
+    node (tau=+0.012, D=0.100): S=  1.0996
+    node (tau=+0.035, D=0.100): S=  1.1723
+    node (tau=+0.058, D=0.100): S=  1.2530
+    node (tau=+0.080, D=0.100): S=  1.3436
+    node (tau=-0.010, D=0.200): S=  1.0566
+    node (tau=+0.012, D=0.200): S=  1.1310
+    node (tau=+0.035, D=0.200): S=  1.2145
+    node (tau=+0.058, D=0.200): S=  1.3091
+    node (tau=+0.080, D=0.200): S=  1.4178
 
 [self-financing, Proposition 2]
-  baseline: P0=0.8549, D0=0.2000, tau0=0.0229, W0=-7.5508
-  program : P1=0.8087, D1=0.1527, tau1=0.0467, g_g=0.0225, W1=-7.0206
-  nu = 2.045  (revaluation -0.058 + damage dividend 2.104)  => FULLY self-financing
-  one-time bondholder levy L = -0.0667;  identity resid = -3.47e-18
-  sweep theta_g=0.00: n_roots=1, nu=-0.081
-  sweep theta_g=0.25: n_roots=1, nu=0.411
-  sweep theta_g=0.50: n_roots=1, nu=0.875
-  sweep theta_g=0.75: n_roots=1, nu=1.314
-  sweep theta_g=1.00: n_roots=1, nu=1.729
-  sweep theta_g=1.25: n_roots=1, nu=2.122
-  sweep theta_g=1.50: n_roots=1, nu=2.495
-  sweep theta_g=1.75: n_roots=1, nu=2.848
-  sweep theta_g=2.00: n_roots=1, nu=3.183
-  sweep theta_g=2.25: n_roots=1, nu=3.501
-  sweep theta_g=2.50: n_roots=1, nu=3.803
-  sweep theta_g=2.75: n_roots=1, nu=4.089
-  sweep theta_g=3.00: n_roots=1, nu=4.361
+  baseline: P0=0.8549, D0=0.2000, tau0=0.0229, W0=-7.5564
+  program : P1=0.8058, D1=0.1526, tau1=0.0469, g_g=0.0226, W1=-7.0233
+  nu = 2.041  (revaluation -0.062 + damage dividend 2.103)  => FULLY self-financing
+  one-time bondholder levy L = -0.0713;  identity resid = -3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.084
+  sweep theta_g=0.25: n_roots=1, nu=0.407
+  sweep theta_g=0.50: n_roots=1, nu=0.871
+  sweep theta_g=0.75: n_roots=1, nu=1.309
+  sweep theta_g=1.00: n_roots=1, nu=1.725
+  sweep theta_g=1.25: n_roots=1, nu=2.117
+  sweep theta_g=1.50: n_roots=1, nu=2.490
+  sweep theta_g=1.75: n_roots=1, nu=2.842
+  sweep theta_g=2.00: n_roots=1, nu=3.177
+  sweep theta_g=2.25: n_roots=1, nu=3.494
+  sweep theta_g=2.50: n_roots=1, nu=3.795
+  sweep theta_g=2.75: n_roots=1, nu=4.080
+  sweep theta_g=3.00: n_roots=1, nu=4.351
 
 nu=1 frontier theta*(D0):
   D0=0.02 -> above the swept range (nu<1 for all theta<=3.0)
-  D0=0.06 -> theta*=2.18
+  D0=0.06 -> theta*=2.19
   D0=0.10 -> theta*=1.20
   D0=0.15 -> theta*=0.77
   D0=0.20 -> theta*=0.57
@@ -203,9 +203,11 @@ sign(nu_reval): 65 of 65 computed nodes negative
   [calibrate_beta] S(0.850)=0.000  S(0.955)=0.847  target=1.100
 [Warning: Target 1.100 not bracketed by [0.000, 0.847]; returning closest end.] 
 [> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('calibrate_beta', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\calibrate_beta.m', 43)" style="font-weight:bold">calibrate_beta</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\calibrate_beta.m',43,0)">line 43</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('main_project_robustness', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\main_project_robustness.m', 201)" style="font-weight:bold">main_project_robustness</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\main_project_robustness.m',201,0)">line 201</a>)] 
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('main_project_robustness', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\main_project_robustness.m', 201)" style="font-weight:bold">main_project_robustness</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\main_project_robustness.m',201,0)">line 201</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_green_deficits_master', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m', 131)" style="font-weight:bold">run_green_deficits_master</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m',131,0)">line 131</a>)] 
 [Warning: variant sigma=1: debt target INFEASIBLE (precautionary demand too weak at this parameter) -- reported, not plotted] 
-[> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('main_project_robustness', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\main_project_robustness.m', 211)" style="font-weight:bold">main_project_robustness</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\main_project_robustness.m',211,0)">line 211</a>)] 
+[> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('main_project_robustness', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\main_project_robustness.m', 211)" style="font-weight:bold">main_project_robustness</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\main_project_robustness.m',211,0)">line 211</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_green_deficits_master', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m', 131)" style="font-weight:bold">run_green_deficits_master</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m',131,0)">line 131</a>)] 
 
 --- variant sigma=3 ---
   [calibrate_beta] S(0.850)=0.584  S(0.955)=7.244  target=1.100
@@ -218,34 +220,34 @@ In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('main_pro
   [calibrate_beta] beta* = 0.8845 (S=1.0963, target 1.100)
   recalibrated beta* = 0.8845 (target held)
   [S(tau,D) interpolant at r=+0.0196: 5 x 3 nodes]
-    node (tau=-0.010, D=0.000): S=  0.9645
-    node (tau=+0.018, D=0.000): S=  1.0428
-    node (tau=+0.045, D=0.000): S=  1.1331
-    node (tau=+0.073, D=0.000): S=  1.2396
-    node (tau=+0.100, D=0.000): S=  1.3599
-    node (tau=-0.010, D=0.030): S=  0.9816
-    node (tau=+0.018, D=0.030): S=  1.0640
-    node (tau=+0.045, D=0.030): S=  1.1613
-    node (tau=+0.073, D=0.030): S=  1.2713
-    node (tau=+0.100, D=0.030): S=  1.3977
-    node (tau=-0.010, D=0.060): S=  0.9978
-    node (tau=+0.018, D=0.060): S=  1.0852
-    node (tau=+0.045, D=0.060): S=  1.1864
-    node (tau=+0.073, D=0.060): S=  1.3018
-    node (tau=+0.100, D=0.060): S=  1.4406
+    node (tau=-0.010, D=0.000): S=  0.9634
+    node (tau=+0.018, D=0.000): S=  1.0444
+    node (tau=+0.045, D=0.000): S=  1.1363
+    node (tau=+0.073, D=0.000): S=  1.2416
+    node (tau=+0.100, D=0.000): S=  1.3630
+    node (tau=-0.010, D=0.030): S=  0.9820
+    node (tau=+0.018, D=0.030): S=  1.0666
+    node (tau=+0.045, D=0.030): S=  1.1631
+    node (tau=+0.073, D=0.030): S=  1.2743
+    node (tau=+0.100, D=0.030): S=  1.4031
+    node (tau=-0.010, D=0.060): S=  0.9985
+    node (tau=+0.018, D=0.060): S=  1.0869
+    node (tau=+0.045, D=0.060): S=  1.1882
+    node (tau=+0.073, D=0.060): S=  1.3053
+    node (tau=+0.100, D=0.060): S=  1.4420
 
 [self-financing, Proposition 2]
-  baseline: P0=0.9089, D0=0.0600, tau0=0.0216, W0=-4.6088
-  program : P1=0.8528, D1=0.0465, tau1=0.0443, g_g=0.0213, W1=-5.0135
-  nu = 0.569  (revaluation -0.067 + damage dividend 0.635)  => partially self-financing
-  one-time bondholder levy L = -0.0724;  identity resid = 3.47e-18
+  baseline: P0=0.9074, D0=0.0600, tau0=0.0216, W0=-4.6048
+  program : P1=0.8513, D1=0.0464, tau1=0.0444, g_g=0.0214, W1=-5.0121
+  nu = 0.568  (revaluation -0.067 + damage dividend 0.635)  => partially self-financing
+  one-time bondholder levy L = -0.0726;  identity resid = 3.47e-18
   sweep theta_g=0.00: n_roots=1, nu=-0.078
   sweep theta_g=0.50: n_roots=1, nu=0.212
   sweep theta_g=1.00: n_roots=1, nu=0.472
   sweep theta_g=1.50: n_roots=1, nu=0.706
-  sweep theta_g=2.00: n_roots=1, nu=0.918
-  sweep theta_g=2.50: n_roots=1, nu=1.108
-  sigma=3: nu=0.569 (reval -0.067, damage 0.635), dlnP=-6.37%
+  sweep theta_g=2.00: n_roots=1, nu=0.917
+  sweep theta_g=2.50: n_roots=1, nu=1.107
+  sigma=3: nu=0.568 (reval -0.067, damage 0.635), dlnP=-6.38%
 
 --- variant phi_D=0 ---
   [calibrate_beta] S(0.850)=0.094  S(0.955)=3.137  target=1.100
@@ -259,34 +261,34 @@ In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('main_pro
   [calibrate_beta] beta* = 0.9296 (S=1.1033, target 1.100)
   recalibrated beta* = 0.9296 (target held)
   [S(tau,D) interpolant at r=+0.0196: 5 x 3 nodes]
-    node (tau=-0.010, D=0.000): S=  1.0856
-    node (tau=+0.018, D=0.000): S=  1.1588
-    node (tau=+0.045, D=0.000): S=  1.2387
-    node (tau=+0.073, D=0.000): S=  1.3332
-    node (tau=+0.100, D=0.000): S=  1.4466
-    node (tau=-0.010, D=0.030): S=  1.0495
-    node (tau=+0.018, D=0.030): S=  1.1255
-    node (tau=+0.045, D=0.030): S=  1.2038
-    node (tau=+0.073, D=0.030): S=  1.3112
-    node (tau=+0.100, D=0.030): S=  1.4142
-    node (tau=-0.010, D=0.060): S=  1.0172
-    node (tau=+0.018, D=0.060): S=  1.0899
-    node (tau=+0.045, D=0.060): S=  1.1695
-    node (tau=+0.073, D=0.060): S=  1.2760
-    node (tau=+0.100, D=0.060): S=  1.3818
+    node (tau=-0.010, D=0.000): S=  1.0852
+    node (tau=+0.018, D=0.000): S=  1.1609
+    node (tau=+0.045, D=0.000): S=  1.2452
+    node (tau=+0.073, D=0.000): S=  1.3398
+    node (tau=+0.100, D=0.000): S=  1.4467
+    node (tau=-0.010, D=0.030): S=  1.0519
+    node (tau=+0.018, D=0.030): S=  1.1276
+    node (tau=+0.045, D=0.030): S=  1.2123
+    node (tau=+0.073, D=0.030): S=  1.3076
+    node (tau=+0.100, D=0.030): S=  1.4159
+    node (tau=-0.010, D=0.060): S=  1.0186
+    node (tau=+0.018, D=0.060): S=  1.0943
+    node (tau=+0.045, D=0.060): S=  1.1793
+    node (tau=+0.073, D=0.060): S=  1.2754
+    node (tau=+0.100, D=0.060): S=  1.3852
 
 [self-financing, Proposition 2]
-  baseline: P0=0.9077, D0=0.0600, tau0=0.0216, W0=-3.9014
-  program : P1=0.8443, D1=0.0463, tau1=0.0448, g_g=0.0215, W1=-4.2385
-  nu = 0.559  (revaluation -0.075 + damage dividend 0.634)  => partially self-financing
-  one-time bondholder levy L = -0.0827;  identity resid = 0.00e+00
-  sweep theta_g=0.00: n_roots=1, nu=-0.060
-  sweep theta_g=0.50: n_roots=1, nu=0.218
-  sweep theta_g=1.00: n_roots=1, nu=0.467
-  sweep theta_g=1.50: n_roots=1, nu=0.690
-  sweep theta_g=2.00: n_roots=1, nu=0.890
-  sweep theta_g=2.50: n_roots=1, nu=1.068
-  phi_D=0: nu=0.559 (reval -0.075, damage 0.634), dlnP=-7.23%
+  baseline: P0=0.9031, D0=0.0600, tau0=0.0217, W0=-3.9000
+  program : P1=0.8368, D1=0.0462, tau1=0.0452, g_g=0.0217, W1=-4.2324
+  nu = 0.555  (revaluation -0.079 + damage dividend 0.634)  => partially self-financing
+  one-time bondholder levy L = -0.0877;  identity resid = 3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.065
+  sweep theta_g=0.50: n_roots=1, nu=0.213
+  sweep theta_g=1.00: n_roots=1, nu=0.463
+  sweep theta_g=1.50: n_roots=1, nu=0.685
+  sweep theta_g=2.00: n_roots=1, nu=0.885
+  sweep theta_g=2.50: n_roots=1, nu=1.063
+  phi_D=0: nu=0.555 (reval -0.079, damage 0.634), dlnP=-7.62%
 
 --- variant phi_D=1 ---
   [calibrate_beta] S(0.850)=0.134  S(0.955)=3.665  target=1.100
@@ -301,34 +303,34 @@ In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('main_pro
   [calibrate_beta] beta* = 0.9234 (S=1.0952, target 1.100)
   recalibrated beta* = 0.9234 (target held)
   [S(tau,D) interpolant at r=+0.0196: 5 x 3 nodes]
-    node (tau=-0.010, D=0.000): S=  0.8844
-    node (tau=+0.018, D=0.000): S=  0.9486
-    node (tau=+0.045, D=0.000): S=  1.0276
-    node (tau=+0.073, D=0.000): S=  1.1058
-    node (tau=+0.100, D=0.000): S=  1.1988
-    node (tau=-0.010, D=0.030): S=  0.9426
-    node (tau=+0.018, D=0.030): S=  1.0191
-    node (tau=+0.045, D=0.030): S=  1.0969
-    node (tau=+0.073, D=0.030): S=  1.1846
-    node (tau=+0.100, D=0.030): S=  1.2918
-    node (tau=-0.010, D=0.060): S=  1.0045
-    node (tau=+0.018, D=0.060): S=  1.0820
-    node (tau=+0.045, D=0.060): S=  1.1664
-    node (tau=+0.073, D=0.060): S=  1.2677
-    node (tau=+0.100, D=0.060): S=  1.3853
+    node (tau=-0.010, D=0.000): S=  0.8861
+    node (tau=+0.018, D=0.000): S=  0.9520
+    node (tau=+0.045, D=0.000): S=  1.0256
+    node (tau=+0.073, D=0.000): S=  1.1086
+    node (tau=+0.100, D=0.000): S=  1.2030
+    node (tau=-0.010, D=0.030): S=  0.9469
+    node (tau=+0.018, D=0.030): S=  1.0186
+    node (tau=+0.045, D=0.030): S=  1.0990
+    node (tau=+0.073, D=0.030): S=  1.1903
+    node (tau=+0.100, D=0.030): S=  1.2948
+    node (tau=-0.010, D=0.060): S=  1.0059
+    node (tau=+0.018, D=0.060): S=  1.0836
+    node (tau=+0.045, D=0.060): S=  1.1713
+    node (tau=+0.073, D=0.060): S=  1.2713
+    node (tau=+0.100, D=0.060): S=  1.3868
 
 [self-financing, Proposition 2]
-  baseline: P0=0.9139, D0=0.0600, tau0=0.0215, W0=-4.0033
-  program : P1=0.8856, D1=0.0469, tau1=0.0427, g_g=0.0205, W1=-4.2430
-  nu = 0.605  (revaluation -0.033 + damage dividend 0.638)  => partially self-financing
-  one-time bondholder levy L = -0.0350;  identity resid = -3.47e-18
-  sweep theta_g=0.00: n_roots=1, nu=-0.064
-  sweep theta_g=0.50: n_roots=1, nu=0.235
-  sweep theta_g=1.00: n_roots=1, nu=0.504
-  sweep theta_g=1.50: n_roots=1, nu=0.748
-  sweep theta_g=2.00: n_roots=1, nu=0.970
-  sweep theta_g=2.50: n_roots=1, nu=1.172
-  phi_D=1: nu=0.605 (reval -0.033, damage 0.638), dlnP=-3.15%
+  baseline: P0=0.9121, D0=0.0600, tau0=0.0215, W0=-4.0053
+  program : P1=0.8827, D1=0.0469, tau1=0.0428, g_g=0.0206, W1=-4.2428
+  nu = 0.603  (revaluation -0.035 + damage dividend 0.638)  => partially self-financing
+  one-time bondholder levy L = -0.0366;  identity resid = 0.00e+00
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.232
+  sweep theta_g=1.00: n_roots=1, nu=0.502
+  sweep theta_g=1.50: n_roots=1, nu=0.747
+  sweep theta_g=2.00: n_roots=1, nu=0.969
+  sweep theta_g=2.50: n_roots=1, nu=1.171
+  phi_D=1: nu=0.603 (reval -0.035, damage 0.638), dlnP=-3.28%
 
 --- variant psi=1 ---
   [calibrate_beta] S(0.850)=0.158  S(0.955)=4.150  target=1.100
@@ -340,44 +342,44 @@ In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('main_pro
   [calibrate_beta] beta* = 0.9189 (S=1.0980, target 1.100)
   recalibrated beta* = 0.9189 (target held)
   [S(tau,D) interpolant at r=+0.0196: 5 x 3 nodes]
-    node (tau=-0.010, D=0.000): S=  0.7660
-    node (tau=+0.018, D=0.000): S=  0.8261
-    node (tau=+0.045, D=0.000): S=  0.8887
-    node (tau=+0.073, D=0.000): S=  0.9698
-    node (tau=+0.100, D=0.000): S=  1.0525
-    node (tau=-0.010, D=0.030): S=  0.8727
-    node (tau=+0.018, D=0.030): S=  0.9414
-    node (tau=+0.045, D=0.030): S=  1.0262
-    node (tau=+0.073, D=0.030): S=  1.1133
-    node (tau=+0.100, D=0.030): S=  1.2218
-    node (tau=-0.010, D=0.060): S=  1.0014
-    node (tau=+0.018, D=0.060): S=  1.0838
-    node (tau=+0.045, D=0.060): S=  1.1798
-    node (tau=+0.073, D=0.060): S=  1.2945
-    node (tau=+0.100, D=0.060): S=  1.4264
+    node (tau=-0.010, D=0.000): S=  0.7670
+    node (tau=+0.018, D=0.000): S=  0.8264
+    node (tau=+0.045, D=0.000): S=  0.8933
+    node (tau=+0.073, D=0.000): S=  0.9689
+    node (tau=+0.100, D=0.000): S=  1.0551
+    node (tau=-0.010, D=0.030): S=  0.8757
+    node (tau=+0.018, D=0.030): S=  0.9464
+    node (tau=+0.045, D=0.030): S=  1.0264
+    node (tau=+0.073, D=0.030): S=  1.1179
+    node (tau=+0.100, D=0.030): S=  1.2240
+    node (tau=-0.010, D=0.060): S=  1.0013
+    node (tau=+0.018, D=0.060): S=  1.0859
+    node (tau=+0.045, D=0.060): S=  1.1829
+    node (tau=+0.073, D=0.060): S=  1.2958
+    node (tau=+0.100, D=0.060): S=  1.4301
 
 [self-financing, Proposition 2]
-  baseline: P0=0.9109, D0=0.0600, tau0=0.0215, W0=-4.1683
-  program : P1=0.9065, D1=0.0472, tau1=0.0417, g_g=0.0201, W1=-4.3269
+  baseline: P0=0.9089, D0=0.0600, tau0=0.0216, W0=-4.1675
+  program : P1=0.9048, D1=0.0471, tau1=0.0418, g_g=0.0201, W1=-4.3243
   nu = 0.635  (revaluation -0.005 + damage dividend 0.640)  => partially self-financing
-  one-time bondholder levy L = -0.0053;  identity resid = 0.00e+00
-  sweep theta_g=0.00: n_roots=1, nu=-0.073
+  one-time bondholder levy L = -0.0050;  identity resid = 6.94e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.074
   sweep theta_g=0.50: n_roots=1, nu=0.242
   sweep theta_g=1.00: n_roots=1, nu=0.528
   sweep theta_g=1.50: n_roots=1, nu=0.788
   sweep theta_g=2.00: n_roots=1, nu=1.027
   sweep theta_g=2.50: n_roots=1, nu=1.247
-  psi=1: nu=0.635 (reval -0.005, damage 0.640), dlnP=-0.48%
+  psi=1: nu=0.635 (reval -0.005, damage 0.640), dlnP=-0.46%
 
 --- variant psi=2 ---
-[Warning: tau=r*S=0.1153 exceeds the feasibility bound 0.1103 (minimum income at the constraint): treating S(1+r) as divergent at
-r=0.0196.] 
+[Warning: tau=r*S=0.1153 exceeds the feasibility bound 0.1103 (minimum income at the constraint): treating S(1+r) as divergent at r=0.0196.] 
 [> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('aggregate_asset_demand>solve_one_rate', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\src\aggregate_asset_demand.m', 129)" style="font-weight:bold">aggregate_asset_demand>solve_one_rate</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\src\aggregate_asset_demand.m',129,0)">line 129</a>)
 In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('aggregate_asset_demand', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\src\aggregate_asset_demand.m', 77)" style="font-weight:bold">aggregate_asset_demand</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\src\aggregate_asset_demand.m',77,0)">line 77</a>)
 In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('calibrate_beta>eval_S', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\calibrate_beta.m', 109)" style="font-weight:bold">calibrate_beta>eval_S</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\calibrate_beta.m',109,0)">line 109</a>)
 In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('calibrate_beta>@(bb)eval_S(pg,bb,r_target,D_level)', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\calibrate_beta.m', 36)" style="font-weight:bold">calibrate_beta>@(bb)eval_S(pg,bb,r_target,D_level)</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\calibrate_beta.m',36,0)">line 36</a>)
 In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('calibrate_beta', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\calibrate_beta.m', 38)" style="font-weight:bold">calibrate_beta</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\calibrate_beta.m',38,0)">line 38</a>)
-In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('main_project_robustness', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\main_project_robustness.m', 201)" style="font-weight:bold">main_project_robustness</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\main_project_robustness.m',201,0)">line 201</a>)] 
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('main_project_robustness', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\main_project_robustness.m', 201)" style="font-weight:bold">main_project_robustness</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\main_project_robustness.m',201,0)">line 201</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_green_deficits_master', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m', 131)" style="font-weight:bold">run_green_deficits_master</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m',131,0)">line 131</a>)] 
   [calibrate_beta] S(0.850)=0.229  S(0.955)=1000000.000  target=1.100
   [calibrate_beta  1] beta=0.9025  S=1.0430
   [calibrate_beta  2] beta=0.9287  S=2.2684
@@ -391,129 +393,129 @@ In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('main_pro
   [calibrate_beta] beta* = 0.9043 (S=1.0993, target 1.100)
   recalibrated beta* = 0.9043 (target held)
   [S(tau,D) interpolant at r=+0.0196: 5 x 3 nodes]
-    node (tau=-0.010, D=0.000): S=  0.4885
-    node (tau=+0.018, D=0.000): S=  0.5309
-    node (tau=+0.045, D=0.000): S=  0.5784
-    node (tau=+0.073, D=0.000): S=  0.6364
-    node (tau=+0.100, D=0.000): S=  0.7004
-    node (tau=-0.010, D=0.030): S=  0.6513
-    node (tau=+0.018, D=0.030): S=  0.7172
+    node (tau=-0.010, D=0.000): S=  0.4889
+    node (tau=+0.018, D=0.000): S=  0.5319
+    node (tau=+0.045, D=0.000): S=  0.5808
+    node (tau=+0.073, D=0.000): S=  0.6370
+    node (tau=+0.100, D=0.000): S=  0.7018
+    node (tau=-0.010, D=0.030): S=  0.6509
+    node (tau=+0.018, D=0.030): S=  0.7184
     node (tau=+0.045, D=0.030): S=  0.7984
-    node (tau=+0.073, D=0.030): S=  0.8945
-    node (tau=+0.100, D=0.030): S=  1.0147
-    node (tau=-0.010, D=0.060): S=  0.9373
-    node (tau=+0.018, D=0.060): S=  1.0770
-    node (tau=+0.045, D=0.060): S=  1.2526
-    node (tau=+0.073, D=0.060): S=  1.4819
-    node (tau=+0.100, D=0.060): S=  1.8038
+    node (tau=+0.073, D=0.030): S=  0.8956
+    node (tau=+0.100, D=0.030): S=  1.0181
+    node (tau=-0.010, D=0.060): S=  0.9393
+    node (tau=+0.018, D=0.060): S=  1.0782
+    node (tau=+0.045, D=0.060): S=  1.2546
+    node (tau=+0.073, D=0.060): S=  1.4836
+    node (tau=+0.100, D=0.060): S=  1.8049
 
 [self-financing, Proposition 2]
-  baseline: P0=0.9063, D0=0.0600, tau0=0.0216, W0=-4.7727
-  program : P1=0.9618, D1=0.0478, tau1=0.0393, g_g=0.0189, W1=-4.6553
+  baseline: P0=0.9050, D0=0.0600, tau0=0.0217, W0=-4.7701
+  program : P1=0.9607, D1=0.0478, tau1=0.0393, g_g=0.0189, W1=-4.6549
   nu = 0.710  (revaluation 0.066 + damage dividend 0.644)  => partially self-financing
-  one-time bondholder levy L = 0.0637;  identity resid = 3.47e-18
+  one-time bondholder levy L = 0.0640;  identity resid = 6.94e-18
   sweep theta_g=0.00: n_roots=1, nu=-0.150
   sweep theta_g=0.50: n_roots=1, nu=0.237
   sweep theta_g=1.00: n_roots=1, nu=0.581
   sweep theta_g=1.50: n_roots=1, nu=0.897
   sweep theta_g=2.00: n_roots=1, nu=1.193
-  sweep theta_g=2.50: n_roots=1, nu=1.470
-  psi=2: nu=0.710 (reval +0.066, damage 0.644), dlnP=+5.94%
+  sweep theta_g=2.50: n_roots=1, nu=1.471
+  psi=2: nu=0.710 (reval +0.066, damage 0.644), dlnP=+5.96%
 
 --- variant delta_g=0.05 ---
   [S(tau,D) interpolant at r=+0.0196: 5 x 3 nodes]
-    node (tau=-0.010, D=0.000): S=  0.9834
-    node (tau=+0.018, D=0.000): S=  1.0548
-    node (tau=+0.045, D=0.000): S=  1.1358
-    node (tau=+0.073, D=0.000): S=  1.2170
-    node (tau=+0.100, D=0.000): S=  1.3234
-    node (tau=-0.010, D=0.030): S=  1.0025
-    node (tau=+0.018, D=0.030): S=  1.0774
-    node (tau=+0.045, D=0.030): S=  1.1544
-    node (tau=+0.073, D=0.030): S=  1.2480
-    node (tau=+0.100, D=0.030): S=  1.3605
-    node (tau=-0.010, D=0.060): S=  1.0186
-    node (tau=+0.018, D=0.060): S=  1.0923
-    node (tau=+0.045, D=0.060): S=  1.1729
-    node (tau=+0.073, D=0.060): S=  1.2799
-    node (tau=+0.100, D=0.060): S=  1.3925
+    node (tau=-0.010, D=0.000): S=  0.9864
+    node (tau=+0.018, D=0.000): S=  1.0573
+    node (tau=+0.045, D=0.000): S=  1.1364
+    node (tau=+0.073, D=0.000): S=  1.2253
+    node (tau=+0.100, D=0.000): S=  1.3262
+    node (tau=-0.010, D=0.030): S=  1.0030
+    node (tau=+0.018, D=0.030): S=  1.0769
+    node (tau=+0.045, D=0.030): S=  1.1597
+    node (tau=+0.073, D=0.030): S=  1.2533
+    node (tau=+0.100, D=0.030): S=  1.3600
+    node (tau=-0.010, D=0.060): S=  1.0177
+    node (tau=+0.018, D=0.060): S=  1.0946
+    node (tau=+0.045, D=0.060): S=  1.1813
+    node (tau=+0.073, D=0.060): S=  1.2797
+    node (tau=+0.100, D=0.060): S=  1.3926
 
 [self-financing, Proposition 2]
-  baseline: P0=0.9054, D0=0.0600, tau0=0.0217, W0=-3.9594
-  program : P1=0.8663, D1=0.0363, tau1=0.0436, g_g=0.0210, W1=-4.0118
-  nu = 1.085  (revaluation -0.047 + damage dividend 1.131)  => FULLY self-financing
-  one-time bondholder levy L = -0.0499;  identity resid = 0.00e+00
-  sweep theta_g=0.00: n_roots=1, nu=-0.061
-  sweep theta_g=0.50: n_roots=1, nu=0.487
-  sweep theta_g=1.00: n_roots=1, nu=0.931
-  sweep theta_g=1.50: n_roots=1, nu=1.293
-  sweep theta_g=2.00: n_roots=1, nu=1.587
-  sweep theta_g=2.50: n_roots=1, nu=1.828
-  delta_g=0.05: nu=1.085 (reval -0.047, damage 1.131), dlnP=-4.42%
+  baseline: P0=0.9026, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8616, D1=0.0362, tau1=0.0439, g_g=0.0211, W1=-4.0093
+  nu = 1.081  (revaluation -0.049 + damage dividend 1.130)  => FULLY self-financing
+  one-time bondholder levy L = -0.0527;  identity resid = 3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.066
+  sweep theta_g=0.50: n_roots=1, nu=0.483
+  sweep theta_g=1.00: n_roots=1, nu=0.927
+  sweep theta_g=1.50: n_roots=1, nu=1.289
+  sweep theta_g=2.00: n_roots=1, nu=1.584
+  sweep theta_g=2.50: n_roots=1, nu=1.825
+  delta_g=0.05: nu=1.081 (reval -0.049, damage 1.130), dlnP=-4.65%
 
 --- variant scale=1% ---
   [S(tau,D) interpolant at r=+0.0196: 5 x 3 nodes]
-    node (tau=-0.010, D=0.000): S=  0.9834
-    node (tau=+0.018, D=0.000): S=  1.0548
-    node (tau=+0.045, D=0.000): S=  1.1358
-    node (tau=+0.073, D=0.000): S=  1.2170
-    node (tau=+0.100, D=0.000): S=  1.3234
-    node (tau=-0.010, D=0.030): S=  1.0025
-    node (tau=+0.018, D=0.030): S=  1.0774
-    node (tau=+0.045, D=0.030): S=  1.1544
-    node (tau=+0.073, D=0.030): S=  1.2480
-    node (tau=+0.100, D=0.030): S=  1.3605
-    node (tau=-0.010, D=0.060): S=  1.0186
-    node (tau=+0.018, D=0.060): S=  1.0923
-    node (tau=+0.045, D=0.060): S=  1.1729
-    node (tau=+0.073, D=0.060): S=  1.2799
-    node (tau=+0.100, D=0.060): S=  1.3925
+    node (tau=-0.010, D=0.000): S=  0.9864
+    node (tau=+0.018, D=0.000): S=  1.0573
+    node (tau=+0.045, D=0.000): S=  1.1364
+    node (tau=+0.073, D=0.000): S=  1.2253
+    node (tau=+0.100, D=0.000): S=  1.3262
+    node (tau=-0.010, D=0.030): S=  1.0030
+    node (tau=+0.018, D=0.030): S=  1.0769
+    node (tau=+0.045, D=0.030): S=  1.1597
+    node (tau=+0.073, D=0.030): S=  1.2533
+    node (tau=+0.100, D=0.030): S=  1.3600
+    node (tau=-0.010, D=0.060): S=  1.0177
+    node (tau=+0.018, D=0.060): S=  1.0946
+    node (tau=+0.045, D=0.060): S=  1.1813
+    node (tau=+0.073, D=0.060): S=  1.2797
+    node (tau=+0.100, D=0.060): S=  1.3926
 
 [self-financing, Proposition 2]
-  baseline: P0=0.9054, D0=0.0600, tau0=0.0217, W0=-3.9594
-  program : P1=0.8831, D1=0.0530, tau1=0.0325, g_g=0.0103, W1=-4.0875
-  nu = 0.624  (revaluation -0.053 + damage dividend 0.677)  => partially self-financing
-  one-time bondholder levy L = -0.0279;  identity resid = -3.47e-18
-  sweep theta_g=0.00: n_roots=1, nu=-0.061
-  sweep theta_g=0.50: n_roots=1, nu=0.235
-  sweep theta_g=1.00: n_roots=1, nu=0.516
-  sweep theta_g=1.50: n_roots=1, nu=0.783
-  sweep theta_g=2.00: n_roots=1, nu=1.036
-  sweep theta_g=2.50: n_roots=1, nu=1.278
-  scale=1%: nu=0.624 (reval -0.053, damage 0.677), dlnP=-2.49%
+  baseline: P0=0.9026, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8789, D1=0.0530, tau1=0.0327, g_g=0.0103, W1=-4.0872
+  nu = 0.621  (revaluation -0.057 + damage dividend 0.677)  => partially self-financing
+  one-time bondholder levy L = -0.0298;  identity resid = 3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.066
+  sweep theta_g=0.50: n_roots=1, nu=0.231
+  sweep theta_g=1.00: n_roots=1, nu=0.512
+  sweep theta_g=1.50: n_roots=1, nu=0.779
+  sweep theta_g=2.00: n_roots=1, nu=1.033
+  sweep theta_g=2.50: n_roots=1, nu=1.275
+  scale=1%: nu=0.621 (reval -0.057, damage 0.677), dlnP=-2.65%
 
 --- variant scale=4% ---
   [S(tau,D) interpolant at r=+0.0196: 5 x 3 nodes]
-    node (tau=-0.010, D=0.000): S=  0.9834
-    node (tau=+0.018, D=0.000): S=  1.0548
-    node (tau=+0.045, D=0.000): S=  1.1358
-    node (tau=+0.073, D=0.000): S=  1.2170
-    node (tau=+0.100, D=0.000): S=  1.3234
-    node (tau=-0.010, D=0.030): S=  1.0025
-    node (tau=+0.018, D=0.030): S=  1.0774
-    node (tau=+0.045, D=0.030): S=  1.1544
-    node (tau=+0.073, D=0.030): S=  1.2480
-    node (tau=+0.100, D=0.030): S=  1.3605
-    node (tau=-0.010, D=0.060): S=  1.0186
-    node (tau=+0.018, D=0.060): S=  1.0923
-    node (tau=+0.045, D=0.060): S=  1.1729
-    node (tau=+0.073, D=0.060): S=  1.2799
-    node (tau=+0.100, D=0.060): S=  1.3925
+    node (tau=-0.010, D=0.000): S=  0.9864
+    node (tau=+0.018, D=0.000): S=  1.0573
+    node (tau=+0.045, D=0.000): S=  1.1364
+    node (tau=+0.073, D=0.000): S=  1.2253
+    node (tau=+0.100, D=0.000): S=  1.3262
+    node (tau=-0.010, D=0.030): S=  1.0030
+    node (tau=+0.018, D=0.030): S=  1.0769
+    node (tau=+0.045, D=0.030): S=  1.1597
+    node (tau=+0.073, D=0.030): S=  1.2533
+    node (tau=+0.100, D=0.030): S=  1.3600
+    node (tau=-0.010, D=0.060): S=  1.0177
+    node (tau=+0.018, D=0.060): S=  1.0946
+    node (tau=+0.045, D=0.060): S=  1.1813
+    node (tau=+0.073, D=0.060): S=  1.2797
+    node (tau=+0.100, D=0.060): S=  1.3926
 
 [self-financing, Proposition 2]
-  baseline: P0=0.9054, D0=0.0600, tau0=0.0217, W0=-3.9594
-  program : P1=0.8045, D1=0.0349, tau1=0.0696, g_g=0.0452, W1=-4.6759
-  nu = 0.496  (revaluation -0.060 + damage dividend 0.556)  => partially self-financing
-  one-time bondholder levy L = -0.1386;  identity resid = 6.94e-18
-  sweep theta_g=0.00: n_roots=1, nu=-0.072
+  baseline: P0=0.9026, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8009, D1=0.0348, tau1=0.0699, g_g=0.0454, W1=-4.6730
+  nu = 0.494  (revaluation -0.061 + damage dividend 0.555)  => partially self-financing
+  one-time bondholder levy L = -0.1406;  identity resid = 1.39e-17
+  sweep theta_g=0.00: n_roots=1, nu=-0.071
   sweep theta_g=0.50: n_roots=1, nu=0.202
-  sweep theta_g=1.00: n_roots=1, nu=0.421
-  sweep theta_g=1.50: n_roots=1, nu=0.596
-  sweep theta_g=2.00: n_roots=1, nu=0.738
-  sweep theta_g=2.50: n_roots=1, nu=0.852
-  scale=4%: nu=0.496 (reval -0.060, damage 0.556), dlnP=-11.82%
+  sweep theta_g=1.00: n_roots=1, nu=0.420
+  sweep theta_g=1.50: n_roots=1, nu=0.595
+  sweep theta_g=2.00: n_roots=1, nu=0.735
+  sweep theta_g=2.50: n_roots=1, nu=0.848
+  scale=4%: nu=0.494 (reval -0.061, damage 0.555), dlnP=-11.95%
 
   [saved] PFig20_robustness
   [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\robustness_summary.txt
 
-Elapsed: 900.9 s
+Elapsed: 1014.8 s

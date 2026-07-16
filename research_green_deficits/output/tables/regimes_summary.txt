@@ -1,6 +1,6 @@
 FINANCING REGIMES (U4): medium damages, calibrated scale
-beta*=0.9267 Gg=0.01818 baseline P0=0.9051
-R1-DEFICIT             P*=0.8590 D=0.0465 tau_ls=+0.0440 vth=0.0000 nu=0.581 (rev -0.055 dam 0.636) lam_b50=-2.16% lam_t10=-1.02%
-R2-PROP-LEVY           P*=0.9306 D=0.0475 tau_ls=+0.0211 vth=0.0205 nu=0.672 (rev +0.030 dam 0.642) lam_b50=-0.36% lam_t10=-0.52%
-R3-PROP-LEVY-REBATE    P*=0.9986 D=0.0482 tau_ls=+0.0014 vth=0.0383 nu=0.758 (rev +0.111 dam 0.647) lam_b50=+1.13% lam_t10=-0.12%
-R4-MIXED-DEFICIT-LEVY  P*=0.8957 D=0.0470 tau_ls=+0.0320 vth=0.0107 nu=0.628 (rev -0.011 dam 0.639) lam_b50=-1.21% lam_t10=-0.76%
+beta*=0.9267 Gg=0.01818 baseline P0=0.9033
+R1-DEFICIT             P*=0.8553 D=0.0465 tau_ls=+0.0442 vth=0.0000 nu=0.578 (rev -0.057 dam 0.636) lam_b50=-2.17% lam_t10=-1.03%
+R2-PROP-LEVY           P*=0.9288 D=0.0474 tau_ls=+0.0211 vth=0.0206 nu=0.672 (rev +0.030 dam 0.642) lam_b50=-0.36% lam_t10=-0.52%
+R3-PROP-LEVY-REBATE    P*=0.9973 D=0.0482 tau_ls=+0.0014 vth=0.0383 nu=0.759 (rev +0.112 dam 0.647) lam_b50=+1.13% lam_t10=-0.12%
+R4-MIXED-DEFICIT-LEVY  P*=0.8928 D=0.0470 tau_ls=+0.0321 vth=0.0107 nu=0.626 (rev -0.012 dam 0.639) lam_b50=-1.22% lam_t10=-0.76%

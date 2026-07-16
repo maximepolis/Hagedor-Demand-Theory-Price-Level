@@ -1,0 +1,20 @@
+CLIMATE-DISCIPLINE SENSITIVITY (M7).  D0=0.06, Gg=0.01818, na=500
+Kg = g/delta_g;  D = D0*exp(-theta_g*Kg).  nu_damage is the BCR.
+
+RESOURCE BCR (nu_damage) over (delta_g rows, theta_g cols):
+  delta_g \ theta_g  0.50  0.75  1.00  1.25  1.50  1.75  2.00  2.25  2.50  2.75  3.00
+    0.050          0.54  0.77  0.98  1.17  1.33  1.49  1.62  1.75  1.86  1.96  2.06
+    0.075          0.37  0.54  0.70  0.84  0.98  1.11  1.22  1.33  1.44  1.53  1.62
+    0.100          0.28  0.42  0.54  0.66  0.77  0.88  0.98  1.07  1.17  1.25  1.33
+    0.150          0.19  0.28  0.37  0.46  0.54  0.62  0.70  0.77  0.84  0.91  0.98
+
+THETA_G THRESHOLD where BCR crosses 1 (aggregate resources rise):
+  delta_g=0.050:  theta_g* = 1.03
+  delta_g=0.075:  theta_g* = 1.54
+  delta_g=0.100:  theta_g* = 2.06
+  delta_g=0.150:  BCR<1 on the whole theta grid
+
+Reading: the BCR depends on abatement only through theta_g/delta_g,
+so a faster-depreciating green stock (higher delta_g) needs a
+proportionally larger theta_g to clear one. The benchmark delta_g=0.10
+is the conservative middle of the reported range.

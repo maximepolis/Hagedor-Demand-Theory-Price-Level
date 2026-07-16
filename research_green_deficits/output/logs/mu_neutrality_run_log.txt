@@ -1,0 +1,484 @@
+==============================================================
+ MU-NEUTRALITY VERIFICATION (Theorem 2), na=500
+==============================================================
+loaded calibrated beta*=0.9267
+
+----- SCAN A: i^ss=0.040 fixed, mu varies (r^ss moves) -----
+  [S(tau,D) interpolant at r=+0.0400: 6 x 3 nodes]
+    node (tau=-0.020, D=0.000): S=  1.9362
+    node (tau=+0.004, D=0.000): S=  2.0309
+    node (tau=+0.028, D=0.000): S=  2.1331
+    node (tau=+0.052, D=0.000): S=  2.2439
+    node (tau=+0.076, D=0.000): S=  2.3645
+    node (tau=+0.100, D=0.000): S=  2.4967
+    node (tau=-0.020, D=0.030): S=  1.9526
+    node (tau=+0.004, D=0.030): S=  2.0504
+    node (tau=+0.028, D=0.030): S=  2.1563
+    node (tau=+0.052, D=0.030): S=  2.2714
+    node (tau=+0.076, D=0.030): S=  2.3972
+    node (tau=+0.100, D=0.030): S=  2.5355
+    node (tau=-0.020, D=0.060): S=  1.9652
+    node (tau=+0.004, D=0.060): S=  2.0662
+    node (tau=+0.028, D=0.060): S=  2.1758
+    node (tau=+0.052, D=0.060): S=  2.2955
+    node (tau=+0.076, D=0.060): S=  2.4267
+    node (tau=+0.100, D=0.060): S=  2.5711
+[Warning: nominal regime, theta_g=1.20: NO equilibrium on [0.05, 3]. Phi(0.593)=+0.852 .. Phi(3.000)=+1.801; same-sign finite boundaries indicate
+EXISTENCE failure (demand above/below supply everywhere), not a scan-window artifact.] 
+[> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('solve_green_steady_state', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_green_steady_state.m', 143)" style="font-weight:bold">solve_green_steady_state</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_green_steady_state.m',143,0)">line 143</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('verify_mu_neutrality>local_scan', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_mu_neutrality.m', 195)" style="font-weight:bold">verify_mu_neutrality>local_scan</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_mu_neutrality.m',195,0)">line 195</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('verify_mu_neutrality', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_mu_neutrality.m', 93)" style="font-weight:bold">verify_mu_neutrality</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_mu_neutrality.m',93,0)">line 93</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_green_deficits_master', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m', 131)" style="font-weight:bold">run_green_deficits_master</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m',131,0)">line 131</a>)] 
+  [S(tau,D) interpolant at r=+0.0297: 6 x 3 nodes]
+    node (tau=-0.020, D=0.000): S=  1.3365
+    node (tau=+0.004, D=0.000): S=  1.4104
+    node (tau=+0.028, D=0.000): S=  1.4910
+    node (tau=+0.052, D=0.000): S=  1.5792
+    node (tau=+0.076, D=0.000): S=  1.6763
+    node (tau=+0.100, D=0.000): S=  1.7836
+    node (tau=-0.020, D=0.030): S=  1.3529
+    node (tau=+0.004, D=0.030): S=  1.4296
+    node (tau=+0.028, D=0.030): S=  1.5135
+    node (tau=+0.052, D=0.030): S=  1.6056
+    node (tau=+0.076, D=0.030): S=  1.7073
+    node (tau=+0.100, D=0.030): S=  1.8203
+    node (tau=-0.020, D=0.060): S=  1.3667
+    node (tau=+0.004, D=0.060): S=  1.4462
+    node (tau=+0.028, D=0.060): S=  1.5334
+    node (tau=+0.052, D=0.060): S=  1.6295
+    node (tau=+0.076, D=0.060): S=  1.7360
+    node (tau=+0.100, D=0.060): S=  1.8552
+  [A] mu=0.010  r^ss=+0.0297  i^ss=+0.0400  P*=0.5693  W=-4.5957
+  [S(tau,D) interpolant at r=+0.0196: 6 x 3 nodes]
+    node (tau=-0.020, D=0.000): S=  0.9624
+    node (tau=+0.004, D=0.000): S=  1.0215
+    node (tau=+0.028, D=0.000): S=  1.0864
+    node (tau=+0.052, D=0.000): S=  1.1580
+    node (tau=+0.076, D=0.000): S=  1.2375
+    node (tau=+0.100, D=0.000): S=  1.3262
+    node (tau=-0.020, D=0.030): S=  0.9781
+    node (tau=+0.004, D=0.030): S=  1.0396
+    node (tau=+0.028, D=0.030): S=  1.1074
+    node (tau=+0.052, D=0.030): S=  1.1824
+    node (tau=+0.076, D=0.030): S=  1.2661
+    node (tau=+0.100, D=0.030): S=  1.3600
+    node (tau=-0.020, D=0.060): S=  0.9917
+    node (tau=+0.004, D=0.060): S=  1.0558
+    node (tau=+0.028, D=0.060): S=  1.1265
+    node (tau=+0.052, D=0.060): S=  1.2052
+    node (tau=+0.076, D=0.060): S=  1.2932
+    node (tau=+0.100, D=0.060): S=  1.3926
+  [A] mu=0.020  r^ss=+0.0196  i^ss=+0.0400  P*=0.8548  W=-4.2452
+  [S(tau,D) interpolant at r=+0.0097: 6 x 3 nodes]
+    node (tau=-0.020, D=0.000): S=  0.7125
+    node (tau=+0.004, D=0.000): S=  0.7604
+    node (tau=+0.028, D=0.000): S=  0.8134
+    node (tau=+0.052, D=0.000): S=  0.8722
+    node (tau=+0.076, D=0.000): S=  0.9380
+    node (tau=+0.100, D=0.000): S=  1.0122
+    node (tau=-0.020, D=0.030): S=  0.7270
+    node (tau=+0.004, D=0.030): S=  0.7771
+    node (tau=+0.028, D=0.030): S=  0.8326
+    node (tau=+0.052, D=0.030): S=  0.8946
+    node (tau=+0.076, D=0.030): S=  0.9642
+    node (tau=+0.100, D=0.030): S=  1.0431
+    node (tau=-0.020, D=0.060): S=  0.7401
+    node (tau=+0.004, D=0.060): S=  0.7923
+    node (tau=+0.028, D=0.060): S=  0.8505
+    node (tau=+0.052, D=0.060): S=  0.9157
+    node (tau=+0.076, D=0.060): S=  0.9892
+    node (tau=+0.100, D=0.060): S=  1.0732
+  [A] mu=0.030  r^ss=+0.0097  i^ss=+0.0400  P*=1.2002  W=-4.1114
+  [S(tau,D) interpolant at r=+0.0000: 6 x 3 nodes]
+    node (tau=-0.020, D=0.000): S=  0.5377
+    node (tau=+0.004, D=0.000): S=  0.5767
+    node (tau=+0.028, D=0.000): S=  0.6203
+    node (tau=+0.052, D=0.000): S=  0.6691
+    node (tau=+0.076, D=0.000): S=  0.7241
+    node (tau=+0.100, D=0.000): S=  0.7865
+    node (tau=-0.020, D=0.030): S=  0.5510
+    node (tau=+0.004, D=0.030): S=  0.5919
+    node (tau=+0.028, D=0.030): S=  0.6379
+    node (tau=+0.052, D=0.030): S=  0.6894
+    node (tau=+0.076, D=0.030): S=  0.7478
+    node (tau=+0.100, D=0.030): S=  0.8145
+    node (tau=-0.020, D=0.060): S=  0.5630
+    node (tau=+0.004, D=0.060): S=  0.6060
+    node (tau=+0.028, D=0.060): S=  0.6543
+    node (tau=+0.052, D=0.060): S=  0.7088
+    node (tau=+0.076, D=0.060): S=  0.7708
+    node (tau=+0.100, D=0.060): S=  0.8422
+  [A] mu=0.040  r^ss=+0.0000  i^ss=+0.0400  P*=1.6212  W=-4.0648
+  [S(tau,D) interpolant at r=-0.0095: 6 x 3 nodes]
+    node (tau=-0.020, D=0.000): S=  0.4109
+    node (tau=+0.004, D=0.000): S=  0.4434
+    node (tau=+0.028, D=0.000): S=  0.4795
+    node (tau=+0.052, D=0.000): S= 59.5738
+    node (tau=+0.076, D=0.000): S=  0.5661
+    node (tau=+0.100, D=0.000): S=  0.6189
+    node (tau=-0.020, D=0.030): S=  0.4230
+    node (tau=+0.004, D=0.030): S=  0.4572
+    node (tau=+0.028, D=0.030): S= 59.5862
+    node (tau=+0.052, D=0.030): S=  0.5383
+    node (tau=+0.076, D=0.030): S=  0.5875
+    node (tau=+0.100, D=0.030): S=  0.6442
+    node (tau=-0.020, D=0.060): S=  0.4343
+    node (tau=+0.004, D=0.060): S= 59.6006
+    node (tau=+0.028, D=0.060): S=  0.5102
+    node (tau=+0.052, D=0.060): S=  0.5560
+    node (tau=+0.076, D=0.060): S=  0.6084
+    node (tau=+0.100, D=0.060): S=  0.6694
+  [A] mu=0.050  r^ss=-0.0095  i^ss=+0.0400  P*=0.1214  W=-4.9800
+  [S(tau,D) interpolant at r=-0.0189: 6 x 3 nodes]
+    node (tau=-0.020, D=0.000): S=  0.3183
+    node (tau=+0.004, D=0.000): S=  0.3442
+    node (tau=+0.028, D=0.000): S=  0.3739
+    node (tau=+0.052, D=0.000): S=  0.4080
+    node (tau=+0.076, D=0.000): S=  0.4466
+    node (tau=+0.100, D=0.000): S=  0.4913
+    node (tau=-0.020, D=0.030): S=  0.3288
+    node (tau=+0.004, D=0.030): S=  0.3562
+    node (tau=+0.028, D=0.030): S=  0.3882
+    node (tau=+0.052, D=0.030): S=  0.4244
+    node (tau=+0.076, D=0.030): S=  0.4658
+    node (tau=+0.100, D=0.030): S=  0.5141
+    node (tau=-0.020, D=0.060): S=  0.3387
+    node (tau=+0.004, D=0.060): S=  0.3679
+    node (tau=+0.028, D=0.060): S=  0.4019
+    node (tau=+0.052, D=0.060): S=  0.4402
+    node (tau=+0.076, D=0.060): S=  0.4848
+    node (tau=+0.100, D=0.060): S=  0.5369
+  [A] mu=0.060  r^ss=-0.0189  i^ss=+0.0400  P*=2.7701  W=-4.0750
+  [S(tau,D) interpolant at r=-0.0280: 6 x 3 nodes]
+    node (tau=-0.020, D=0.000): S=  0.2483
+    node (tau=+0.004, D=0.000): S=  0.2698
+    node (tau=+0.028, D=0.000): S=  0.2941
+    node (tau=+0.052, D=0.000): S=  0.3218
+    node (tau=+0.076, D=0.000): S=  0.3548
+    node (tau=+0.100, D=0.000): S=  0.3925
+    node (tau=-0.020, D=0.030): S=  0.2577
+    node (tau=+0.004, D=0.030): S=  0.2806
+    node (tau=+0.028, D=0.030): S=  0.3064
+    node (tau=+0.052, D=0.030): S=  0.3367
+    node (tau=+0.076, D=0.030): S=  0.3719
+    node (tau=+0.100, D=0.030): S=  0.4129
+    node (tau=-0.020, D=0.060): S=  0.2666
+    node (tau=+0.004, D=0.060): S=  0.2908
+    node (tau=+0.028, D=0.060): S=  0.3184
+    node (tau=+0.052, D=0.060): S=  0.3512
+    node (tau=+0.076, D=0.060): S=  0.3889
+    node (tau=+0.100, D=0.060): S=  0.4335
+[Warning: nominal regime, theta_g=1.20: NO equilibrium on [0.05, 3]. Phi(0.494)=-1.763 .. Phi(3.000)=-0.051; same-sign finite boundaries indicate
+EXISTENCE failure (demand above/below supply everywhere), not a scan-window artifact.] 
+[> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('solve_green_steady_state', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_green_steady_state.m', 143)" style="font-weight:bold">solve_green_steady_state</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_green_steady_state.m',143,0)">line 143</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('verify_mu_neutrality>local_scan', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_mu_neutrality.m', 195)" style="font-weight:bold">verify_mu_neutrality>local_scan</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_mu_neutrality.m',195,0)">line 195</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('verify_mu_neutrality', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_mu_neutrality.m', 93)" style="font-weight:bold">verify_mu_neutrality</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_mu_neutrality.m',93,0)">line 93</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_green_deficits_master', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m', 131)" style="font-weight:bold">run_green_deficits_master</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m',131,0)">line 131</a>)] 
+  [S(tau,D) interpolant at r=-0.0370: 6 x 3 nodes]
+    node (tau=-0.020, D=0.000): S=  0.1945
+    node (tau=+0.004, D=0.000): S=  0.2125
+    node (tau=+0.028, D=0.000): S=  0.2329
+    node (tau=+0.052, D=0.000): S=  0.2560
+    node (tau=+0.076, D=0.000): S=  0.2827
+    node (tau=+0.100, D=0.000): S=  0.3151
+    node (tau=-0.020, D=0.030): S=  0.2030
+    node (tau=+0.004, D=0.030): S=  0.2221
+    node (tau=+0.028, D=0.030): S=  0.2438
+    node (tau=+0.052, D=0.030): S=  0.2687
+    node (tau=+0.076, D=0.030): S=  0.2981
+    node (tau=+0.100, D=0.030): S=  0.3333
+    node (tau=-0.020, D=0.060): S=  0.2110
+    node (tau=+0.004, D=0.060): S=  0.2313
+    node (tau=+0.028, D=0.060): S=  0.2545
+    node (tau=+0.052, D=0.060): S=  0.2813
+    node (tau=+0.076, D=0.060): S=  0.3136
+    node (tau=+0.100, D=0.060): S=  0.3517
+[Warning: nominal regime, theta_g=1.20: NO equilibrium on [0.05, 3]. Phi(0.951)=-0.844 .. Phi(3.000)=-0.112; same-sign finite boundaries indicate
+EXISTENCE failure (demand above/below supply everywhere), not a scan-window artifact.] 
+[> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('solve_green_steady_state', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_green_steady_state.m', 143)" style="font-weight:bold">solve_green_steady_state</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_green_steady_state.m',143,0)">line 143</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('verify_mu_neutrality>local_scan', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_mu_neutrality.m', 195)" style="font-weight:bold">verify_mu_neutrality>local_scan</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_mu_neutrality.m',195,0)">line 195</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('verify_mu_neutrality', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_mu_neutrality.m', 93)" style="font-weight:bold">verify_mu_neutrality</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_mu_neutrality.m',93,0)">line 93</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_green_deficits_master', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m', 131)" style="font-weight:bold">run_green_deficits_master</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m',131,0)">line 131</a>)] 
+  [S(tau,D) interpolant at r=-0.0459: 6 x 3 nodes]
+    node (tau=-0.020, D=0.000): S=  0.1529
+    node (tau=+0.004, D=0.000): S=  0.1679
+    node (tau=+0.028, D=0.000): S=  0.1849
+    node (tau=+0.052, D=0.000): S=  0.2044
+    node (tau=+0.076, D=0.000): S=  0.2269
+    node (tau=+0.100, D=0.000): S=  0.2533
+    node (tau=-0.020, D=0.030): S=  0.1603
+    node (tau=+0.004, D=0.030): S=  0.1764
+    node (tau=+0.028, D=0.030): S=  0.1947
+    node (tau=+0.052, D=0.030): S=  0.2157
+    node (tau=+0.076, D=0.030): S=  0.2401
+    node (tau=+0.100, D=0.030): S=  0.2696
+    node (tau=-0.020, D=0.060): S=  0.1675
+    node (tau=+0.004, D=0.060): S=  0.1846
+    node (tau=+0.028, D=0.060): S=  0.2043
+    node (tau=+0.052, D=0.060): S=  0.2269
+    node (tau=+0.076, D=0.060): S=  0.2534
+    node (tau=+0.100, D=0.060): S=  0.2863
+[Warning: nominal regime, theta_g=1.20: NO equilibrium on [0.05, 3]. Phi(1.395)=-0.551 .. Phi(3.000)=-0.159; same-sign finite boundaries indicate
+EXISTENCE failure (demand above/below supply everywhere), not a scan-window artifact.] 
+[> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('solve_green_steady_state', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_green_steady_state.m', 143)" style="font-weight:bold">solve_green_steady_state</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_green_steady_state.m',143,0)">line 143</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('verify_mu_neutrality>local_scan', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_mu_neutrality.m', 195)" style="font-weight:bold">verify_mu_neutrality>local_scan</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_mu_neutrality.m',195,0)">line 195</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('verify_mu_neutrality', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_mu_neutrality.m', 93)" style="font-weight:bold">verify_mu_neutrality</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_mu_neutrality.m',93,0)">line 93</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_green_deficits_master', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m', 131)" style="font-weight:bold">run_green_deficits_master</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m',131,0)">line 131</a>)] 
+  [S(tau,D) interpolant at r=-0.0545: 6 x 3 nodes]
+    node (tau=-0.020, D=0.000): S=  0.1202
+    node (tau=+0.004, D=0.000): S=  0.1327
+    node (tau=+0.028, D=0.000): S=  0.1470
+    node (tau=+0.052, D=0.000): S=  0.1634
+    node (tau=+0.076, D=0.000): S=  0.1825
+    node (tau=+0.100, D=0.000): S=  0.2048
+    node (tau=-0.020, D=0.030): S=  0.1268
+    node (tau=+0.004, D=0.030): S=  0.1403
+    node (tau=+0.028, D=0.030): S=  0.1557
+    node (tau=+0.052, D=0.030): S=  0.1734
+    node (tau=+0.076, D=0.030): S=  0.1942
+    node (tau=+0.100, D=0.030): S=  0.2188
+    node (tau=-0.020, D=0.060): S=  0.1333
+    node (tau=+0.004, D=0.060): S=  0.1477
+    node (tau=+0.028, D=0.060): S=  0.1642
+    node (tau=+0.052, D=0.060): S=  0.1835
+    node (tau=+0.076, D=0.060): S=  0.2061
+    node (tau=+0.100, D=0.060): S=  0.2332
+[Warning: nominal regime, theta_g=1.20: NO equilibrium on [0.05, 3]. Phi(1.827)=-0.415 .. Phi(3.000)=-0.196; same-sign finite boundaries indicate
+EXISTENCE failure (demand above/below supply everywhere), not a scan-window artifact.] 
+[> In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('solve_green_steady_state', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_green_steady_state.m', 143)" style="font-weight:bold">solve_green_steady_state</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_green_steady_state.m',143,0)">line 143</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('verify_mu_neutrality>local_scan', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_mu_neutrality.m', 195)" style="font-weight:bold">verify_mu_neutrality>local_scan</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_mu_neutrality.m',195,0)">line 195</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('verify_mu_neutrality', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_mu_neutrality.m', 93)" style="font-weight:bold">verify_mu_neutrality</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\verify_mu_neutrality.m',93,0)">line 93</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_green_deficits_master', 'C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m', 131)" style="font-weight:bold">run_green_deficits_master</a> (<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\run_green_deficits_master.m',131,0)">line 131</a>)] 
+
+----- SCAN B: r^ss=0.0196 fixed, mu varies (i^ss compensates) -----
+  [S(tau,D) interpolant at r=+0.0196: 6 x 3 nodes]
+    node (tau=-0.020, D=0.000): S=  0.9624
+    node (tau=+0.004, D=0.000): S=  1.0215
+    node (tau=+0.028, D=0.000): S=  1.0864
+    node (tau=+0.052, D=0.000): S=  1.1580
+    node (tau=+0.076, D=0.000): S=  1.2375
+    node (tau=+0.100, D=0.000): S=  1.3262
+    node (tau=-0.020, D=0.030): S=  0.9781
+    node (tau=+0.004, D=0.030): S=  1.0396
+    node (tau=+0.028, D=0.030): S=  1.1074
+    node (tau=+0.052, D=0.030): S=  1.1824
+    node (tau=+0.076, D=0.030): S=  1.2661
+    node (tau=+0.100, D=0.030): S=  1.3600
+    node (tau=-0.020, D=0.060): S=  0.9917
+    node (tau=+0.004, D=0.060): S=  1.0558
+    node (tau=+0.028, D=0.060): S=  1.1265
+    node (tau=+0.052, D=0.060): S=  1.2052
+    node (tau=+0.076, D=0.060): S=  1.2932
+    node (tau=+0.100, D=0.060): S=  1.3926
+  [B] mu=0.000  r^ss=+0.0196  i^ss=+0.0196  P*=0.8548  W=-4.2452
+  [S(tau,D) interpolant at r=+0.0196: 6 x 3 nodes]
+    node (tau=-0.020, D=0.000): S=  0.9624
+    node (tau=+0.004, D=0.000): S=  1.0215
+    node (tau=+0.028, D=0.000): S=  1.0864
+    node (tau=+0.052, D=0.000): S=  1.1580
+    node (tau=+0.076, D=0.000): S=  1.2375
+    node (tau=+0.100, D=0.000): S=  1.3262
+    node (tau=-0.020, D=0.030): S=  0.9781
+    node (tau=+0.004, D=0.030): S=  1.0396
+    node (tau=+0.028, D=0.030): S=  1.1074
+    node (tau=+0.052, D=0.030): S=  1.1824
+    node (tau=+0.076, D=0.030): S=  1.2661
+    node (tau=+0.100, D=0.030): S=  1.3600
+    node (tau=-0.020, D=0.060): S=  0.9917
+    node (tau=+0.004, D=0.060): S=  1.0558
+    node (tau=+0.028, D=0.060): S=  1.1265
+    node (tau=+0.052, D=0.060): S=  1.2052
+    node (tau=+0.076, D=0.060): S=  1.2932
+    node (tau=+0.100, D=0.060): S=  1.3926
+  [B] mu=0.010  r^ss=+0.0196  i^ss=+0.0298  P*=0.8548  W=-4.2452
+  [S(tau,D) interpolant at r=+0.0196: 6 x 3 nodes]
+    node (tau=-0.020, D=0.000): S=  0.9624
+    node (tau=+0.004, D=0.000): S=  1.0215
+    node (tau=+0.028, D=0.000): S=  1.0864
+    node (tau=+0.052, D=0.000): S=  1.1580
+    node (tau=+0.076, D=0.000): S=  1.2375
+    node (tau=+0.100, D=0.000): S=  1.3262
+    node (tau=-0.020, D=0.030): S=  0.9781
+    node (tau=+0.004, D=0.030): S=  1.0396
+    node (tau=+0.028, D=0.030): S=  1.1074
+    node (tau=+0.052, D=0.030): S=  1.1824
+    node (tau=+0.076, D=0.030): S=  1.2661
+    node (tau=+0.100, D=0.030): S=  1.3600
+    node (tau=-0.020, D=0.060): S=  0.9917
+    node (tau=+0.004, D=0.060): S=  1.0558
+    node (tau=+0.028, D=0.060): S=  1.1265
+    node (tau=+0.052, D=0.060): S=  1.2052
+    node (tau=+0.076, D=0.060): S=  1.2932
+    node (tau=+0.100, D=0.060): S=  1.3926
+  [B] mu=0.020  r^ss=+0.0196  i^ss=+0.0400  P*=0.8548  W=-4.2452
+  [S(tau,D) interpolant at r=+0.0196: 6 x 3 nodes]
+    node (tau=-0.020, D=0.000): S=  0.9624
+    node (tau=+0.004, D=0.000): S=  1.0215
+    node (tau=+0.028, D=0.000): S=  1.0864
+    node (tau=+0.052, D=0.000): S=  1.1580
+    node (tau=+0.076, D=0.000): S=  1.2375
+    node (tau=+0.100, D=0.000): S=  1.3262
+    node (tau=-0.020, D=0.030): S=  0.9781
+    node (tau=+0.004, D=0.030): S=  1.0396
+    node (tau=+0.028, D=0.030): S=  1.1074
+    node (tau=+0.052, D=0.030): S=  1.1824
+    node (tau=+0.076, D=0.030): S=  1.2661
+    node (tau=+0.100, D=0.030): S=  1.3600
+    node (tau=-0.020, D=0.060): S=  0.9917
+    node (tau=+0.004, D=0.060): S=  1.0558
+    node (tau=+0.028, D=0.060): S=  1.1265
+    node (tau=+0.052, D=0.060): S=  1.2052
+    node (tau=+0.076, D=0.060): S=  1.2932
+    node (tau=+0.100, D=0.060): S=  1.3926
+  [B] mu=0.030  r^ss=+0.0196  i^ss=+0.0502  P*=0.8548  W=-4.2452
+  [S(tau,D) interpolant at r=+0.0196: 6 x 3 nodes]
+    node (tau=-0.020, D=0.000): S=  0.9624
+    node (tau=+0.004, D=0.000): S=  1.0215
+    node (tau=+0.028, D=0.000): S=  1.0864
+    node (tau=+0.052, D=0.000): S=  1.1580
+    node (tau=+0.076, D=0.000): S=  1.2375
+    node (tau=+0.100, D=0.000): S=  1.3262
+    node (tau=-0.020, D=0.030): S=  0.9781
+    node (tau=+0.004, D=0.030): S=  1.0396
+    node (tau=+0.028, D=0.030): S=  1.1074
+    node (tau=+0.052, D=0.030): S=  1.1824
+    node (tau=+0.076, D=0.030): S=  1.2661
+    node (tau=+0.100, D=0.030): S=  1.3600
+    node (tau=-0.020, D=0.060): S=  0.9917
+    node (tau=+0.004, D=0.060): S=  1.0558
+    node (tau=+0.028, D=0.060): S=  1.1265
+    node (tau=+0.052, D=0.060): S=  1.2052
+    node (tau=+0.076, D=0.060): S=  1.2932
+    node (tau=+0.100, D=0.060): S=  1.3926
+  [B] mu=0.040  r^ss=+0.0196  i^ss=+0.0604  P*=0.8548  W=-4.2452
+  [S(tau,D) interpolant at r=+0.0196: 6 x 3 nodes]
+    node (tau=-0.020, D=0.000): S=  0.9624
+    node (tau=+0.004, D=0.000): S=  1.0215
+    node (tau=+0.028, D=0.000): S=  1.0864
+    node (tau=+0.052, D=0.000): S=  1.1580
+    node (tau=+0.076, D=0.000): S=  1.2375
+    node (tau=+0.100, D=0.000): S=  1.3262
+    node (tau=-0.020, D=0.030): S=  0.9781
+    node (tau=+0.004, D=0.030): S=  1.0396
+    node (tau=+0.028, D=0.030): S=  1.1074
+    node (tau=+0.052, D=0.030): S=  1.1824
+    node (tau=+0.076, D=0.030): S=  1.2661
+    node (tau=+0.100, D=0.030): S=  1.3600
+    node (tau=-0.020, D=0.060): S=  0.9917
+    node (tau=+0.004, D=0.060): S=  1.0558
+    node (tau=+0.028, D=0.060): S=  1.1265
+    node (tau=+0.052, D=0.060): S=  1.2052
+    node (tau=+0.076, D=0.060): S=  1.2932
+    node (tau=+0.100, D=0.060): S=  1.3926
+  [B] mu=0.050  r^ss=+0.0196  i^ss=+0.0706  P*=0.8548  W=-4.2452
+  [S(tau,D) interpolant at r=+0.0196: 6 x 3 nodes]
+    node (tau=-0.020, D=0.000): S=  0.9624
+    node (tau=+0.004, D=0.000): S=  1.0215
+    node (tau=+0.028, D=0.000): S=  1.0864
+    node (tau=+0.052, D=0.000): S=  1.1580
+    node (tau=+0.076, D=0.000): S=  1.2375
+    node (tau=+0.100, D=0.000): S=  1.3262
+    node (tau=-0.020, D=0.030): S=  0.9781
+    node (tau=+0.004, D=0.030): S=  1.0396
+    node (tau=+0.028, D=0.030): S=  1.1074
+    node (tau=+0.052, D=0.030): S=  1.1824
+    node (tau=+0.076, D=0.030): S=  1.2661
+    node (tau=+0.100, D=0.030): S=  1.3600
+    node (tau=-0.020, D=0.060): S=  0.9917
+    node (tau=+0.004, D=0.060): S=  1.0558
+    node (tau=+0.028, D=0.060): S=  1.1265
+    node (tau=+0.052, D=0.060): S=  1.2052
+    node (tau=+0.076, D=0.060): S=  1.2932
+    node (tau=+0.100, D=0.060): S=  1.3926
+  [B] mu=0.060  r^ss=+0.0196  i^ss=+0.0808  P*=0.8548  W=-4.2452
+  [S(tau,D) interpolant at r=+0.0196: 6 x 3 nodes]
+    node (tau=-0.020, D=0.000): S=  0.9624
+    node (tau=+0.004, D=0.000): S=  1.0215
+    node (tau=+0.028, D=0.000): S=  1.0864
+    node (tau=+0.052, D=0.000): S=  1.1580
+    node (tau=+0.076, D=0.000): S=  1.2375
+    node (tau=+0.100, D=0.000): S=  1.3262
+    node (tau=-0.020, D=0.030): S=  0.9781
+    node (tau=+0.004, D=0.030): S=  1.0396
+    node (tau=+0.028, D=0.030): S=  1.1074
+    node (tau=+0.052, D=0.030): S=  1.1824
+    node (tau=+0.076, D=0.030): S=  1.2661
+    node (tau=+0.100, D=0.030): S=  1.3600
+    node (tau=-0.020, D=0.060): S=  0.9917
+    node (tau=+0.004, D=0.060): S=  1.0558
+    node (tau=+0.028, D=0.060): S=  1.1265
+    node (tau=+0.052, D=0.060): S=  1.2052
+    node (tau=+0.076, D=0.060): S=  1.2932
+    node (tau=+0.100, D=0.060): S=  1.3926
+  [B] mu=0.070  r^ss=+0.0196  i^ss=+0.0910  P*=0.8548  W=-4.2452
+  [S(tau,D) interpolant at r=+0.0196: 6 x 3 nodes]
+    node (tau=-0.020, D=0.000): S=  0.9624
+    node (tau=+0.004, D=0.000): S=  1.0215
+    node (tau=+0.028, D=0.000): S=  1.0864
+    node (tau=+0.052, D=0.000): S=  1.1580
+    node (tau=+0.076, D=0.000): S=  1.2375
+    node (tau=+0.100, D=0.000): S=  1.3262
+    node (tau=-0.020, D=0.030): S=  0.9781
+    node (tau=+0.004, D=0.030): S=  1.0396
+    node (tau=+0.028, D=0.030): S=  1.1074
+    node (tau=+0.052, D=0.030): S=  1.1824
+    node (tau=+0.076, D=0.030): S=  1.2661
+    node (tau=+0.100, D=0.030): S=  1.3600
+    node (tau=-0.020, D=0.060): S=  0.9917
+    node (tau=+0.004, D=0.060): S=  1.0558
+    node (tau=+0.028, D=0.060): S=  1.1265
+    node (tau=+0.052, D=0.060): S=  1.2052
+    node (tau=+0.076, D=0.060): S=  1.2932
+    node (tau=+0.100, D=0.060): S=  1.3926
+  [B] mu=0.080  r^ss=+0.0196  i^ss=+0.1012  P*=0.8548  W=-4.2452
+  [S(tau,D) interpolant at r=+0.0196: 6 x 3 nodes]
+    node (tau=-0.020, D=0.000): S=  0.9624
+    node (tau=+0.004, D=0.000): S=  1.0215
+    node (tau=+0.028, D=0.000): S=  1.0864
+    node (tau=+0.052, D=0.000): S=  1.1580
+    node (tau=+0.076, D=0.000): S=  1.2375
+    node (tau=+0.100, D=0.000): S=  1.3262
+    node (tau=-0.020, D=0.030): S=  0.9781
+    node (tau=+0.004, D=0.030): S=  1.0396
+    node (tau=+0.028, D=0.030): S=  1.1074
+    node (tau=+0.052, D=0.030): S=  1.1824
+    node (tau=+0.076, D=0.030): S=  1.2661
+    node (tau=+0.100, D=0.030): S=  1.3600
+    node (tau=-0.020, D=0.060): S=  0.9917
+    node (tau=+0.004, D=0.060): S=  1.0558
+    node (tau=+0.028, D=0.060): S=  1.1265
+    node (tau=+0.052, D=0.060): S=  1.2052
+    node (tau=+0.076, D=0.060): S=  1.2932
+    node (tau=+0.100, D=0.060): S=  1.3926
+  [B] mu=0.090  r^ss=+0.0196  i^ss=+0.1114  P*=0.8548  W=-4.2452
+  [S(tau,D) interpolant at r=+0.0196: 6 x 3 nodes]
+    node (tau=-0.020, D=0.000): S=  0.9624
+    node (tau=+0.004, D=0.000): S=  1.0215
+    node (tau=+0.028, D=0.000): S=  1.0864
+    node (tau=+0.052, D=0.000): S=  1.1580
+    node (tau=+0.076, D=0.000): S=  1.2375
+    node (tau=+0.100, D=0.000): S=  1.3262
+    node (tau=-0.020, D=0.030): S=  0.9781
+    node (tau=+0.004, D=0.030): S=  1.0396
+    node (tau=+0.028, D=0.030): S=  1.1074
+    node (tau=+0.052, D=0.030): S=  1.1824
+    node (tau=+0.076, D=0.030): S=  1.2661
+    node (tau=+0.100, D=0.030): S=  1.3600
+    node (tau=-0.020, D=0.060): S=  0.9917
+    node (tau=+0.004, D=0.060): S=  1.0558
+    node (tau=+0.028, D=0.060): S=  1.1265
+    node (tau=+0.052, D=0.060): S=  1.2052
+    node (tau=+0.076, D=0.060): S=  1.2932
+    node (tau=+0.100, D=0.060): S=  1.3926
+  [B] mu=0.100  r^ss=+0.0196  i^ss=+0.1216  P*=0.8548  W=-4.2452
+
+================ VERDICT ================
+SCAN B (r^ss fixed): P* spread across mu grid = 0.000e+00
+SCAN B (r^ss fixed): W  spread across mu grid = 0.000e+00
+  => PASS: at fixed r^ss, mu does not enter the equilibrium.
+SCAN A: W is a single-valued monotone function of r^ss: CHECK
+=========================================
+  [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\mu_neutrality.txt
+  [saved] PFig_muneutral
+
+Elapsed: 89.2 s
