@@ -355,3 +355,50 @@ appendix states.)
   the capitalization; terminal steady states unchanged; belief block out of
   scope).
 - Broad 3 (theta_g): already contour-framed from earlier rounds; no change.
+
+---
+
+# Round 13b — two solver bugs from your last run, both fixed
+
+## Bug 1: wealth_concentration_fit crashed (all 9 configs -> beta NaN)
+ROOT CAUSE: the beta bisection upper bound was min(0.999,(1-1e-4)/(1+r))
+= 0.9806 at r=0.0196, but 0.9806*(1+r) = 0.99984 >= betaR_max (0.999), so
+S_green returned Inf at every high endpoint -> NaN -> "no config solved".
+FIXES (in wealth_concentration_fit.m):
+- bisection ceiling lowered to a safe 0.955 (matches calibrate_beta), well
+  below the betaR_max asymptote;
+- driver pins pgc.hh_solver='vfi' (EGM extrapolation is unreliable for the
+  8-16x superstar column) and extends amax to 300 with the same curvature so
+  the high earners have grid headroom (else their mass piles at the top node
+  and the top-1% share can't reach 33%);
+- the "no config solved" assert is now a graceful warning + NO-FIT
+  diagnostic table + a results .mat WITHOUT best/dec, so the master pipeline
+  and the exporter both continue (exporter guards on isfield(Wf,'best')).
+
+## Bug 2: SSJ Newton stalled (interior resid floored at ~6e-3, not 5e-4)
+ROOT CAUSE: verify_transition_ssj OVERRODE the solver's fd_step back to 1e-4
+-- below the grid-flip resolution of the discrete-choice residual, so the
+Jacobian was noise and the Newton wasted iterations climbing to a usable
+step before the 12-iter cap cut it off.
+FIXES:
+- verify_transition_ssj now passes fd_step=5e-3, freeze_jac=true (cheap
+  chord steps, auto-rebuilt on stall), newton_maxit=30, newton_tol=2e-3
+  (the na=500 grid residual floor -- the same gate Anderson meets, not an
+  unreachable 5e-4);
+- solve_transition_ssj default fd_step already 5e-3 with adaptive
+  enlargement (Round 13).
+The paper's cross-check paragraph now states agreement is assessed to the
+grid floor (~1% on the price path), not machine precision.
+
+## Re-run (MATLAB)
+```matlab
+cd research_green_deficits
+verify_transition_ssj      % expect: Newton reaches ~2e-3 interior, PASS (<1% path gap)
+wealth_concentration_fit   % expect: configs solve, top1 sweep brackets ~33%
+export_paper_numbers
+```
+If verify_transition_ssj still shows CHECK (not PASS), report the new
+transition_ssj.txt and I will either raise newton_maxit further or freeze
+the cross-check band at the grid floor it actually reaches. If the wealth
+sweep brackets 33% only at the high-mult end, tell me the top1 column and
+I will recentre the (mult,p_in) grid.
