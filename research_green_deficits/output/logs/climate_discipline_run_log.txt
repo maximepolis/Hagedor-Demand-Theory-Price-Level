@@ -1,0 +1,558 @@
+==============================================================
+ CLIMATE-DISCIPLINE SENSITIVITY (M7): nu over (theta_g, delta_g)
+==============================================================
+  [S(tau,D) interpolant at r=+0.0196: 6 x 3 nodes]
+    node (tau=-0.020, D=0.000): S=  0.9624
+    node (tau=+0.004, D=0.000): S=  1.0215
+    node (tau=+0.028, D=0.000): S=  1.0864
+    node (tau=+0.052, D=0.000): S=  1.1580
+    node (tau=+0.076, D=0.000): S=  1.2375
+    node (tau=+0.100, D=0.000): S=  1.3262
+    node (tau=-0.020, D=0.030): S=  0.9781
+    node (tau=+0.004, D=0.030): S=  1.0396
+    node (tau=+0.028, D=0.030): S=  1.1074
+    node (tau=+0.052, D=0.030): S=  1.1824
+    node (tau=+0.076, D=0.030): S=  1.2661
+    node (tau=+0.100, D=0.030): S=  1.3600
+    node (tau=-0.020, D=0.060): S=  0.9917
+    node (tau=+0.004, D=0.060): S=  1.0558
+    node (tau=+0.028, D=0.060): S=  1.1265
+    node (tau=+0.052, D=0.060): S=  1.2052
+    node (tau=+0.076, D=0.060): S=  1.2932
+    node (tau=+0.100, D=0.060): S=  1.3926
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8536, D1=0.0485, tau1=0.0443, g_g=0.0213, W1=-4.2915
+  nu = 0.482  (revaluation -0.059 + damage dividend 0.540)  => partially self-financing
+  one-time bondholder levy L = -0.0636;  identity resid = 0.00e+00
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.482
+  sweep theta_g=1.00: n_roots=1, nu=0.926
+  sweep theta_g=1.50: n_roots=1, nu=1.288
+  sweep theta_g=2.00: n_roots=1, nu=1.583
+  sweep theta_g=2.50: n_roots=1, nu=1.823
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8565, D1=0.0436, tau1=0.0441, g_g=0.0212, W1=-4.1798
+  nu = 0.716  (revaluation -0.055 + damage dividend 0.771)  => partially self-financing
+  one-time bondholder levy L = -0.0596;  identity resid = -6.94e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.482
+  sweep theta_g=1.00: n_roots=1, nu=0.926
+  sweep theta_g=1.50: n_roots=1, nu=1.288
+  sweep theta_g=2.00: n_roots=1, nu=1.583
+  sweep theta_g=2.50: n_roots=1, nu=1.823
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8591, D1=0.0393, tau1=0.0440, g_g=0.0212, W1=-4.0809
+  nu = 0.926  (revaluation -0.052 + damage dividend 0.978)  => partially self-financing
+  one-time bondholder levy L = -0.0561;  identity resid = -3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.482
+  sweep theta_g=1.00: n_roots=1, nu=0.926
+  sweep theta_g=1.50: n_roots=1, nu=1.288
+  sweep theta_g=2.00: n_roots=1, nu=1.583
+  sweep theta_g=2.50: n_roots=1, nu=1.823
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8614, D1=0.0354, tau1=0.0439, g_g=0.0211, W1=-3.9931
+  nu = 1.116  (revaluation -0.049 + damage dividend 1.166)  => FULLY self-financing
+  one-time bondholder levy L = -0.0529;  identity resid = -6.94e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.482
+  sweep theta_g=1.00: n_roots=1, nu=0.926
+  sweep theta_g=1.50: n_roots=1, nu=1.288
+  sweep theta_g=2.00: n_roots=1, nu=1.583
+  sweep theta_g=2.50: n_roots=1, nu=1.823
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8635, D1=0.0319, tau1=0.0438, g_g=0.0211, W1=-3.9149
+  nu = 1.288  (revaluation -0.047 + damage dividend 1.334)  => FULLY self-financing
+  one-time bondholder levy L = -0.0501;  identity resid = 0.00e+00
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.482
+  sweep theta_g=1.00: n_roots=1, nu=0.926
+  sweep theta_g=1.50: n_roots=1, nu=1.288
+  sweep theta_g=2.00: n_roots=1, nu=1.583
+  sweep theta_g=2.50: n_roots=1, nu=1.823
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8655, D1=0.0288, tau1=0.0437, g_g=0.0210, W1=-3.8452
+  nu = 1.443  (revaluation -0.044 + damage dividend 1.487)  => FULLY self-financing
+  one-time bondholder levy L = -0.0474;  identity resid = -3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.482
+  sweep theta_g=1.00: n_roots=1, nu=0.926
+  sweep theta_g=1.50: n_roots=1, nu=1.288
+  sweep theta_g=2.00: n_roots=1, nu=1.583
+  sweep theta_g=2.50: n_roots=1, nu=1.823
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8673, D1=0.0259, tau1=0.0436, g_g=0.0210, W1=-3.7829
+  nu = 1.583  (revaluation -0.042 + damage dividend 1.625)  => FULLY self-financing
+  one-time bondholder levy L = -0.0450;  identity resid = 0.00e+00
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.482
+  sweep theta_g=1.00: n_roots=1, nu=0.926
+  sweep theta_g=1.50: n_roots=1, nu=1.288
+  sweep theta_g=2.00: n_roots=1, nu=1.583
+  sweep theta_g=2.50: n_roots=1, nu=1.823
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8690, D1=0.0234, tau1=0.0435, g_g=0.0209, W1=-3.7272
+  nu = 1.709  (revaluation -0.040 + damage dividend 1.749)  => FULLY self-financing
+  one-time bondholder levy L = -0.0427;  identity resid = 0.00e+00
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.482
+  sweep theta_g=1.00: n_roots=1, nu=0.926
+  sweep theta_g=1.50: n_roots=1, nu=1.288
+  sweep theta_g=2.00: n_roots=1, nu=1.583
+  sweep theta_g=2.50: n_roots=1, nu=1.823
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8705, D1=0.0211, tau1=0.0434, g_g=0.0209, W1=-3.6773
+  nu = 1.823  (revaluation -0.038 + damage dividend 1.862)  => FULLY self-financing
+  one-time bondholder levy L = -0.0407;  identity resid = -3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.482
+  sweep theta_g=1.00: n_roots=1, nu=0.926
+  sweep theta_g=1.50: n_roots=1, nu=1.288
+  sweep theta_g=2.00: n_roots=1, nu=1.583
+  sweep theta_g=2.50: n_roots=1, nu=1.823
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8719, D1=0.0191, tau1=0.0433, g_g=0.0209, W1=-3.6325
+  nu = 1.927  (revaluation -0.037 + damage dividend 1.963)  => FULLY self-financing
+  one-time bondholder levy L = -0.0389;  identity resid = -3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.482
+  sweep theta_g=1.00: n_roots=1, nu=0.926
+  sweep theta_g=1.50: n_roots=1, nu=1.288
+  sweep theta_g=2.00: n_roots=1, nu=1.583
+  sweep theta_g=2.50: n_roots=1, nu=1.823
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8731, D1=0.0172, tau1=0.0433, g_g=0.0208, W1=-3.5924
+  nu = 2.020  (revaluation -0.035 + damage dividend 2.055)  => FULLY self-financing
+  one-time bondholder levy L = -0.0373;  identity resid = -6.94e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.482
+  sweep theta_g=1.00: n_roots=1, nu=0.926
+  sweep theta_g=1.50: n_roots=1, nu=1.288
+  sweep theta_g=2.00: n_roots=1, nu=1.583
+  sweep theta_g=2.50: n_roots=1, nu=1.823
+  delta_g=0.050 done (nu_dam at theta=0.5 is 0.54 .. at theta=3.0 is 2.06)
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8515, D1=0.0520, tau1=0.0444, g_g=0.0214, W1=-4.3741
+  nu = 0.312  (revaluation -0.061 + damage dividend 0.373)  => partially self-financing
+  one-time bondholder levy L = -0.0665;  identity resid = 0.00e+00
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.312
+  sweep theta_g=1.00: n_roots=1, nu=0.640
+  sweep theta_g=1.50: n_roots=1, nu=0.926
+  sweep theta_g=2.00: n_roots=1, nu=1.176
+  sweep theta_g=2.50: n_roots=1, nu=1.393
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8536, D1=0.0485, tau1=0.0443, g_g=0.0213, W1=-4.2915
+  nu = 0.482  (revaluation -0.059 + damage dividend 0.540)  => partially self-financing
+  one-time bondholder levy L = -0.0636;  identity resid = 0.00e+00
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.312
+  sweep theta_g=1.00: n_roots=1, nu=0.640
+  sweep theta_g=1.50: n_roots=1, nu=0.926
+  sweep theta_g=2.00: n_roots=1, nu=1.176
+  sweep theta_g=2.50: n_roots=1, nu=1.393
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8555, D1=0.0452, tau1=0.0442, g_g=0.0213, W1=-4.2155
+  nu = 0.640  (revaluation -0.056 + damage dividend 0.697)  => partially self-financing
+  one-time bondholder levy L = -0.0609;  identity resid = -3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.312
+  sweep theta_g=1.00: n_roots=1, nu=0.640
+  sweep theta_g=1.50: n_roots=1, nu=0.926
+  sweep theta_g=2.00: n_roots=1, nu=1.176
+  sweep theta_g=2.50: n_roots=1, nu=1.393
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8574, D1=0.0421, tau1=0.0441, g_g=0.0212, W1=-4.1455
+  nu = 0.788  (revaluation -0.054 + damage dividend 0.842)  => partially self-financing
+  one-time bondholder levy L = -0.0584;  identity resid = -6.94e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.312
+  sweep theta_g=1.00: n_roots=1, nu=0.640
+  sweep theta_g=1.50: n_roots=1, nu=0.926
+  sweep theta_g=2.00: n_roots=1, nu=1.176
+  sweep theta_g=2.50: n_roots=1, nu=1.393
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8591, D1=0.0393, tau1=0.0440, g_g=0.0212, W1=-4.0809
+  nu = 0.926  (revaluation -0.052 + damage dividend 0.978)  => partially self-financing
+  one-time bondholder levy L = -0.0561;  identity resid = -3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.312
+  sweep theta_g=1.00: n_roots=1, nu=0.640
+  sweep theta_g=1.50: n_roots=1, nu=0.926
+  sweep theta_g=2.00: n_roots=1, nu=1.176
+  sweep theta_g=2.50: n_roots=1, nu=1.393
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8607, D1=0.0367, tau1=0.0439, g_g=0.0211, W1=-4.0212
+  nu = 1.055  (revaluation -0.050 + damage dividend 1.105)  => FULLY self-financing
+  one-time bondholder levy L = -0.0539;  identity resid = -3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.312
+  sweep theta_g=1.00: n_roots=1, nu=0.640
+  sweep theta_g=1.50: n_roots=1, nu=0.926
+  sweep theta_g=2.00: n_roots=1, nu=1.176
+  sweep theta_g=2.50: n_roots=1, nu=1.393
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8621, D1=0.0342, tau1=0.0438, g_g=0.0211, W1=-3.9660
+  nu = 1.176  (revaluation -0.048 + damage dividend 1.224)  => FULLY self-financing
+  one-time bondholder levy L = -0.0519;  identity resid = -6.94e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.312
+  sweep theta_g=1.00: n_roots=1, nu=0.640
+  sweep theta_g=1.50: n_roots=1, nu=0.926
+  sweep theta_g=2.00: n_roots=1, nu=1.176
+  sweep theta_g=2.50: n_roots=1, nu=1.393
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8635, D1=0.0319, tau1=0.0438, g_g=0.0211, W1=-3.9149
+  nu = 1.288  (revaluation -0.047 + damage dividend 1.334)  => FULLY self-financing
+  one-time bondholder levy L = -0.0501;  identity resid = 0.00e+00
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.312
+  sweep theta_g=1.00: n_roots=1, nu=0.640
+  sweep theta_g=1.50: n_roots=1, nu=0.926
+  sweep theta_g=2.00: n_roots=1, nu=1.176
+  sweep theta_g=2.50: n_roots=1, nu=1.393
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8648, D1=0.0298, tau1=0.0437, g_g=0.0210, W1=-3.8676
+  nu = 1.393  (revaluation -0.045 + damage dividend 1.438)  => FULLY self-financing
+  one-time bondholder levy L = -0.0483;  identity resid = -6.94e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.312
+  sweep theta_g=1.00: n_roots=1, nu=0.640
+  sweep theta_g=1.50: n_roots=1, nu=0.926
+  sweep theta_g=2.00: n_roots=1, nu=1.176
+  sweep theta_g=2.50: n_roots=1, nu=1.393
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8661, D1=0.0278, tau1=0.0436, g_g=0.0210, W1=-3.8237
+  nu = 1.491  (revaluation -0.044 + damage dividend 1.534)  => FULLY self-financing
+  one-time bondholder levy L = -0.0466;  identity resid = -3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.312
+  sweep theta_g=1.00: n_roots=1, nu=0.640
+  sweep theta_g=1.50: n_roots=1, nu=0.926
+  sweep theta_g=2.00: n_roots=1, nu=1.176
+  sweep theta_g=2.50: n_roots=1, nu=1.393
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8673, D1=0.0259, tau1=0.0436, g_g=0.0210, W1=-3.7829
+  nu = 1.583  (revaluation -0.042 + damage dividend 1.625)  => FULLY self-financing
+  one-time bondholder levy L = -0.0450;  identity resid = 0.00e+00
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.312
+  sweep theta_g=1.00: n_roots=1, nu=0.640
+  sweep theta_g=1.50: n_roots=1, nu=0.926
+  sweep theta_g=2.00: n_roots=1, nu=1.176
+  sweep theta_g=2.50: n_roots=1, nu=1.393
+  delta_g=0.075 done (nu_dam at theta=0.5 is 0.37 .. at theta=3.0 is 1.62)
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8503, D1=0.0539, tau1=0.0444, g_g=0.0214, W1=-4.4181
+  nu = 0.222  (revaluation -0.062 + damage dividend 0.285)  => partially self-financing
+  one-time bondholder levy L = -0.0680;  identity resid = -6.94e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.222
+  sweep theta_g=1.00: n_roots=1, nu=0.482
+  sweep theta_g=1.50: n_roots=1, nu=0.716
+  sweep theta_g=2.00: n_roots=1, nu=0.926
+  sweep theta_g=2.50: n_roots=1, nu=1.116
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8520, D1=0.0511, tau1=0.0444, g_g=0.0213, W1=-4.3528
+  nu = 0.355  (revaluation -0.060 + damage dividend 0.416)  => partially self-financing
+  one-time bondholder levy L = -0.0657;  identity resid = -3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.222
+  sweep theta_g=1.00: n_roots=1, nu=0.482
+  sweep theta_g=1.50: n_roots=1, nu=0.716
+  sweep theta_g=2.00: n_roots=1, nu=0.926
+  sweep theta_g=2.50: n_roots=1, nu=1.116
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8536, D1=0.0485, tau1=0.0443, g_g=0.0213, W1=-4.2915
+  nu = 0.482  (revaluation -0.059 + damage dividend 0.540)  => partially self-financing
+  one-time bondholder levy L = -0.0636;  identity resid = 0.00e+00
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.222
+  sweep theta_g=1.00: n_roots=1, nu=0.482
+  sweep theta_g=1.50: n_roots=1, nu=0.716
+  sweep theta_g=2.00: n_roots=1, nu=0.926
+  sweep theta_g=2.50: n_roots=1, nu=1.116
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8551, D1=0.0460, tau1=0.0442, g_g=0.0213, W1=-4.2340
+  nu = 0.602  (revaluation -0.057 + damage dividend 0.659)  => partially self-financing
+  one-time bondholder levy L = -0.0615;  identity resid = -3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.222
+  sweep theta_g=1.00: n_roots=1, nu=0.482
+  sweep theta_g=1.50: n_roots=1, nu=0.716
+  sweep theta_g=2.00: n_roots=1, nu=0.926
+  sweep theta_g=2.50: n_roots=1, nu=1.116
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8565, D1=0.0436, tau1=0.0441, g_g=0.0212, W1=-4.1798
+  nu = 0.716  (revaluation -0.055 + damage dividend 0.771)  => partially self-financing
+  one-time bondholder levy L = -0.0596;  identity resid = -6.94e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.222
+  sweep theta_g=1.00: n_roots=1, nu=0.482
+  sweep theta_g=1.50: n_roots=1, nu=0.716
+  sweep theta_g=2.00: n_roots=1, nu=0.926
+  sweep theta_g=2.50: n_roots=1, nu=1.116
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8578, D1=0.0414, tau1=0.0441, g_g=0.0212, W1=-4.1289
+  nu = 0.824  (revaluation -0.053 + damage dividend 0.877)  => partially self-financing
+  one-time bondholder levy L = -0.0578;  identity resid = 0.00e+00
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.222
+  sweep theta_g=1.00: n_roots=1, nu=0.482
+  sweep theta_g=1.50: n_roots=1, nu=0.716
+  sweep theta_g=2.00: n_roots=1, nu=0.926
+  sweep theta_g=2.50: n_roots=1, nu=1.116
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8591, D1=0.0393, tau1=0.0440, g_g=0.0212, W1=-4.0809
+  nu = 0.926  (revaluation -0.052 + damage dividend 0.978)  => partially self-financing
+  one-time bondholder levy L = -0.0561;  identity resid = -3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.222
+  sweep theta_g=1.00: n_roots=1, nu=0.482
+  sweep theta_g=1.50: n_roots=1, nu=0.716
+  sweep theta_g=2.00: n_roots=1, nu=0.926
+  sweep theta_g=2.50: n_roots=1, nu=1.116
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8603, D1=0.0373, tau1=0.0439, g_g=0.0211, W1=-4.0357
+  nu = 1.024  (revaluation -0.051 + damage dividend 1.074)  => FULLY self-financing
+  one-time bondholder levy L = -0.0544;  identity resid = 0.00e+00
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.222
+  sweep theta_g=1.00: n_roots=1, nu=0.482
+  sweep theta_g=1.50: n_roots=1, nu=0.716
+  sweep theta_g=2.00: n_roots=1, nu=0.926
+  sweep theta_g=2.50: n_roots=1, nu=1.116
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8614, D1=0.0354, tau1=0.0439, g_g=0.0211, W1=-3.9931
+  nu = 1.116  (revaluation -0.049 + damage dividend 1.166)  => FULLY self-financing
+  one-time bondholder levy L = -0.0529;  identity resid = -6.94e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.222
+  sweep theta_g=1.00: n_roots=1, nu=0.482
+  sweep theta_g=1.50: n_roots=1, nu=0.716
+  sweep theta_g=2.00: n_roots=1, nu=0.926
+  sweep theta_g=2.50: n_roots=1, nu=1.116
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8625, D1=0.0336, tau1=0.0438, g_g=0.0211, W1=-3.9529
+  nu = 1.204  (revaluation -0.048 + damage dividend 1.252)  => FULLY self-financing
+  one-time bondholder levy L = -0.0514;  identity resid = -3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.222
+  sweep theta_g=1.00: n_roots=1, nu=0.482
+  sweep theta_g=1.50: n_roots=1, nu=0.716
+  sweep theta_g=2.00: n_roots=1, nu=0.926
+  sweep theta_g=2.50: n_roots=1, nu=1.116
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8635, D1=0.0319, tau1=0.0438, g_g=0.0211, W1=-3.9149
+  nu = 1.288  (revaluation -0.047 + damage dividend 1.334)  => FULLY self-financing
+  one-time bondholder levy L = -0.0501;  identity resid = 0.00e+00
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.222
+  sweep theta_g=1.00: n_roots=1, nu=0.482
+  sweep theta_g=1.50: n_roots=1, nu=0.716
+  sweep theta_g=2.00: n_roots=1, nu=0.926
+  sweep theta_g=2.50: n_roots=1, nu=1.116
+  delta_g=0.100 done (nu_dam at theta=0.5 is 0.28 .. at theta=3.0 is 1.33)
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8492, D1=0.0559, tau1=0.0445, g_g=0.0214, W1=-4.4639
+  nu = 0.129  (revaluation -0.064 + damage dividend 0.193)  => partially self-financing
+  one-time bondholder levy L = -0.0696;  identity resid = 0.00e+00
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.129
+  sweep theta_g=1.00: n_roots=1, nu=0.312
+  sweep theta_g=1.50: n_roots=1, nu=0.482
+  sweep theta_g=2.00: n_roots=1, nu=0.640
+  sweep theta_g=2.50: n_roots=1, nu=0.788
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8503, D1=0.0539, tau1=0.0444, g_g=0.0214, W1=-4.4181
+  nu = 0.222  (revaluation -0.062 + damage dividend 0.285)  => partially self-financing
+  one-time bondholder levy L = -0.0680;  identity resid = -6.94e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.129
+  sweep theta_g=1.00: n_roots=1, nu=0.312
+  sweep theta_g=1.50: n_roots=1, nu=0.482
+  sweep theta_g=2.00: n_roots=1, nu=0.640
+  sweep theta_g=2.50: n_roots=1, nu=0.788
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8515, D1=0.0520, tau1=0.0444, g_g=0.0214, W1=-4.3741
+  nu = 0.312  (revaluation -0.061 + damage dividend 0.373)  => partially self-financing
+  one-time bondholder levy L = -0.0665;  identity resid = 0.00e+00
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.129
+  sweep theta_g=1.00: n_roots=1, nu=0.312
+  sweep theta_g=1.50: n_roots=1, nu=0.482
+  sweep theta_g=2.00: n_roots=1, nu=0.640
+  sweep theta_g=2.50: n_roots=1, nu=0.788
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8525, D1=0.0502, tau1=0.0443, g_g=0.0213, W1=-4.3319
+  nu = 0.398  (revaluation -0.060 + damage dividend 0.458)  => partially self-financing
+  one-time bondholder levy L = -0.0650;  identity resid = 0.00e+00
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.129
+  sweep theta_g=1.00: n_roots=1, nu=0.312
+  sweep theta_g=1.50: n_roots=1, nu=0.482
+  sweep theta_g=2.00: n_roots=1, nu=0.640
+  sweep theta_g=2.50: n_roots=1, nu=0.788
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8536, D1=0.0485, tau1=0.0443, g_g=0.0213, W1=-4.2915
+  nu = 0.482  (revaluation -0.059 + damage dividend 0.540)  => partially self-financing
+  one-time bondholder levy L = -0.0636;  identity resid = 0.00e+00
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.129
+  sweep theta_g=1.00: n_roots=1, nu=0.312
+  sweep theta_g=1.50: n_roots=1, nu=0.482
+  sweep theta_g=2.00: n_roots=1, nu=0.640
+  sweep theta_g=2.50: n_roots=1, nu=0.788
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8546, D1=0.0468, tau1=0.0442, g_g=0.0213, W1=-4.2528
+  nu = 0.563  (revaluation -0.057 + damage dividend 0.620)  => partially self-financing
+  one-time bondholder levy L = -0.0622;  identity resid = -3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.129
+  sweep theta_g=1.00: n_roots=1, nu=0.312
+  sweep theta_g=1.50: n_roots=1, nu=0.482
+  sweep theta_g=2.00: n_roots=1, nu=0.640
+  sweep theta_g=2.50: n_roots=1, nu=0.788
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8555, D1=0.0452, tau1=0.0442, g_g=0.0213, W1=-4.2155
+  nu = 0.640  (revaluation -0.056 + damage dividend 0.697)  => partially self-financing
+  one-time bondholder levy L = -0.0609;  identity resid = -3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.129
+  sweep theta_g=1.00: n_roots=1, nu=0.312
+  sweep theta_g=1.50: n_roots=1, nu=0.482
+  sweep theta_g=2.00: n_roots=1, nu=0.640
+  sweep theta_g=2.50: n_roots=1, nu=0.788
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8565, D1=0.0436, tau1=0.0441, g_g=0.0212, W1=-4.1798
+  nu = 0.716  (revaluation -0.055 + damage dividend 0.771)  => partially self-financing
+  one-time bondholder levy L = -0.0596;  identity resid = -6.94e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.129
+  sweep theta_g=1.00: n_roots=1, nu=0.312
+  sweep theta_g=1.50: n_roots=1, nu=0.482
+  sweep theta_g=2.00: n_roots=1, nu=0.640
+  sweep theta_g=2.50: n_roots=1, nu=0.788
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8574, D1=0.0421, tau1=0.0441, g_g=0.0212, W1=-4.1455
+  nu = 0.788  (revaluation -0.054 + damage dividend 0.842)  => partially self-financing
+  one-time bondholder levy L = -0.0584;  identity resid = -6.94e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.129
+  sweep theta_g=1.00: n_roots=1, nu=0.312
+  sweep theta_g=1.50: n_roots=1, nu=0.482
+  sweep theta_g=2.00: n_roots=1, nu=0.640
+  sweep theta_g=2.50: n_roots=1, nu=0.788
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8582, D1=0.0407, tau1=0.0440, g_g=0.0212, W1=-4.1126
+  nu = 0.859  (revaluation -0.053 + damage dividend 0.912)  => partially self-financing
+  one-time bondholder levy L = -0.0572;  identity resid = -6.94e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.129
+  sweep theta_g=1.00: n_roots=1, nu=0.312
+  sweep theta_g=1.50: n_roots=1, nu=0.482
+  sweep theta_g=2.00: n_roots=1, nu=0.640
+  sweep theta_g=2.50: n_roots=1, nu=0.788
+
+[self-financing, Proposition 2]
+  baseline: P0=0.9025, D0=0.0600, tau0=0.0217, W0=-3.9588
+  program : P1=0.8591, D1=0.0393, tau1=0.0440, g_g=0.0212, W1=-4.0809
+  nu = 0.926  (revaluation -0.052 + damage dividend 0.978)  => partially self-financing
+  one-time bondholder levy L = -0.0561;  identity resid = -3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.129
+  sweep theta_g=1.00: n_roots=1, nu=0.312
+  sweep theta_g=1.50: n_roots=1, nu=0.482
+  sweep theta_g=2.00: n_roots=1, nu=0.640
+  sweep theta_g=2.50: n_roots=1, nu=0.788
+  delta_g=0.150 done (nu_dam at theta=0.5 is 0.19 .. at theta=3.0 is 0.98)
+  [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\climate_discipline.txt
+  [saved] PFig_climate_discipline
+
+Elapsed: 70.7 s

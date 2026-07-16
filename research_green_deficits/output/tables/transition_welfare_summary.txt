@@ -5,39 +5,39 @@ announcement revaluation). Same grids/distribution as the ss column.
 
 [NOMINAL design]
 group        ss-to-ss (%)   transition (%)
-Q1           -2.60          -3.38         
-Q2           -1.90          -2.48         
-Q3           -1.67          -2.05         
-Q4           -1.43          -1.56         
-Q5           -1.12          -0.81         
-bottom50     -2.16          -2.79         
-top10        -1.02          -0.53         
-constr       -2.64          -3.42         
-aggregate    -1.75          -2.07         
+Q1           -2.63          -3.39         
+Q2           -1.93          -2.50         
+Q3           -1.68          -2.06         
+Q4           -1.44          -1.57         
+Q5           -1.13          -0.83         
+bottom50     -2.17          -2.79         
+top10        -1.03          -0.56         
+constr       -2.66          -3.42         
+aggregate    -1.77          -2.07         
 
 [INDEXED design]
 group        ss-to-ss (%)   transition (%)
-Q1           -2.60          -3.41         
-Q2           -1.90          -2.50         
-Q3           -1.67          -2.06         
-Q4           -1.43          -1.56         
-Q5           -1.12          -0.81         
-bottom50     -2.16          -2.81         
-top10        -1.02          -0.53         
-constr       -2.64          -3.45         
-aggregate    -1.75          -2.08         
+Q1           -2.63          -3.42         
+Q2           -1.93          -2.52         
+Q3           -1.68          -2.08         
+Q4           -1.44          -1.58         
+Q5           -1.13          -0.84         
+bottom50     -2.17          -2.82         
+top10        -1.03          -0.57         
+constr       -2.66          -3.46         
+aggregate    -1.77          -2.09         
 
 [REBATE design]
 group        ss-to-ss (%)   transition (%)
-Q1           1.68           0.99          
-Q2           0.82           0.17          
-Q3           0.54           -0.32         
-Q4           0.28           -0.89         
-Q5           -0.03          -1.83         
+Q1           1.69           1.00          
+Q2           0.84           0.18          
+Q3           0.55           -0.31         
+Q4           0.28           -0.90         
+Q5           -0.02          -1.86         
 bottom50     1.13           0.44          
-top10        -0.12          -2.20         
-constr       1.71           1.03          
-aggregate    0.67           -0.36         
+top10        -0.12          -2.23         
+constr       1.72           1.03          
+aggregate    0.67           -0.37         
 
 Reading: "transition" > "ss-to-ss" for a group means the announced
 path treats that group BETTER than the steady-state comparison suggests
