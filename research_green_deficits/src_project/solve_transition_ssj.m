@@ -84,20 +84,62 @@ function TR = solve_transition_ssj(pgc, opts)
             fprintf('  [ssj-newton] iter %2d  max|S-b|/b = %.3e\n', k, resnorm);
         end
         if resnorm < ntol, break; end
-        ws = warning('off', 'MATLAB:nearlySingularMatrix');
-        dx = -(J \ rf);
-        warning(ws);
+
+        % ---- guarded Newton step ----
+        if any(~isfinite(J(:))) || any(~isfinite(rf))
+            if verbose
+                fprintf('  [ssj-newton] nonfinite Jacobian/residual at iter %d -- stopping.\n', k);
+            end
+            break;
+        end
+        w1 = warning('off', 'MATLAB:nearlySingularMatrix');
+        w2 = warning('off', 'MATLAB:singularMatrix');
+        if rcond(J) < 1e-14
+            dx = -pinv(J) * rf;               % minimum-norm step on a
+        else                                   % (near-)singular Jacobian
+            dx = -(J \ rf);
+        end
+        warning(w1); warning(w2);
         if k == 1, first_step = dx; end       % the linear impulse response
-        x = x + damping * dx;
+
+        % ---- backtracking line search on the free-date residual norm ----
+        % Accept the first step fraction that strictly reduces the residual;
+        % a full Newton step on this problem can overshoot into an
+        % infeasible price path, which must be rejected, not propagated.
+        step = damping; accepted = false;
+        for ls = 1:7
+            xtry = x + step * dx;
+            rtry = transition_residual_dtpl(xtry, ctx);
+            rn = max(abs(rtry(1:T-1)));
+            if isfinite(rn) && rn < resnorm
+                x = xtry; accepted = true;
+                if verbose && step < damping
+                    fprintf('  [ssj-newton]    (step damped to %.3g)\n', step);
+                end
+                break;
+            end
+            step = step / 2;
+        end
+        if ~accepted
+            if verbose
+                fprintf('  [ssj-newton] line search found no descent at iter %d -- stopping.\n', k);
+            end
+            break;
+        end
         if k == nmaxit, break; end
     end
 
     % ---- determinacy diagnostic on the final GE Jacobian ----
-    sv       = svd(full(J));
-    sigmin   = min(sv);
-    condJ    = max(sv) / max(sigmin, eps);
-    detsign  = sign(det(J));
-    det_tol  = getopt(opts, 'det_tol', 1e-6 * max(sv));
+    if all(isfinite(J(:)))
+        sv       = svd(full(J));
+        sigmin   = min(sv);
+        condJ    = max(sv) / max(sigmin, eps);
+        detsign  = sign(det(J));
+        det_tol  = getopt(opts, 'det_tol', 1e-6 * max(sv));
+    else
+        sigmin = NaN; condJ = NaN; detsign = NaN;
+        det_tol = getopt(opts, 'det_tol', NaN);
+    end
 
     % ---- pack (mirror the Anderson solver's output contract) ----
     [resid, aux] = transition_residual_dtpl(x, ctx);
@@ -132,6 +174,14 @@ function ctx = build_transition_ctx(pgc, T, regime, financing, opts, verbose)
 % solve_hank_dtpl_transition.m lines that set up eq0, eq1, VT, dist0, so the
 % two solvers linearize the SAME object.
     ctx = [];
+    % SOLVER CONSISTENCY (Round 12): the residual and its finite-difference
+    % Jacobian run the grid-choice backward recursion, so the boundary
+    % objects (eq0/eq1, VT, dist0) must be solved by the same method. Pin
+    % the local copy to 'vfi' regardless of the global EGM default --
+    % EGM-based boundaries under a grid-VFI interior made the first Newton
+    % step blow up (residual 0.038 -> 11 -> Inf, singular-J warnings).
+    pgc.hh_solver = 'vfi';
+
     B0   = pgc.Bnom;
     rbar = (1 + pgc.i_ss)/(1 + pgc.mu) - 1;
     if isfield(pgc, 'Gg_nom') && ~isempty(pgc.Gg_nom)

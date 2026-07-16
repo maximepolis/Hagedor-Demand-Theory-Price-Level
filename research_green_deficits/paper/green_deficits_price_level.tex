@@ -3591,7 +3591,13 @@ each replication pass; the grid-choice solver remains available
 (\texttt{pg.hh\_solver='vfi'}) and the validation table ships with the
 package. The tier-2 transition keeps its own finite-horizon backward
 recursion either way, cross-checked by the sequence-space solve of
-Section~\ref{subsec:tier2}. Aggregate asset demand on the $(\tau,D)$ plane is precomputed on a
+Section~\ref{subsec:tier2}; its boundary steady states, terminal value
+function, and pre-announcement distribution are pinned to the same
+grid-choice method as its interior steps, so the transition is a
+self-contained grid-choice object (mixing solvers across the boundary
+leaves a spurious terminal wedge and degrades the Newton linearization),
+and its boundary price levels may differ from the steady-state tables by
+the measured solver gap of up to $0.4\%$. Aggregate asset demand on the $(\tau,D)$ plane is precomputed on a
 $7\times4$ node grid at the policy real rate and interpolated bilinearly;
 every reported equilibrium is \emph{re-solved exactly} at the root (the
 interpolation residual is reported). Roots of $\Phi$ are found by a dense
