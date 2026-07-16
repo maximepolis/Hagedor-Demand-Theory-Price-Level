@@ -91,10 +91,22 @@ function [S, out] = S_green(r, tau, D, pg)
     end
 
     % ---- household block + exact distribution ----
-    [V, polA_idx, ~, polC, hhdiag] = solve_household_vfi(r, tau, p);
-    if ~hhdiag.converged, S = NaN; out.hhdiag = hhdiag; return; end
-    [dist, distdiag] = compute_stationary_distribution(polA_idx, p.Pi, p);
-    if ~distdiag.converged, S = NaN; out.distdiag = distdiag; return; end
+    % Default: the package's grid-choice VFI + exact on-grid distribution.
+    % Opt-in (pg.hh_solver = 'egm'): endogenous-grid solver with continuous
+    % policies + Young-lottery distribution. Cross-validated by
+    % verify_egm_vs_vfi; every published number uses the default unless the
+    % run says otherwise.
+    if isfield(pg, 'hh_solver') && strcmpi(pg.hh_solver, 'egm')
+        [V, polA, polC, hhdiag] = solve_household_egm(r, tau, p);
+        if ~hhdiag.converged, S = NaN; out.hhdiag = hhdiag; return; end
+        [dist, distdiag] = stationary_distribution_young(polA, p.Pi, p);
+        if ~distdiag.converged, S = NaN; out.distdiag = distdiag; return; end
+    else
+        [V, polA_idx, polA, polC, hhdiag] = solve_household_vfi(r, tau, p);
+        if ~hhdiag.converged, S = NaN; out.hhdiag = hhdiag; return; end
+        [dist, distdiag] = compute_stationary_distribution(polA_idx, p.Pi, p);
+        if ~distdiag.converged, S = NaN; out.distdiag = distdiag; return; end
+    end
 
     S = p.aGrid(:)' * sum(dist, 2);
 
@@ -107,7 +119,9 @@ function [S, out] = S_green(r, tau, D, pg)
     out.dist     = dist;
     out.V        = V;
     out.polC     = polC;
+    out.polA     = polA;       % chosen a' (grid values; continuous under EGM)
     out.eGrid_eff = p.eGrid;   % post-damage/levy effective endowments
+    out.Pi_eff    = p.Pi;      % transition matrix actually used (risk channel)
 
     % Ginis: wealth over aGrid marginal; income over effective endowments
     wa = sum(dist, 2);                       % marginal over assets

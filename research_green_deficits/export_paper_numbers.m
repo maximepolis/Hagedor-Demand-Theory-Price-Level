@@ -124,6 +124,18 @@ if exist(tef, 'file') == 2
     end
 end
 
+% ---- matched DTPL-vs-NK announcement experiment (run_matched_dtpl_nk) ----
+% Guarded: exported only if the matched driver has been run. Percent,
+% annualized; DTPL side is the announcement-year deviation from trend.
+mkf = fullfile(projdir, 'output', 'matched_dtpl_nk.mat');
+if exist(mkf, 'file') == 2
+    M = load(mkf, 'pi_impact_ann', 'dtpl_pi1');
+    mac('matchedNKimpact', sprintf('%+.2f', 100*M.pi_impact_ann));
+    if isfinite(M.dtpl_pi1)
+        mac('matchedDTPLimpact', sprintf('%+.2f', 100*M.dtpl_pi1));
+    end
+end
+
 % ---- decile-resolution welfare incidence (welfare_incidence_deciles) ----
 % Guarded: exported only if the decile driver has been run. Medium column
 % is index 2 (as for thetaStarMed); regime order matches rsuf (lump-sum,

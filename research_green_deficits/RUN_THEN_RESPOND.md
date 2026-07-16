@@ -190,3 +190,34 @@ run_matched_dtpl_nk           % -> output/tables/matched_dtpl_nk.txt (SIGN VERDI
 ```
 Optionally commit `output/tax_elasticity_results.mat` so export_paper_numbers
 repopulates the eps* macros automatically instead of the hand transcription.
+
+---
+
+# Round 11 — EGM cross-validation (accuracy + speed audit)
+
+Rounds 9–10 are DONE (matched_dtpl_nk verdict OPPOSITE, banked in the paper;
+decile macros populated). One new run:
+
+## Run this (MATLAB, from `research_green_deficits/`)
+```matlab
+cd research_green_deficits
+verify_egm_vs_vfi        % -> output/egm_validation_results.mat
+                         %    + output/tables/egm_validation.txt
+```
+Solves the calibrated base/program steady states (all three damage columns)
+under BOTH household solvers — the incumbent grid-choice VFI and the new
+endogenous-grid method (continuous policies + Young-lottery distribution,
+opt-in anywhere via `pg.hh_solver = 'egm'`) — and reports agreement in
+(S, W, Gini), off-grid Euler-equation errors for both on one scale, and
+wall-clock per solve.
+
+**Decision rule (pre-registered in the driver header):**
+- max |S_egm/S_vfi − 1| < 5e-4  →  published numbers are solver-robust;
+  EGM can become the default for speed with no result change.
+- larger  →  the finer-Euler-error solver (expected: EGM) is the accuracy
+  benchmark; re-run affected tables with `pg.hh_solver='egm'` before the
+  next submission.
+
+**Push back:** `output/tables/egm_validation.txt` (+ the .mat). If the
+verdict is "solver-robust", the paper's numerical appendix already carries
+the right sentence; if not, say so and I will re-wire the affected drivers.

@@ -79,6 +79,9 @@
 \providecommand{\RRebTopOne}{\pendingnum}
 \providecommand{\RMixDecBot}{\pendingnum}\providecommand{\RMixDecTop}{\pendingnum}
 \providecommand{\RMixTopOne}{\pendingnum}
+% Matched DTPL-vs-NK announcement experiment, populated by run_matched_dtpl_nk.
+\providecommand{\matchedNKimpact}{\pendingnum}
+\providecommand{\matchedDTPLimpact}{\pendingnum}
 
 % Figures live in figures/ on Overleaf; ../output/figures/ in the repo.
 \graphicspath{{figures/}{../output/figures/}{./}}
@@ -2294,7 +2297,15 @@ holds exactly ten percent of baseline mass. At the medium column under
 lump-sum finance the bottom decile's CE change is \WDecBotMed\% against
 \WDecTopMed\% for the top decile, \WTopFiveMed\% for the top 5\%, and
 \WTopOneMed\% for the top 1\%; under the levy-plus-rebate design the same
-three cuts give \RRebDecBot\%, \RRebDecTop\%, and \RRebTopOne\%. Two caveats
+three cuts give \RRebDecBot\%, \RRebDecTop\%, and \RRebTopOne\%. Two facts
+sharpen at this resolution. Under the pure levy (no rebate) the gradient
+flips even though every decile still loses: the bottom decile loses least
+(\RLevDecBot\%) and the top decile most (\RLevDecTop\%) --- proportionality
+alone shifts the burden onto households with buffer stocks. And under the
+levy-plus-rebate the top decile is the \emph{only} decile with a negative
+CE change, with the loss deepening into the top 1\% (\RRebTopOne\% against
+\RRebDecTop\% for the decile): the rebate design is a transfer from the top
+decile, not a broad tax. Two caveats
 attach to the tails. The model's top 1\% holds \WShareTopOneMed\% of wealth,
 and the one-asset Aiyagari tail is thin relative to the roughly one-third
 observed in U.S. data, so the concentration of the bondholder windfall is
@@ -2516,7 +2527,8 @@ DTPL-versus-NK run --- same near-permanent path, same scale, same
 balanced financing, labor margin shut, so that only the price-determination
 block differs up to linearization and frequency --- is included in the
 replication package and described, with its empirical counterpart, in
-Section~\ref{sec:conclusion}.
+Section~\ref{sec:conclusion}; under it the signs remain opposite
+(\matchedNKimpact\% versus \matchedDTPLimpact\% annualized).
 
 \subsection{Representative-agent New Keynesian transitions}
 \label{subsec:ranktrans}
@@ -3048,8 +3060,11 @@ includes a \emph{matched} DTPL-versus-NK experiment
 re-run with a near-permanent program at the DTPL scale, balanced
 (service-rule-speed) financing, no accommodation, and the labor margin shut
 --- so that, up to linearization and frequency, only the price-determination
-block differs; the comparison object is the announcement-window inflation
-sign, and the matched-run number is reported once the driver has run. The
+block differs. The matched run delivers an annualized announcement-window
+inflation impact of \matchedNKimpact\% in the NK economy against
+\matchedDTPLimpact\% in the DTPL transition: the signs remain opposite
+under the matched design, so the contrast is attributable to the
+price-determination block itself, up to linearization and frequency. The
 complementary test is empirical: high-frequency identification of the
 market-implied-inflation response to green-fiscal surprises. The sign is the
 object; the current confounded reduced-form record cannot yet adjudicate it.
@@ -3549,7 +3564,13 @@ acceleration on a 500-node exponentially spaced asset grid (choices on the
 grid; no reliance on monotonicity), the invariant distribution by exact power
 iteration on the sparse joint transition (no simulation), both inherited from
 the underlying replication package and validated against its 10-point check
-suite. Aggregate asset demand on the $(\tau,D)$ plane is precomputed on a
+suite. The package additionally contains an endogenous-grid solver
+\citep{carroll2006egm} with continuous policies and a lottery-method
+invariant distribution \citep{young2010}, together with a cross-validation
+driver (\texttt{verify\_egm\_vs\_vfi}) that solves the calibrated steady
+states under both methods and reports off-grid Euler-equation errors on a
+common scale; every published number uses the grid-choice solver unless the
+validation table says otherwise. Aggregate asset demand on the $(\tau,D)$ plane is precomputed on a
 $7\times4$ node grid at the policy real rate and interpolated bilinearly;
 every reported equilibrium is \emph{re-solved exactly} at the root (the
 interpolation residual is reported). Roots of $\Phi$ are found by a dense
