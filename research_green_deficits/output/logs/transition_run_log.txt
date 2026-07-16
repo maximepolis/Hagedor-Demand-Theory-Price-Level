@@ -93,7 +93,7 @@ loaded calibrated inputs (na=500 matches): beta*=0.9267, Gg=0.01818
   iter 86: interior max|S-b|/b = 0.00070, terminal(horizon) = 0.00039 (mem=5)
   iter 87: interior max|S-b|/b = 0.00058, terminal(horizon) = 0.00057 (mem=5)
   iter 88: interior max|S-b|/b = 0.00041, terminal(horizon) = 0.00045 (mem=5)
-  tier2 nominal: fixed point CONVERGED (interior max 0.00041 @t=79), horizon OK (terminal resid 0.00045) in 88 iters; impact phat_1/P0 = 0.9607 (surprise DISINFLATION), terminal P = 0.8590
+  tier2 nominal/lumpsum: fixed point CONVERGED (interior max 0.00041 @t=79), horizon OK (terminal resid 0.00045) in 88 iters; impact phat_1/P0 = 0.9607 (surprise DISINFLATION), terminal P = 0.8590
 
 --- INDEXED (real) mandate ---
   boundary steady states: P0=0.9051 -> P1=0.8590 (D: 0.0600 -> 0.0465)
@@ -169,7 +169,7 @@ loaded calibrated inputs (na=500 matches): beta*=0.9267, Gg=0.01818
   iter 70: interior max|S-b|/b = 0.00056, terminal(horizon) = 0.00003 (mem=5)
   iter 71: interior max|S-b|/b = 0.00055, terminal(horizon) = 0.00013 (mem=5)
   iter 72: interior max|S-b|/b = 0.00041, terminal(horizon) = 0.00016 (mem=5)
-  tier2 indexed: fixed point CONVERGED (interior max 0.00041 @t=20), horizon OK (terminal resid 0.00016) in 72 iters; impact phat_1/P0 = 0.9609 (surprise DISINFLATION), terminal P = 0.8590
+  tier2 indexed/lumpsum: fixed point CONVERGED (interior max 0.00041 @t=20), horizon OK (terminal resid 0.00016) in 72 iters; impact phat_1/P0 = 0.9609 (surprise DISINFLATION), terminal P = 0.8590
 
 --- NOMINAL appropriation, REBATE financing (R3) ---
   boundary steady states: P0=0.9051 -> P1=0.9986 (D: 0.0600 -> 0.0482)
@@ -228,8 +228,8 @@ loaded calibrated inputs (na=500 matches): beta*=0.9267, Gg=0.01818
   iter 53: interior max|S-b|/b = 0.00058, terminal(horizon) = 0.00000 (mem=5)
   iter 54: interior max|S-b|/b = 0.00054, terminal(horizon) = 0.00010 (mem=5)
   iter 55: interior max|S-b|/b = 0.00045, terminal(horizon) = 0.00005 (mem=5)
-  tier2 nominal: fixed point CONVERGED (interior max 0.00045 @t=6), horizon OK (terminal resid 0.00005) in 55 iters; impact phat_1/P0 = 1.1280 (surprise inflation), terminal P = 0.9986
+  tier2 nominal/rebate: fixed point CONVERGED (interior max 0.00045 @t=6), horizon OK (terminal resid 0.00005) in 55 iters; impact phat_1/P0 = 1.1280 (surprise inflation), terminal P = 0.9986
 
   [saved] PFig18_dtpl_transition
   [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\transition_dtpl_summary.txt
-Elapsed: 354.7 s
+Elapsed: 399.4 s

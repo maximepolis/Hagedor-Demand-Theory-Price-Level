@@ -1,0 +1,13 @@
+MATCHED DTPL-vs-NK ANNOUNCEMENT EXPERIMENT
+Matched margins: permanent path (RHOG=0.9999), scale 2% of output
+(GSTD=0.02), balanced financing (PHIB=0.75), labor margin shut
+(FRISCH=0.01), pure Taylor (PHIPI=1.5, PSIG=0).
+Remaining differences: linearization; quarterly production economy
+with sticky prices vs nonlinear annual endowment DTPL.
+
+NK   impact inflation (annualized): +0.0105
+DTPL announcement-year inflation (dev. from trend): -0.0398  [from TRi.pi_path(1) (deviation from the 2% trend)]
+
+SIGN VERDICT: OPPOSITE -- the announcement-window signs differ
+under the matched design, so the contrast IS attributable to the
+price-determination block (up to linearization and frequency).
