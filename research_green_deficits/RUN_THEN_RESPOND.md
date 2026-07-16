@@ -221,3 +221,41 @@ wall-clock per solve.
 **Push back:** `output/tables/egm_validation.txt` (+ the .mat). If the
 verdict is "solver-robust", the paper's numerical appendix already carries
 the right sentence; if not, say so and I will re-wire the affected drivers.
+
+---
+
+# Round 12 — EGM becomes the default + wealth-concentration fit
+
+Round 11 verdict (banked): EGM cuts mean Euler errors 1e-2.1 -> 1e-5.4 at a
+third of the wall-clock, but S differs by up to 3.7e-3 relative — above the
+paper's reporting precision. Per the pre-registered rule, EGM is now the
+pipeline default (`pg.hh_solver = 'egm'` in setup_params_green), so the
+steady-state tables need ONE regeneration pass.
+
+## Run this (MATLAB, from `research_green_deficits/`)
+```matlab
+cd research_green_deficits
+run_green_deficits_master     % full regeneration under the EGM default
+                              % (includes the new wealth_concentration_fit
+                              %  stage and refreshes numbers_auto.tex)
+```
+If a full master pass is too long, the minimum set that feeds the paper:
+```matlab
+main_project_calibrated; main_project_regimes; regimes_fixed_real;
+main_project_robustness; decompose_tax_elasticity;
+welfare_incidence_deciles; wealth_concentration_fit; export_paper_numbers
+```
+
+## What to check / push back
+- `output/tables/wealth_fit.txt`: the sweep should bracket the 33% top-1%
+  target; check the `topnode` column stays < 1e-4 (otherwise raise amax —
+  tell me and I'll wire a grid extension); the Stage-2 block reports how
+  nu_reval and the decile gradient move under the fitted concentration.
+- Push ALL of `output/` + regenerated `paper/numbers_auto.tex`.
+- NOTE for me (Claude), after your push: reconcile the HARD-CODED numbers
+  (Table "incidence" quintiles, extended-run values in §5.3, worked-example
+  table, in-text P*/tau values) against the regenerated output — macros
+  update themselves, typed numbers do not.
+- If transition residuals degrade under the EGM terminal steady state
+  (check `transition_dtpl_summary.txt`), set `pg.hh_solver='vfi'` for the
+  transition stage only and tell me.

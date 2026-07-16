@@ -42,6 +42,14 @@ function [S, out] = S_green(r, tau, D, pg)
         p.eGrid = eG; p.Pi = PiD; p.stationary_e = statD;
     end
 
+    % ---- superstar income state (wealth-concentration fit) ----
+    % Applied AFTER any risk-channel rebuild and BEFORE damages/incidence,
+    % so the augmented chain flows through every downstream channel.
+    if isfield(pg, 'superstar') && isstruct(pg.superstar) && pg.superstar.active
+        [eG2, Pi2, st2] = add_superstar_state(p.eGrid(:), p.Pi, pg.superstar);
+        p.eGrid = eG2'; p.Pi = Pi2; p.stationary_e = st2;
+    end
+
     % ---- damage level channel: scale endowments ----
     % With an incidence gradient psi_inc > 0 (paper Eq. "incidence"), damages
     % fall disproportionately on low-endowment households:
