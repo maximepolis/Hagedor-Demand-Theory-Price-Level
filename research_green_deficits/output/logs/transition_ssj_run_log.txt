@@ -69,19 +69,26 @@
 --- (2) sequence-space Newton ---
   ssj boundary steady states: P0=0.9051 -> P1=0.8590 (D: 0.0600 -> 0.0465)
   [ssj-newton] iter  1  max|S-b|/b = 4.054e-02
-  [ssj-newton]    (step damped to 0.0625)
-  [ssj-newton] iter  2  max|S-b|/b = 3.992e-02
-  [ssj-newton] line search found no descent at iter 2 -- stopping.
-  ssj-newton: interior resid=3.99e-02, terminal=1.66e-02, sigma_min(J)=6.26e-03, cond(J)=1.5e+03, determinate=1
+  [ssj-newton] iter  2  max|S-b|/b = 2.672e-02
+  [ssj-newton] iter  3  max|S-b|/b = 1.954e-02
+  [ssj-newton] iter  4  max|S-b|/b = 1.427e-02
+  [ssj-newton] iter  5  max|S-b|/b = 1.061e-02
+  [ssj-newton] iter  6  max|S-b|/b = 7.569e-03
+  [ssj-newton] iter  7  max|S-b|/b = 5.493e-03
+  [ssj-newton] iter  8  max|S-b|/b = 4.019e-03
+  [ssj-newton] iter  9  max|S-b|/b = 2.793e-03
+  [ssj-newton] iter 10  max|S-b|/b = 2.156e-03
+  [ssj-newton] iter 11  max|S-b|/b = 1.537e-03
+  ssj-newton: interior resid=1.54e-03, terminal=1.25e-04, sigma_min(J)=1.55e-01, cond(J)=2.7e+01, determinate=1
 
 ================ CROSS-CHECK ================
- max relative price-path gap   |dphat|/phat = 4.367e-02
- max inflation-path gap        |dpi|        = 4.616e-02
- Anderson reportable=1;  SSJ reportable=0
- sequence-space determinacy:  sigma_min(J)=6.263e-03  cond(J)=1.47e+03  determinate=1
- => CHECK: the two independent solvers disagree -- inspect.
+ max relative price-path gap   |dphat|/phat = 2.591e-03
+ max inflation-path gap        |dpi|        = 2.642e-03
+ Anderson reportable=1;  SSJ reportable=1
+ sequence-space determinacy:  sigma_min(J)=1.554e-01  cond(J)=2.75e+01  determinate=1
+ => PASS: the two independent solvers agree on the announcement path.
 =============================================
   [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\transition_ssj.txt
   [saved] PFig_transition_ssj
 
-Elapsed: 327.7 s
+Elapsed: 328.1 s
