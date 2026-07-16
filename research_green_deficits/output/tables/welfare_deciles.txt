@@ -3,19 +3,19 @@ CE gain lambda by baseline wealth decile (%), fractional mass-point splitting;
 wealth shares in parentheses. r_cal = 0.0196.
 
 --- Calibrated columns, lump-sum finance ---
-LOW (DICE)              D1..D10: [-3.61 -3.57 -2.94 -2.8 -2.66 -2.51 -2.37 -2.22 -2.05 -1.76]
-                        top5   -1.65 (share 0.29)   top1   -1.46 (share 0.09)   agg   -2.65   constrained 18.3%
-MEDIUM (DJO-BHM)        D1..D10: [-2.66 -2.6 -1.99 -1.88 -1.76 -1.62 -1.5 -1.39 -1.25 -1.03]
-                        top5   -0.95 (share 0.29)   top1   -0.81 (share 0.08)   agg   -1.77   constrained 17.8%
-HIGH (Bilal-Kaenzig)    D1..D10: [1.7 1.88 2.29 2.35 2.37 2.4 2.41 2.39 2.35 2.23]
-                        top5   +2.17 (share 0.28)   top1   +2.06 (share 0.08)   agg   +2.24   constrained 15.1%
+LOW (DICE)              D1..D10: [-3.6 -3.55 -2.93 -2.79 -2.65 -2.5 -2.36 -2.22 -2.04 -1.75]
+                        top5   -1.64 (share 0.29)   top1   -1.46 (share 0.09)   agg   -2.64   constrained 18.3%
+MEDIUM (DJO-BHM)        D1..D10: [-2.63 -2.57 -1.97 -1.85 -1.74 -1.6 -1.48 -1.37 -1.23 -1.02]
+                        top5   -0.94 (share 0.29)   top1   -0.81 (share 0.08)   agg   -1.75   constrained 17.7%
+HIGH (Bilal-Kaenzig)    D1..D10: [1.72 1.9 2.3 2.36 2.39 2.41 2.41 2.39 2.35 2.23]
+                        top5   +2.18 (share 0.27)   top1   +2.06 (share 0.08)   agg   +2.25   constrained 15.0%
 
 --- Financing regimes, medium column ---
-R1-DEFICIT              D1..D10: [-2.66 -2.6 -1.99 -1.88 -1.76 -1.62 -1.5 -1.39 -1.24 -1.03]
-                        top5   -0.95 (share 0.29)   top1   -0.81 (share 0.08)   agg   -1.77   constrained 17.8%
+R1-DEFICIT              D1..D10: [-2.64 -2.58 -1.97 -1.86 -1.74 -1.6 -1.49 -1.37 -1.23 -1.02]
+                        top5   -0.94 (share 0.29)   top1   -0.81 (share 0.08)   agg   -1.75   constrained 17.7%
 R2-PROP-LEVY            D1..D10: [-0.26 -0.27 -0.4 -0.42 -0.44 -0.47 -0.48 -0.5 -0.51 -0.52]
-                        top5   -0.53 (share 0.29)   top1   -0.53 (share 0.08)   agg   -0.43   constrained 17.8%
-R3-PROP-LEVY-REBATE     D1..D10: [1.72 1.65 0.91 0.77 0.63 0.47 0.35 0.22 0.08 -0.12]
-                        top5   -0.19 (share 0.29)   top1   -0.31 (share 0.08)   agg   +0.67   constrained 17.8%
-R4-MIXED-DEFICIT-LEVY   D1..D10: [-1.4 -1.38 -1.15 -1.11 -1.06 -1.01 -0.96 -0.92 -0.86 -0.76]
-                        top5   -0.72 (share 0.29)   top1   -0.66 (share 0.08)   agg   -1.06   constrained 17.8%
+                        top5   -0.53 (share 0.29)   top1   -0.53 (share 0.08)   agg   -0.43   constrained 17.7%
+R3-PROP-LEVY-REBATE     D1..D10: [1.71 1.65 0.9 0.77 0.64 0.47 0.34 0.22 0.08 -0.12]
+                        top5   -0.20 (share 0.29)   top1   -0.31 (share 0.08)   agg   +0.67   constrained 17.7%
+R4-MIXED-DEFICIT-LEVY   D1..D10: [-1.39 -1.37 -1.14 -1.1 -1.06 -1 -0.96 -0.91 -0.85 -0.76]
+                        top5   -0.72 (share 0.29)   top1   -0.66 (share 0.08)   agg   -1.05   constrained 17.7%

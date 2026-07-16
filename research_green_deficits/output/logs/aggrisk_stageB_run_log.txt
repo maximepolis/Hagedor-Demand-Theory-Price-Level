@@ -71,6 +71,7 @@ loaded calibrated beta*=0.9267
   it 18: P=[0.9032 1.2340] S=[1.1070 0.8070] rel.resid=0.0041
   it 19: P=[0.9032 1.2356] S=[1.1069 0.8068] rel.resid=0.0031
   it 20: P=[0.9033 1.2367] S=[1.1066 0.8066] rel.resid=0.0025
+<a href="matlab: opentoline('C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\src_project\solve_household_vfi_agg.m',103,1)">103 </a>                bad = ~isfinite(Vj);
   it 21: P=[0.9034 1.2376] S=[1.1068 0.8064] rel.resid=0.0019
 
 [1] FISCAL: nu = 0.777 (reval -0.077 + dam 0.853)
@@ -86,4 +87,4 @@ loaded calibrated beta*=0.9267
   [saved] PFig21_aggrisk_welfare
   [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\aggrisk_stageB_summary.txt
 
-Elapsed: 761.0 s
+Elapsed: 11810.0 s

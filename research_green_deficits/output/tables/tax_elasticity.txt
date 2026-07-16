@@ -1,18 +1,18 @@
 TAX SEMI-ELASTICITY d ln S/d tau. na=500, D0=0.06, r=0.0196
 
 (a) DECOMPOSITION at the medium column (tau0=0.0216 -> tau1=0.0416):
-    d ln S/d tau = +2.772;  total dS = +0.06310
-    dS by baseline wealth quintile Q1..Q5: [6.7e-06 0.000198 0.000382 0.00933 0.0532]
-    share (%): [0.0106 0.314 0.606 14.8 84.3]
-    constrained-mass change -0.0147; dS contribution +0.00000
+    d ln S/d tau = +2.595;  total dS = +0.05887
+    dS by baseline wealth quintile Q1..Q5: [3.86e-05 0.000562 0.000985 0.0113 0.046]
+    share (%): [0.0655 0.955 1.67 19.2 78.1]
+    constrained-mass change -0.0133; dS contribution +0.00000
 
 (b) SIGN SWEEP of d ln S/d tau (positive => disinflation robust):
-    borrowing limit abar         vals=[0 0.5 1 2] eps=[2.75 4.94 18.2 -4.96]
-    income-risk sig_eps          vals=[0.15 0.2 0.25] eps=[3.23 2.78 2.6]
-    CRRA sigma                   vals=[1.5 2 3] eps=[3.08 2.75 2.41]
-    discount beta (debt target)  vals=[0.899 0.927 0.955] eps=[3.47 2.75 1.98]
+    borrowing limit abar         vals=[0 0.5 1 2] eps=[2.58 4.44 16.8 -4.89]
+    income-risk sig_eps          vals=[0.15 0.2 0.25] eps=[3.45 2.61 2.56]
+    CRRA sigma                   vals=[1.5 2 3] eps=[3.07 2.58 2.31]
+    discount beta (debt target)  vals=[0.899 0.927 0.955] eps=[3.44 2.58 2.46]
 
-(c) INSTRUMENT: lump-sum d ln S/d tau=+2.748; levy d ln S/d vartheta=-0.946
+(c) INSTRUMENT: lump-sum d ln S/d tau=+2.583; levy d ln S/d vartheta=-1.079
 
 Reading: a positive lump-sum semi-elasticity across the swept region
 shows green disinflation is a general DTPL buffer-stock property; the levy
