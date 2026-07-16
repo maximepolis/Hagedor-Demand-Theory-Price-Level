@@ -1256,17 +1256,23 @@ Hagedorn's Result~1 and the \citet{angeletos2024deficits} configuration
 operate). For households at or near the constraint the tax cannot be smoothed
 against borrowing, so it \emph{tightens} the constraint and \emph{strengthens}
 the precautionary motive: they rebuild buffers, raising $\Sfun$. The
-aggregate slope is positive when the constrained-household force dominates,
-which the model makes precise --- it is stronger when (i) the borrowing limit
-$\bar a$ is tight (more mass at the constraint; the benchmark's $\bar a=0$ is
-the tightest case), (ii) risk aversion $\sigma$ is high (a steeper
-precautionary motive; the benchmark's $\sigma=2$), (iii) idiosyncratic income
-risk is large (more households near the constraint), and (iv) the debt target
-is high, so servicing it requires a $\tau$ large enough to push a nontrivial
-mass toward the limit. Each of these is a calibration the paper takes from
-the data rather than chooses to sign the result, and the benchmark sits
-squarely in the region where $\partial\Sfun/\partial\tau>0$
-(Section~\ref{subsec:safeasset} measures the elasticity directly). This is
+aggregate slope is positive when the constrained-household force dominates.
+What the sign needs is a nontrivial mass of households at or near the
+constraint and a tax burden large enough to bite there --- both properties
+the calibration takes from the data rather than chooses to sign the result.
+The pivotal primitive is the borrowing limit: the benchmark's $\bar a=0$
+places roughly a sixth of the population at the constraint, and the measured
+semi-elasticity map of Section~\ref{subsec:safeasset}
+(Table~\ref{tab:elasticitymap}) finds the positive sign robust across the
+swept primitives \emph{except} at a very loose limit ($\bar a$ of two mean
+incomes), where the constrained mass empties out and the slope flips to the
+permanent-income sign. We deliberately do not assert magnitude comparative
+statics in the other primitives: the measured semi-elasticity \emph{declines}
+as risk aversion, income risk, or patience rise across the swept ranges ---
+the sign is robust in this region while the magnitude is not monotone --- so
+the map, not an intuition, is the record
+(Section~\ref{subsec:safeasset} measures the elasticity and decomposes the
+demand shift directly). This is
 the same constrained-consumer force that makes lump-sum taxes contractionary
 for demand in HANK; here it operates on the buffer-stock margin and gives the
 green-disinflation sign its foundation.
@@ -2032,6 +2038,24 @@ instrument: prop.\ levy $\partial\ln\Sfun/\partial\vartheta$ & \multicolumn{2}{c
 \end{tabular}
 \end{table}
 
+\paragraph{Observable counterparts.} The primitives that govern the sign are
+not free parameters; each has a measured counterpart, and the calibration
+sits on the conservative side of the evidence. The sign requires a
+nontrivial constrained mass: the model's is $17.7\%$ of households, against
+hand-to-mouth shares of roughly a third of U.S. households in
+\citet{kaplanviolanteweidner2014} --- on this margin the benchmark
+understates, rather than assumes, the force that signs the result. The
+buffer-rebuild margin itself is the one that generates the large measured
+marginal propensities to consume out of transitory transfers at low liquid
+wealth \citep{kaplan2018}; a permanent lump-sum tax working through that
+margin is the mirrored experiment. What the empirical record does not pin
+down is the semi-elasticity's \emph{magnitude} --- the mapping from the
+constrained share and liquid buffers to $\partial\ln\Sfun/\partial\tau$ is
+model-mediated --- so we treat the sign as disciplined by the
+constrained-share and MPC evidence, and the magnitude as a model output
+reported with its full primitive map (Table~\ref{tab:elasticitymap}): a
+bounded object, not a trained one.
+
 The \emph{magnitude} of the price-level response carries a second, sharper
 caveat, and it is a discipline the one-asset economy cannot supply on its own.
 Here the nominal government liability is the household's only store of
@@ -2229,9 +2253,12 @@ lump-sum financing, by baseline wealth quintile (percent;
 calibrated pass, $n_a=500$ run). These are \emph{across-steady-state}
 comparisons --- the permanent transfer that equates a household at
 $(a,e)$ between the no-program and program invariant distributions, an
-ex-ante/behind-the-veil object that ignores the transition path; the
-living-household, transition-inclusive incidence is in
-Section~\ref{subsec:tier2}.}
+ex-ante/behind-the-veil object that ignores the transition path. The
+accounting is explicit: households are evaluated at the \emph{same real
+asset position} $(a,e)$ under the two stationary price levels, so no
+revaluation of predetermined nominal claims enters these numbers; the
+one-time stock revaluation, and the living-household transition-inclusive
+incidence it feeds, are computed in Section~\ref{subsec:tier2}.}
 \label{tab:incidence}
 \small
 \setlength{\tabcolsep}{4.5pt}
@@ -2251,7 +2278,11 @@ at the steady-state margin}: in the low and medium columns the poorest
 quintile loses the most ($-3.57\%$ versus $-1.89\%$ for the richest in the
 low column), because the lump-sum tax that services the program bites
 hardest for households at the borrowing constraint, while the price-level
-decline hands the windfall to bondholders at the top. Even in the
+decline raises real debt $b=B/P$ and with it the real interest income that
+accrues to bondholders at the top --- the steady-state \emph{flow}
+counterpart of the windfall; the one-time \emph{stock} revaluation of
+predetermined nominal holdings is a transition object and is priced
+separately in Section~\ref{subsec:tier2}. Even in the
 high-damage column --- where every quintile gains and the program is a
 steady-state Pareto improvement across wealth groups --- the poorest gain
 \emph{least} ($+1.82\%$ versus $+2.40\%$ at Q3--Q4), for the same reason. The
@@ -2837,7 +2868,12 @@ calibrated on this same grid so that pre-announcement real debt matches
 the $1.10$ target; interior market-clearing residual below $5\times10^{-4}$
 at every free date, terminal residual below $5\times10^{-4}$, $88$ and
 $72$ Anderson iterations for the two designs) delivers the paper's
-dynamics in three statements. \emph{First, green disinflation is
+dynamics in three statements. Like every repricing in the paper, the
+\emph{levels} here are one-asset upper bounds: scaled by the liquid
+nominal-liability share $\omega\approx0.15$--$0.25$ of
+Section~\ref{subsec:safeasset}, the $3.9\%$ impact repricing below reads as
+roughly $0.6$--$1.0\%$, while the \emph{shares} (the front-loading fraction,
+the sign, the timing) are scale-free. \emph{First, green disinflation is
 front-loaded:} the announcement moves the stationarized price level down
 $3.9\%$ on impact --- year-one inflation of $-2.0\%$ against the $+2\%$
 nominal trend --- which is $77\%$ of the entire long-run green
@@ -2911,7 +2947,8 @@ The levy-plus-rebate design of Section~\ref{subsec:regimes}, solved along
 the same announced path, delivers the mirror image on every margin. The
 announcement now reprices the nominal stock \emph{against} bondholders:
 the stationarized price level jumps $+12.8\%$ in the announcement year
-(year-one inflation $+15.1\%$ against the $+2\%$ trend, back within a
+(a one-asset upper bound; $\omega$-scaled, roughly $2$--$3\%$; year-one
+inflation $+15.1\%$ against the $+2\%$ trend, back within a
 quarter-point of trend by year four), handing the fisc a one-time capital
 levy worth $17.2\%$ of the program's present value --- the dynamic
 realization of the design's positive $\nu_{\mathrm{reval}}$, and the
@@ -2932,7 +2969,16 @@ raises --- households must believe the levy is once-and-for-all rather than
 the first draw from a repeated policy (the commitment problem of
 \citealp{hurtado2023sovereign}). We therefore read the rebate path as the
 mechanism's exact accounting of who pays when, not as a recommendation
-about the speed at which the repricing should be allowed to happen.
+about the speed at which the repricing should be allowed to happen. The
+same scoping applies to this section as a whole: every path is a
+\emph{perfect-foresight accounting benchmark} under a fully credible,
+once-and-for-all announcement. Partial credibility, reversal risk, or
+finite planning horizons would spread the announcement-day capitalization
+over the horizon at which beliefs converge --- the terminal steady states,
+and with them the stationary incidence accounting, are unchanged --- but
+modeling that attenuation requires a belief block the flexible-price
+economy does not have, so we state it as the boundary of what the
+transition results claim rather than asserting robustness to it.
 
 \pfigguard{PFig18_dtpl_transition.pdf}{%
 \begin{figure}[!htb]\centering
@@ -3210,9 +3256,17 @@ $dg_g=dg_g^{\mathrm{direct}}$; evaluating there --- the point at which the
 proposition is stated --- gives \eqref{eq:marginal},
 $dN=(1-\kappa)\,dg_g-\tau^{*}\epsilon_P\,dg_g$.
 (iii) The mechanical part is exact: the revaluation transfer is proportional to
-nominal bond holdings $a$, so it is progressive \emph{by wealth rank} in the
-one-asset economy (the constrained hold none and the top holds most), which the
-wealth-Gini comparison computed at the invariant distribution captures directly.
+nominal bond holdings $a$, so its \emph{exposure} is concentrated at the top of
+the wealth distribution in the one-asset economy (the constrained hold none and
+the top holds most), which the wealth-Gini comparison computed at the invariant
+distribution captures directly. Concentrated exposure and signed incidence must
+not be conflated: when the revaluation is a \emph{levy} on bondholders ($L>0$,
+the price level rising), concentration makes the burden progressive by wealth
+rank; when it is a \emph{windfall} ($L<0$, the price level falling ---
+the lump-sum benchmark case), the same concentration makes the transfer
+regressive, delivering the gain to the top. This is the sign convention of
+part~(iii) of the proposition ($|L|$ progressive by wealth rank when positive,
+regressive when negative).
 The scope of the claim is precise: a Gini (Lorenz) statement establishes
 progressivity in the \emph{wealth} ranking only; progressivity relative to
 \emph{income}, \emph{consumption}, or \emph{welfare} does not follow from it
@@ -3286,14 +3340,19 @@ proportional contraction scales asset demand approximately one-for-one
 (exactly, when the lump-sum component is rescaled alongside; the residual
 non-homotheticity is second-order for small $\vartheta$), so
 $\Sfun_{\vartheta} \approx -\Sfun/(1-\vartheta) < 0$. Both terms lower
-$\Sfun$; hence $P = B/\Sfun$ rises and
-$\nu_{\mathrm{reval}} = r^{ss}B\,(1/P_0 - 1/P_1)/g_{g,1}$ rises. The rebate
+$\Sfun$; hence $P = B/\Sfun$ rises. The step from the price level to the
+revaluation share carries a sign restriction: since
+$\nu_{\mathrm{reval}} = r^{ss}B\,(1/P_0 - 1/P_1)/g_{g,1}$, a higher $P_1$
+raises $\nu_{\mathrm{reval}}$ only when $r^{ss}>0$ (the Table~\ref{tab:regimes}
+stance, $r^{ss}=2\%$); under accommodation with $r^{ss}<0$ the same
+price-level ranking reverses the $\nu_{\mathrm{reval}}$ ranking, exactly as
+in the scope note to Result~\ref{res:disinflation}. The rebate
 design extends the same perturbation past $\tau_{ls} = r^{ss}b$ into
 negative lump-sum territory ($\tau_{ls} < r^{ss}b$), and with
 $\Sfun_{\tau} \ge 0$ each further unit of rebate financed by the levy
 continues to lower $\Sfun$. The ordering
 $P^{*}_{\text{lump-sum}} < P^{*}_{\text{mixed}} < P^{*}_{\text{levy}} <
-P^{*}_{\text{rebate}}$ and the associated $\nu_{\mathrm{reval}}$ ranking are
+P^{*}_{\text{rebate}}$ and, on the $r^{ss}>0$ region, the associated $\nu_{\mathrm{reval}}$ ranking are
 verified exactly in Table~\ref{tab:regimes} (all four are balanced stationary
 tax-incidence regimes --- the label ``lump-sum'' is the financing instrument,
 not a deficit). \qed

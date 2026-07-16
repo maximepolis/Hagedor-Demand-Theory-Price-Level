@@ -295,3 +295,63 @@ Expect: Anderson and Newton agree again; the Newton log may print
 a problem. Boundary P0 returns to ~0.9051 (VFI), while the EGM steady-state
 tables show ~0.9033 — the appendix now discloses this 0.4%-bounded solver
 gap explicitly. Push output/ + numbers_auto.tex as usual.
+
+---
+
+# Round 13 — referee response + remaining runs
+
+## Status of your last push (what I verified)
+- Transition family regenerated under the VFI pin: lumpsum REPORTABLE
+  (impact 0.9607, front-loading 77.1%, reval -5.32% of PV); rebate
+  REPORTABLE (+12.80 impact, levy +17.19% of PV). Matched verdict OPPOSITE
+  unchanged. Steady-state tables did NOT regenerate (numbers_auto.tex
+  unchanged) — so the draft is still uniformly VFI-based and internally
+  consistent.
+- verify_transition_ssj: the hardened Newton no longer crashes but STALLED
+  at the initial bridge (transition_ssj.txt records disagreement with
+  Anderson). Diagnosis: fd_step 1e-4 is below the grid-flip resolution of
+  the discrete-choice residual, so the Jacobian was noise. FIXED: default
+  fd_step now 5e-3 with adaptive enlargement when the line search finds no
+  descent.
+- wealth_concentration_fit has NOT run yet (no wealth_fit.txt in output).
+
+## Run next (MATLAB)
+```matlab
+cd research_green_deficits
+verify_transition_ssj         % rerun with the adaptive chord Jacobian;
+                              % expect agreement with Anderson now
+wealth_concentration_fit      % still pending from Round 12
+export_paper_numbers
+```
+(The full EGM steady-state regeneration remains a pre-submission step; the
+draft is currently consistent on the grid-choice solver, as the numerical
+appendix states.)
+
+## Referee round (this round) — what was implemented
+- #1 (A.8): the P-ranking -> nu_reval-ranking step now carries the r^ss>0
+  scope restriction, in the proof and at the Table 6 pointer.
+- #2 (Sec 4.4): comparative statics aligned with the measured map — sign
+  driven by the constrained mass (pivotal primitive: borrowing limit; flips
+  only at the loose corner), magnitude explicitly non-monotone in the other
+  primitives, deferring to Table 4 instead of asserting monotonicity.
+- #3 (A.5): exposure vs signed incidence separated — concentration makes a
+  levy (L>0) progressive and a windfall (L<0, the lump-sum benchmark case)
+  regressive; matches Prop 3(iii)'s sign convention.
+- Broad 1 (magnitudes): omega-scaled counterparts now attached at the 6.3
+  headline sites (3.9% impact -> ~0.6–1.0%; +12.8% rebate -> ~2–3%);
+  shares/signs flagged as scale-free; two-asset endogenous-convenience-yield
+  DTPL named as the outstanding item (unchanged).
+- Broad 2 (elasticity discipline): new "Observable counterparts" paragraph —
+  constrained share 17.7% vs ~1/3 hand-to-mouth (Kaplan–Violante–Weidner
+  2014), MPC evidence (Kaplan–Moll–Violante 2018); sign disciplined,
+  magnitude bounded-not-trained.
+- Broad 4 (incidence accounting): Table 5 caption now states households are
+  evaluated at the same real asset position across invariant distributions
+  (no predetermined-claim revaluation in those numbers); 5.8's "windfall"
+  language recast as the steady-state FLOW counterpart with the stock
+  revaluation pointed to 6.3.
+- Broad 5 (commitment): Section 6.3 now closes with an explicit
+  perfect-foresight-benchmark scope statement (partial credibility spreads
+  the capitalization; terminal steady states unchanged; belief block out of
+  scope).
+- Broad 3 (theta_g): already contour-framed from earlier rounds; no change.
