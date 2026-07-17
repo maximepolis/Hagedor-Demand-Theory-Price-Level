@@ -164,8 +164,35 @@ fprintf('  lump-sum   d ln S/d tau      = %+.3f  (raises demand => disinflation)
 fprintf('  prop levy  d ln S/d vartheta = %+.3f  (lowers demand => inflation)\n', eps_levy);
 fprintf('  => the sign of the price-level response is the tax instrument, as Result 1 states.\n');
 
+% =====================================================================
+% (d) TILT DECOMPOSITION (memo M2): lump-sum tax = same-revenue proportional
+% levy + a mean-zero regressive tilt. The tilt alone is a proportional levy
+% at rate dv rebated uniformly by its mean revenue dv*(1-D), so the net
+% transfer dv*((1-D)-y(e)) has E[net]=0 exactly (E[y]=1-D). We report the
+% per-revenue semi-elasticities and the additivity residual.
+% =====================================================================
+fprintf('\n----- (d) tilt decomposition: lump-sum = levy(same rev) + mean-zero tilt -----\n');
+[S0t,~]  = S_green(r_cal, tau0, D0, pg0);                 % baseline
+dv = 0.01;
+% same-revenue proportional levy (revenue dv*(1-D0)) at fixed lump-sum:
+pgLr = pg0; pgLr.vartheta = dv;
+[SLr,~]  = S_green(r_cal, tau0, D0, pgLr);
+rev      = dv*(1-D0);
+eps_levy_perRev = (log(SLr)-log(S0t))/rev;               % d ln S / d(levy revenue)
+% lump-sum of the same revenue (tau up by dv*(1-D0)):
+[SLS,~]  = S_green(r_cal, tau0+rev, D0, pg0);
+eps_ls_perRev   = (log(SLS)-log(S0t))/rev;               % d ln S / d(lump-sum revenue)
+% mean-zero tilt alone: levy at dv, rebate its mean revenue as lump-sum:
+pgT = pg0; pgT.vartheta = dv;
+[ST,~]   = S_green(r_cal, tau0-rev, D0, pgT);             % tau_ls = tau0 - dv*(1-D0)
+eps_tilt = (log(ST)-log(S0t))/rev;                       % per unit of levy revenue
+tilt_resid = eps_ls_perRev - (eps_levy_perRev + eps_tilt);
+fprintf('  lump-sum (per rev) %+.3f = levy (per rev) %+.3f + tilt %+.3f  [resid %+.1e]\n', ...
+        eps_ls_perRev, eps_levy_perRev, eps_tilt, tilt_resid);
+
 save(fullfile(projdir,'output','tax_elasticity_results.mat'), ...
-     'eps_tau','dS_q','dS_tot','dS_constr','dMass_c','sweeps','eps_ls','eps_levy');
+     'eps_tau','dS_q','dS_tot','dS_constr','dMass_c','sweeps','eps_ls','eps_levy', ...
+     'eps_ls_perRev','eps_levy_perRev','eps_tilt','tilt_resid');
 
 % ----- table -----
 sf = fullfile(pg0.tabdir, 'tax_elasticity.txt');
@@ -184,6 +211,10 @@ if fid > 0
     end
     fprintf(fid, '\n(c) INSTRUMENT: lump-sum d ln S/d tau=%+.3f; levy d ln S/d vartheta=%+.3f\n', ...
         eps_ls, eps_levy);
+    fprintf(fid, ['\n(d) TILT DECOMPOSITION (per unit of revenue):\n' ...
+        '    lump-sum %+.3f = levy %+.3f + mean-zero tilt %+.3f  [additivity resid %+.1e]\n' ...
+        '    => the positive lump-sum sign is the regressive-tilt response, not taxation per se.\n'], ...
+        eps_ls_perRev, eps_levy_perRev, eps_tilt, tilt_resid);
     fprintf(fid, ['\nReading: a positive lump-sum semi-elasticity across the swept region\n' ...
         'shows green disinflation is a general DTPL buffer-stock property; the levy\n' ...
         'reverses the sign, which is the incidence result of Result 1 / Section 5.11.\n']);

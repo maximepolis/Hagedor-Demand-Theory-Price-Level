@@ -104,6 +104,12 @@ if exist(tef, 'file') == 2
     T = load(tef);
     mac('epsTau',   sprintf('%+.2f', T.eps_tau));            % baseline d ln S/d tau
     mac('epsLevy',  sprintf('%+.2f', T.eps_levy));           % d ln S/d vartheta (<0)
+    % tilt decomposition (memo M2): lump-sum(perRev) = levy(perRev) + tilt
+    if isfield(T, 'eps_tilt')
+        mac('epsLsPerRev',   sprintf('%+.2f', T.eps_ls_perRev));
+        mac('epsLevyPerRev', sprintf('%+.2f', T.eps_levy_perRev));
+        mac('epsTilt',       sprintf('%+.2f', T.eps_tilt));
+    end
     % share of the tax-induced demand shift from the bottom two baseline quintiles
     if isfield(T,'dS_q') && isfield(T,'dS_tot') && T.dS_tot ~= 0
         mac('epsBotShare', sprintf('%.0f', 100*sum(T.dS_q(1:2))/T.dS_tot));
