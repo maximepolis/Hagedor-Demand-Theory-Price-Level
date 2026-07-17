@@ -570,3 +570,40 @@ are mine to keep consistent.
 ## One value still unsourced (unchanged)
 subsec:extended "P0=0.2842 vs P1=0.2812": I have P1; the extended
 no-program P0 is not in the pushed summary. Send it if you have it.
+
+---
+
+# Round 18 — referee report v2 + "beyond" memo: text done, runs queued
+
+Full item-by-item accounting is in REFEREE_RESPONSE_V2.md. The manuscript
+changes (all committed) address C1-C5 and majors 5.1-5.10 by text/proof;
+the bibliography gained 5 references (KVJ, Mian-Straub-Sufi, Bassetto-Cui,
+Brunnermeier-Merkel-Sannikov, Kocherlakota) and dropped the duplicate
+Auclert key. The abstract now leads with incidence (memo P1). The tilt
+decomposition (memo M2) is in the paper and scaffolded in code.
+
+## Run to populate the new M2 tilt macros
+```matlab
+cd research_green_deficits
+decompose_tax_elasticity     % now also computes part (d): the tilt split
+export_paper_numbers         % fills \epsTilt / \epsLsPerRev / \epsLevyPerRev
+```
+Expect (memo's prediction): lump-sum(perRev) ~ +2.7 = levy(perRev) ~ -1.0
++ tilt ~ +3.8, additivity residual near zero. The §5.6 "Anatomy of the sign"
+paragraph then shows the exact split instead of the pending marker.
+
+## Higher-priority queued runs (from REFEREE_RESPONSE_V2, in order)
+1. decompose_tax_elasticity (above) — days, populates M2.
+2. The 2x2 matched experiment (referee C3): run_matched_dtpl_nk under
+   lump-sum and under proportional incidence on both sides.
+3. psi=2 collapse frontier under the incidence floor (referee C5).
+4. Post-damage leverage headline (referee 5.6).
+
+## One number to reconcile (I could not source it)
+Worked-example W(mu=0.02): -8.981 (optimal-accommodation appendix) vs -8.954
+(tab:benchmark) for the same steady state. Tell me which is authoritative.
+
+## The decisive future build (memo M1)
+The bonds-in-utility two-asset economy is the structural answer to C1 (it
+makes every price-level magnitude a computed equilibrium object). 3-5 weeks.
+Recommended as the next major extension after the queued runs.

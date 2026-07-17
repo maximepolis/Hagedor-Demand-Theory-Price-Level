@@ -67,6 +67,9 @@
 \providecommand{\epsRiskLo}{\pendingnum}\providecommand{\epsRiskHi}{\pendingnum}
 \providecommand{\epsSigLo}{\pendingnum}\providecommand{\epsSigHi}{\pendingnum}
 \providecommand{\epsBetaLo}{\pendingnum}\providecommand{\epsBetaHi}{\pendingnum}
+% Tilt decomposition (memo M2), populated by decompose_tax_elasticity.
+\providecommand{\epsLsPerRev}{\pendingnum}\providecommand{\epsLevyPerRev}{\pendingnum}
+\providecommand{\epsTilt}{\pendingnum}
 % Decile-resolution welfare incidence, populated by welfare_incidence_deciles.
 \providecommand{\WDecBotMed}{\pendingnum}\providecommand{\WDecTopMed}{\pendingnum}
 \providecommand{\WTopFiveMed}{\pendingnum}\providecommand{\WTopOneMed}{\pendingnum}
@@ -159,24 +162,32 @@ clears the market for nominal safe assets? We study a heterogeneous-agent
 economy in which green public investment --- by changing future damages,
 household risk, and the taxes that service it --- moves the precautionary
 demand for nominal government debt, and with it the price level, the real
-value of that debt, and the distribution of nominal wealth. Two results
-require no computation. Nominal debt issuance is neutral, so real debt is
-demand-determined: the stationary experiment is an appropriation financed by
-a tax mix, never a deficit. And steady-state inflation is neutral at a fixed
-real rate, so ``optimal accommodation'' is an optimal-real-rate result. What
-the financing choice governs is \emph{incidence}. A proportional levy with a
-rebate raises the price level (to $\RRebP$ from $\PzeroRegimes$) and
-makes the program progressive; a lump-sum tax lowers it (to $\RDefP$),
-handing bondholders a windfall --- the sign of the revaluation is an
-instrument choice, not a property of the program. Whether the program returns
+value of that debt, and the distribution of nominal wealth. The main result
+is that the financing instrument sets the \emph{sign} of the price-level
+response to the same appropriation, and with it who pays. A uniform lump-sum
+tax raises precautionary demand for the safe asset --- it is a proportional
+levy plus a regressive redistribution, and the redistribution tightens
+constrained households into saving --- so it lowers the price level (to
+$\RDefP$ from a no-program $\PzeroRegimes$) and hands bondholders a windfall;
+a proportional levy plus rebate does the reverse, raising the price level
+(to $\RRebP$) and making the program progressive. The revaluation channel's
+sign is thus an instrument choice, not a property of the program, which is
+why whether green investment is inflationary has no answer independent of
+who pays for it. Two homogeneity results scope the question rather than
+headline it: nominal debt issuance is neutral, so real debt is
+demand-determined and there is no stationary deficit to study; and
+steady-state inflation is neutral at a fixed real rate, so ``optimal
+accommodation'' is an optimal-real-rate result. Whether the program returns
 its resource cost is instead a climate-damage question: the benefit--cost
 ratio of public abatement crosses one only under high-damage estimates
 ($\bcrLow$, $\bcrMed$, $\bcrHigh$ across damage columns) and an abatement
-technology we report as a frontier, not a point estimate. Price-level
-magnitudes are one-asset upper bounds, scaling with the liquid
-nominal-government-debt share of household portfolios; along the announced
-transition, three quarters of the long-run price response arrives in the
-announcement year as a revaluation of the predetermined nominal stock.
+technology we report as a frontier, not a point estimate. The price-level
+\emph{signs, shares, and orderings} are properties of the incidence
+mechanism; the \emph{magnitudes} are conditional on the one-asset structure
+and carry a portfolio correction whose sign is not determined without a
+calibrated convenience-yield elasticity for the nominal liability. Along the
+announced transition, three quarters of the long-run price response arrives
+in the announcement year as a revaluation of the predetermined nominal stock.
 \end{abstract}
 
 \bigskip
@@ -305,8 +316,10 @@ object, \emph{how} the same real program is financed moves the price level
 through asset demand. Lump-sum taxes strengthen precautionary demand
 (disinflation, bondholder windfall) while a proportional carbon-style levy
 weakens it (inflation, debt erosion), and at the calibrated medium column the
-levy-plus-rebate design is more self-financing ($\nu$: $\RDefNu \to \RRebNu$)
-and, in steady state, progressive rather than regressive (bottom-half
+levy-plus-rebate design raises the revaluation share ($\nu_{\mathrm{reval}}$:
+$\RDefRev \to \RRebRev$) and lowers the net household burden ($\nu$:
+$\RDefNu \to \RRebNu$)
+and is, in steady state, progressive rather than regressive (bottom-half
 welfare: $\RDefBfifty\% \to \RRebBfifty\%$, top decile nearly unharmed) ---
 from the same nominal appropriation
 (Proposition~\ref{prop:financingdesign}, Table~\ref{tab:regimes}); along the
@@ -395,8 +408,9 @@ physical state: a green appropriation is disinflationary under lump-sum
 finance and inflationary under a proportional levy --- the price-level sign is
 an incidence choice, not a property of the program; nominal-rule uniqueness can
 fail and be repaired by \emph{denominating the spending line} in real terms
-(anchor insulation); and the optimal nominal growth rate is a genuine
-green-finance instrument. Relative to \citet{angeletos2024deficits} we evaluate a
+(anchor insulation); and the real rate --- not trend inflation, which is
+neutral by Proposition~\ref{prop:muneutral} --- is a genuine green-finance
+instrument. Relative to \citet{angeletos2024deficits} we evaluate a
 \emph{permanent} program across stationary equilibria with an endogenous
 price level, and find that the nominal (revaluation) channel they identify as
 a source of self-financing flips sign for green investment. Relative to
@@ -436,17 +450,48 @@ Theory of the Price Level \citep{hagedorn2026dtpl} takes a different route:
 under \emph{passive} fiscal policy, $P$ clears the asset market, exploiting
 the nondegenerate asset demand that incomplete markets create --- the
 complete-markets economy being the indeterminate benchmark
-\citep{sargentwallace1975}. The closest heterogeneous-agent nominal-debt
-laboratory is \citet{kaplannikolakoudisviolante2023}, whose long-run anchor is
-our steady-state object; what differentiates us is the climate state and the
-spending-denomination margin. \citet{hoefer2025}, who proves multiplicity of
-price levels in heterogeneous-agent models under constant primary deficits,
-disciplines our sunspot proposition. Within this program our contribution is
-twofold: we show that the DTPL's uniqueness properties interact nontrivially
-with a physical state that feeds back into asset demand, and --- to our
-knowledge for the first time --- that the decisive determinacy margin can be
-the \emph{denomination of a spending line} (nominal versus indexed) rather
-than a policy-rule coefficient.
+\citep{sargentwallace1975}. The closest heterogeneous-agent nominal-debt laboratory is
+\citet{kaplannikolakoudisviolante2023}, and the overlap is close enough to
+state precisely what is and is not new. They study price-level determination
+in flexible-price Bewley economies with nominal debt and establish, among
+other things, that fiscal changes move the price level through the household
+demand for savings, that redistribution and precautionary saving
+\emph{amplify} the price-level response to fiscal interventions, and that
+the maximum sustainable deficit is \emph{lower} under more redistributive
+tax-and-transfer systems. The shared primitive is exactly ours: the
+incidence of the tax system moves the price level through precautionary
+asset demand. Three things separate the papers. First, the \emph{regime}:
+their determination is FTPL-rooted (the price level reads off a fiscal
+valuation with a chosen deficit), while ours is the passive-fiscal Demand
+Theory in which taxes adjust to the budget every period and $P$ clears the
+asset market --- so their comparative static is deficit capacity, ours is
+the price-level response to a \emph{given} nominal appropriation. Second,
+the \emph{object}: our centerpiece is the \emph{sign reversal} of the
+revaluation channel for the same productive program across tax instruments,
+which is not their result; their redistributivity channel and our
+instrument channel share the primitive $\partial\Sfun/\partial\tau$ but ask
+different questions of it (how far can deficits go, versus which way does
+the price level move). Third, the \emph{content}: the climate feedback, the
+damage-dividend (productive-spending) margin, the spending-denomination
+determinacy margin, and the nonlinear no-Phillips-curve announcement
+transition have no counterpart there. What survives translation between the
+regimes is the primitive and its incidence reading; what does not is the
+determination mechanism and the object it prices. \citet{hoefer2025}, who
+proves multiplicity of price levels in heterogeneous-agent models under
+constant primary deficits, disciplines our sunspot proposition. The broader
+message that real government debt is demand-determined and that fiscal
+capacity is a property of that demand curve connects to
+\citet{mianstraubsufi2022} on the limits of fiscal space, to
+\citet{bassettocui2018} on price-level determination when $r<g$, to
+\citet{brunnermeier2024} on a price level pinned by the service flow of the
+safe asset, and to \citet{kocherlakota2023} on public-debt bubbles in
+heterogeneous-agent economies with tail risk --- adjacent determination
+theories against which the demand-theoretic route should be read. Within
+this program our contribution is twofold: we show that the uniqueness
+properties interact nontrivially with a physical state that feeds back into
+asset demand, and --- to our knowledge for the first time --- that the
+decisive determinacy margin can be the \emph{denomination of a spending
+line} (nominal versus indexed) rather than a policy-rule coefficient.
 
 Our multiplicity result has a close cousin in the heterogeneous-agent New
 Keynesian literature. Quantitative HANK models \citep{kaplan2018,auclert2021}
@@ -688,7 +733,18 @@ y(e;D) \;=\; \big(1 - D\,\chi(e)\big)\,e, \qquad
 \end{equation}
 so that $\E[\chi(e)\,e]=1$: the population-average damage share equals $D$,
 while $\psi>0$ tilts the burden toward low-endowment households
-\citep[the incidence evidence in][]{kanzig2023carbon,fried2018}. The
+\citep[the incidence evidence in][]{kanzig2023carbon,fried2018}. Because a
+steeply regressive gradient can drive $D\chi(e)$ above one at the lowest
+endowment state, we impose an economic floor on effective income,
+$y(e;D)\ge\underline{s}\,e$ with a benchmark $\underline{s}=0.05$, so that no
+household loses more than a fixed fraction of its endowment to damages and
+the fiscal-space object is bounded. The floor is slack at the calibrated
+benchmark and binds only under strong regressive incidence at high damages
+(around $\psi=2$); where it binds, mean effective income exceeds $1-D$, so
+the aggregate identities below that use $\E[y(e;D)]=1-D$ hold exactly only
+in the unfloored region and are first-order approximations where the floor
+is active (Section~\ref{subsec:sunspots} recomputes the collapse frontier
+under the floor). The
 benchmark of Section~\ref{sec:quant} also allows damages to raise the
 \emph{dispersion} of endowment risk directly,
 $\sigma_\epsilon(D)=\sigma_{\epsilon,0}(1+\phi_D D)$, the reduced form of the
@@ -729,8 +785,16 @@ emissions--stock equations and the closed-economy mapping from own spending
 to own damages is exact. Under that reading $\theta_g$ is a hardening
 elasticity, not an abatement effectiveness. The two are structurally distinct
 --- adaptation acts on $D$ at fixed $X$, mitigation acts on $X$ --- and only
-the reduced form supports the closed-economy interpretation cleanly. What the
-mechanism needs is common to both: public capital that lowers future damages.
+the reduced form supports the closed-economy interpretation cleanly. We
+therefore take \emph{public adaptation capital} (the reduced form,
+version~1) as the benchmark reading throughout the calibrated pass: it is
+the internally coherent closed-economy interpretation, it makes the
+productive-capital margin of Section~\ref{subsec:robustness} defensible, and
+it is the reading for which the hardening-elasticity evidence of
+\citet{fried2022seawalls} offers discipline. The carbon-stock version~2 then
+serves as the coordinated-mitigation robustness variant, one country's share
+of a global program. What the mechanism needs is common to both: public
+capital that lowers future damages.
 Crucially, $\theta_g$ has no clean empirical counterpart under either reading
 (Section~\ref{subsec:robustness} reports it as a frontier, not a point), so
 the quantitative benefit--cost ratios below identify the \emph{internal
@@ -1014,12 +1078,13 @@ asset bound is $-\bar a$, from the borrowing limit $a_{t+1}\ge-\bar a$).
 \paragraph{The analytical status of the results, up front.} The formal
 statements below are uniformly labeled but are not of uniform logical
 strength, and we flag the status of each so a theory-facing reader can weight
-them. Four are \textbf{proved from primitives} and carry the paper's weight:
+them. Three are \textbf{proved from primitives} and carry the paper's weight:
 the nominal neutrality of debt issuance (Lemma~\ref{lem:neutrality}),
-steady-state monetary neutrality (Proposition~\ref{prop:muneutral}), the
-sufficient-statistic incidence formula (Proposition~\ref{prop:suffstat},
-under differentiability at the crossing), and the
-exact self-financing decomposition (Proposition~\ref{prop:selffinancing}). The
+steady-state monetary neutrality (Proposition~\ref{prop:muneutral}), and the
+exact self-financing decomposition (Proposition~\ref{prop:selffinancing});
+the sufficient-statistic incidence formula
+(Proposition~\ref{prop:suffstat}) is the same algebra under a maintained
+differentiability hypothesis, numerically verified. The
 rest are explicitly qualified. Existence and uniqueness
 (Proposition~\ref{prop:determinacy}) hold under the stated crossing and
 regularity conditions (R1)--(R2). The multiplicity result
@@ -1062,11 +1127,14 @@ is therefore strictly increasing; under the real mandate it is constant.
 \end{lemma}
 
 \begin{lemma}[Nominal anchor]\label{lem:anchor}
-In any stationary equilibrium with the nominal growth rule
-\eqref{eq:nominalrule}, $\pi^{ss}=\mu$ and $1+r^{ss}=(1+i^{ss})/(1+\mu)$:
-policy pins the real rate independently of $P$, so all price-level
-determination runs through the single equation $\Phi(P)=0$.
-(\citealp{hagedorn2026dtpl}.)
+In any \emph{deterministic} stationary equilibrium with the nominal growth
+rule \eqref{eq:nominalrule}, $\pi^{ss}=\mu$ and
+$1+r^{ss}=(1+i^{ss})/(1+\mu)$: policy pins the real rate independently of
+$P$, so all price-level determination runs through the single equation
+$\Phi(P)=0$. (The qualifier is load-bearing: under aggregate risk the
+state-contingent real value $B/P_s$ of the nominal bond makes the nominal
+level payoff-relevant and the anchor no longer pins $r$ state by state;
+see Section~\ref{subsec:aggrisk}.) (\citealp{hagedorn2026dtpl}.)
 \end{lemma}
 
 % --------------------------------------------------------------------------
@@ -1240,9 +1308,12 @@ market; and (ii) the \emph{magnitude} is amplified by $1/(1+\varepsilon_S)$,
 which diverges as $\varepsilon_S\downarrow-1$, the boundary of the
 multiplicity region.
 \end{proposition}
-\noindent\emph{Status:} \textbf{proved from primitives} (implicit function
-theorem at the crossing) under differentiability of $\Sfun$ at the
-equilibrium, the regularity that (R1)--(R2) supply; proof in
+\noindent\emph{Status:} \textbf{proved under a maintained regularity
+hypothesis, numerically verified} --- the implicit function theorem at the
+crossing, given differentiability of $\Sfun$ at the equilibrium, which
+(R1)--(R2) supply as a hypothesis (the finite chain and the constraint mass
+point make it a hypothesis, not a primitive) and which holds at every
+reported equilibrium; proof in
 Appendix~\ref{app:proofs}.
 
 Every headline result in this paper is a reading of \eqref{eq:suffstat}.
@@ -1306,8 +1377,12 @@ dN \;=\; \big(1-\kappa\big)\,dg_g \;-\;
 \tau^{*}\,\epsilon_P\, dg_g ,
 \label{eq:marginal}
 \end{equation}
-so the program is marginally self-financing iff
-$\kappa + \tau^{*}\,\epsilon_P \ge 1$. (Away from the no-program point the
+so the marginal \emph{net household burden} falls to zero iff
+$\kappa + \tau^{*}\,\epsilon_P \ge 1$. (This is a net-burden condition, not a
+fiscal self-financing one: by the aggregation after
+Definition~\ref{def:nu}, $\tau+D$ overstates the resource burden by the
+interest transfer $r^{ss}b$, so the condition governs $dN$, the change in
+$\tau+D$, not the treasury's books. Away from the no-program point the
 price-response coefficient is convention-dependent: it is $\tau^{*}-\kappa g_g$
 if $dg_g$ denotes the direct change $dG_g/P$ at a fixed price level, and
 $\tau^{*}-g_g$ under the equilibrium convention $\epsilon_P\equiv d\ln P/dg_g$
@@ -1560,7 +1635,11 @@ strictly positive. Its magnitude is quantitative.
 \end{proposition}
 \noindent\emph{Status:} analytic \textbf{reduction} to a real-rate problem
 (via Proposition~\ref{prop:muneutral}) plus a \textbf{numerically located}
-interior optimum; proof in Appendix~\ref{app:proofs}.
+interior optimum; proof in Appendix~\ref{app:proofs}. The reduction is
+general; the interior location $\mu^{*}\approx4.5\%$ is computed at the
+illustrative worked-example scale (Appendix~\ref{subsec:optmu}) and should be
+read as an existence-and-direction result --- accommodation is a real-rate
+instrument with an interior optimum --- not as a calibrated policy magnitude.
 
 % --------------------------------------------------------------------------
 \subsection{Financing design and the revaluation channel}\label{subsec:financingdesign}
@@ -1786,8 +1865,10 @@ Table~\ref{tab:calibrated} reports the run.
 \begin{table}[!htb]
 \centering
 \caption{Calibrated self-financing by damage column
-($\beta^{*}=\betaStar$, debt/income $=1.10$, program $=2\%$ of income,
-$\mu=0.02$, $n_a=500$ run, calibration-consistent risk channel). The
+($\beta^{*}=\betaStar$, debt/income $=1.10$, real program
+$g_{g,1}=\RDefGg$, i.e.\ $2.1\%$ of mean income at the program price level
+($2.0\%$ at the no-program price), $\mu=0.02$, $n_a=500$,
+calibration-consistent risk channel). The
 $\theta_g$-threshold row is the $\nu=1$ frontier of the robustness sweep
 (Section~\ref{subsec:robustness}, same $\beta^{*}$). All numbers are
 written directly from the saved solver output.}
@@ -1971,11 +2052,16 @@ incidence-driven reversal that Propositions~\ref{prop:sunspots} and
 \ref{prop:financingdesign} identify. The disinflation result is thus robust
 across damage calibrations and effectiveness but is, by design, a knife-edge
 in the incidence gradient --- which is the paper's point, not a fragility.
-Two variants are informative by their absence: $\sigma=1$ is omitted because
-the incomplete-markets economy cannot generate debt of $1.1$ times income at
-the calibrated real rate when risk aversion is that low (the precautionary
-motive is too weak --- a restriction on the model, not a numerical failure),
-which is itself why the benchmark uses $\sigma=2$.
+One variant is informative by its absence. At $\sigma=1$ the debt target is
+still attainable in principle --- in a Bewley economy aggregate asset demand
+rises without bound as $\beta\uparrow 1/(1+r^{ss})$, so \emph{some} $\beta$
+close enough to the $\beta(1+r^{ss})<1$ boundary hits any finite target ---
+but the required $\beta$ is implausibly close to that boundary, where asset
+demand is extremely $\beta$-elastic and the calibration is numerically
+delicate rather than economically disciplined. We therefore report the
+benchmark at $\sigma=2$, where the same target is met at an interior,
+well-identified $\beta$, and read the $\sigma=1$ difficulty as a statement
+about identification, not about feasibility.
 
 A final exercise probes the endowment structure itself. The natural
 objection is that an endowment economy has no output margin: there is no tax
@@ -2060,8 +2146,13 @@ with partial-equilibrium asset demand moving from $S(\tau_0, D_0) = 1.107$
 to $S(\tau_1, D_0) = 1.174$ (taxes), $S(\tau_0, D_1^{\mathrm{lev}}) =
 1.122$ (damage level), and $S(\tau_0, D_1^{\mathrm{risk}}) = 1.085$
 (risk); the near-zero interaction term says the three channels are
-additive to two decimal places at this scale. Two lessons, one expected
-and one not. The expected one: the tax
+additive to two decimal places at this scale. This tax node is the same
+primitive as the semi-elasticity of Table~\ref{tab:elasticitymap} seen from
+the price side: the local slope $\partial\ln\Sfun/\partial\tau=\epsTau$,
+carried in general equilibrium over the program's tax increment
+($\tau$ rises from $0.022$ to $0.042$), produces the tax-burden price-level
+contribution reported here, so the two exhibits are one measured object.
+Two lessons, one expected and one not. The expected one: the tax
 burden dominates --- lump-sum taxes push constraint-adjacent households
 toward precautionary saving, asset demand rises, and the price level
 falls, which is the core of green disinflation. The unexpected one: the
@@ -2139,6 +2230,40 @@ households pushed off the constraint into saving --- and upper-wealth
 households scale their buffers up. The incidence results inherit the
 \emph{motive}; the aggregate demand shift is carried by the wealthy.
 
+\paragraph{Anatomy of the sign: a lump-sum tax is a levy plus a regressive
+tilt.} The positive sign is easier to read once the lump-sum instrument is
+split into two operations that the unified schedule makes exact. A uniform
+lump-sum tax $d\tau$ equals a proportional levy raising the same revenue
+plus a mean-zero regressive redistribution:
+\begin{equation}
+y_i - d\tau
+\;=\; \underbrace{y_i\Big(1-\tfrac{d\tau}{\bar y}\Big)}_{\text{proportional levy}}
+\;+\; \underbrace{d\tau\big(\tfrac{y_i}{\bar y}-1\big)}_{\text{regressive tilt, mean zero}},
+\qquad \bar y = 1-D,
+\label{eq:tiltdecomp}
+\end{equation}
+where the tilt takes from below-mean households and gives to above-mean
+households with cross-sectional mean exactly zero. The two operations move
+precautionary asset demand in \emph{opposite} directions: the proportional
+levy is a homothetic contraction that lowers demand (the measured
+$\partial\ln\Sfun/\partial\vartheta=\epsLevy$), while the regressive tilt
+tightens the constrained and \emph{raises} it. The measured lump-sum
+semi-elasticity ($\epsTau$) exceeds the levy in sign and magnitude, so the
+tilt component is the larger force --- the positive sign of the paper's
+pivotal primitive is the asset-demand response to \emph{regressive
+redistribution}, not to taxation per se, which is exactly why it vanishes at
+the loose borrowing limit where the constrained mass empties
+(Table~\ref{tab:elasticitymap}). This decomposition is also the
+mechanism-level bridge to \citet{kaplannikolakoudisviolante2023}: their
+finding that fiscal capacity is \emph{lower} under more redistributive
+tax-and-transfer systems is the same tilt component applied to deficit
+space, where a more redistributive system removes the precautionary demand
+the tilt props up; we apply it to the sign of the revaluation channel for a
+given appropriation. The tilt-only counterfactual makes the split exact: per
+unit of revenue the lump-sum response $\epsLsPerRev$ equals the
+same-revenue levy response $\epsLevyPerRev$ plus the mean-zero tilt response
+$\epsTilt$, so the tilt carries the entire positive sign and more.
+
 \begin{table}[!htb]
 \centering
 \caption{The tax semi-elasticity of safe-asset demand, $\partial\ln\Sfun/\partial\tau$,
@@ -2185,42 +2310,58 @@ caveat, and it is a discipline the one-asset economy cannot supply on its own.
 Here the nominal government liability is the household's only store of
 value, so the entire buffer stock revalues when $P$ moves. In the data the
 nominal safe asset --- currency, reserves, and short government debt --- is a
-minority of household financial wealth, so the revaluation base is a fraction
-of total precautionary saving and the one-asset magnitudes are \emph{upper
-bounds} on the price-level and wealth-revaluation effects (the
-public-debt-as-private-liquidity margin of \citealp{woodford1990}). The
-two-asset extension of Section~\ref{subsec:twoasset} makes this liquid-bond
-share observable and finds the \emph{qualitative} responses intact but the
-magnitudes scaled down by roughly the liquid share. The scope of that
-extension matters: it is a linearized Phillips-curve exercise
-with a constant liquidity premium, not a nonlinear DTPL
-price-level solve, so it locates the sign and the rough scaling of the
-portfolio margin but \emph{cannot} validate the quantitative $5\%$ repricing
---- that would require solving the two-asset economy as a DTPL price-level
-fixed point with an \emph{endogenous} convenience yield. Anchoring the liquid
-share to micro portfolio data and endogenizing that yield is therefore the
-outstanding discipline that would convert the one-asset sign result into a
-robust quantitative magnitude; it remains an open item, and the $5\%$ should
-not be read as a portfolio-validated number.
+minority of household financial wealth (the
+public-debt-as-private-liquidity margin of \citealp{woodford1990}), so a
+program that shifts \emph{total} precautionary saving need not shift the
+demand for the government liability one-for-one, and the one-asset
+magnitude carries a portfolio correction. Crucially, the sign of that
+correction is not known a priori; it depends on how the outside asset
+absorbs the shift, and three cases bracket the possibilities.
+\emph{(i) Stable portfolio shares.} If the program raises desired total
+wealth by $x\%$ and the bond keeps a fixed share, bond demand also rises by
+$x\%$ and $d\ln P$ is \emph{unchanged} from the one-asset economy --- no
+scaling at all. \emph{(ii) Pinned outside return.} Add a real asset $k$ with
+$f'(k)=r_k+\delta$ and $r_k$ tied to the policy-pinned rate by a constant
+wedge; then $k$ is pinned, bonds are the residual $b=S_{\text{tot}}-k$, and
+$d\ln P = -(S_{\text{tot}}/b)\,d\ln S_{\text{tot}}$ is \emph{amplified} by
+the wealth-to-debt ratio $\approx1/\omega$ --- the one-asset number
+\emph{understates}. \emph{(iii) Elastic convenience yield.} With
+$r_k=r_b+\ell(b/y)$, $\ell'<0$, the correction is
+$d\ln b=(S_{\text{tot}}/b)\,d\ln S_{\text{tot}}/(1+k'\ell'/y)$, whose
+magnitude --- and whether it lands above or below the one-asset number ---
+is governed entirely by $\ell'$, the semi-elasticity of the safe-asset
+convenience yield to its supply, which the empirical Treasury-premium
+literature measures directly \citep{krishnamurthy2012} but which no
+nonlinear demand-theory model has yet used to close the price-level block.
+The linearized two-asset extension of Section~\ref{subsec:twoasset} sits in
+case (iii) with $\ell'$ effectively fixed at a constant premium, so it
+locates the sign of the portfolio channel but cannot sign or size the
+correction; the endogenous-convenience-yield solve that would is the
+outstanding discipline (Section~\ref{sec:conclusion}). We therefore report
+the one-asset magnitude as \emph{conditional on the one-asset structure},
+with an explicitly unsigned portfolio correction, and rest the paper's
+quantitative content on the \emph{signs, shares, and orderings}, which are
+robust across all three cases.
 
-\paragraph{Reading the one-asset magnitudes as bounds.} Concretely, then, the
-headline revaluations of this paper --- the $\approx5\%$ steady-state
-price-level decline, the year-one capitalization of $77\%$ of the long-run move
-(Section~\ref{subsec:tier2}), and the announcement capital levy --- should be
-read as \emph{upper bounds}, scaled down by the share $\omega$ of household
-precautionary wealth actually held in liquid nominal government liabilities. In
-US flow-of-funds terms, currency, reserves, and short Treasuries held by
-households and money funds are on the order of $\omega\approx0.15$--$0.25$ of
-liquid household financial assets, so a first-order portfolio correction puts
-the \emph{empirically relevant} steady-state repricing nearer
-$\omega\times5\%\approx1$--$1.3\%$ and the announcement capitalization at a
-correspondingly smaller level --- same sign, same front-loading, magnitudes
-divided by roughly four to seven. We state this as an explicit
-\emph{scaling exercise}, not a computed equilibrium: the exact number requires
-the endogenous-convenience-yield DTPL solve above, and $\omega$ itself is
-policy- and definition-dependent. The qualitative claims (sign, incidence,
-front-loading) do not depend on $\omega$; the quantitative magnitudes do, and
-we do not want the one-asset numbers read as point predictions.
+\paragraph{Reading the one-asset magnitudes.} The headline revaluations of
+this paper --- the $\approx5\%$ steady-state price-level decline, the
+year-one capitalization of $77\%$ of the long-run move
+(Section~\ref{subsec:tier2}), and the announcement capital levy --- are
+therefore \emph{conditional on the one-asset structure}, and we do not
+assert a direction for the portfolio correction. A reader who believes
+portfolio shares are roughly stable (case i) should read the magnitudes
+as-is; one who believes the outside return is pinned (case ii) should read
+them as understatements; the honest statement is that the correction is
+governed by an elasticity ($\ell'$) this literature has not yet used to
+close a nonlinear price-level model, so its sign is open. What the paper
+does establish, and what does not depend on that elasticity, is the set of
+\emph{signs, shares, and orderings}: that lump-sum finance is
+disinflationary and a levy inflationary, that the revaluation channel
+reverses sign with the financing instrument, that the incidence is
+regressive under lump-sum and progressive under the rebate, and that the
+repricing is front-loaded into the announcement year. We recommend the
+one-asset numbers be read as the mechanism's exact accounting within its
+structure, not as portfolio-validated point predictions.
 
 \pfigguard{PFig15_safe_asset_decomposition.pdf}{%
 \begin{figure}[!htb]\centering
@@ -2246,7 +2387,18 @@ Markov chain --- \textsc{calm} ($D^0=0.06$) and \textsc{severe}
 a small annual probability of entering the severe state and a mean severe
 spell of a few years ($\Pi^{\mathrm{agg}}=[0.95,0.05;\,0.30,0.70]$).
 Households still hold only the one-period nominal bond; markets are
-incomplete in the aggregate as well as the idiosyncratic dimension. The
+incomplete in the aggregate as well as the idiosyncratic dimension. We
+compute this exercise under the \emph{indexed mandate}, so that real green
+spending $g_g$ --- and hence abatement capital $K_g$ and the damage map
+$D_s=D_s^0 e^{-\theta_g K_g}$ --- is common across aggregate states and does
+not itself become a slow aggregate state variable; taxes are set
+state-by-state to the service rule $\tau_s=r^{ss}b_s+g_g$. (Under the
+nominal appropriation $g_{g,s}=G_g/P_s$ would fall in the severe state,
+where $P_S/P_C\approx1.37$, making $K_g$ an additional aggregate state; we
+bracket that case in the robustness discussion rather than carry the extra
+state dimension here, and note that the indexation choice gives
+Proposition~\ref{prop:insulation} an on-equilibrium reading --- indexation
+stabilizes real abatement in the disaster state.) The
 price level is now measurable in the aggregate state, $(P_C,P_S)$, and
 the bond's \emph{real} return is state-contingent,
 \[
@@ -2341,7 +2493,7 @@ the computation confirms \eqref{eq:premiuminert} numerically to machine precisio
 (the direct ergodic bill and the closed form agree to $3\times10^{-18}$). In
 the calibrated aggregate-risk economy the self-financing share is
 $\nu=0.77$ ($\nu_{\mathrm{dam}}=0.85$, $\nu_{\mathrm{reval}}=-0.08$),
-above the medium-column deterministic value of $0.56$ --- not because
+above the medium-column deterministic value of $\nuMedShort$ --- not because
 aggregate risk helps the budget, but because the ergodic-mean damage is
 higher when a high-damage severe state is possible, so the expected damage
 dividend is larger.
@@ -2603,7 +2755,7 @@ Three results, the first of which we regard as the sharpest in the paper.
 First, \textbf{the sign of the revaluation channel is a policy choice}
 (Proposition~\ref{prop:financingdesign}): moving from lump-sum to
 proportional financing flips green disinflation ($\nu_{\mathrm{reval}} =
--0.055$) into mild green inflation ($+0.030$; $+0.111$ with the rebate).
+\RDefRev$) into mild green inflation ($\RLevRev$; $\RRebRev$ with the rebate).
 The mechanism is the asset-demand incidence at the heart of the DTPL:
 lump-sum taxes push constraint-adjacent households toward their borrowing
 limit and \emph{raise} precautionary demand (the price level falls, the
@@ -2611,10 +2763,10 @@ fisc loses the revaluation); a proportional levy scales endowments and
 lowers demand roughly proportionally (the price level rises, real
 debt erodes). Second, the progressive design wins on \emph{both} margins
 simultaneously: the levy-plus-rebate regime is the most self-financing
-($\nu = 0.758$, a fifth more than lump-sum financing) and the most
-progressive (the bottom half gains $+1.13\%$ against $-2.16\%$ under
-lump-sum financing, while the top decile is nearly unharmed at $-0.12\%$
-versus $-1.02\%$) --- a near-Pareto dominance over the conventional lump-sum
+($\nu = \RRebNu$, a fifth more than lump-sum financing) and the most
+progressive (the bottom half gains $\RRebBfifty\%$ against $\RDefBfifty\%$ under
+lump-sum financing, while the top decile is nearly unharmed at $\RRebTten\%$
+versus $\RDefTten\%$) --- a near-Pareto dominance over the conventional lump-sum
 regime. Third, the magnitudes quantify how much the DTPL incidence channel
 is worth: all four regimes fund the same nominal appropriation (the real
 program varies by under a sixth across them, Table~\ref{tab:regimes}), yet
@@ -2963,7 +3115,7 @@ second, independent way and compare. The alternative is a Newton iteration in
 $J_{ts}=\partial\,[\,\Sfun_t-\hat B_t/\hat P_t\,]/\partial\ln\hat P_s$ (with
 $\hat B_t=B_0$ the detrended stock) of the
 market-clearing residual along the path --- the sequence-space Jacobian of
-\citet{auclertetal2021}, here computed directly, since the aggregate unknown is
+\citet{auclert2021}, here computed directly, since the aggregate unknown is
 a scalar per date --- and step $\ln\hat P \leftarrow \ln\hat P - J^{-1}H$. The
 first Newton step from the log-linear bridge reproduces the model's linear
 impulse response exactly, a built-in correctness gate, and the two solvers are
@@ -2999,11 +3151,10 @@ the $1.10$ target; interior market-clearing residual below $5\times10^{-4}$
 at every free date, terminal residual below $5\times10^{-4}$, $88$ and
 $72$ Anderson iterations for the two designs) delivers the paper's
 dynamics in three statements. Like every repricing in the paper, the
-\emph{levels} here are one-asset upper bounds: scaled by the liquid
-nominal-liability share $\omega\approx0.15$--$0.25$ of
-Section~\ref{subsec:safeasset}, the $3.9\%$ impact repricing below reads as
-roughly $0.6$--$1.0\%$, while the \emph{shares} (the front-loading fraction,
-the sign, the timing) are scale-free. \emph{First, green disinflation is
+\emph{levels} here are conditional on the one-asset structure and carry the
+unsigned portfolio correction of Section~\ref{subsec:safeasset}; the
+\emph{shares} (the front-loading fraction, the sign, the timing) are
+structure-free and are what the statements below rely on. \emph{First, green disinflation is
 front-loaded:} the announcement moves the stationarized price level down
 $3.9\%$ on impact --- year-one inflation of $-2.0\%$ against the $+2\%$
 nominal trend --- which is $77\%$ of the entire long-run green
@@ -3185,8 +3336,10 @@ appropriations \emph{can} expose the economy to self-fulfilling brown
 stagnation when damage incidence is regressive enough --- a conditional
 region the calibrated benchmark does not occupy --- while indexed mandates
 insulate the nominal anchor at no fiscal cost. Against the quantitatively
-binding failure mode, fiscal-space collapse, the effective instrument is
-accommodation, not indexation.
+binding failure mode, fiscal-space collapse \emph{under lump-sum finance},
+the effective instrument is accommodation, not indexation --- and, as the
+incidence results imply, shifting the burden off the constrained through a
+proportional levy relaxes the same constraint.
 
 The dynamics reinforce these conclusions rather than softening them. The
 representative-agent and linearized heterogeneous-agent diagnostics of
@@ -3251,15 +3404,26 @@ includes a \emph{matched} demand-theory-versus-New-Keynesian experiment:
 the heterogeneous-agent New Keynesian economy of Appendix~\ref{app:nkhank}
 re-run with a near-permanent program at the demand-theory scale, balanced
 (service-rule-speed) financing, no accommodation, and the labor margin shut
---- so that, up to linearization and frequency, only the price-determination
-block differs. The matched run delivers an annualized announcement-window
+--- so that, up to linearization and frequency, the price-determination
+block and the tax-incidence convention are the two remaining differences.
+The matched run delivers an annualized announcement-window
 inflation impact of \matchedNKimpact\% in the NK economy against
-\matchedDTPLimpact\% in the DTPL transition: the signs remain opposite
-under the matched design, so the contrast is attributable to the
-price-determination block itself, up to linearization and frequency. The
-complementary test is empirical: high-frequency identification of the
-market-implied-inflation response to green-fiscal surprises. The sign is the
-object; the current confounded reduced-form record cannot yet adjudicate it.
+\matchedDTPLimpact\% in the DTPL transition: the signs are opposite under
+this design. One caveat is load-bearing, by the paper's own thesis. The NK
+household budget levies taxes proportional to idiosyncratic efficiency,
+while the DTPL disinflation is generated by the uniform lump-sum
+instrument, and Proposition~\ref{prop:financingdesign} shows the tax
+instrument alone can flip the sign of the asset-demand response --- indeed
+the rebate design's announcement jump ($+12.8\%$) shares the NK run's sign.
+The clean discriminating experiment is therefore the $2\times2$ of
+\{price-determination\}\,$\times$\,\{lump-sum, proportional\} announcement
+signs, run with matched incidence on both sides; we report the
+opposite-sign result under lump-sum incidence here and flag the full grid,
+together with the income-process match, as the specification the empirical
+counterpart requires. The complementary test is empirical: high-frequency
+identification of the market-implied-inflation response to green-fiscal
+surprises. The sign is the object; the current confounded reduced-form
+record cannot yet adjudicate it.
 
 % ==========================================================================
 \appendix
@@ -3274,7 +3438,9 @@ is nonempty and compact at every state; with $\beta<1$ and $u$ bounded above
 on compacts (after the usual truncation of the asset grid at
 $\bar A<\infty$, valid since $\beta(1+r)<1$ implies a finite buffer-stock
 target), the Bellman operator is a contraction and $V$, the policies, and the
-invariant distribution exist; continuity in $(\tau,D)$ follows from the
+invariant distribution exist; the income chain $\Pi$ is irreducible and
+aperiodic (a Rouwenhorst discretization of an AR(1)), so the invariant
+distribution is unique, and continuity in $(\tau,D)$ follows from the
 theorem of the maximum and the continuity of the (finite-state) invariant
 distribution in the policy. Scaling: let $\lambda=1-D>0$ and scale
 $(a,\tau)\mapsto(\lambda a,\lambda\tilde\tau)$ with
@@ -3294,9 +3460,8 @@ risk components. \qed
 
 \subsection{Proof of Lemma \ref{lem:climate}}
 Write the right side of \eqref{eq:climatefixedpoint} as $T(D)$ on
-$[0,D_{\max}]$. $T$ is continuous, $T(0)>0$, $T(D_{\max})<D_{\max}$, and
-$T'(D) = -D_{\max}e^{-\gamma_x X(D)}\gamma_x \varepsilon_0
-(1-\alpha_A A)/\delta_x \cdot(-1) \cdot(-1) <0$... computing directly:
+$[0,D_{\max}]$. $T$ is continuous, $T(0)>0$, and $T(D_{\max})<D_{\max}$. For
+monotonicity, note that
 $X(D)=\varepsilon_0(1-\alpha_A A)(1-D)/\delta_x$ is decreasing in $D$, and
 $D\mapsto D_{\max}(1-e^{-\gamma_x X})$ is increasing in $X$; hence $T$ is
 \emph{decreasing} in $D$. A continuous decreasing self-map of an interval has
@@ -3378,14 +3543,20 @@ The channel decomposition of $\eta_g$ is the chain rule applied to
 $1+\varepsilon_S>0$ there; part (ii) reads off the denominator, whose zero is
 the tangency at which the upward crossing of
 Proposition~\ref{prop:determinacy} degenerates and beyond which the downward
-crossing of Proposition~\ref{prop:sunspots} exists. On differentiability: $\Sfun$ aggregates
-household policies over the invariant distribution, so borrowing-constraint
-kinks at the household level are integrated over a nonatomic distribution of
-states; the maintained hypothesis is differentiability of the aggregate at
-the crossing --- the same regularity (R1)--(R2) under which
-Proposition~\ref{prop:determinacy}(ii) operates --- verified numerically at
-every reported equilibrium, where the measured $\varepsilon_S$ is far from
-$-1$ (Section~\ref{subsec:sunspots}). \qed
+crossing of Proposition~\ref{prop:sunspots} exists. On differentiability we
+are explicit that a hypothesis is maintained, not proved: $\Sfun$ aggregates
+household policies over an invariant distribution that is \emph{not}
+nonatomic --- the income chain is finite and the borrowing limit $\bar a=0$
+places a positive mass of households at a single asset point --- so the
+consumption policy has constraint kinks and the aggregate is not
+differentiable for free. We therefore take differentiability of $\Sfun$ at
+the crossing as the maintained regularity condition (R1)--(R2) under which
+Proposition~\ref{prop:determinacy}(ii) also operates, and verify it
+numerically at every reported equilibrium, where the measured
+$\varepsilon_S$ is smooth and far from $-1$
+(Section~\ref{subsec:sunspots}); the status of the proposition is accordingly
+\emph{proved under a maintained regularity hypothesis, numerically
+verified}, not proved from primitives without qualification. \qed
 
 \subsection{Proof of Proposition \ref{prop:selffinancing} and
 Result \ref{res:disinflation}}
