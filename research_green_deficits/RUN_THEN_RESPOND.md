@@ -486,3 +486,50 @@ Reconcile every [transcribed] literal in paper/approved_literals.txt and
 the hard-coded tables (incidence quintiles, extended run, worked example)
 against the regenerated output — the macros self-update, the typed numbers
 do not. check_manuscript_numbers.py is the checklist.
+
+---
+
+# Round 16 — EGM regeneration landed; hard-coded reconciliation done; ONE file still needed
+
+## What your master run produced (verified from the pushed output/ tables)
+The EGM regeneration confirms the predicted shift with every sign/ordering
+intact:
+- baseline P0 0.9051 -> 0.9033; lump-sum P* 0.859 -> 0.855; levy 0.931 ->
+  0.929; rebate 0.999 -> 0.997.
+- tax semi-elasticity +2.60 -> +2.77 (decomposition) / +2.75 (instrument);
+  levy dlnS/dvartheta -1.08 -> -0.95.
+- abar sweep peak 16.8 -> 18.2; constrained-mass change -1.3pp -> -1.5pp;
+  bottom-two-quintile share of the demand shift ~1% -> ~0.3% (top quintile
+  84%).
+- incidence quintiles shifted in the 2nd decimal (LOW Q1 -3.57 -> -3.59 etc).
+- fixed-real vs fixed-nominal nu_reval swing still matches to 3 decimals.
+
+## What I reconciled by hand this round (the exporter does NOT touch these)
+- tab:incidence: all three damage rows re-transcribed from calibrated_summary.
+- The two prose citations of the incidence table (-3.59 vs -1.90 low; +1.81
+  vs +2.40 high).
+- Extended run (subsec:extended): P*=0.2812, D=0.0708, tau=0.0772.
+- Sec 5.8 elasticity prose: abar peak +16.8 -> +18.2; constrained mass 1.3
+  -> 1.5 pp.
+- 2-digit demoted robustness numbers (sigma=3 nu=0.57 etc.) verified stable
+  at displayed precision -- no change needed.
+
+## STILL NEEDED FROM YOU: push paper/numbers_auto.tex
+Your master run's export_paper_numbers stage regenerated numbers_auto.tex on
+disk, but the push included output/ only -- so the paper's MACROS (RDefP,
+RRebP, epsTau, nu*, bcr*, the decile and wealth-fit macros, ...) are still
+the VFI values while the tables are EGM. One file fixes it:
+```
+git add research_green_deficits/paper/numbers_auto.tex && git commit && push
+```
+I deliberately did NOT hand-transcribe ~50 macros (error-prone); your
+exporter output is the authority. Once it lands, the abstract/intro/
+conclusion/Table 6/decile paragraph all self-update to EGM in one shot and
+the paper is fully consistent.
+
+## One value I could not source (please confirm)
+subsec:extended still reads "P0=0.2842 vs P1=0.2812" for the near-coincident
+no-program/program price levels. I sourced P1 (=X1 P*=0.2812) but the
+extended no-program P0 is not in the pushed summary; 0.2842 may be slightly
+stale (~0.283). If your extended_summary or log has the no-program extended
+P0, send it and I will correct the 0.2842.
