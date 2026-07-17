@@ -533,3 +533,40 @@ no-program/program price levels. I sourced P1 (=X1 P*=0.2812) but the
 extended no-program P0 is not in the pushed summary; 0.2842 may be slightly
 stale (~0.283). If your extended_summary or log has the no-program extended
 P0, send it and I will correct the 0.2842.
+
+---
+
+# Round 17 — EGM macros landed; paper fully reconciled. IMPORTANT workflow note.
+
+## Done this round
+numbers_auto.tex is now EGM (RDefP 0.855, RRebP 0.997, epsTau +2.77, ...).
+Recompiled; the abstract/intro/conclusion/Table 6/decile paragraph all
+self-updated. Remaining HARD-CODED reconciliation completed against the
+pushed tables:
+- Sec 5.8 safe-asset decomposition: total -5.23%->-5.45% (P0 0.9033, P1
+  0.8553); tax -5.77->-6.37, damage -1.57->-1.45, risk +2.08->+2.20,
+  interaction +0.03->+0.17; PE nodes 1.107/1.174/1.122/1.085; financing
+  swap +8.01->+8.24 log pts.
+- Sec 5.8 bottom-two-quintile share: the exporter rounds it to 0%, which
+  read as "exactly zero" -- reworded to "essentially none ... about
+  five-sixths from the top quintile" (84.3%), clearer and not macro-fragile.
+- Re-applied the tab:incidence / extended-run / +18.2 fixes that a
+  whole-folder upload had reverted (see the warning below).
+104 pages, clean, no stray VFI literal.
+
+## !!! WORKFLOW WARNING -- please read !!!
+Your "Add files via upload" pushes the WHOLE paper folder, including your
+local green_deficits_price_level.tex, which is BEHIND the version I edit
+here. Twice now that upload has reverted my hard-coded reconciliation of
+the .tex (incidence table, extended run, elasticity prose). To avoid losing
+edits and re-doing them:
+  - Prefer pushing ONLY the files you regenerate: output/ and
+    paper/numbers_auto.tex. Do NOT upload paper/green_deficits_price_level.tex
+    (I own it here), OR
+  - git pull before you upload so your local .tex matches mine.
+The macros (numbers_auto.tex) are yours to push; the manuscript prose/tables
+are mine to keep consistent.
+
+## One value still unsourced (unchanged)
+subsec:extended "P0=0.2842 vs P1=0.2812": I have P1; the extended
+no-program P0 is not in the pushed summary. Send it if you have it.
