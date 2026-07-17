@@ -555,4 +555,4 @@
   [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\climate_discipline.txt
   [saved] PFig_climate_discipline
 
-Elapsed: 70.7 s
+Elapsed: 59.8 s

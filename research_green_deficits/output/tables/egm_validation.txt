@@ -2,12 +2,12 @@ EGM vs VFI CROSS-VALIDATION (calibrated steady states, r=0.0196)
 Euler errors are log10 |1 - c_implied/c| off-grid over the unconstrained region.
 
 point                           S_vfi        S_egm       relS  EEmax_v  EEmax_e  EEavg_v  EEavg_e   t_vfi   t_egm
-LOW (DICE) base              1.080748     1.081053  +2.82e-04    -1.24    -2.55    -2.15    -5.43    0.58    0.15
-LOW (DICE) prog              1.140605     1.143196  +2.27e-03    -1.23    -2.45    -2.16    -5.44    0.44    0.16
-MEDIUM (DJO-BHM) base        1.104910     1.107277  +2.14e-03    -1.23    -2.59    -2.16    -5.51    0.43    0.14
-MEDIUM (DJO-BHM) prog        1.164857     1.169225  +3.75e-03    -1.15    -2.59    -2.13    -5.47    0.43    0.15
-HIGH (Bilal-Kaenzig) base     1.170460     1.168497  -1.68e-03    -1.15    -2.73    -2.09    -5.55    0.42    0.14
-HIGH (Bilal-Kaenzig) prog     1.243207     1.242706  -4.03e-04    -1.15    -2.50    -2.08    -5.38    0.35    0.12
+LOW (DICE) base              1.080748     1.081053  +2.82e-04    -1.24    -2.55    -2.15    -5.43    0.65    0.14
+LOW (DICE) prog              1.140605     1.143196  +2.27e-03    -1.23    -2.45    -2.16    -5.44    0.39    0.11
+MEDIUM (DJO-BHM) base        1.104910     1.107277  +2.14e-03    -1.23    -2.59    -2.16    -5.51    0.48    0.14
+MEDIUM (DJO-BHM) prog        1.164857     1.169225  +3.75e-03    -1.15    -2.59    -2.13    -5.47    0.47    0.15
+HIGH (Bilal-Kaenzig) base     1.170460     1.168497  -1.68e-03    -1.15    -2.73    -2.09    -5.55    0.69    0.30
+HIGH (Bilal-Kaenzig) prog     1.243207     1.242706  -4.03e-04    -1.15    -2.50    -2.08    -5.38    0.48    0.13
 
 VERDICT: max |S_egm/S_vfi - 1| = 3.75e-03 across all points. Reporting precision of the
 published price levels is ~5e-4, so the published numbers are SOLVER-SENSITIVE -- re-run affected tables under pg.hh_solver='egm'.

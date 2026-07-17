@@ -21,105 +21,105 @@
 
 --- column LOW (DICE): D0=0.02 ---
   [S(tau,D) interpolant at r=+0.0196: 5 x 3 nodes]
-    node (tau=-0.010, D=0.000): S=  0.9834
-    node (tau=+0.012, D=0.000): S=  1.0440
-    node (tau=+0.035, D=0.000): S=  1.1063
-    node (tau=+0.058, D=0.000): S=  1.1705
-    node (tau=+0.080, D=0.000): S=  1.2449
-    node (tau=-0.010, D=0.010): S=  0.9920
+    node (tau=-0.010, D=0.000): S=  0.9864
+    node (tau=+0.012, D=0.000): S=  1.0438
+    node (tau=+0.035, D=0.000): S=  1.1066
+    node (tau=+0.058, D=0.000): S=  1.1754
+    node (tau=+0.080, D=0.000): S=  1.2516
+    node (tau=-0.010, D=0.010): S=  0.9921
     node (tau=+0.012, D=0.010): S=  1.0504
-    node (tau=+0.035, D=0.010): S=  1.1135
-    node (tau=+0.058, D=0.010): S=  1.1797
-    node (tau=+0.080, D=0.010): S=  1.2565
-    node (tau=-0.010, D=0.020): S=  0.9965
-    node (tau=+0.012, D=0.020): S=  1.0564
-    node (tau=+0.035, D=0.020): S=  1.1206
-    node (tau=+0.058, D=0.020): S=  1.1874
-    node (tau=+0.080, D=0.020): S=  1.2661
+    node (tau=+0.035, D=0.010): S=  1.1141
+    node (tau=+0.058, D=0.010): S=  1.1841
+    node (tau=+0.080, D=0.010): S=  1.2615
+    node (tau=-0.010, D=0.020): S=  0.9977
+    node (tau=+0.012, D=0.020): S=  1.0567
+    node (tau=+0.035, D=0.020): S=  1.1214
+    node (tau=+0.058, D=0.020): S=  1.1925
+    node (tau=+0.080, D=0.020): S=  1.2713
 
 [self-financing, Proposition 2]
-  baseline: P0=0.9248, D0=0.0200, tau0=0.0212, W0=-3.1257
-  program : P1=0.8760, D1=0.0156, tau1=0.0431, g_g=0.0208, W1=-3.5585
-  nu = 0.156  (revaluation -0.057 + damage dividend 0.212)  => partially self-financing
-  one-time bondholder levy L = -0.0603;  identity resid = 3.47e-18
-  sweep theta_g=0.00: n_roots=1, nu=-0.060
-  sweep theta_g=0.50: n_roots=1, nu=0.036
-  sweep theta_g=1.00: n_roots=1, nu=0.123
-  sweep theta_g=1.50: n_roots=1, nu=0.202
-  sweep theta_g=2.00: n_roots=1, nu=0.272
-  sweep theta_g=2.50: n_roots=1, nu=0.336
+  baseline: P0=0.9244, D0=0.0200, tau0=0.0212, W0=-3.1266
+  program : P1=0.8741, D1=0.0156, tau1=0.0432, g_g=0.0208, W1=-3.5577
+  nu = 0.154  (revaluation -0.059 + damage dividend 0.212)  => partially self-financing
+  one-time bondholder levy L = -0.0622;  identity resid = 3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.062
+  sweep theta_g=0.50: n_roots=1, nu=0.034
+  sweep theta_g=1.00: n_roots=1, nu=0.121
+  sweep theta_g=1.50: n_roots=1, nu=0.200
+  sweep theta_g=2.00: n_roots=1, nu=0.271
+  sweep theta_g=2.50: n_roots=1, nu=0.334
 
 --- column MEDIUM (DJO-BHM): D0=0.06 ---
   [S(tau,D) interpolant at r=+0.0196: 5 x 3 nodes]
-    node (tau=-0.010, D=0.000): S=  0.9834
-    node (tau=+0.012, D=0.000): S=  1.0440
-    node (tau=+0.035, D=0.000): S=  1.1063
-    node (tau=+0.058, D=0.000): S=  1.1705
-    node (tau=+0.080, D=0.000): S=  1.2449
-    node (tau=-0.010, D=0.030): S=  1.0025
-    node (tau=+0.012, D=0.030): S=  1.0620
-    node (tau=+0.035, D=0.030): S=  1.1256
-    node (tau=+0.058, D=0.030): S=  1.1934
-    node (tau=+0.080, D=0.030): S=  1.2784
-    node (tau=-0.010, D=0.060): S=  1.0186
-    node (tau=+0.012, D=0.060): S=  1.0809
-    node (tau=+0.035, D=0.060): S=  1.1436
-    node (tau=+0.058, D=0.060): S=  1.2180
-    node (tau=+0.080, D=0.060): S=  1.3098
+    node (tau=-0.010, D=0.000): S=  0.9864
+    node (tau=+0.012, D=0.000): S=  1.0438
+    node (tau=+0.035, D=0.000): S=  1.1066
+    node (tau=+0.058, D=0.000): S=  1.1754
+    node (tau=+0.080, D=0.000): S=  1.2516
+    node (tau=-0.010, D=0.030): S=  1.0030
+    node (tau=+0.012, D=0.030): S=  1.0629
+    node (tau=+0.035, D=0.030): S=  1.1285
+    node (tau=+0.058, D=0.030): S=  1.2008
+    node (tau=+0.080, D=0.030): S=  1.2810
+    node (tau=-0.010, D=0.060): S=  1.0177
+    node (tau=+0.012, D=0.060): S=  1.0800
+    node (tau=+0.035, D=0.060): S=  1.1485
+    node (tau=+0.058, D=0.060): S=  1.2244
+    node (tau=+0.080, D=0.060): S=  1.3089
 
 [self-financing, Proposition 2]
-  baseline: P0=0.9037, D0=0.0600, tau0=0.0217, W0=-3.9606
-  program : P1=0.8591, D1=0.0465, tau1=0.0440, g_g=0.0212, W1=-4.2476
-  nu = 0.583  (revaluation -0.053 + damage dividend 0.636)  => partially self-financing
-  one-time bondholder levy L = -0.0575;  identity resid = 0.00e+00
-  sweep theta_g=0.00: n_roots=1, nu=-0.063
-  sweep theta_g=0.50: n_roots=1, nu=0.226
-  sweep theta_g=1.00: n_roots=1, nu=0.486
-  sweep theta_g=1.50: n_roots=1, nu=0.720
-  sweep theta_g=2.00: n_roots=1, nu=0.931
-  sweep theta_g=2.50: n_roots=1, nu=1.121
+  baseline: P0=0.9024, D0=0.0600, tau0=0.0217, W0=-3.9589
+  program : P1=0.8548, D1=0.0465, tau1=0.0442, g_g=0.0213, W1=-4.2452
+  nu = 0.578  (revaluation -0.057 + damage dividend 0.635)  => partially self-financing
+  one-time bondholder levy L = -0.0618;  identity resid = 0.00e+00
+  sweep theta_g=0.00: n_roots=1, nu=-0.067
+  sweep theta_g=0.50: n_roots=1, nu=0.222
+  sweep theta_g=1.00: n_roots=1, nu=0.482
+  sweep theta_g=1.50: n_roots=1, nu=0.716
+  sweep theta_g=2.00: n_roots=1, nu=0.927
+  sweep theta_g=2.50: n_roots=1, nu=1.117
 
 --- column HIGH (Bilal-Kaenzig): D0=0.20 ---
   [S(tau,D) interpolant at r=+0.0196: 5 x 3 nodes]
-    node (tau=-0.010, D=0.000): S=  0.9834
-    node (tau=+0.012, D=0.000): S=  1.0440
-    node (tau=+0.035, D=0.000): S=  1.1063
-    node (tau=+0.058, D=0.000): S=  1.1705
-    node (tau=+0.080, D=0.000): S=  1.2449
-    node (tau=-0.010, D=0.100): S=  1.0322
-    node (tau=+0.012, D=0.100): S=  1.0953
-    node (tau=+0.035, D=0.100): S=  1.1624
-    node (tau=+0.058, D=0.100): S=  1.2544
-    node (tau=+0.080, D=0.100): S=  1.3426
-    node (tau=-0.010, D=0.200): S=  1.0483
-    node (tau=+0.012, D=0.200): S=  1.1328
-    node (tau=+0.035, D=0.200): S=  1.2126
-    node (tau=+0.058, D=0.200): S=  1.3035
-    node (tau=+0.080, D=0.200): S=  1.4125
+    node (tau=-0.010, D=0.000): S=  0.9864
+    node (tau=+0.012, D=0.000): S=  1.0438
+    node (tau=+0.035, D=0.000): S=  1.1066
+    node (tau=+0.058, D=0.000): S=  1.1754
+    node (tau=+0.080, D=0.000): S=  1.2516
+    node (tau=-0.010, D=0.100): S=  1.0339
+    node (tau=+0.012, D=0.100): S=  1.0996
+    node (tau=+0.035, D=0.100): S=  1.1723
+    node (tau=+0.058, D=0.100): S=  1.2530
+    node (tau=+0.080, D=0.100): S=  1.3436
+    node (tau=-0.010, D=0.200): S=  1.0566
+    node (tau=+0.012, D=0.200): S=  1.1310
+    node (tau=+0.035, D=0.200): S=  1.2145
+    node (tau=+0.058, D=0.200): S=  1.3091
+    node (tau=+0.080, D=0.200): S=  1.4178
 
 [self-financing, Proposition 2]
-  baseline: P0=0.8549, D0=0.2000, tau0=0.0229, W0=-7.5508
-  program : P1=0.8087, D1=0.1527, tau1=0.0467, g_g=0.0225, W1=-7.0206
-  nu = 2.045  (revaluation -0.058 + damage dividend 2.104)  => FULLY self-financing
-  one-time bondholder levy L = -0.0667;  identity resid = -3.47e-18
-  sweep theta_g=0.00: n_roots=1, nu=-0.081
-  sweep theta_g=0.50: n_roots=1, nu=0.875
-  sweep theta_g=1.00: n_roots=1, nu=1.729
-  sweep theta_g=1.50: n_roots=1, nu=2.495
-  sweep theta_g=2.00: n_roots=1, nu=3.183
-  sweep theta_g=2.50: n_roots=1, nu=3.803
+  baseline: P0=0.8549, D0=0.2000, tau0=0.0229, W0=-7.5564
+  program : P1=0.8058, D1=0.1526, tau1=0.0469, g_g=0.0226, W1=-7.0233
+  nu = 2.041  (revaluation -0.062 + damage dividend 2.103)  => FULLY self-financing
+  one-time bondholder levy L = -0.0713;  identity resid = -3.47e-18
+  sweep theta_g=0.00: n_roots=1, nu=-0.084
+  sweep theta_g=0.50: n_roots=1, nu=0.871
+  sweep theta_g=1.00: n_roots=1, nu=1.725
+  sweep theta_g=1.50: n_roots=1, nu=2.490
+  sweep theta_g=2.00: n_roots=1, nu=3.177
+  sweep theta_g=2.50: n_roots=1, nu=3.795
 
 ===== [C4] Welfare incidence by wealth group =====
-  LOW (DICE)             CE gains by wealth quintile (%): [-3.57 -2.85 -2.57 -2.28 -1.89] | top10 -1.75, bottom50 -3.10, aggregate -2.64
-  MEDIUM (DJO-BHM)       CE gains by wealth quintile (%): [-2.6 -1.9 -1.66 -1.42 -1.12] | top10 -1.02, bottom50 -2.15, aggregate -1.75
-  HIGH (Bilal-Kaenzig)   CE gains by wealth quintile (%): [1.82 2.33 2.4 2.4 2.29] | top10 2.24, bottom50 2.13, aggregate 2.25
+  LOW (DICE)             CE gains by wealth quintile (%): [-3.59 -2.87 -2.58 -2.29 -1.9] | top10 -1.76, bottom50 -3.12, aggregate -2.65
+  MEDIUM (DJO-BHM)       CE gains by wealth quintile (%): [-2.63 -1.93 -1.68 -1.44 -1.13] | top10 -1.03, bottom50 -2.18, aggregate -1.77
+  HIGH (Bilal-Kaenzig)   CE gains by wealth quintile (%): [1.81 2.31 2.39 2.4 2.29] | top10 2.23, bottom50 2.12, aggregate 2.24
   [saved] PFig8_welfare_incidence
   [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\calibrated_summary.txt
 
 ================ CALIBRATED SUMMARY ================
  beta* = 0.9267;  Gg_cal = 0.01818 (2.0% of income at P0)
- LOW (DICE)             nu = 0.156 (reval -0.057 + damage 0.212)
- MEDIUM (DJO-BHM)       nu = 0.583 (reval -0.053 + damage 0.636)
- HIGH (Bilal-Kaenzig)   nu = 2.045 (reval -0.058 + damage 2.104)
- Elapsed: 191.9 s
+ LOW (DICE)             nu = 0.154 (reval -0.059 + damage 0.212)
+ MEDIUM (DJO-BHM)       nu = 0.578 (reval -0.057 + damage 0.635)
+ HIGH (Bilal-Kaenzig)   nu = 2.041 (reval -0.062 + damage 2.103)
+ Elapsed: 141.4 s
 ====================================================
