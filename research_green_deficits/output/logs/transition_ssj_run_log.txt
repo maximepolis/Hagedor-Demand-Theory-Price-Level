@@ -89,6 +89,8 @@
  => PASS: the two independent solvers agree on the announcement path.
 =============================================
   [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\transition_ssj.txt
+[Warning: Exported image displays axes toolbar. To remove axes toolbar from image, export again.] 
+[Warning: Exported image displays axes toolbar. To remove axes toolbar from image, export again.] 
   [saved] PFig_transition_ssj
 
-Elapsed: 328.1 s
+Elapsed: 238.9 s

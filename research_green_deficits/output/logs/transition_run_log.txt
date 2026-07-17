@@ -229,7 +229,8 @@ loaded calibrated inputs (na=500 matches): beta*=0.9267, Gg=0.01818
   iter 54: interior max|S-b|/b = 0.00054, terminal(horizon) = 0.00010 (mem=5)
   iter 55: interior max|S-b|/b = 0.00045, terminal(horizon) = 0.00005 (mem=5)
   tier2 nominal/rebate: fixed point CONVERGED (interior max 0.00045 @t=6), horizon OK (terminal resid 0.00005) in 55 iters; impact phat_1/P0 = 1.1280 (surprise inflation), terminal P = 0.9986
+[Warning: Exported image displays axes toolbar. To remove axes toolbar from image, export again.] 
 
   [saved] PFig18_dtpl_transition
   [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\transition_dtpl_summary.txt
-Elapsed: 320.3 s
+Elapsed: 333.8 s
