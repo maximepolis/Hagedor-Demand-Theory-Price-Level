@@ -607,3 +607,33 @@ Worked-example W(mu=0.02): -8.981 (optimal-accommodation appendix) vs -8.954
 The bonds-in-utility two-asset economy is the structural answer to C1 (it
 makes every price-level magnitude a computed equilibrium object). 3-5 weeks.
 Recommended as the next major extension after the queued runs.
+
+---
+
+# Round 19 — tilt decomposition sign bug fixed; re-run needed
+
+Your run exposed a construction bug in the M2 tilt counterfactual: it came
+out at tilt = -3.738 with an additivity residual of +7.5 (broken). The
+magnitude was right (3.738 = 2.746 - (-1.006)) but the SIGN was flipped: I
+had built the progressive redistribution (give to the poor) instead of the
+regressive tilt (take from the poor) that decomposes the lump-sum tax.
+
+FIXED in decompose_tax_elasticity.m: the tilt-alone economy is now a
+proportional SUBSIDY (vartheta = -dv) plus a uniform tax (tau_ls = tau0+R),
+so below-mean households lose and above-mean gain -- the regressive tilt
+that tightens the constrained and raises precautionary demand. Also fixed
+the figure-title interpreter error (\bar a -> plain text).
+
+Expected after re-run:
+  lump-sum (per rev) +2.75 = levy (per rev) -1.01 + tilt +3.75  [resid ~0]
+i.e. the tilt carries the entire positive sign and more, exactly the memo's
++3.8 prediction and what the paper's "Anatomy of the sign" paragraph states.
+
+## Re-run (MATLAB)
+```matlab
+cd research_green_deficits
+decompose_tax_elasticity     % corrected tilt (part d)
+export_paper_numbers         % fills \epsTilt = +3.75, \epsLsPerRev, \epsLevyPerRev
+```
+export_paper_numbers had NOT run yet, so no wrong tilt number reached the
+paper -- the \epsTilt macro is still on its pending fallback until you re-run.

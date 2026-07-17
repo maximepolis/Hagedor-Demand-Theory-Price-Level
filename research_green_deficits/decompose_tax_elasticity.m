@@ -165,27 +165,33 @@ fprintf('  prop levy  d ln S/d vartheta = %+.3f  (lowers demand => inflation)\n'
 fprintf('  => the sign of the price-level response is the tax instrument, as Result 1 states.\n');
 
 % =====================================================================
-% (d) TILT DECOMPOSITION (memo M2): lump-sum tax = same-revenue proportional
-% levy + a mean-zero regressive tilt. The tilt alone is a proportional levy
-% at rate dv rebated uniformly by its mean revenue dv*(1-D), so the net
-% transfer dv*((1-D)-y(e)) has E[net]=0 exactly (E[y]=1-D). We report the
-% per-revenue semi-elasticities and the additivity residual.
+% (d) TILT DECOMPOSITION (memo M2): a same-revenue LUMP-SUM tax equals a
+% same-revenue PROPORTIONAL levy plus a mean-zero REGRESSIVE tilt. The tilt
+% is (lump-sum minus levy): each household pays R*(1 - y_i/ybar), so
+% below-mean households pay MORE (lump-sum is the more regressive of the two)
+% and above-mean pay less -- a regressive redistribution with mean zero.
+% We implement the tilt alone as a proportional SUBSIDY at rate dv (return
+% R*y_i/ybar) plus a uniform tax R, i.e. vartheta = -dv, tau_ls = tau0 + R.
+% Net income change dv*(y_i - ybar): below-mean lose, above-mean gain.
+% Additivity Dln S_ls = Dln S_levy + Dln S_tilt holds to first order in dv.
 % =====================================================================
 fprintf('\n----- (d) tilt decomposition: lump-sum = levy(same rev) + mean-zero tilt -----\n');
 [S0t,~]  = S_green(r_cal, tau0, D0, pg0);                 % baseline
 dv = 0.01;
-% same-revenue proportional levy (revenue dv*(1-D0)) at fixed lump-sum:
+rev      = dv*(1-D0);                                    % common revenue R
+% same-revenue proportional levy (revenue R) at fixed lump-sum:
 pgLr = pg0; pgLr.vartheta = dv;
 [SLr,~]  = S_green(r_cal, tau0, D0, pgLr);
-rev      = dv*(1-D0);
 eps_levy_perRev = (log(SLr)-log(S0t))/rev;               % d ln S / d(levy revenue)
-% lump-sum of the same revenue (tau up by dv*(1-D0)):
+% same-revenue lump-sum (tau up by R):
 [SLS,~]  = S_green(r_cal, tau0+rev, D0, pg0);
 eps_ls_perRev   = (log(SLS)-log(S0t))/rev;               % d ln S / d(lump-sum revenue)
-% mean-zero tilt alone: levy at dv, rebate its mean revenue as lump-sum:
-pgT = pg0; pgT.vartheta = dv;
-[ST,~]   = S_green(r_cal, tau0-rev, D0, pgT);             % tau_ls = tau0 - dv*(1-D0)
-eps_tilt = (log(ST)-log(S0t))/rev;                       % per unit of levy revenue
+% mean-zero REGRESSIVE tilt alone = (lump-sum minus levy): uniform tax R,
+% proportional subsidy dv (vartheta = -dv). Takes from below-mean, gives
+% to above-mean -> tightens the constrained -> raises precautionary demand.
+pgT = pg0; pgT.vartheta = -dv;
+[ST,~]   = S_green(r_cal, tau0+rev, D0, pgT);            % tau_ls = tau0 + R
+eps_tilt = (log(ST)-log(S0t))/rev;                       % per unit of revenue
 tilt_resid = eps_ls_perRev - (eps_levy_perRev + eps_tilt);
 fprintf('  lump-sum (per rev) %+.3f = levy (per rev) %+.3f + tilt %+.3f  [resid %+.1e]\n', ...
         eps_ls_perRev, eps_levy_perRev, eps_tilt, tilt_resid);
@@ -230,7 +236,7 @@ title('(a) demand shift by wealth');
 subplot(1,3,2); hold on; box on;
 plot(abars, e_ab, 'o-','LineWidth',1.3,'MarkerFaceColor','auto');
 yline(0,'k--','HandleVisibility','off');
-xlabel('borrowing limit \bar a'); ylabel('d ln S/d\tau'); title('(b) sign vs \bar a');
+xlabel('borrowing limit (a-bar)'); ylabel('d ln S/d\tau'); title('(b) sign vs borrowing limit');
 subplot(1,3,3); hold on; box on;
 bar(1, eps_ls, 0.5, 'FaceColor',[0.30 0.50 0.75]);
 bar(2, eps_levy, 0.5, 'FaceColor',[0.80 0.45 0.25]);
