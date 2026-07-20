@@ -15,7 +15,7 @@ TAX SEMI-ELASTICITY d ln S/d tau. na=500, D0=0.06, r=0.0196
 (c) INSTRUMENT: lump-sum d ln S/d tau=+2.748; levy d ln S/d vartheta=-0.946
 
 (d) TILT DECOMPOSITION (per unit of revenue):
-    lump-sum +2.746 = levy -1.006 + mean-zero tilt -3.738  [additivity resid +7.5e+00]
+    lump-sum +2.746 = levy -1.006 + mean-zero tilt +3.714  [additivity resid +3.8e-02]
     => the positive lump-sum sign is the regressive-tilt response, not taxation per se.
 
 Reading: a positive lump-sum semi-elasticity across the swept region

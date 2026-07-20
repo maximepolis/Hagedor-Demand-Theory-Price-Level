@@ -26,7 +26,7 @@ function plot_transition_fig(TRn, TRi, pgc, pg, TRr)
 
     fh = figure('Name','PFig18: nonlinear HANK-DTPL transition','Color','w', ...
                 'Position',[60 60 1150 700]);
-    leg1 = {'nominal budget, deficit', 'indexed mandate, deficit'};
+    leg1 = {'nominal appropriation, service rule', 'indexed mandate, service rule'};
 
     subplot(2,2,1); hold on; box on;
     plot(tv, TRn.phat, 'LineWidth', 2.0, 'Color', BLUE);
