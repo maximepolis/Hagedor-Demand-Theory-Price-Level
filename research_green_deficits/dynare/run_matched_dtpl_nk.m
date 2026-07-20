@@ -110,4 +110,50 @@ if isfinite(dtpl_pi1)
     end
 end
 fclose(fid);
+
+% ---- (4) 2x2 matched grid: {price determination} x {financing incidence} ----
+% The referee's clean test controls the tax-incidence convention as a second
+% difference. The row axis (DTPL vs NK) is price determination; the column
+% axis (lump-sum vs proportional levy) is financing incidence. Two cells are
+% computed above (both under lump-sum). The DTPL-levy cell reads a
+% levy-financed announcement transition if one has been produced; the NK-levy
+% cell requires a proportional-tax variant of green_hank.mod (the current .mod
+% carries a lump-sum tax only) and is left PENDING rather than fabricated.
+grid = struct('DTPL_ls', dtpl_pi1, 'NK_ls', pi_impact_ann, ...
+              'DTPL_levy', NaN, 'NK_levy', NaN);
+dtpl_levy_note = 'PENDING: run a levy-financed transition (transition_levy_results.mat)';
+lvf = fullfile(projdir, 'output', 'transition_levy_results.mat');
+if exist(lvf, 'file') == 2
+    Lv = load(lvf); cand = fieldnames(Lv);
+    for k = 1:numel(cand)
+        v = Lv.(cand{k});
+        if isstruct(v) && isfield(v,'pi_path') && isfield(v,'reportable') && v.reportable
+            grid.DTPL_levy = v.pi_path(1) - pg.mu;
+            dtpl_levy_note = sprintf('from %s.pi_path(1)', cand{k});
+            break;
+        end
+    end
+end
+nk_levy_note = 'PENDING: needs a proportional-tax variant of green_hank.mod';
+save(fullfile(projdir,'output','matched_dtpl_nk.mat'), ...
+     'pi_impact_q','pi_impact_ann','dtpl_pi1','defs','pi_path','grid', '-append');
+fid = fopen(fullfile(pg.tabdir,'matched_dtpl_nk_grid.txt'),'w');
+fprintf(fid, 'MATCHED 2x2: announcement-window inflation sign\n');
+fprintf(fid, 'rows = price determination; columns = financing incidence\n\n');
+fmt = @(x) merge_cell(x);
+fprintf(fid, '%-8s | %-14s | %-14s\n', '', 'lump-sum', 'prop. levy');
+fprintf(fid, '%-8s | %-14s | %-14s\n', 'DTPL', fmt(grid.DTPL_ls), fmt(grid.DTPL_levy));
+fprintf(fid, '%-8s | %-14s | %-14s\n', 'NK',   fmt(grid.NK_ls),   fmt(grid.NK_levy));
+fprintf(fid, '\nDTPL-levy cell: %s\n', dtpl_levy_note);
+fprintf(fid, 'NK-levy cell:   %s\n', nk_levy_note);
+fprintf(fid, ['\nReading: the row contrast (holding financing fixed) isolates\n' ...
+    'price determination; the column contrast (holding determination fixed)\n' ...
+    'isolates financing incidence. The sign restriction the paper reports is\n' ...
+    'the DTPL row; the NK row is the Phillips-curve comparison.\n']);
+fclose(fid);
+fprintf('[saved] matched_dtpl_nk_grid.txt (2x2 scaffold; pending cells flagged)\n');
 fprintf('Elapsed %.1f s\n', toc(t0));
+
+function s = merge_cell(x)
+    if isnan(x), s = 'pending'; else, s = sprintf('%+0.4f', x); end
+end
