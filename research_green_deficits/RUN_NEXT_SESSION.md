@@ -99,8 +99,9 @@ twice before).
 ## What to send back
 
 1. `output/tables/twoasset_step0.txt`
-2. `output/tables/audit_tax_incidence.txt`
-3. Any MATLAB error text, verbatim, if a driver dies.
+2. `output/tables/twoasset_kv.txt`
+3. `output/tables/audit_tax_incidence.txt`
+4. Any MATLAB error text, verbatim, if a driver dies.
 
 ## What happens with the results
 
