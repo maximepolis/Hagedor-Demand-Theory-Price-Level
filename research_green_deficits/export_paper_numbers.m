@@ -211,6 +211,24 @@ if exist(taf, 'file') == 2
     end
 end
 
+% ---- two-asset variant (b): infrequent adjustment (main_twoasset_kv) ----
+tkf = fullfile(projdir, 'output', 'twoasset_kv.mat');
+if exist(tkf, 'file') == 2
+    TK = load(tkf);
+    if isfield(TK,'eqb') && isstruct(TK.eqb) && TK.eqb.ok
+        mac('TwoBOmega', sprintf('%.2f', TK.omega));
+        if isfield(TK,'H'), mac('TwoBWhtm', sprintf('%.0f', 100*TK.H.whtm)); end
+        if isfield(TK,'EXK') && numel(TK.EXK) >= 2
+            mac('TwoBDlnPLS',   sprintf('%+.3f', TK.EXK(1).dlnP));
+            mac('TwoBDlnPLevy', sprintf('%+.3f', TK.EXK(2).dlnP));
+        end
+        if isfield(TK,'eLS') && isfinite(TK.eLS)
+            mac('TwoBEpsLs',   sprintf('%+.2f', TK.eLS));
+            mac('TwoBEpsTilt', sprintf('%+.2f', TK.eTL));
+        end
+    end
+end
+
 % ---- wealth-concentration fit (wealth_concentration_fit) ----
 % Guarded: exported only if the superstar-fit driver has been run.
 wff = fullfile(projdir, 'output', 'wealth_fit_results.mat');

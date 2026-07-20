@@ -78,6 +78,9 @@
 \providecommand{\TwoAZetaLoP}{\pendingnum}\providecommand{\TwoAZetaHiP}{\pendingnum}
 \providecommand{\TwoAEpsLs}{\pendingnum}\providecommand{\TwoAEpsLevy}{\pendingnum}
 \providecommand{\TwoAEpsTilt}{\pendingnum}
+\providecommand{\TwoBOmega}{\pendingnum}\providecommand{\TwoBWhtm}{\pendingnum}
+\providecommand{\TwoBDlnPLS}{\pendingnum}\providecommand{\TwoBDlnPLevy}{\pendingnum}
+\providecommand{\TwoBEpsLs}{\pendingnum}\providecommand{\TwoBEpsTilt}{\pendingnum}
 % Decile-resolution welfare incidence, populated by welfare_incidence_deciles.
 \providecommand{\WDecBotMed}{\pendingnum}\providecommand{\WDecTopMed}{\pendingnum}
 \providecommand{\WTopFiveMed}{\pendingnum}\providecommand{\WTopOneMed}{\pendingnum}
@@ -4338,6 +4341,20 @@ levy, and regressive-tilt responses of nominal-bond demand at fixed prices
 are $\TwoAEpsLs$, $\TwoAEpsLevy$, and $\TwoAEpsTilt$, the two-asset
 counterpart of the direct-versus-distributional decomposition of
 Proposition~\ref{prop:covincidence}.
+
+The second stage relaxes the frictionless-rebalancing assumption:
+$k$ adjusts only when an opportunity arrives (probability $\lambda$ per
+year, Kaplan--Violante style), which breaks the cash-on-hand aggregation
+and generates \emph{wealthy hand-to-mouth} households --- low liquid
+balances alongside substantial illiquid wealth, the configuration under
+which the covariance of liquid-saving propensities with tax incidence is
+computed on realistic bond ownership. In the calibrated variant the
+wealthy-hand-to-mouth share is $\TwoBWhtm\%$, the liquid share
+$\TwoBOmega$, and the financing experiment gives $\TwoBDlnPLS$ (lump-sum)
+against $\TwoBDlnPLevy$ (levy) on the nominal margin, with the
+liquid-margin lump-sum and tilt responses $\TwoBEpsLs$ and $\TwoBEpsTilt$
+per unit of revenue; a $\lambda\to1$ run reproduces the frictionless
+benchmark as a consistency check.
 
 \noindent\emph{Status:} model and solution method implemented (endogenous-grid
 solver cross-validated against a discrete-choice reference on a coarse grid);

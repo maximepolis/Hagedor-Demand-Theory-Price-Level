@@ -31,7 +31,36 @@ Then the full run (longer; still tractable with EGM):
 clear; main_twoasset_step0
 ```
 
-## 2. Incidence audit — smoke test, then full (full run is hours)
+## 2. Variant (b): infrequent k-adjustment (AFTER Step 0 passes)
+
+Only run this once Step 0's self-test line looks sane — variant (b) reuses
+the same convenience-utility block and the Step 0 EGM as its consistency
+anchor.
+
+```matlab
+clear; FAST = true; main_twoasset_kv
+```
+
+then (overnight — the first household solve on the 3D state is the slow
+part; everything after warm-starts):
+
+```matlab
+clear; main_twoasset_kv
+```
+
+Checks to eyeball in `output/tables/twoasset_kv.txt`:
+- `HtM` line: the wealthy-hand-to-mouth share should be materially positive
+  (US target ~20%; if it is ~0, lambda or the cutoffs need recalibration —
+  send the table and I adjust).
+- `lambda->1 check`: the KV liquid aggregate should approach the
+  frictionless EGM value (gap ~1e-2 or better at FAST grids). This is the
+  main correctness gate for the whole variant.
+- `policy-flow by group` under (3): whether wealthy hand-to-mouth
+  households carry a nonzero direct response — the referee-facing answer
+  on the covariance channel with realistic bond ownership.
+- `sign contrast survives: 1` under (2).
+
+## 3. Incidence audit — smoke test, then full (full run is hours)
 
 ```matlab
 clear; FAST = true; audit_tax_incidence
@@ -51,7 +80,7 @@ D dense borrowing-limit map under fixed AND recalibrated beta (the
 validation; G grid audit. Block D's recalibrated-beta row is the expensive
 part.
 
-## 3. Refresh the paper macros
+## 4. Refresh the paper macros
 
 ```matlab
 clear; export_paper_numbers
@@ -60,7 +89,7 @@ clear; export_paper_numbers
 This now also picks up the two-asset results (guarded — it exports them
 only if `output/twoasset_step0.mat` exists and the baseline converged).
 
-## 4. Push
+## 5. Push
 
 Push **only** `output/` and `paper/numbers_auto.tex`. Please do not upload
 your local copy of `paper/green_deficits_price_level.tex` — it is behind
