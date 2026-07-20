@@ -71,6 +71,16 @@
 \providecommand{\epsLsPerRev}{\pendingnum}\providecommand{\epsLevyPerRev}{\pendingnum}
 \providecommand{\epsTilt}{\pendingnum}
 \providecommand{\covTiltDirect}{\pendingnum}\providecommand{\covTiltShift}{\pendingnum}
+% Two-asset Step 0 (main_twoasset_step0), populated after the run.
+\providecommand{\TwoAOmega}{\pendingnum}\providecommand{\TwoASpread}{\pendingnum}
+\providecommand{\TwoADlnPLS}{\pendingnum}\providecommand{\TwoADlnPLevy}{\pendingnum}
+\providecommand{\TwoARatioLS}{\pendingnum}
+\providecommand{\TwoAZetaLoP}{\pendingnum}\providecommand{\TwoAZetaHiP}{\pendingnum}
+\providecommand{\TwoAEpsLs}{\pendingnum}\providecommand{\TwoAEpsLevy}{\pendingnum}
+\providecommand{\TwoAEpsTilt}{\pendingnum}
+\providecommand{\TwoBOmega}{\pendingnum}\providecommand{\TwoBWhtm}{\pendingnum}
+\providecommand{\TwoBDlnPLS}{\pendingnum}\providecommand{\TwoBDlnPLevy}{\pendingnum}
+\providecommand{\TwoBEpsLs}{\pendingnum}\providecommand{\TwoBEpsTilt}{\pendingnum}
 % Decile-resolution welfare incidence, populated by welfare_incidence_deciles.
 \providecommand{\WDecBotMed}{\pendingnum}\providecommand{\WDecTopMed}{\pendingnum}
 \providecommand{\WTopFiveMed}{\pendingnum}\providecommand{\WTopOneMed}{\pendingnum}
@@ -168,11 +178,14 @@ regressive instrument raises liquid-asset demand and lowers the price level,
 handing a windfall to nominal bondholders; a progressive levy-and-rebate
 reverses the revaluation and shifts the burden toward wealthy asset holders
 --- the same appropriation, opposite signs, from the financing choice alone.
-A sufficient-statistic incidence formula shows the price response is governed
-by the covariance between tax incidence and households' marginal propensities
-to accumulate liquid claims: a uniform lump-sum tax is a proportional levy
-plus a regressive redistribution, and the redistribution, falling on
-constrained high-saving households, is what raises precautionary demand.
+A sufficient-statistic formula ties the price response to the tax response
+of nominal-liability demand, and an exact decomposition locates its source:
+a uniform lump-sum tax is a proportional levy plus a mean-zero regressive
+redistribution, and it is the redistribution that raises stationary
+liquid-asset demand. Measured on the calibrated distribution, that rise
+operates almost entirely through the endogenous wealth distribution rather
+than the direct saving response --- direct incidence and long-run
+distributional adjustment are distinct forces, and the second dominates.
 In the calibrated one-asset benchmark, the nonlinear announcement transition
 front-loads the bulk of the long-run revaluation to the announcement date,
 before capital accumulates; we report the sign and the front-loading as
@@ -377,12 +390,13 @@ formula for the price response to any productive public program
 (Proposition~\ref{prop:suffstat}): the financing instrument sets the sign
 through the numerator, and the determinacy margin lives in the denominator.
 Its central input --- the tax response of nominal-liability demand --- is a
-\emph{model-implied} object we compute across the calibration and map to
-observable household heterogeneity (the covariance of saving propensities
-with tax incidence, Proposition~\ref{prop:covincidence};
-Table~\ref{tab:elasticitymap}); external MPC evidence disciplines the
-primitives behind it, though it does not by itself identify the aggregate
-response to a permanent tax. The result is an incidence theorem for nominal
+\emph{model-implied} object we compute across the calibration and decompose
+exactly into a direct term (a covariance of saving propensities with tax
+incidence) and an endogenous distributional term
+(Proposition~\ref{prop:covincidence}; Table~\ref{tab:elasticitymap}); the
+measured response is carried by the distributional term, and external MPC
+evidence disciplines the primitives behind the direct term, though it does
+not by itself identify the aggregate response to a permanent tax. The result is an incidence theorem for nominal
 public liabilities of which the climate application is the disciplined
 special case.
 Everything else is secondary or conditional: the self-financing
@@ -1710,21 +1724,27 @@ equilibrium response; $\mathcal D_\alpha$ is the stationary-distribution
 response, computed from $(I-\Lambda)\dd\Omega=(\dd\Lambda)\Omega$ with
 $\mathbf 1'\dd\Omega=0$, and $\mathcal G_\alpha$ vanishes in the endowment
 economy, where the experiment fixes the real rate and the price level clears
-the nominal market given this schedule. The reading of
-Proposition~\ref{prop:financingdesign} is then sharp: the lump-sum-versus-levy
-contrast of Table~\ref{tab:elasticitymap} loads on the covariance term, and
-the regressive tilt that carries the sign (Section~\ref{subsec:safeasset}) is
-the reform for which $m_i^b$ and $-dy_i^{\mathrm{net}}$ are most positively
-aligned --- constrained households have the highest $m_i^b$ and bear the
-most income loss. The direct incidence term is thus a single covariance
-between a saving propensity and a tax incidence, whose ingredients external
-household evidence can in principle discipline. Whether the covariance
-dominates the full response is a quantitative question: measured on the
-calibrated distribution, the direct covariance term is $\covTiltDirect$ per
-unit of revenue against a full tilt response of $\epsTilt$, leaving
-$\covTiltShift$ for the distribution term $\mathcal D_\alpha$ --- so the
-covariance carries the sign and the bulk of the magnitude here, but this is
-established, not assumed.
+the nominal market given this schedule. Whether the covariance term or the
+distributional term carries the stationary response is a quantitative
+question, and the answer is the distributional term. Measured on the
+calibrated distribution, the direct fixed-state covariance term is
+$\covTiltDirect$ per unit of revenue --- essentially zero, and slightly
+\emph{negative} --- against a full stationary tilt response of $\epsTilt$,
+so the entire positive response ($\covTiltShift$) is generated by the
+endogenous adjustment of the wealth distribution $\mathcal D_\alpha$: at the
+initial distribution the mean-zero regressive tilt does not raise desired
+liquid saving, but the reform shifts households across wealth states in a
+way that raises aggregate liquid-asset demand in the new stationary
+equilibrium. The decomposition therefore separates two economically distinct
+forces --- \emph{direct incidence}, the covariance of saving propensities
+with the reform's income shifts, and \emph{long-run distributional
+adjustment} --- and shows the paper's positive tax response is a property of
+the second, not the first. This sharpens what external evidence can and
+cannot discipline: household-level saving responses bear on the (small)
+direct term, while the dominant distributional term is a
+stationary-equilibrium object that only the model's transition dynamics
+deliver; its horizon profile is part of the numerical audit
+(Appendix~\ref{app:numerics}).
 
 % ==========================================================================
 \FloatBarrier
@@ -2303,16 +2323,26 @@ y_i - d\tau
 \end{equation}
 where the tilt takes from below-mean households and gives to above-mean
 households with cross-sectional mean exactly zero. The two operations move
-precautionary asset demand in \emph{opposite} directions: the proportional
+stationary asset demand in \emph{opposite} directions: the proportional
 levy is a homothetic contraction that lowers demand (the measured
 $\partial\ln\Sfun/\partial\vartheta=\epsLevy$), while the regressive tilt
-tightens the constrained and \emph{raises} it. The measured lump-sum
-semi-elasticity ($\epsTau$) exceeds the levy in sign and magnitude, so the
-tilt component is the larger force --- the positive sign of the paper's
-pivotal primitive is the asset-demand response to \emph{regressive
-redistribution}, not to taxation per se, which is exactly why it vanishes at
-the loose borrowing limit where the constrained mass empties
-(Table~\ref{tab:elasticitymap}). This decomposition is also the
+\emph{raises} it. The measured lump-sum semi-elasticity ($\epsTau$) exceeds
+the levy in sign and magnitude, so the tilt component is the larger force
+--- the positive sign of the paper's pivotal primitive is the asset-demand
+response to \emph{regressive redistribution}, not to taxation per se
+(Table~\ref{tab:elasticitymap}). \emph{How} the tilt raises demand is
+established by the covariance decomposition of
+Proposition~\ref{prop:covincidence}, and the answer is not the direct
+channel: at the initial distribution the tilt's direct fixed-state effect on
+desired liquid saving is essentially zero and slightly negative
+($\covTiltDirect$ per unit of revenue), so the positive stationary response
+($\epsTilt$) is generated by the endogenous adjustment of the wealth
+distribution --- the reform relocates households across wealth states until
+aggregate liquid-asset demand settles higher. Direct incidence and long-run
+distributional adjustment are therefore distinct forces with, here, opposite
+signs, which cautions against reading the stationary semi-elasticity as an
+impact response; the horizon profile of the adjustment is part of the
+numerical audit (Appendix~\ref{app:numerics}). This decomposition is also the
 mechanism-level bridge to \citet{kaplannikolakoudisviolante2023}: their
 finding that fiscal capacity is \emph{lower} under more redistributive
 tax-and-transfer systems is the same tilt component applied to deficit
@@ -2872,210 +2902,36 @@ supplementary to the incidence result).
 % ==========================================================================
 
 All quantitative results so far are \emph{steady-state} comparisons. This
-section reports three complementary dynamic exercises, each described by
-what it is and --- as importantly --- by what it is not. The first two are
-\emph{Phillips-curve} exercises: a representative-agent New Keynesian
-transition (Section~\ref{subsec:ranktrans}) and a set of linearized
-heterogeneous-agent impulse responses (Section~\ref{subsec:hanktier1}).
-Neither implements the demand-theory price-level mechanism --- in both,
-inflation is determined by a New Keynesian Phillips curve and an
-interest-rate rule, not by asset-market clearing of the nominal debt stock.
-We report them because they answer two questions the steady-state analysis
-cannot: does the announced program destabilize the nominal block on the way
-to the new steady state, and how does the answer depend on the monetary
-regime? Both exercises embed the same household and climate blocks as the
-model of Section~\ref{sec:model} in a New Keynesian production economy;
-that production economy is stated in full in
-Appendix~\ref{app:nkmodel}, and the household block of the heterogeneous-agent
-version is the incomplete-markets problem of
-Section~\ref{subsec:households} augmented with an intratemporal labor
-choice. The third exercise (Section~\ref{subsec:tier2}) is the paper's own
-mechanism in dynamics --- the nonlinear heterogeneous-agent transition in
-which the price-level \emph{path} is the unknown pinned by asset demand,
-with no Phillips curve anywhere --- and its converged solution turns the
-steady-state revaluation result into an announcement effect: the green
-disinflation is front-loaded into the announcement year, and its inflation
-response has the \emph{opposite sign} to the two Phillips-curve exercises'.
-That opposite sign is the paper's \emph{model-class diagnostic}, not a
-matched horse race: the first two exercises differ from the third in price
-rigidity, financing rule, and persistence as well as in price determination,
-so they bound transition shape and locate the sign. A matched
-DTPL-versus-NK run --- same near-permanent path, same scale, same
+section computes the paper's own mechanism in dynamics: the nonlinear
+heterogeneous-agent transition in which the price-level \emph{path} is the
+unknown pinned by asset demand, with no Phillips curve anywhere. Its
+converged solution turns the steady-state revaluation result into an
+announcement effect --- the green disinflation is front-loaded into the
+announcement year. Two complementary \emph{Phillips-curve} diagnostics ---
+a representative-agent New Keynesian transition and a set of linearized
+heterogeneous-agent impulse responses, both embedding the same household
+and climate blocks in the New Keynesian production economy of
+Appendix~\ref{app:nkmodel} --- answer the one question this section's
+computation cannot, whether the announced program destabilizes the nominal
+block en route under an interest-rate rule (it does not, under any active
+rule); they are reported in Appendices~\ref{subsec:ranktrans}
+and~\ref{subsec:hanktier1}, and their announcement-window inflation has the
+\emph{opposite sign} to the transition computed here. That opposite sign is
+a \emph{model-class diagnostic}, not a matched horse race --- the
+diagnostics differ from this section's computation in price rigidity,
+financing rule, and persistence as well as in price determination. A
+matched DTPL-versus-NK run --- same near-permanent path, same scale, same
 balanced financing, labor margin shut, so that only the price-determination
 block differs up to linearization and frequency --- is included in the
 replication package and described, with its empirical counterpart, in
 Section~\ref{sec:conclusion}; under it the signs remain opposite
 (\matchedNKimpact\% versus \matchedDTPLimpact\% annualized).
 
-\subsection{Representative-agent New Keynesian transitions}
-\label{subsec:ranktrans}
-
-A representative-agent New Keynesian economy with Rotemberg pricing (stated
-in full in Appendix~\ref{app:nkmodel}) carries
-the same climate block as the quantitative model (green public capital
-$K_g$, carbon stock $X$, TFP damages $D$; identical parameters). A
-permanent green-investment program of the calibrated steady-state scale
-phases in linearly over twelve quarters (implementation delays in the
-spirit of \citet{leeperwalkeryang2010}) and is financed \emph{contemporaneously by
-taxes} under a debt-stabilizing fiscal rule --- by design, so that the
-exercise isolates the real/nominal transition shape from the deficit
-question studied everywhere else in the paper. Perfect-foresight paths
-(300 quarters) are computed under four regimes: a weakly active rule
-(\textsc{weak}: $\phi_\pi=1.1$, $\rho_i=0.5$, the closest numerically
-regular stand-in for a peg), an inertial Taylor rule (\textsc{taylor}:
-$\phi_\pi=1.5$, $\rho_i=0.8$), strict inflation targeting
-(\textsc{aggressive}: $\phi_\pi=3$), and a temporary green accommodation
-(\textsc{greenaccom}: Taylor plus a rate cut proportional to the
-green-capital gap, $\psi_g=0.03$, fading as $K_g$ accumulates). The
-accommodation is deliberately large: the un-smoothed stance target implies
-a cut of about seven annualized percentage points at the program's start,
-though the rule's own inertia ($\rho_i=0.8$) means the realized first-period
-cut is nearer one and a half points, building thereafter.
-
-Three findings, all verified by the converged runs (solver residuals
-$\sim 10^{-14}$; the $K_g$ accumulation identity holds to $10^{-9}$ on
-every reported path):
-
-\begin{enumerate}
-\item \emph{The tax-financed program is essentially price-stable under any
-active rule.} Impact inflation is $-0.04$\% (annualized) under
-\textsc{weak}, $-0.52$\% under \textsc{taylor}, $-0.24$\% under
-\textsc{aggressive}; peak inflation along the entire transition stays
-below $+1.6$\% annualized in all three. A ramped green program of
-realistic scale is not, by itself, an inflationary event in the NK block.
-\item \emph{The real green transition is monetary-regime independent.}
-Green capital reaches $0.349$ (58\% of its terminal level) after 40
-quarters and damages fall from $0.0972$ to $0.0925$ in all three active
-regimes --- identical to three decimals. The monetary regime redistributes
-the nominal path, not the green capital path.
-\item \emph{Accommodation buys inflation, not green capital.} The large
-\textsc{greenaccom} experiment produces a $+22.6$\% annualized
-impact-inflation spike, yet after 40 quarters green capital is the same
-($0.349$) and damages are slightly \emph{higher} ($0.0933$): the
-demand boom raises output and hence emissions along the way. In the NK
-block, tying rate cuts to the green-capital gap is a pure nominal
-intervention --- a transition-dynamics counterpart of the steady-state
-accommodation-neutrality result of Section~\ref{sec:quant}, and further
-motivation for the anchor-insulation design of
-Proposition~\ref{prop:insulation}.
-\end{enumerate}
-
-\pfigguard{PFig13_rank_transitions.pdf}{%
-\begin{figure}[!htb]\centering
-\includegraphics[width=0.95\textwidth]{PFig13_rank_transitions.pdf}
-\caption{Representative-agent New Keynesian transitions: perfect-foresight
-paths for a permanent tax-financed green program (12-quarter ramp-in) under
-four monetary regimes --- a weakly active rule ($\phi_\pi=1.1$), an inertial
-Taylor rule ($\phi_\pi=1.5$), strict inflation targeting ($\phi_\pi=3.0$),
-and a temporary green accommodation whose large inflation spike is the
-point of the experiment (accommodation buys inflation, not green capital).
-These paths do not implement the demand-theory
-price-level mechanism; inflation is set by the Phillips curve and the
-interest-rate rule.}
-\label{fig:pfig13}
-\end{figure}}
-
-\subsection{Linearized heterogeneous-agent impulse responses}
-\label{subsec:hanktier1}
-
-The second exercise restores household heterogeneity: a one-asset
-heterogeneous-agent New Keynesian economy (borrowing constraint,
-idiosyncratic efficiency risk) solved with sequence-space Jacobians,
-carrying the same climate block, a \emph{nominal} policy rate together
-with the ex-post Fisher equation --- so that surprise inflation revalues
-household asset positions state by state, the linearized counterpart of
-the paper's redistribution channel --- and a slow debt-stabilizing tax
-rule, so that a quasi-permanent green-investment expansion (persistence
-$0.98$, one percent of steady-state output) is \emph{deficit-financed on
-impact}. Its household block is the incomplete-markets problem of
-Section~\ref{subsec:households} with an intratemporal labor choice added,
-and the New Keynesian production and policy blocks are shared with the
-representative-agent economy; the complete system is in
-Appendix~\ref{app:nkmodel}. Discount factor and labor disutility are
-calibrated to clear the asset and labor markets at a damaged steady state
-with debt at the calibration target of Section~\ref{sec:quant}; the income
-process is a three-state benchmark rather than the seven-state process of
-the quantitative model, so magnitudes here are indicative, not calibrated
-results.
-
-Its role is deliberately limited: it bridges the representative-agent
-diagnostics and the full nonlinear transition, showing that the qualitative
-transition shapes survive heterogeneity and Fisher redistribution. It does
-not --- and in a linearized New Keynesian setting cannot --- deliver
-price-level determination by asset demand.
-Figure~\ref{fig:pfig14} reports the responses of output, inflation, real
-debt, green capital, damages, and the ex-post real return under four
-monetary regimes analogous to the representative-agent block's, though not
-identical to them: the heterogeneous-agent rules omit interest-rate inertia
-and the accommodation keys off the program flow rather than the
-green-capital gap, so the \textsc{greenaccom} experiment here is far milder
-than its representative-agent namesake and the two are compared on shapes,
-not on levels.
-
-The verified run (five regimes solved; calibrated $\beta = 0.9796$;
-one-percent-of-output program; persistence $\rho_g = 0.98$) delivers the
-exercise's key message in two comparisons. \emph{Across monetary rules},
-impact inflation is $+2.53\%$ annualized under \textsc{weak}, $+0.44\%$
-under \textsc{taylor}, $+0.10\%$ under \textsc{aggressive}, $+0.65\%$
-under \textsc{greenaccom}, with output up half a percent of its
-steady-state level on impact ($+0.0044$ in levels against $\bar Y =
-0.90$) --- positive throughout, against impact deflation in the
-tax-financed, ramped RANK experiment of Section~\ref{subsec:ranktrans}
---- and the real green path is again rule-independent (green capital
-$+0.148$, damages $-0.0032$ after 40 quarters, identical to three
-decimals across all regimes). \emph{Within the Taylor rule}, a fifth
-regime (\textsc{taylorbal}) re-runs the identical program with a fast
-debt-stabilizing tax rule in place of the slow one, isolating the
-deficit-financing component while holding the model fixed: real debt
-after 40 quarters rises $+0.007$ instead of $+0.071$ --- the debt buildup
-is almost entirely a financing choice --- yet impact inflation barely
-moves ($+0.36\%$ against $+0.44\%$). The
-decomposition is sharp: in the linearized HANK, \emph{deficit financing
-buys the debt path, not the inflation path} --- the mild impact inflation
-belongs to the unanticipated program itself, its size is set by the
-monetary rule, and the financing margin prices into the fisc's balance
-sheet rather than into goods prices. (The steady-state DTPL analysis is
-where the financing margin does move the price level --- through
-asset-demand incidence, Section~\ref{subsec:safeasset} --- which is
-precisely the mechanism a linearized NK Phillips curve cannot represent;
-the contrast between the two exercises is thus itself informative.) These
-magnitudes are indicative, not calibrated results: the income process is a
-three-state benchmark and the responses are linearized.
-
-\pfigguard{PFig14_hank_green_irfs.pdf}{%
-\begin{figure}[!htb]\centering
-\includegraphics[width=0.95\textwidth]{PFig14_hank_green_irfs.pdf}
-\caption{Linearized heterogeneous-agent impulse responses to a
-quasi-permanent deficit-financed green-investment shock (one percent of
-steady-state output, persistence $0.98$) under five monetary/financing
-regimes: three inflation-coefficient variants ($\phi_\pi = 1.1$, $1.5$,
-$3.0$), a temporary green accommodation, and the Taylor rule under
-near-balanced-budget financing (\textsc{taylorbal}), whose gap to
-\textsc{taylor} isolates the deficit-financing component.
-The ex-post real return panel is the linearized Fisher revaluation
-channel. These are linearized responses, not the nonlinear
-demand-theory price-level transition.}
-\label{fig:pfig14}
-\end{figure}}
-
-\paragraph{A two-asset extension.} The replication package also implements a
-linearized \emph{two-asset} version of this exercise --- liquid nominal bonds
-versus illiquid equity, with a constant liquidity premium --- so that the
-demand for the liquid nominal asset, the $B/P$ margin at the heart of the model,
-is observable separately from total wealth. It confirms the one-asset findings
-under the richer portfolio and shows the Fisher revaluation landing specifically
-on households' liquid nominal savings; but it is a linearized New Keynesian
-exercise with a constant premium, not a nonlinear DTPL fixed point with an
-endogenous convenience yield, so it locates the portfolio margin without
-validating its magnitude. The full results, table, and the accuracy
-qualifications are in Appendix~\ref{subsec:twoasset}.
-
-% --------------------------------------------------------------------------
 \subsection{The nonlinear price-level transition}\label{subsec:tier2}
 
-The two exercises above borrow their inflation dynamics from a Phillips
-curve. The paper's own mechanism makes a starker prediction about the
-transition, and we compute it directly. At $t=1$ the government unexpectedly announces
+The Phillips-curve diagnostics borrow their inflation dynamics from a
+pricing friction and a policy rule. The paper's own mechanism makes a
+starker prediction about the transition, and we compute it directly. At $t=1$ the government unexpectedly announces
 the permanent program; thereafter foresight is perfect. The unknown is
 the \emph{price-level path} $\{P_t\}_{t=1}^{T}$: at every date the price
 level must clear the asset market,
@@ -3846,8 +3702,8 @@ The economy of Section~\ref{sec:model} is an \emph{endowment} economy:
 households receive the effective endowment $y(e;D)$ of
 \eqref{eq:incidence}, and the price level is determined by asset-market
 clearing of the nominal debt stock, $P^\ast=B/\Sfun(1+r^{ss};\tau,D)$. The
-two Phillips-curve exercises of Sections~\ref{subsec:ranktrans} and
-\ref{subsec:hanktier1} embed the same household preferences
+two Phillips-curve transition diagnostics of Appendices~\ref{subsec:ranktrans}
+and~\ref{subsec:hanktier1} below embed the same household preferences
 \eqref{eq:preferences} and climate sector
 \eqref{eq:Kg}--\eqref{eq:climatefixedpoint} in a New Keynesian production
 economy: output is produced from labor, monopolistic firms face sticky
@@ -3982,7 +3838,7 @@ adjustment-cost coefficient and $\varepsilon_p$ the elasticity of
 substitution across varieties. The policy rule allows interest-rate inertia
 ($\rho_i$) and a temporary green accommodation tied to the green-capital gap
 ($\psi_g$), fading as $K_{g,t}\to K_g^{ss}$; the four monetary regimes of
-Section~\ref{subsec:ranktrans} are parameterizations of
+Appendix~\ref{subsec:ranktrans} are parameterizations of
 \eqref{eq:rank-policy}. Perfect-foresight paths are computed by a
 nonlinear boundary-value solver from the pre-program steady state to the
 green terminal steady state.
@@ -3990,7 +3846,7 @@ green terminal steady state.
 \subsection{Heterogeneous-agent version}\label{app:nkhank}
 
 The one-asset heterogeneous-agent economy of
-Section~\ref{subsec:hanktier1} replaces the representative consumer with the
+Appendix~\ref{subsec:hanktier1} replaces the representative consumer with the
 incomplete-markets household of Section~\ref{subsec:households}, adding an
 intratemporal labor choice. A household in idiosyncratic state $e$ (the
 Markov chain of Section~\ref{subsec:households}) with beginning-of-period
@@ -4043,7 +3899,7 @@ Jacobians of aggregate consumption, savings, and labor supply with respect
 to the paths of $\{r_t,w_t,\tau_t,\mathrm{Div}_t\}$, which are combined with
 the aggregate equations \eqref{eq:hank-labdemand}--\eqref{eq:hank-clearing}
 to produce the impulse responses of
-Section~\ref{subsec:hanktier1}. Because \eqref{eq:hank-nkpc} pins inflation
+Appendix~\ref{subsec:hanktier1}. Because \eqref{eq:hank-nkpc} pins inflation
 off the Phillips curve, this exercise --- like the representative-agent one
 --- does not determine the price level by asset demand; that is the
 object of the nonlinear transition of Section~\ref{subsec:tier2}, whose
@@ -4051,6 +3907,175 @@ household problem is the same \eqref{eq:hank-euler}--\eqref{eq:hank-budget}
 solved globally with the price path, not the Phillips curve, as the unknown.
 
 % ==========================================================================
+% --------------------------------------------------------------------------
+% Transition diagnostics in the two New Keynesian classes (moved from the
+% body: unmatched Phillips-curve exercises; see Section \ref{sec:transitions})
+\FloatBarrier
+\subsection{Representative-agent New Keynesian transitions}
+\label{subsec:ranktrans}
+
+A representative-agent New Keynesian economy with Rotemberg pricing (stated
+in full in Appendix~\ref{app:nkmodel}) carries
+the same climate block as the quantitative model (green public capital
+$K_g$, carbon stock $X$, TFP damages $D$; identical parameters). A
+permanent green-investment program of the calibrated steady-state scale
+phases in linearly over twelve quarters (implementation delays in the
+spirit of \citet{leeperwalkeryang2010}) and is financed \emph{contemporaneously by
+taxes} under a debt-stabilizing fiscal rule --- by design, so that the
+exercise isolates the real/nominal transition shape from the deficit
+question studied everywhere else in the paper. Perfect-foresight paths
+(300 quarters) are computed under four regimes: a weakly active rule
+(\textsc{weak}: $\phi_\pi=1.1$, $\rho_i=0.5$, the closest numerically
+regular stand-in for a peg), an inertial Taylor rule (\textsc{taylor}:
+$\phi_\pi=1.5$, $\rho_i=0.8$), strict inflation targeting
+(\textsc{aggressive}: $\phi_\pi=3$), and a temporary green accommodation
+(\textsc{greenaccom}: Taylor plus a rate cut proportional to the
+green-capital gap, $\psi_g=0.03$, fading as $K_g$ accumulates). The
+accommodation is deliberately large: the un-smoothed stance target implies
+a cut of about seven annualized percentage points at the program's start,
+though the rule's own inertia ($\rho_i=0.8$) means the realized first-period
+cut is nearer one and a half points, building thereafter.
+
+Three findings, all verified by the converged runs (solver residuals
+$\sim 10^{-14}$; the $K_g$ accumulation identity holds to $10^{-9}$ on
+every reported path):
+
+\begin{enumerate}
+\item \emph{The tax-financed program is essentially price-stable under any
+active rule.} Impact inflation is $-0.04$\% (annualized) under
+\textsc{weak}, $-0.52$\% under \textsc{taylor}, $-0.24$\% under
+\textsc{aggressive}; peak inflation along the entire transition stays
+below $+1.6$\% annualized in all three. A ramped green program of
+realistic scale is not, by itself, an inflationary event in the NK block.
+\item \emph{The real green transition is monetary-regime independent.}
+Green capital reaches $0.349$ (58\% of its terminal level) after 40
+quarters and damages fall from $0.0972$ to $0.0925$ in all three active
+regimes --- identical to three decimals. The monetary regime redistributes
+the nominal path, not the green capital path.
+\item \emph{Accommodation buys inflation, not green capital.} The large
+\textsc{greenaccom} experiment produces a $+22.6$\% annualized
+impact-inflation spike, yet after 40 quarters green capital is the same
+($0.349$) and damages are slightly \emph{higher} ($0.0933$): the
+demand boom raises output and hence emissions along the way. In the NK
+block, tying rate cuts to the green-capital gap is a pure nominal
+intervention --- a transition-dynamics counterpart of the steady-state
+accommodation-neutrality result of Section~\ref{sec:quant}, and further
+motivation for the anchor-insulation design of
+Proposition~\ref{prop:insulation}.
+\end{enumerate}
+
+\pfigguard{PFig13_rank_transitions.pdf}{%
+\begin{figure}[!htb]\centering
+\includegraphics[width=0.95\textwidth]{PFig13_rank_transitions.pdf}
+\caption{Representative-agent New Keynesian transitions: perfect-foresight
+paths for a permanent tax-financed green program (12-quarter ramp-in) under
+four monetary regimes --- a weakly active rule ($\phi_\pi=1.1$), an inertial
+Taylor rule ($\phi_\pi=1.5$), strict inflation targeting ($\phi_\pi=3.0$),
+and a temporary green accommodation whose large inflation spike is the
+point of the experiment (accommodation buys inflation, not green capital).
+These paths do not implement the demand-theory
+price-level mechanism; inflation is set by the Phillips curve and the
+interest-rate rule.}
+\label{fig:pfig13}
+\end{figure}}
+
+\subsection{Linearized heterogeneous-agent impulse responses}
+\label{subsec:hanktier1}
+
+The second exercise restores household heterogeneity: a one-asset
+heterogeneous-agent New Keynesian economy (borrowing constraint,
+idiosyncratic efficiency risk) solved with sequence-space Jacobians,
+carrying the same climate block, a \emph{nominal} policy rate together
+with the ex-post Fisher equation --- so that surprise inflation revalues
+household asset positions state by state, the linearized counterpart of
+the paper's redistribution channel --- and a slow debt-stabilizing tax
+rule, so that a quasi-permanent green-investment expansion (persistence
+$0.98$, one percent of steady-state output) is \emph{deficit-financed on
+impact}. Its household block is the incomplete-markets problem of
+Section~\ref{subsec:households} with an intratemporal labor choice added,
+and the New Keynesian production and policy blocks are shared with the
+representative-agent economy; the complete system is in
+Appendix~\ref{app:nkmodel}. Discount factor and labor disutility are
+calibrated to clear the asset and labor markets at a damaged steady state
+with debt at the calibration target of Section~\ref{sec:quant}; the income
+process is a three-state benchmark rather than the seven-state process of
+the quantitative model, so magnitudes here are indicative, not calibrated
+results.
+
+Its role is deliberately limited: it bridges the representative-agent
+diagnostics and the full nonlinear transition, showing that the qualitative
+transition shapes survive heterogeneity and Fisher redistribution. It does
+not --- and in a linearized New Keynesian setting cannot --- deliver
+price-level determination by asset demand.
+Figure~\ref{fig:pfig14} reports the responses of output, inflation, real
+debt, green capital, damages, and the ex-post real return under four
+monetary regimes analogous to the representative-agent block's, though not
+identical to them: the heterogeneous-agent rules omit interest-rate inertia
+and the accommodation keys off the program flow rather than the
+green-capital gap, so the \textsc{greenaccom} experiment here is far milder
+than its representative-agent namesake and the two are compared on shapes,
+not on levels.
+
+The verified run (five regimes solved; calibrated $\beta = 0.9796$;
+one-percent-of-output program; persistence $\rho_g = 0.98$) delivers the
+exercise's key message in two comparisons. \emph{Across monetary rules},
+impact inflation is $+2.53\%$ annualized under \textsc{weak}, $+0.44\%$
+under \textsc{taylor}, $+0.10\%$ under \textsc{aggressive}, $+0.65\%$
+under \textsc{greenaccom}, with output up half a percent of its
+steady-state level on impact ($+0.0044$ in levels against $\bar Y =
+0.90$) --- positive throughout, against impact deflation in the
+tax-financed, ramped RANK experiment of Appendix~\ref{subsec:ranktrans}
+--- and the real green path is again rule-independent (green capital
+$+0.148$, damages $-0.0032$ after 40 quarters, identical to three
+decimals across all regimes). \emph{Within the Taylor rule}, a fifth
+regime (\textsc{taylorbal}) re-runs the identical program with a fast
+debt-stabilizing tax rule in place of the slow one, isolating the
+deficit-financing component while holding the model fixed: real debt
+after 40 quarters rises $+0.007$ instead of $+0.071$ --- the debt buildup
+is almost entirely a financing choice --- yet impact inflation barely
+moves ($+0.36\%$ against $+0.44\%$). The
+decomposition is sharp: in the linearized HANK, \emph{deficit financing
+buys the debt path, not the inflation path} --- the mild impact inflation
+belongs to the unanticipated program itself, its size is set by the
+monetary rule, and the financing margin prices into the fisc's balance
+sheet rather than into goods prices. (The steady-state DTPL analysis is
+where the financing margin does move the price level --- through
+asset-demand incidence, Section~\ref{subsec:safeasset} --- which is
+precisely the mechanism a linearized NK Phillips curve cannot represent;
+the contrast between the two exercises is thus itself informative.) These
+magnitudes are indicative, not calibrated results: the income process is a
+three-state benchmark and the responses are linearized.
+
+\pfigguard{PFig14_hank_green_irfs.pdf}{%
+\begin{figure}[!htb]\centering
+\includegraphics[width=0.95\textwidth]{PFig14_hank_green_irfs.pdf}
+\caption{Linearized heterogeneous-agent impulse responses to a
+quasi-permanent deficit-financed green-investment shock (one percent of
+steady-state output, persistence $0.98$) under five monetary/financing
+regimes: three inflation-coefficient variants ($\phi_\pi = 1.1$, $1.5$,
+$3.0$), a temporary green accommodation, and the Taylor rule under
+near-balanced-budget financing (\textsc{taylorbal}), whose gap to
+\textsc{taylor} isolates the deficit-financing component.
+The ex-post real return panel is the linearized Fisher revaluation
+channel. These are linearized responses, not the nonlinear
+demand-theory price-level transition.}
+\label{fig:pfig14}
+\end{figure}}
+
+\paragraph{A two-asset extension.} The replication package also implements a
+linearized \emph{two-asset} version of this exercise --- liquid nominal bonds
+versus illiquid equity, with a constant liquidity premium --- so that the
+demand for the liquid nominal asset, the $B/P$ margin at the heart of the model,
+is observable separately from total wealth. It confirms the one-asset findings
+under the richer portfolio and shows the Fisher revaluation landing specifically
+on households' liquid nominal savings; but it is a linearized New Keynesian
+exercise with a constant premium, not a nonlinear DTPL fixed point with an
+endogenous convenience yield, so it locates the portfolio margin without
+validating its magnitude. The full results, table, and the accuracy
+qualifications are in Appendix~\ref{subsec:twoasset}.
+
+% --------------------------------------------------------------------------
+
 \section{Numerical method}\label{app:numerics}
 
 The household problem is solved by value function iteration with Howard
@@ -4266,6 +4291,76 @@ regime & $\pi$ impact (ann.) & $Y$ impact & $r^b$ impact & debt (40q) & $K_g$ (4
 \bottomrule
 \end{tabular}
 \end{table}
+
+\subsection{A nonlinear two-asset benchmark}\label{subsec:twoassetnl}
+
+The linearized extension above tracks dynamics around a one-asset steady
+state. The structural answer to the portfolio question is a \emph{nonlinear}
+economy in which the nominal government liability and a real asset clear in
+separate markets, so that the price-level response is computed on the
+nominal margin alone. This subsection states the benchmark (the first stage
+of that build) and reports its three deliverables; the computed values below
+are populated by the replication run, and nothing in the body relies on
+them.
+
+Households hold liquid nominal bonds $b$ and shares $k$ of a tree with real
+dividend $d$ at price $q$, with frictionless within-period rebalancing and a
+convenience-yield term in preferences,
+\[
+\E \sum_t \beta^t \Big[ u(c_t) + \chi_b\, v(b_{t+1}) \Big],
+\qquad v(b) = \frac{b^{1-\zeta}}{1-\zeta},
+\]
+so the nominal share is interior and elastic with curvature $\zeta$
+(\citealp{krishnamurthy2012}). With frictionless rebalancing the household
+state is cash-on-hand $x = y - \tau + (1+r_b)b + (q+d)k$ --- the
+one-dimensional aggregation is exact in this variant by construction, not an
+approximation; what it cannot generate is wealthy hand-to-mouth households,
+which require the infrequent-adjustment variant and remain outside this
+benchmark. Interior optimality equates $u'(c)$ to the tree margin
+$\beta \frac{q+d}{q}\E u'(c')$ and prices the liquid split by
+$\chi_b v'(b') = u'(c)\,[1-\frac{(1+r_b)q}{q+d}]$: bonds pay the policy rate
+plus a convenience yield equal to the equity spread. Two market-clearing
+conditions pin the two prices: $\int b'\,\dd\Omega = B/P$ (the nominal
+market, pinning $P$ exactly as in the one-asset economy) and
+$\int k'\,\dd\Omega = \bar K$ (the tree, pinning $q$); the liquidity weight
+$\chi_b$ is calibrated so baseline liquid demand matches the public-debt
+target, and the resulting liquid share is $\omega = \TwoAOmega$ with an
+equilibrium convenience yield of $\TwoASpread$.
+
+The three deliverables, populated by the run: (i) the \emph{financing
+experiment on the nominal margin} --- the same real program financed
+lump-sum moves the price level by $\TwoADlnPLS$ (log points) against
+$\TwoADlnPLevy$ under the proportional levy, to be compared with the
+one-asset regime numbers (the lump-sum ratio to the one-asset response is
+$\TwoARatioLS$; the sign contrast is the object of interest); (ii) the
+\emph{price response as a function of the convenience-yield curvature},
+from $\TwoAZetaLoP$ at the most elastic swept $\zeta$ to $\TwoAZetaHiP$ at
+the most rigid, spanning the one-asset bound; and (iii) the
+\emph{liquid-margin incidence split} --- per unit of revenue, the lump-sum,
+levy, and regressive-tilt responses of nominal-bond demand at fixed prices
+are $\TwoAEpsLs$, $\TwoAEpsLevy$, and $\TwoAEpsTilt$, the two-asset
+counterpart of the direct-versus-distributional decomposition of
+Proposition~\ref{prop:covincidence}.
+
+The second stage relaxes the frictionless-rebalancing assumption:
+$k$ adjusts only when an opportunity arrives (probability $\lambda$ per
+year, Kaplan--Violante style), which breaks the cash-on-hand aggregation
+and generates \emph{wealthy hand-to-mouth} households --- low liquid
+balances alongside substantial illiquid wealth, the configuration under
+which the covariance of liquid-saving propensities with tax incidence is
+computed on realistic bond ownership. In the calibrated variant the
+wealthy-hand-to-mouth share is $\TwoBWhtm\%$, the liquid share
+$\TwoBOmega$, and the financing experiment gives $\TwoBDlnPLS$ (lump-sum)
+against $\TwoBDlnPLevy$ (levy) on the nominal margin, with the
+liquid-margin lump-sum and tilt responses $\TwoBEpsLs$ and $\TwoBEpsTilt$
+per unit of revenue; a $\lambda\to1$ run reproduces the frictionless
+benchmark as a consistency check.
+
+\noindent\emph{Status:} model and solution method implemented (endogenous-grid
+solver cross-validated against a discrete-choice reference on a coarse grid);
+values shown as ``--'' await the replication run, and no result in this
+paper is described as portfolio-validated until the two markets clear
+separately in a converged run.
 
 \subsection{The worked example in full}\label{subsec:workedexample}
 
