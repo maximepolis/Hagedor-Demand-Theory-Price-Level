@@ -18,6 +18,10 @@ TAX SEMI-ELASTICITY d ln S/d tau. na=500, D0=0.06, r=0.0196
     lump-sum +2.746 = levy -1.006 + mean-zero tilt +3.714  [additivity resid +3.8e-02]
     => the positive lump-sum sign is the regressive-tilt response, not taxation per se.
 
+(e) COVARIANCE FORM (financing-incidence proposition):
+    E[dy^net]=+2.0e-18; Cov(m^b,dy^net)=-7.297e-04
+    direct term (per rev)=-0.071; GE tilt=+3.714; dist-shift residual=+3.785
+
 Reading: a positive lump-sum semi-elasticity across the swept region
 shows green disinflation is a general DTPL buffer-stock property; the levy
 reverses the sign, which is the incidence result of Result 1 / Section 5.11.

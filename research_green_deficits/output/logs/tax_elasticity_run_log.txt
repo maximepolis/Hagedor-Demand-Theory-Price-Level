@@ -21,7 +21,12 @@
 
 ----- (d) tilt decomposition: lump-sum = levy(same rev) + mean-zero tilt -----
   lump-sum (per rev) +2.746 = levy (per rev) -1.006 + tilt +3.714  [resid +3.8e-02]
+
+----- (e) covariance form: Cov(m^b, dy^net) vs the GE tilt response -----
+  E[dy^net]=+2.0e-18 (mean-zero check);  Cov(m^b,dy^net)=-7.297e-04
+  direct term (per rev) -0.071;  GE tilt +3.714;  dist-shift residual +3.785
+  => sign of Cov(m^b,dy^net) matches the tilt: 0
   [saved] C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\tax_elasticity.txt
   [saved] PFig_tax_elasticity
 
-Elapsed: 23.5 s
+Elapsed: 17.0 s
