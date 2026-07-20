@@ -127,6 +127,7 @@
 \newtheorem{result}{Result}
 
 \newcommand{\E}{\mathbb{E}}
+\newcommand{\Cov}{\mathrm{Cov}}
 \newcommand{\one}{\mathbf{1}}
 \newcommand{\Sfun}{S}
 \newcommand{\dd}{\,d}
@@ -157,43 +158,30 @@ Appendix~\ref{app:numerics}.}}
 
 \begin{abstract}
 \noindent
-Who bears the burden of green public investment when the price level is what
-clears the market for nominal safe assets? We study a heterogeneous-agent
-economy in which green public investment --- by changing future damages,
-household risk, and the taxes that service it --- moves the precautionary
-demand for nominal government debt, and with it the price level, the real
-value of that debt, and the distribution of nominal wealth. The main result
-is that the financing instrument sets the \emph{sign} of the price-level
-response to the same appropriation, and with it who pays. A uniform lump-sum
-tax raises precautionary demand for the safe asset --- it is a proportional
-levy plus a regressive redistribution, and the redistribution tightens
-constrained households into saving --- so it lowers the price level (to
-$\RDefP$ from a no-program $\PzeroRegimes$) and hands bondholders a windfall;
-a proportional levy plus rebate does the reverse, raising the price level
-(to $\RRebP$) and making the program progressive. The revaluation channel's
-sign is thus an instrument choice, not a property of the program, which is
-why whether green investment is inflationary has no answer independent of
-who pays for it. Two homogeneity results scope the question rather than
-headline it: nominal debt issuance is neutral, so real debt is
-demand-determined and there is no stationary deficit to study; and
-steady-state inflation is neutral at a fixed real rate, so ``optimal
-accommodation'' is an optimal-real-rate result. Whether the program returns
-its resource cost is instead a climate-damage question: the benefit--cost
-ratio of public abatement crosses one only under high-damage estimates
-($\bcrLow$, $\bcrMed$, $\bcrHigh$ across damage columns) and an abatement
-technology we report as a frontier, not a point estimate. The price-level
-\emph{signs, shares, and orderings} are properties of the incidence
-mechanism; the \emph{magnitudes} are conditional on the one-asset structure
-and carry a portfolio correction whose sign is not determined without a
-calibrated convenience-yield elasticity for the nominal liability. Along the
-announced transition, three quarters of the long-run price response arrives
-in the announcement year as a revaluation of the predetermined nominal stock.
+Who bears the burden of productive public investment when the price level
+clears the market for nominal government liabilities? We study an
+incomplete-markets economy in which the taxes that finance public investment
+change household demand for nominal public debt, so financing incidence
+determines both the sign of debt revaluation and its distribution. A
+regressive instrument raises liquid-asset demand and lowers the price level,
+handing a windfall to nominal bondholders; a progressive levy-and-rebate
+reverses the revaluation and shifts the burden toward wealthy asset holders
+--- the same appropriation, opposite signs, from the financing choice alone.
+A sufficient-statistic incidence formula shows the price response is governed
+by the covariance between tax incidence and households' marginal propensities
+to accumulate liquid claims: a uniform lump-sum tax is a proportional levy
+plus a regressive redistribution, and the redistribution, falling on
+constrained high-saving households, is what raises precautionary demand.
+Under the nonlinear announcement transition, three quarters of the long-run
+revaluation occurs when the program is announced, before capital accumulates.
+The inflationary and distributional effects of public investment cannot be
+evaluated independently of its financing design.
 \end{abstract}
 
 \bigskip
 \noindent\textbf{Keywords:} price-level determination, incomplete markets,
-HANK, fiscal policy, climate change, green investment, self-fulfilling
-equilibria.\\
+tax incidence, debt revaluation, fiscal policy, public investment, climate
+adaptation.\\
 \textbf{JEL:} E31, E52, E62, E63, H63, Q54.
 
 \newpage
@@ -1308,11 +1296,12 @@ market; and (ii) the \emph{magnitude} is amplified by $1/(1+\varepsilon_S)$,
 which diverges as $\varepsilon_S\downarrow-1$, the boundary of the
 multiplicity region.
 \end{proposition}
-\noindent\emph{Status:} \textbf{proved under a maintained regularity
+\noindent\emph{Status:} \textbf{proved under a maintained smoothness
 hypothesis, numerically verified} --- the implicit function theorem at the
-crossing, given differentiability of $\Sfun$ at the equilibrium, which
-(R1)--(R2) supply as a hypothesis (the finite chain and the constraint mass
-point make it a hypothesis, not a primitive) and which holds at every
+crossing, given differentiability of $\Sfun$ at the equilibrium (condition
+(R3) in the proof; the finite chain and the constraint mass point make it a
+hypothesis, not a primitive, and distinct from the boundary conditions
+(R1)--(R2) of Proposition~\ref{prop:determinacy}), which holds at every
 reported equilibrium; proof in
 Appendix~\ref{app:proofs}.
 
@@ -1673,6 +1662,45 @@ Section~\ref{subsec:regimes}.
 \textbf{approximate} degree-one homogeneity of Lemma~\ref{lem:S} (exact in the
 homothetic limit; the residual non-homotheticity is second-order for small
 $\vartheta$); proof in Appendix~\ref{app:proofs}.
+
+The approximate homogeneity is only the operational route to the sign; the
+exact statement is a covariance, and it is worth writing because it says
+precisely which financing reforms are inflationary. Let a reform be indexed
+by $\alpha$ and change household $i$'s net income by
+$dy_i^{\mathrm{net}}(\alpha)$, and let
+$m_i^b\equiv \partial b_i'/\partial y_i^{\mathrm{net}}$ be the household's
+marginal propensity to accumulate the liquid nominal claim.
+
+\begin{proposition}[Covariance form of financing incidence]\label{prop:covincidence}
+The response of aggregate demand for the nominal liability to a financing
+reform decomposes exactly as
+\begin{equation}
+\frac{\partial S_b}{\partial\alpha}
+=\underbrace{\int m_i^b\,\frac{\partial y_i^{\mathrm{net}}}{\partial\alpha}\,\dd\Omega_i}_{\text{direct (policy) effect}}
++\underbrace{\mathcal D_\alpha}_{\text{distribution effect}},
+\qquad
+\text{direct}=\E[m^b]\,\E[dy^{\mathrm{net}}]+\Cov\!\big(m_i^b,\,dy_i^{\mathrm{net}}\big).
+\label{eq:covincidence}
+\end{equation}
+For a \emph{revenue-neutral} reform $\E[dy^{\mathrm{net}}]=0$, so the direct
+effect is governed by $\Cov(m_i^b,dy_i^{\mathrm{net}})$: a budget-neutral
+shift toward a more regressive instrument raises demand for the nominal
+liability, and hence lowers the price level, exactly when it cuts disposable
+income by more for households with higher liquid-saving propensities $m_i^b$
+--- after netting the induced distribution effect $\mathcal D_\alpha$.
+\end{proposition}
+\noindent\emph{Status:} \textbf{exact} decomposition (adding and subtracting
+$\E[m^b]\E[dy^{\mathrm{net}}]$; $\mathcal D_\alpha$ is the stationary-distribution
+response, computed from $(I-\Lambda)\dd\Omega=(\dd\Lambda)\Omega$ with
+$\mathbf 1'\dd\Omega=0$). This is the exact form of
+Proposition~\ref{prop:financingdesign}: the lump-sum-versus-levy contrast of
+Table~\ref{tab:elasticitymap} is precisely the covariance term, and the
+regressive tilt that carries the sign (Section~\ref{subsec:safeasset}) is
+the reform for which $m_i^b$ and $-dy_i^{\mathrm{net}}$ are most positively
+aligned --- constrained households have the highest $m_i^b$ and bear the
+most income loss. The empirical content of the sign is therefore a single
+covariance between a saving propensity and a tax incidence, an object
+external evidence can in principle discipline directly.
 
 % ==========================================================================
 \FloatBarrier
@@ -2085,12 +2113,19 @@ guarantee. The defensible reading is directional: \emph{within this
 revenue-only accounting} (labor fixed, no output fed back) the added
 tax-base term raises $\nu$, so $\nu^{+}$ rises from $0.58$ toward and past
 unity as $\eta_Y$ grows; but this does not sign the full production economy.
-Two first-order margins the endowment economy also omits push $\nu$
+One first-order margin the endowment economy omits pushes $\nu$
 down --- public capital crowds out private investment (a smaller
-private stock, smaller base), and elastic labor supply shrinks the base as
-taxes rise --- and the general-equilibrium asset-demand response is unsigned.
-The exercise therefore bounds the omitted \emph{revenue} margin in one
-direction, not the net general-equilibrium effect. (Under an
+private stock, smaller base). The labor-supply margin, by contrast, is
+sign-dependent on the instrument, and we are careful about it: under a
+\emph{distortionary} tax the substitution effect shrinks hours as rates
+rise, but under the paper's baseline \emph{lump-sum} instrument there is no
+substitution effect, and the negative wealth effect of the tax \emph{raises}
+desired labor supply, enlarging the base and pushing $\nu$ \emph{up}. So the
+labor channel does not sign against self-financing under lump-sum finance;
+only under a proportional wage tax would it. The general-equilibrium
+asset-demand response is unsigned either way. The exercise therefore bounds
+the omitted \emph{revenue} margin in one direction, not the net
+general-equilibrium effect. (Under an
 adaptation-capital reinterpretation, in which public capital hardens the
 economy against damages and plausibly does carry a productive margin ---
 the public-adaptation-capital view of \citet{fried2022seawalls} and
@@ -3501,18 +3536,27 @@ interest-service term $r^{ss}B/P$ is then negative and helps
 feasibility as $P$ falls (it lowers the required tax), so (R2) is easier to meet
 at finite $P$; the high-$P$ limit is unchanged since $r^{ss}B/P\to0$ regardless
 of the sign of $r^{ss}$.
-In both regimes the low-$P$ boundary has the same structure:
-$\Sfun$ remains bounded (buffer-stock target finite under $\beta(1+r)<1$),
-so $\Phi=\Sfun-B/P<0$ \emph{provided} the feasibility set reaches a price
-low enough that $B/P$ exceeds that demand bound --- the crossing condition
-in the proposition. This is where existence can fail: as $P$ falls,
-$\tau(P)$ rises (as $(r^{ss}B+G_g)/P$ under the appropriation, as
-$r^{ss}B/P+\bar g_g$ under the mandate), and if it crosses the feasibility edge
-$\min_e y(e;D)-r^{ss}\bar a$ before $B/P$ overtakes $\Sfun$, there is no
-$P$ at which $\Phi\le0$ and no equilibrium exists (the collapse of
-Section~\ref{subsec:sunspots}); the mandate shifts this edge inward by the
-additive $\bar g_g$ but leaves the crossing structure intact. Under the crossing
-condition, the intermediate value theorem yields a zero between the two
+The low-$P$ boundary splits by the sign of the coefficient on $1/P$ in the
+tax rule --- $r^{ss}B+G_g$ under the appropriation, $r^{ss}B$ under the
+mandate --- because that coefficient governs whether taxes rise or fall as
+$P\downarrow0$. \emph{Positive coefficient} (the benchmark, $r^{ss}>0$; and
+any accommodation mild enough that $r^{ss}B+G_g>0$): $\tau(P)$ rises without
+bound as $P$ falls, and since $\Sfun$ stays bounded (buffer-stock target
+finite under $\beta(1+r^{ss})<1$), existence requires that $B/P$ overtake
+$\Sfun$ \emph{before} $\tau(P)$ crosses the feasibility edge
+$\min_e y(e;D)-r^{ss}\bar a$ --- the crossing condition. This is where
+existence can fail: if the edge is reached first there is no $P$ with
+$\Phi\le0$ and no equilibrium exists (the collapse of
+Section~\ref{subsec:sunspots}); the mandate shifts the edge inward by the
+additive $\bar g_g$ but leaves the structure intact. \emph{Non-positive
+coefficient} (strong accommodation with $r^{ss}<0$ large enough that
+$r^{ss}B+G_g\le0$, or the mandate with $r^{ss}<0$): now $\tau(P)$
+\emph{falls} as $P\downarrow0$ --- the transfer-like $1/P$ term aids
+feasibility rather than exhausting it --- so (R2) binds nowhere near the low
+edge, $\Sfun$ stays bounded while $B/P\to\infty$, and $\Phi=\Sfun-B/P\to
+-\infty$: the crossing condition holds automatically and existence is
+\emph{guaranteed} at the low-$P$ edge. In either case, under the crossing
+condition the intermediate value theorem yields a zero between the two
 boundaries. (ii) Where $\varepsilon_S>-1$,
 $d\Phi/dP=(\Sfun/P)(\varepsilon_S+1)>0$ at any zero: all crossings are upward,
 and a continuous function with only upward crossings has exactly one.
@@ -3549,13 +3593,14 @@ household policies over an invariant distribution that is \emph{not}
 nonatomic --- the income chain is finite and the borrowing limit $\bar a=0$
 places a positive mass of households at a single asset point --- so the
 consumption policy has constraint kinks and the aggregate is not
-differentiable for free. We therefore take differentiability of $\Sfun$ at
-the crossing as the maintained regularity condition (R1)--(R2) under which
-Proposition~\ref{prop:determinacy}(ii) also operates, and verify it
-numerically at every reported equilibrium, where the measured
+differentiable for free. We therefore add a maintained \emph{smoothness}
+condition, \textbf{(R3)} differentiability of $\Sfun$ at the crossing ---
+\emph{distinct} from the boundary/feasibility conditions (R1)--(R2) of
+Proposition~\ref{prop:determinacy}, which are not smoothness statements ---
+and verify it numerically at every reported equilibrium, where the measured
 $\varepsilon_S$ is smooth and far from $-1$
-(Section~\ref{subsec:sunspots}); the status of the proposition is accordingly
-\emph{proved under a maintained regularity hypothesis, numerically
+(Section~\ref{subsec:sunspots}). The status of the proposition is accordingly
+\emph{proved under the maintained smoothness hypothesis (R3), numerically
 verified}, not proved from primitives without qualification. \qed
 
 \subsection{Proof of Proposition \ref{prop:selffinancing} and
@@ -3616,7 +3661,18 @@ computed result, not a corollary of the Gini. Result~\ref{res:disinflation}:
 $P=B/\Sfun$ at both
 steady states, so $P_1<P_0 \iff \Sfun_1>\Sfun_0$;
 $\nu_{\mathrm{reval}}\propto(1/P_0-1/P_1)=(\Sfun_0-\Sfun_1)/B$. The stated
-sufficient conditions each raise $\Sfun_1$ relative to $\Sfun_0$. \qed
+sufficient conditions raise $\Sfun_1$ relative to $\Sfun_0$ through the
+damage and risk channels; the tax channel requires one further step, because
+the program tax $\tau_1=r^{ss}b_1+g_{g,1}$ exceeds the no-program tax
+$\tau_0=r^{ss}b_0$ only once $g_{g,1}$ is added, and the endogenous $b=B/P$
+move could in principle offset it. We therefore read the condition
+$\partial\Sfun/\partial\tau\ge0$ together with $\tau_1\ge\tau_0$ --- which
+holds whenever the direct spending term $g_{g,1}$ dominates the
+revaluation-induced change in the interest bill $r^{ss}(b_1-b_0)$, the case
+at the benchmark --- or, equivalently, as the local statement at the
+no-program point ($g_g=0$, $b_1=b_0$), where $d\tau=dg_g>0$ and the sign is
+unambiguous. The calibrated comparison confirms $\tau_1>\tau_0$ directly
+(Table~\ref{tab:calibrated}). \qed
 
 \subsection{Proof of Proposition \ref{prop:sunspots}}
 At a zero of $\Phi$, $d\Phi/dP=(\Sfun/P)(\varepsilon_S+1)$ (the identity is
@@ -3631,8 +3687,10 @@ natural tatonnement and the middle one unstable. (The hypothesis is the
 existence of the downward crossing itself: $\varepsilon_S<-1$ merely on an
 interval need not place a zero of $\Phi$ there.) Welfare ranking with
 $\psi>0$ or $\phi_D>0$: at $P_L^{*}$ the
-level and risk components of effective income improve for every household
-with $\chi(e)>0$, but the lower price level also raises real green spending
+level and risk components of effective income improve \emph{weakly} for every
+household with $\chi(e)>0$ --- strictly except where the damage floor
+$y(e;D)\ge\underline{s}\,e$ binds in both equilibria, at which states lower
+damages leave effective income unchanged --- but the lower price level also raises real green spending
 $g_g=G_g/P$, real debt $b=B/P$, and real taxes $\tau=r^{ss}b+g_g$, which cut
 the other way for constrained households; the sign of the net utilitarian
 comparison $W(P_L^{*})-W(P_H^{*})$ is therefore not implied by lower damages

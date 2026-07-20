@@ -142,7 +142,7 @@ end
 if ~isempty(RREG)
     fh9 = figure('Name','PFig9: Financing regimes','Color','w', ...
                  'Position',[80 80 1200 560]);
-    nm = {'R1 deficit','R2 levy','R3 levy+rebate','R4 mixed'};  % short ticks
+    nm = {'lump-sum','levy','levy+rebate','mixed'};  % short ticks
     subplot(1,2,1); hold on; box on;
     bh = bar([[RREG.nu_reval]; [RREG.nu_damage]]', 'stacked');
     set(bh(1),'FaceColor',[0.55 0.65 0.85]); set(bh(2),'FaceColor',[0.45 0.70 0.45]);
