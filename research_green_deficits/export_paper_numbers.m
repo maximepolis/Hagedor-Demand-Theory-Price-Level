@@ -110,6 +110,12 @@ if exist(tef, 'file') == 2
         mac('epsLevyPerRev', sprintf('%+.2f', T.eps_levy_perRev));
         mac('epsTilt',       sprintf('%+.2f', T.eps_tilt));
     end
+    % covariance form of financing incidence: direct term = Cov(m^b,dy^net),
+    % GE tilt, and the implied distribution-shift residual (proposition check)
+    if isfield(T, 'cov_perRev') && isfinite(T.cov_perRev)
+        mac('covTiltDirect', sprintf('%+.2f', T.cov_perRev));
+        mac('covTiltShift',  sprintf('%+.2f', T.cov_shift_resid));
+    end
     % share of the tax-induced demand shift from the bottom two baseline quintiles
     if isfield(T,'dS_q') && isfield(T,'dS_tot') && T.dS_tot ~= 0
         mac('epsBotShare', sprintf('%.0f', 100*sum(T.dS_q(1:2))/T.dS_tot));

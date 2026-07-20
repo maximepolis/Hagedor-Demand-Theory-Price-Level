@@ -70,6 +70,7 @@
 % Tilt decomposition (memo M2), populated by decompose_tax_elasticity.
 \providecommand{\epsLsPerRev}{\pendingnum}\providecommand{\epsLevyPerRev}{\pendingnum}
 \providecommand{\epsTilt}{\pendingnum}
+\providecommand{\covTiltDirect}{\pendingnum}\providecommand{\covTiltShift}{\pendingnum}
 % Decile-resolution welfare incidence, populated by welfare_incidence_deciles.
 \providecommand{\WDecBotMed}{\pendingnum}\providecommand{\WDecTopMed}{\pendingnum}
 \providecommand{\WTopFiveMed}{\pendingnum}\providecommand{\WTopOneMed}{\pendingnum}
@@ -1700,7 +1701,12 @@ the reform for which $m_i^b$ and $-dy_i^{\mathrm{net}}$ are most positively
 aligned --- constrained households have the highest $m_i^b$ and bear the
 most income loss. The empirical content of the sign is therefore a single
 covariance between a saving propensity and a tax incidence, an object
-external evidence can in principle discipline directly.
+external evidence can in principle discipline directly. Measured on the
+calibrated distribution, the covariance term reproduces the sign and the
+bulk of the magnitude of the general-equilibrium tilt response: the direct
+covariance contribution is $\covTiltDirect$ per unit of revenue against a
+full response of $\epsTilt$, with the remainder $\covTiltShift$ the induced
+distribution effect $\mathcal D_\alpha$.
 
 % ==========================================================================
 \FloatBarrier
