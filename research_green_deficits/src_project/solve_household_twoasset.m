@@ -56,11 +56,19 @@ function [V, polB, polK, polC, diag] = solve_household_twoasset(rb, q, d, tau, p
         return;
     end
 
-    % terminal guess: consume everything
+    % terminal guess: consume everything (or caller-provided warm start p.V0)
     V = repmat(log(max(xG, 1e-8)), 1, ne);
     if p.sigma ~= 1
         V = repmat((max(xG,1e-8).^(1-p.sigma))/(1-p.sigma), 1, ne);
     end
+    if isfield(p, 'V0') && ~isempty(p.V0) && isequal(size(p.V0), [nx ne])
+        V = p.V0;
+    end
+    % NOTE on the within-search split: obj() substitutes the outer FOC
+    % u'(c) = beta*Rk*E[Vx] into the portfolio split, which is exact at the
+    % optimum but only approximate at non-optimal trial outlays; the EGM
+    % solver (solve_household_twoasset_egm) solves the joint FOCs exactly
+    % and the driver's self-test cross-validates the two.
     polB = zeros(nx, ne); polK = zeros(nx, ne); polC = zeros(nx, ne);
     ynet = p.eGrid(:)' - tau;                              % 1 x ne next-period base
 

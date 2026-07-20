@@ -71,6 +71,13 @@
 \providecommand{\epsLsPerRev}{\pendingnum}\providecommand{\epsLevyPerRev}{\pendingnum}
 \providecommand{\epsTilt}{\pendingnum}
 \providecommand{\covTiltDirect}{\pendingnum}\providecommand{\covTiltShift}{\pendingnum}
+% Two-asset Step 0 (main_twoasset_step0), populated after the run.
+\providecommand{\TwoAOmega}{\pendingnum}\providecommand{\TwoASpread}{\pendingnum}
+\providecommand{\TwoADlnPLS}{\pendingnum}\providecommand{\TwoADlnPLevy}{\pendingnum}
+\providecommand{\TwoARatioLS}{\pendingnum}
+\providecommand{\TwoAZetaLoP}{\pendingnum}\providecommand{\TwoAZetaHiP}{\pendingnum}
+\providecommand{\TwoAEpsLs}{\pendingnum}\providecommand{\TwoAEpsLevy}{\pendingnum}
+\providecommand{\TwoAEpsTilt}{\pendingnum}
 % Decile-resolution welfare incidence, populated by welfare_incidence_deciles.
 \providecommand{\WDecBotMed}{\pendingnum}\providecommand{\WDecTopMed}{\pendingnum}
 \providecommand{\WTopFiveMed}{\pendingnum}\providecommand{\WTopOneMed}{\pendingnum}
@@ -4281,6 +4288,62 @@ regime & $\pi$ impact (ann.) & $Y$ impact & $r^b$ impact & debt (40q) & $K_g$ (4
 \bottomrule
 \end{tabular}
 \end{table}
+
+\subsection{A nonlinear two-asset benchmark}\label{subsec:twoassetnl}
+
+The linearized extension above tracks dynamics around a one-asset steady
+state. The structural answer to the portfolio question is a \emph{nonlinear}
+economy in which the nominal government liability and a real asset clear in
+separate markets, so that the price-level response is computed on the
+nominal margin alone. This subsection states the benchmark (the first stage
+of that build) and reports its three deliverables; the computed values below
+are populated by the replication run, and nothing in the body relies on
+them.
+
+Households hold liquid nominal bonds $b$ and shares $k$ of a tree with real
+dividend $d$ at price $q$, with frictionless within-period rebalancing and a
+convenience-yield term in preferences,
+\[
+\E \sum_t \beta^t \Big[ u(c_t) + \chi_b\, v(b_{t+1}) \Big],
+\qquad v(b) = \frac{b^{1-\zeta}}{1-\zeta},
+\]
+so the nominal share is interior and elastic with curvature $\zeta$
+(\citealp{krishnamurthy2012}). With frictionless rebalancing the household
+state is cash-on-hand $x = y - \tau + (1+r_b)b + (q+d)k$ --- the
+one-dimensional aggregation is exact in this variant by construction, not an
+approximation; what it cannot generate is wealthy hand-to-mouth households,
+which require the infrequent-adjustment variant and remain outside this
+benchmark. Interior optimality equates $u'(c)$ to the tree margin
+$\beta \frac{q+d}{q}\E u'(c')$ and prices the liquid split by
+$\chi_b v'(b') = u'(c)\,[1-\frac{(1+r_b)q}{q+d}]$: bonds pay the policy rate
+plus a convenience yield equal to the equity spread. Two market-clearing
+conditions pin the two prices: $\int b'\,\dd\Omega = B/P$ (the nominal
+market, pinning $P$ exactly as in the one-asset economy) and
+$\int k'\,\dd\Omega = \bar K$ (the tree, pinning $q$); the liquidity weight
+$\chi_b$ is calibrated so baseline liquid demand matches the public-debt
+target, and the resulting liquid share is $\omega = \TwoAOmega$ with an
+equilibrium convenience yield of $\TwoASpread$.
+
+The three deliverables, populated by the run: (i) the \emph{financing
+experiment on the nominal margin} --- the same real program financed
+lump-sum moves the price level by $\TwoADlnPLS$ (log points) against
+$\TwoADlnPLevy$ under the proportional levy, to be compared with the
+one-asset regime numbers (the lump-sum ratio to the one-asset response is
+$\TwoARatioLS$; the sign contrast is the object of interest); (ii) the
+\emph{price response as a function of the convenience-yield curvature},
+from $\TwoAZetaLoP$ at the most elastic swept $\zeta$ to $\TwoAZetaHiP$ at
+the most rigid, spanning the one-asset bound; and (iii) the
+\emph{liquid-margin incidence split} --- per unit of revenue, the lump-sum,
+levy, and regressive-tilt responses of nominal-bond demand at fixed prices
+are $\TwoAEpsLs$, $\TwoAEpsLevy$, and $\TwoAEpsTilt$, the two-asset
+counterpart of the direct-versus-distributional decomposition of
+Proposition~\ref{prop:covincidence}.
+
+\noindent\emph{Status:} model and solution method implemented (endogenous-grid
+solver cross-validated against a discrete-choice reference on a coarse grid);
+values shown as ``--'' await the replication run, and no result in this
+paper is described as portfolio-validated until the two markets clear
+separately in a converged run.
 
 \subsection{The worked example in full}\label{subsec:workedexample}
 

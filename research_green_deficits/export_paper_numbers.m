@@ -173,6 +173,44 @@ if exist(wdf, 'file') == 2
     end
 end
 
+% ---- two-asset Step 0 (main_twoasset_step0) ----
+% Guarded: exported only after the two-asset driver has run. Nothing in the
+% paper asserts these until the run; the appendix scaffold reads them with
+% \pendingnum fallbacks.
+taf = fullfile(projdir, 'output', 'twoasset_step0.mat');
+if exist(taf, 'file') == 2
+    TA = load(taf);
+    if isfield(TA,'eqb') && isstruct(TA.eqb) && TA.eqb.ok
+        mac('TwoAOmega',  sprintf('%.2f', TA.omega));
+        mac('TwoASpread', sprintf('%.3f', (TA.eqb.q + TA.d_div)/TA.eqb.q - (1 + TA.r_b)));
+        if isfield(TA,'EX') && numel(TA.EX) >= 2
+            mac('TwoADlnPLS',   sprintf('%+.3f', TA.EX(1).dlnP));
+            mac('TwoADlnPLevy', sprintf('%+.3f', TA.EX(2).dlnP));
+            % absorption ratio vs the one-asset lump-sum regime, if available
+            rgf = fullfile(projdir, 'output', 'regimes_results.mat');
+            if exist(rgf, 'file') == 2
+                R1a = load(rgf, 'RREG', 'eq0');
+                d1 = log(R1a.RREG(1).P / R1a.eq0.P);
+                if isfinite(d1) && d1 ~= 0
+                    mac('TwoARatioLS', sprintf('%.2f', TA.EX(1).dlnP / d1));
+                end
+            end
+        end
+        if isfield(TA,'ZS') && numel(TA.ZS) >= 2
+            zok = TA.ZS([TA.ZS.ok]);
+            if numel(zok) >= 2
+                mac('TwoAZetaLoP', sprintf('%+.3f', zok(1).dlnP));
+                mac('TwoAZetaHiP', sprintf('%+.3f', zok(end).dlnP));
+            end
+        end
+        if isfield(TA,'eLS') && isfinite(TA.eLS)
+            mac('TwoAEpsLs',   sprintf('%+.2f', TA.eLS));
+            mac('TwoAEpsLevy', sprintf('%+.2f', TA.eLV));
+            mac('TwoAEpsTilt', sprintf('%+.2f', TA.eTL));
+        end
+    end
+end
+
 % ---- wealth-concentration fit (wealth_concentration_fit) ----
 % Guarded: exported only if the superstar-fit driver has been run.
 wff = fullfile(projdir, 'output', 'wealth_fit_results.mat');
