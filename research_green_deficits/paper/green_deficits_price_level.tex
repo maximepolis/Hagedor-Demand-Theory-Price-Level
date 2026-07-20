@@ -70,6 +70,7 @@
 % Tilt decomposition (memo M2), populated by decompose_tax_elasticity.
 \providecommand{\epsLsPerRev}{\pendingnum}\providecommand{\epsLevyPerRev}{\pendingnum}
 \providecommand{\epsTilt}{\pendingnum}
+\providecommand{\covTiltDirect}{\pendingnum}\providecommand{\covTiltShift}{\pendingnum}
 % Decile-resolution welfare incidence, populated by welfare_incidence_deciles.
 \providecommand{\WDecBotMed}{\pendingnum}\providecommand{\WDecTopMed}{\pendingnum}
 \providecommand{\WTopFiveMed}{\pendingnum}\providecommand{\WTopOneMed}{\pendingnum}
@@ -172,10 +173,12 @@ by the covariance between tax incidence and households' marginal propensities
 to accumulate liquid claims: a uniform lump-sum tax is a proportional levy
 plus a regressive redistribution, and the redistribution, falling on
 constrained high-saving households, is what raises precautionary demand.
-Under the nonlinear announcement transition, three quarters of the long-run
-revaluation occurs when the program is announced, before capital accumulates.
-The inflationary and distributional effects of public investment cannot be
-evaluated independently of its financing design.
+In the calibrated one-asset benchmark, the nonlinear announcement transition
+front-loads the bulk of the long-run revaluation to the announcement date,
+before capital accumulates; we report the sign and the front-loading as
+robust and the point magnitudes as conditional on the one-asset portfolio
+structure. The inflationary and distributional effects of public investment
+cannot be evaluated independently of its financing design.
 \end{abstract}
 
 \bigskip
@@ -372,11 +375,16 @@ unchanged nominal appropriation (Propositions \ref{prop:selffinancing},
 The mechanism is organized by one analytical object, a sufficient-statistic
 formula for the price response to any productive public program
 (Proposition~\ref{prop:suffstat}): the financing instrument sets the sign
-through the numerator, the determinacy margin lives in the denominator, and
-the formula's inputs are measured, not assumed
-(Table~\ref{tab:elasticitymap}) --- an incidence theorem for nominal public
-liabilities of which the climate application is the disciplined special
-case.
+through the numerator, and the determinacy margin lives in the denominator.
+Its central input --- the tax response of nominal-liability demand --- is a
+\emph{model-implied} object we compute across the calibration and map to
+observable household heterogeneity (the covariance of saving propensities
+with tax incidence, Proposition~\ref{prop:covincidence};
+Table~\ref{tab:elasticitymap}); external MPC evidence disciplines the
+primitives behind it, though it does not by itself identify the aggregate
+response to a permanent tax. The result is an incidence theorem for nominal
+public liabilities of which the climate application is the disciplined
+special case.
 Everything else is secondary or conditional: the self-financing
 \emph{magnitudes} are frontiers conditional on climate damages and an
 illustrative abatement technology (Section~\ref{subsec:robustness}); the
@@ -1671,36 +1679,52 @@ $dy_i^{\mathrm{net}}(\alpha)$, and let
 $m_i^b\equiv \partial b_i'/\partial y_i^{\mathrm{net}}$ be the household's
 marginal propensity to accumulate the liquid nominal claim.
 
-\begin{proposition}[Covariance form of financing incidence]\label{prop:covincidence}
-The response of aggregate demand for the nominal liability to a financing
-reform decomposes exactly as
+\begin{proposition}[Covariance form of the direct incidence term]\label{prop:covincidence}
+Hold the real interest rate and the stationary distribution fixed. The
+\emph{direct} (policy) response of aggregate demand for the nominal liability
+to a financing reform indexed by $\alpha$ is
 \begin{equation}
-\frac{\partial S_b}{\partial\alpha}
-=\underbrace{\int m_i^b\,\frac{\partial y_i^{\mathrm{net}}}{\partial\alpha}\,\dd\Omega_i}_{\text{direct (policy) effect}}
-+\underbrace{\mathcal D_\alpha}_{\text{distribution effect}},
-\qquad
-\text{direct}=\E[m^b]\,\E[dy^{\mathrm{net}}]+\Cov\!\big(m_i^b,\,dy_i^{\mathrm{net}}\big).
+\left.\frac{\partial S_b}{\partial\alpha}\right|_{\text{direct}}
+=\int m_i^b\,\frac{\partial y_i^{\mathrm{net}}}{\partial\alpha}\,\dd\Omega_i
+=\E[m^b]\,\E[dy^{\mathrm{net}}]+\Cov\!\big(m_i^b,\,dy_i^{\mathrm{net}}\big).
 \label{eq:covincidence}
 \end{equation}
 For a \emph{revenue-neutral} reform $\E[dy^{\mathrm{net}}]=0$, so the direct
-effect is governed by $\Cov(m_i^b,dy_i^{\mathrm{net}})$: a budget-neutral
-shift toward a more regressive instrument raises demand for the nominal
-liability, and hence lowers the price level, exactly when it cuts disposable
-income by more for households with higher liquid-saving propensities $m_i^b$
---- after netting the induced distribution effect $\mathcal D_\alpha$.
+term is exactly $\Cov(m_i^b,dy_i^{\mathrm{net}})$: at unchanged prices and
+distribution, a budget-neutral shift toward a more regressive instrument
+raises direct demand for the nominal liability precisely when it cuts
+disposable income by more for households with higher liquid-saving
+propensities $m_i^b$. The full stationary response adds a
+distribution-shift term $\mathcal D_\alpha$ (and, in a model with an
+endogenous real rate, a price term $\mathcal G_\alpha$):
+\begin{equation}
+\frac{\partial S_b}{\partial\alpha}
+=\Cov\!\big(m_i^b,\,dy_i^{\mathrm{net}}\big)+\mathcal D_\alpha+\mathcal G_\alpha.
+\label{eq:covfull}
+\end{equation}
 \end{proposition}
-\noindent\emph{Status:} \textbf{exact} decomposition (adding and subtracting
-$\E[m^b]\E[dy^{\mathrm{net}}]$; $\mathcal D_\alpha$ is the stationary-distribution
+\noindent\emph{Status:} \textbf{exact} decomposition of the direct term
+(adding and subtracting $\E[m^b]\E[dy^{\mathrm{net}}]$). The covariance
+governs the \emph{direct} incidence term, not by itself the sign of the full
+equilibrium response; $\mathcal D_\alpha$ is the stationary-distribution
 response, computed from $(I-\Lambda)\dd\Omega=(\dd\Lambda)\Omega$ with
-$\mathbf 1'\dd\Omega=0$). This is the exact form of
-Proposition~\ref{prop:financingdesign}: the lump-sum-versus-levy contrast of
-Table~\ref{tab:elasticitymap} is precisely the covariance term, and the
-regressive tilt that carries the sign (Section~\ref{subsec:safeasset}) is
+$\mathbf 1'\dd\Omega=0$, and $\mathcal G_\alpha$ vanishes in the endowment
+economy, where the experiment fixes the real rate and the price level clears
+the nominal market given this schedule. The reading of
+Proposition~\ref{prop:financingdesign} is then sharp: the lump-sum-versus-levy
+contrast of Table~\ref{tab:elasticitymap} loads on the covariance term, and
+the regressive tilt that carries the sign (Section~\ref{subsec:safeasset}) is
 the reform for which $m_i^b$ and $-dy_i^{\mathrm{net}}$ are most positively
 aligned --- constrained households have the highest $m_i^b$ and bear the
-most income loss. The empirical content of the sign is therefore a single
-covariance between a saving propensity and a tax incidence, an object
-external evidence can in principle discipline directly.
+most income loss. The direct incidence term is thus a single covariance
+between a saving propensity and a tax incidence, whose ingredients external
+household evidence can in principle discipline. Whether the covariance
+dominates the full response is a quantitative question: measured on the
+calibrated distribution, the direct covariance term is $\covTiltDirect$ per
+unit of revenue against a full tilt response of $\epsTilt$, leaving
+$\covTiltShift$ for the distribution term $\mathcal D_\alpha$ --- so the
+covariance carries the sign and the bulk of the magnitude here, but this is
+established, not assumed.
 
 % ==========================================================================
 \FloatBarrier
@@ -3188,8 +3212,12 @@ $72$ Anderson iterations for the two designs) delivers the paper's
 dynamics in three statements. Like every repricing in the paper, the
 \emph{levels} here are conditional on the one-asset structure and carry the
 unsigned portfolio correction of Section~\ref{subsec:safeasset}; the
-\emph{shares} (the front-loading fraction, the sign, the timing) are
-structure-free and are what the statements below rely on. \emph{First, green disinflation is
+\emph{sign} and the \emph{timing pattern} (that the repricing is
+front-loaded rather than delayed) are the robust content, while the
+front-loading \emph{fraction} itself is a one-asset benchmark that a richer
+portfolio, credibility, or maturity structure could move --- the statements
+below rely on the sign and the front-loading direction, not on the exact
+share. \emph{First, green disinflation is
 front-loaded:} the announcement moves the stationarized price level down
 $3.9\%$ on impact --- year-one inflation of $-2.0\%$ against the $+2\%$
 nominal trend --- which is $77\%$ of the entire long-run green

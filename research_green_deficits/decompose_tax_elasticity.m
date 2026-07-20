@@ -196,9 +196,50 @@ tilt_resid = eps_ls_perRev - (eps_levy_perRev + eps_tilt);
 fprintf('  lump-sum (per rev) %+.3f = levy (per rev) %+.3f + tilt %+.3f  [resid %+.1e]\n', ...
         eps_ls_perRev, eps_levy_perRev, eps_tilt, tilt_resid);
 
+% =====================================================================
+% (e) COVARIANCE VALIDATION of the financing-incidence proposition. The
+% revenue-neutral tilt (levy -> same-revenue lump-sum) moves each household's
+% net income by dy_i^net = dv*(y_i - ybar), mean zero over the baseline
+% distribution. The proposition decomposes the demand response into
+%   dS_b = E[m_i^b] E[dy^net] + Cov(m_i^b, dy_i^net) + D_alpha,
+% where m_i^b = d a'_i/d y^net is the marginal propensity to accumulate
+% liquid nominal claims and D_alpha is the distribution-shift term. With
+% E[dy^net]=0 the first-order object is Cov(m_i^b, dy_i^net). We measure
+% m_i^b node-by-node from a small uniform net-income shift at the same-revenue
+% levy base and integrate against the baseline distribution.
+fprintf('\n----- (e) covariance form: Cov(m^b, dy^net) vs the GE tilt response -----\n');
+[Sbase, obase] = S_green(r_cal, tau0, D0, pgLr);         % same-revenue levy base
+h = 1e-3;                                                % uniform net-income bump
+[~, obh]       = S_green(r_cal, tau0 - h, D0, pgLr);     % tau down by h == +h to all
+have_cov = isfield(obase,'polA') && isfield(obh,'polA') && ...
+           isfield(obase,'eGrid_eff') && isfinite(Sbase) && Sbase > 0;
+if have_cov
+    mb    = (obh.polA - obase.polA) / h;                 % d a'/d y^net at each node
+    w     = obase.dist / sum(obase.dist(:));             % baseline joint distribution
+    yeff  = obase.eGrid_eff(:);                          % effective endowment by e-state
+    wy    = sum(w,1)';                                   % marginal over income states
+    ybar  = wy' * yeff;
+    dynet = dv * (yeff - ybar);                          % per e-state, mean zero
+    Emb   = sum(mb(:) .* w(:));                          % E[m^b]
+    Edy   = wy' * dynet;                                 % E[dy^net] (~0 by construction)
+    Emdy  = sum( (mb * spdiags(dynet,0,numel(dynet),numel(dynet))) .* w, 'all');
+    cov_mb_dy = Emdy - Emb*Edy;                          % Cov(m^b, dy^net)
+    cov_perRev = Emdy / (Sbase * rev);                   % direct term, dln S per revenue
+    cov_shift_resid = eps_tilt - cov_perRev;             % implied distribution-shift D_alpha
+    fprintf('  E[dy^net]=%+.1e (mean-zero check);  Cov(m^b,dy^net)=%+.3e\n', Edy, cov_mb_dy);
+    fprintf('  direct term (per rev) %+.3f;  GE tilt %+.3f;  dist-shift residual %+.3f\n', ...
+            cov_perRev, eps_tilt, cov_shift_resid);
+    fprintf('  => sign of Cov(m^b,dy^net) matches the tilt: %d\n', ...
+            sign(cov_mb_dy) == sign(eps_tilt));
+else
+    cov_mb_dy = NaN; cov_perRev = NaN; cov_shift_resid = NaN; Edy = NaN;
+    fprintf('  (covariance diagnostic skipped: policy/endowment fields unavailable)\n');
+end
+
 save(fullfile(projdir,'output','tax_elasticity_results.mat'), ...
      'eps_tau','dS_q','dS_tot','dS_constr','dMass_c','sweeps','eps_ls','eps_levy', ...
-     'eps_ls_perRev','eps_levy_perRev','eps_tilt','tilt_resid');
+     'eps_ls_perRev','eps_levy_perRev','eps_tilt','tilt_resid', ...
+     'cov_mb_dy','cov_perRev','cov_shift_resid');
 
 % ----- table -----
 sf = fullfile(pg0.tabdir, 'tax_elasticity.txt');
@@ -221,6 +262,10 @@ if fid > 0
         '    lump-sum %+.3f = levy %+.3f + mean-zero tilt %+.3f  [additivity resid %+.1e]\n' ...
         '    => the positive lump-sum sign is the regressive-tilt response, not taxation per se.\n'], ...
         eps_ls_perRev, eps_levy_perRev, eps_tilt, tilt_resid);
+    fprintf(fid, ['\n(e) COVARIANCE FORM (financing-incidence proposition):\n' ...
+        '    E[dy^net]=%+.1e; Cov(m^b,dy^net)=%+.3e\n' ...
+        '    direct term (per rev)=%+.3f; GE tilt=%+.3f; dist-shift residual=%+.3f\n'], ...
+        Edy, cov_mb_dy, cov_perRev, eps_tilt, cov_shift_resid);
     fprintf(fid, ['\nReading: a positive lump-sum semi-elasticity across the swept region\n' ...
         'shows green disinflation is a general DTPL buffer-stock property; the levy\n' ...
         'reverses the sign, which is the incidence result of Result 1 / Section 5.11.\n']);
