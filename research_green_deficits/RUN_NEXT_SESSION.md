@@ -41,8 +41,14 @@ anchor.
 clear; FAST = true; main_twoasset_kv
 ```
 
-then (overnight — the first household solve on the 3D state is the slow
-part; everything after warm-starts):
+The driver was speed-rebuilt after the first overnight attempt stalled:
+the household solver is now a vectorized discrete-choice VFI (no nested
+golden searches), the distribution is a sparse-matrix power iteration,
+the tax fixed point uses full updates, chi is calibrated by secant, and
+the value function warm-starts across every equilibrium. **Progress lines
+now print continuously with elapsed seconds** — if you see no new line
+for ~10 minutes, kill it and send the last lines printed. Expected: FAST
+~10–20 min, full run ~1–3 h (not overnight):
 
 ```matlab
 clear; main_twoasset_kv
