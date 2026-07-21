@@ -188,9 +188,11 @@ than the direct saving response --- direct incidence and long-run
 distributional adjustment are distinct forces, and the second dominates.
 In the calibrated one-asset benchmark, the nonlinear announcement transition
 front-loads the bulk of the long-run revaluation to the announcement date,
-before capital accumulates; we report the sign and the front-loading as
-robust and the point magnitudes as conditional on the one-asset portfolio
-structure. The inflationary and distributional effects of public investment
+before capital accumulates. A computed two-asset extension disciplines
+these claims: the instrument \emph{ordering} --- a levy is more
+inflationary than a lump-sum tax --- and the front-loading are robust,
+while the level sign and the point magnitudes are conditional on the
+portfolio structure. The inflationary and distributional effects of public investment
 cannot be evaluated independently of its financing design.
 \end{abstract}
 
@@ -4327,40 +4329,66 @@ $\chi_b$ is calibrated so baseline liquid demand matches the public-debt
 target, and the resulting liquid share is $\omega = \TwoAOmega$ with an
 equilibrium convenience yield of $\TwoASpread$.
 
-The three deliverables, populated by the run: (i) the \emph{financing
-experiment on the nominal margin} --- the same real program financed
-lump-sum moves the price level by $\TwoADlnPLS$ (log points) against
-$\TwoADlnPLevy$ under the proportional levy, to be compared with the
-one-asset regime numbers (the lump-sum ratio to the one-asset response is
-$\TwoARatioLS$; the sign contrast is the object of interest); (ii) the
-\emph{price response as a function of the convenience-yield curvature},
-from $\TwoAZetaLoP$ at the most elastic swept $\zeta$ to $\TwoAZetaHiP$ at
-the most rigid, spanning the one-asset bound; and (iii) the
-\emph{liquid-margin incidence split} --- per unit of revenue, the lump-sum,
-levy, and regressive-tilt responses of nominal-bond demand at fixed prices
-are $\TwoAEpsLs$, $\TwoAEpsLevy$, and $\TwoAEpsTilt$, the two-asset
-counterpart of the direct-versus-distributional decomposition of
-Proposition~\ref{prop:covincidence}.
+The three deliverables, computed (first pass at the validation grid):
+(i) the \emph{financing experiment on the nominal margin} --- the same
+real program financed lump-sum moves the price level by $\TwoADlnPLS$ log
+points against $\TwoADlnPLevy$ under the proportional levy. Against the
+one-asset regime numbers this is the paper's sharpest self-discipline: the
+levy remains inflationary and \emph{more} inflationary than the lump-sum
+instrument --- the instrument \emph{ordering} survives --- but the
+lump-sum response itself changes sign (ratio $\TwoARatioLS$ of the
+one-asset value), so the one-asset lump-sum \emph{disinflation} does not
+survive this portfolio specification. The economics is visible in (iii):
+with separable convenience utility, a tax-induced rise in the marginal
+utility of consumption lowers the relative value of liquidity services, so
+households cut liquid bonds first and part of any precautionary buildup
+flows to the real asset --- the liquid-margin lump-sum response is
+$\TwoAEpsLs$ per unit of revenue (against $+2.77$ for total saving in the
+one-asset economy), the levy response $\TwoAEpsLevy$, and the regressive
+tilt $\TwoAEpsTilt$, still positive and still carried by the
+distributional term rather than the direct one, consistent with
+Proposition~\ref{prop:covincidence}. Whether a non-separable liquidity
+aggregator (liquidity complementary to consumption) restores the lump-sum
+sign is a specification question the two-asset economy now makes
+computable, and we flag it rather than resolve it. (ii) The \emph{price
+response as a function of the convenience-yield curvature} runs from
+$\TwoAZetaLoP$ at the most elastic swept $\zeta$ to $\TwoAZetaHiP$ at the
+most rigid; note the rigid-share limit pins nominal-bond demand and drives
+$d\ln P$ toward \emph{zero} --- the one-asset economy is the no-tree
+limit, not the rigid-share limit, so the sweep brackets the elasticity of
+the nominal margin rather than reaching the one-asset bound.
 
 The second stage relaxes the frictionless-rebalancing assumption:
 $k$ adjusts only when an opportunity arrives (probability $\lambda$ per
-year, Kaplan--Violante style), which breaks the cash-on-hand aggregation
-and generates \emph{wealthy hand-to-mouth} households --- low liquid
-balances alongside substantial illiquid wealth, the configuration under
-which the covariance of liquid-saving propensities with tax incidence is
-computed on realistic bond ownership. In the calibrated variant the
-wealthy-hand-to-mouth share is $\TwoBWhtm\%$, the liquid share
-$\TwoBOmega$, and the financing experiment gives $\TwoBDlnPLS$ (lump-sum)
-against $\TwoBDlnPLevy$ (levy) on the nominal margin, with the
-liquid-margin lump-sum and tilt responses $\TwoBEpsLs$ and $\TwoBEpsTilt$
-per unit of revenue; a $\lambda\to1$ run reproduces the frictionless
-benchmark as a consistency check.
+year, Kaplan--Violante style), which breaks the cash-on-hand aggregation.
+The computed variant confirms the machinery --- a $\lambda\to1$ run
+reproduces the frictionless benchmark to $10^{-2}$ --- and sharpens both
+findings: the financing experiment gives $\TwoBDlnPLS$ (lump-sum, now
+essentially zero) against $\TwoBDlnPLevy$ (levy) on the nominal margin,
+so the instrument ordering again survives while the lump-sum response
+does not fall; the liquid-margin lump-sum and tilt responses are
+$\TwoBEpsLs$ and $\TwoBEpsTilt$ per unit of revenue. It also delivers a
+negative result we report plainly: at this calibration the
+wealthy-hand-to-mouth share is $\TwoBWhtm\%$. With homogeneous
+convenience preferences calibrated so that households absorb the entire
+public-debt stock (aggregate liquid holdings of $\TwoBOmega$ of total
+wealth, mean liquid balances above annual income), no household is
+liquidity-poor: matching the skewed micro distribution of liquid wealth
+--- and hence the wealthy-hand-to-mouth configuration --- requires
+preference heterogeneity or intermediated debt holdings, not the
+adjustment friction alone. Until then, the covariance-on-realistic-bond-
+ownership exercise remains open.
 
-\noindent\emph{Status:} model and solution method implemented (endogenous-grid
-solver cross-validated against a discrete-choice reference on a coarse grid);
-values shown as ``--'' await the replication run, and no result in this
-paper is described as portfolio-validated until the two markets clear
-separately in a converged run.
+\noindent\emph{Status:} \textbf{computed} --- both variants solve with
+the two markets clearing separately (tree-market residual $<10^{-4}$;
+endogenous-grid and discrete-choice solvers agree to $2.6\times10^{-3}$ on
+liquid demand; the $\lambda\to1$ limit reproduces the frictionless
+economy to $8.6\times10^{-3}$). The frictionless numbers are from the
+validation-grid pass and a refined-grid rerun is queued; the variant-(b)
+numbers are from the full grid. Conclusions drawn in the body from these
+results are limited to the two stated here: the instrument ordering is
+robust across portfolio structures, and the level sign of the lump-sum
+response is specification-dependent.
 
 \subsection{The worked example in full}\label{subsec:workedexample}
 

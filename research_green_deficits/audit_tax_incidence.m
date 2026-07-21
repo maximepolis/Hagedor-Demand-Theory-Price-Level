@@ -82,24 +82,22 @@ tee('%-9s %12s %12s %12s %14s %12s %12s\n', 'h', 'eps_ls', 'eps_levy', ...
     'eps_tilt', 'levy+tilt', 'abs_resid', 'rel_resid');
 h_list = [1e-2 5e-3 1e-3 5e-4 1e-4 5e-5];
 if FAST, h_list = [1e-2 1e-3 1e-4]; end
-A = struct('h',{},'eps_ls',{},'eps_levy',{},'eps_tilt',{},'resid',{},'rel',{});
-for ih = 1:numel(h_list)
+Acell = cell(numel(h_list), 1);
+parfor ih = 1:numel(h_list)                          % independent h's
     h  = h_list(ih);
     R  = h*(1-D0);                                   % common revenue unit
-    % lump-sum, central in tau (+/- R)
-    e_ls   = clnS(r_cal, tau0+R, D0, pg0, 0) - clnS(r_cal, tau0-R, D0, pg0, 0);
-    e_ls   = e_ls / (2*R);
-    % levy, central in vartheta (+/- h), per revenue
-    e_lv   = clnS(r_cal, tau0, D0, pg0, +h) - clnS(r_cal, tau0, D0, pg0, -h);
-    e_lv   = e_lv / (2*R);
-    % regressive tilt, central: (tau0+R, vth=-h) vs (tau0-R, vth=+h)
-    e_tl   = clnS(r_cal, tau0+R, D0, pg0, -h) - clnS(r_cal, tau0-R, D0, pg0, +h);
-    e_tl   = e_tl / (2*R);
-    resid  = e_ls - (e_lv + e_tl);
-    A(ih)  = struct('h',h,'eps_ls',e_ls,'eps_levy',e_lv,'eps_tilt',e_tl, ...
-                    'resid',resid,'rel',abs(resid)/max(abs(e_ls),eps));
-    tee('%-9.1e %12.4f %12.4f %12.4f %14.4f %12.2e %12.2e\n', ...
-        h, e_ls, e_lv, e_tl, e_lv+e_tl, resid, A(ih).rel);
+    e_ls = (clnS(r_cal, tau0+R, D0, pg0, 0) - clnS(r_cal, tau0-R, D0, pg0, 0))/(2*R);
+    e_lv = (clnS(r_cal, tau0, D0, pg0, +h) - clnS(r_cal, tau0, D0, pg0, -h))/(2*R);
+    e_tl = (clnS(r_cal, tau0+R, D0, pg0, -h) - clnS(r_cal, tau0-R, D0, pg0, +h))/(2*R);
+    resid = e_ls - (e_lv + e_tl);
+    Acell{ih} = struct('h',h,'eps_ls',e_ls,'eps_levy',e_lv,'eps_tilt',e_tl, ...
+                       'resid',resid,'rel',abs(resid)/max(abs(e_ls),eps));
+end
+A = [Acell{:}];
+for ih = 1:numel(A)
+    tee('%-9.1e %12.4f %12.4f %12.4f %14.4f %12.2e %12.2e\n', A(ih).h, ...
+        A(ih).eps_ls, A(ih).eps_levy, A(ih).eps_tilt, ...
+        A(ih).eps_levy+A(ih).eps_tilt, A(ih).resid, A(ih).rel);
 end
 AU.blockA = A;
 tee(['Reading: if abs_resid falls with h, the identity is local-exact and\n' ...
@@ -199,30 +197,25 @@ hD = 1e-3;
 Dm = struct('abar',{},'mode',{},'beta',{},'S0',{},'cmass',{},'nearc',{}, ...
             'cmin',{},'eps_ls',{},'eps_levy',{},'fd_stab',{},'Peq',{}, ...
             'epsS',{},'onePlusEpsS',{},'resid',{},'status',{});
-for mode = 1:2                                    % 1 fixed-beta, 2 recalibrated
-    mname = {'fixed-beta','recal-beta'};
-    tee('\n-- %s --\n', mname{mode});
-    tee('%-6s %-8s %9s %8s %8s %9s %9s %9s %9s %8s %9s %9s %-8s\n', ...
-        'abar','beta','S0','cmass','nearc','c_min','eps_ls','eps_levy', ...
-        'fd_stab','P_eq','eps_S','1+eps_S','status');
-    for k = 1:numel(abars)
-        pg = pg0; pg.abar = abars(k); pg = rebuild_grid_local(pg);
-        status = 'ok';
-        if mode == 2
-            try
-                [bstar, cout] = calibrate_beta(pg, r_cal, 1.10, D0);
-                pg.beta = bstar;
-                if ~cout.converged, status = 'beta-edge'; end
-            catch ME
-                status = ['beta-fail:' ME.identifier]; bstar = NaN;
-            end
+mname = {'fixed-beta','recal-beta'};
+ncfg = 2*numel(abars);
+Drows = cell(ncfg, 1);
+parfor ic = 1:ncfg                                % independent (mode, abar)
+    mode = 1 + (ic > numel(abars));
+    k = ic - (mode-1)*numel(abars);
+    pg = pg0; pg.abar = abars(k); pg = rebuild_grid_local(pg);
+    status = 'ok'; row = [];
+    if mode == 2
+        try
+            [bstar, cout] = calibrate_beta(pg, r_cal, 1.10, D0);
+            pg.beta = bstar;
+            if ~cout.converged, status = 'beta-edge'; end
+        catch
+            status = 'beta-fail';
         end
-        [Sb, ob] = S_green_v(r_cal, tau0, D0, pg, 0);
-        if ~isfinite(Sb)
-            tee('%-6.2f %-8.4f %9s (infeasible: S not finite; status %s)\n', ...
-                abars(k), pg.beta, '--', status);
-            continue;
-        end
+    end
+    [Sb, ob] = S_green_v(r_cal, tau0, D0, pg, 0);
+    if isfinite(Sb)
         wgt   = ob.dist;
         cmass = sum(wgt(1,:));
         arange = pg.aGrid(end) - pg.aGrid(1);
@@ -232,15 +225,34 @@ for mode = 1:2                                    % 1 fixed-beta, 2 recalibrated
         e2  = ctau(r_cal, tau0, hD/2, D0, pg);
         fdstab = abs(e1 - e2)/max(abs(e1), eps);
         elv = clevy(r_cal, tau0, 1e-3, D0, pg);
-        % no-program equilibrium price and eps_S at it
-        [Peq, epsS, rs] = solve_P_and_epsS(r_cal, D0, pg, 0);
-        Dm(end+1) = struct('abar',abars(k),'mode',mname{mode},'beta',pg.beta, ...
+        try
+            [Peq, epsS, rs] = solve_P_and_epsS(r_cal, D0, pg, 0);
+        catch
+            Peq = NaN; epsS = NaN; rs = NaN; status = [status '/P-fail'];
+        end
+        row = struct('abar',abars(k),'mode',mname{mode},'beta',pg.beta, ...
             'S0',Sb,'cmass',cmass,'nearc',nearc,'cmin',cmin,'eps_ls',e1, ...
             'eps_levy',elv,'fd_stab',fdstab,'Peq',Peq,'epsS',epsS, ...
-            'onePlusEpsS',1+epsS,'resid',rs,'status',status); %#ok<SAGROW>
+            'onePlusEpsS',1+epsS,'resid',rs,'status',status);
+    else
+        row = struct('abar',abars(k),'mode',mname{mode},'beta',pg.beta, ...
+            'S0',NaN,'cmass',NaN,'nearc',NaN,'cmin',NaN,'eps_ls',NaN, ...
+            'eps_levy',NaN,'fd_stab',NaN,'Peq',NaN,'epsS',NaN, ...
+            'onePlusEpsS',NaN,'resid',NaN,'status','infeasible');
+    end
+    Drows{ic} = row;
+end
+Dm = [Drows{:}];
+for mode = 1:2
+    tee('\n-- %s --\n', mname{mode});
+    tee('%-6s %-8s %9s %8s %8s %9s %9s %9s %9s %8s %9s %9s %-8s\n', ...
+        'abar','beta','S0','cmass','nearc','c_min','eps_ls','eps_levy', ...
+        'fd_stab','P_eq','eps_S','1+eps_S','status');
+    for k = 1:numel(abars)
+        r = Drows{k + (mode-1)*numel(abars)};
         tee('%-6.2f %-8.4f %9.4f %8.4f %8.4f %9.4f %+9.3f %+9.3f %9.1e %8.4f %+9.3f %9.3f %-8s\n', ...
-            abars(k), pg.beta, Sb, cmass, nearc, cmin, e1, elv, fdstab, ...
-            Peq, epsS, 1+epsS, status);
+            r.abar, r.beta, r.S0, r.cmass, r.nearc, r.cmin, r.eps_ls, ...
+            r.eps_levy, r.fd_stab, r.Peq, r.epsS, r.onePlusEpsS, r.status);
     end
 end
 AU.blockD = Dm;
@@ -255,32 +267,41 @@ tee(['\nReading: attribute the non-monotonicity to borrowing capacity ONLY if\n'
 % =====================================================================
 tee('===== BLOCK E: instrument map, lump-sum vs levy across primitives =====\n');
 tee('%-28s %10s %12s %12s %12s\n', 'primitive', 'value', 'eps_ls', 'eps_levy', 'difference');
-sweepE = {};
 sw1 = struct('name','borrowing limit abar', 'vals', [0 0.5 1.0 2.0]);
 sw2 = struct('name','income-risk sig_eps',  'vals', [0.15 0.20 0.25]);
 sw3 = struct('name','CRRA sigma',           'vals', [1.5 2.0 3.0]);
 sw4 = struct('name','discount beta',        'vals', pg0.beta*[0.97 1.00 1.03]);
-sws = {sw1, sw2, sw3, sw4};
-if FAST, sws = {sw1}; end
-for s = 1:numel(sws)
-    for k = 1:numel(sws{s}.vals)
-        v = sws{s}.vals(k);
-        pg = pg0;
-        switch s
-            case 1, pg.abar = v; pg = rebuild_grid_local(pg);
-            case 2, pg.sig_eps = v; pg.sig_eps0 = v; pg.phi_D = 0;
-                    [eG,PiD,stD] = make_income_process(pg);
-                    pg.eGrid = eG; pg.Pi = PiD; pg.stationary_e = stD;
-            case 3, pg.sigma = v;
-            case 4, pg.beta = v;
-        end
-        e_ls = ctau(r_cal, tau0, 1e-3, D0, pg);
-        e_lv = clevy(r_cal, tau0, 1e-3, D0, pg);
-        sweepE{end+1} = struct('sweep',sws{s}.name,'val',v,'eps_ls',e_ls, ...
-                               'eps_levy',e_lv,'diff',e_ls - e_lv); %#ok<SAGROW>
-        tee('%-28s %10.3f %+12.3f %+12.3f %+12.3f\n', sws{s}.name, v, ...
-            e_ls, e_lv, e_ls - e_lv);
+% flatten sweep points into an independent work list
+plist = {};
+sw_defs = {sw1, sw2, sw3, sw4};
+if FAST, sw_defs = {sw1}; end
+for s = 1:numel(sw_defs)
+    for k = 1:numel(sw_defs{s}.vals)
+        plist{end+1} = struct('s',s,'name',sw_defs{s}.name,'val',sw_defs{s}.vals(k)); %#ok<SAGROW>
     end
+end
+Ecell = cell(numel(plist), 1);
+parfor ip = 1:numel(plist)
+    q = plist{ip}; v = q.val;
+    pg = pg0;
+    switch q.s
+        case 1, pg.abar = v; pg = rebuild_grid_local(pg);
+        case 2, pg.sig_eps = v; pg.sig_eps0 = v; pg.phi_D = 0;
+                [eG,PiD,stD] = make_income_process(pg);
+                pg.eGrid = eG; pg.Pi = PiD; pg.stationary_e = stD;
+        case 3, pg.sigma = v;
+        case 4, pg.beta = v;
+    end
+    e_ls = ctau(r_cal, tau0, 1e-3, D0, pg);
+    e_lv = clevy(r_cal, tau0, 1e-3, D0, pg);
+    Ecell{ip} = struct('sweep',q.name,'val',v,'eps_ls',e_ls, ...
+                       'eps_levy',e_lv,'diff',e_ls - e_lv);
+end
+sweepE = Ecell;
+for ip = 1:numel(sweepE)
+    e = sweepE{ip};
+    tee('%-28s %10.3f %+12.3f %+12.3f %+12.3f\n', e.sweep, e.val, ...
+        e.eps_ls, e.eps_levy, e.diff);
 end
 AU.blockE = sweepE;
 tee(['Reading: the paper''s claim is the instrument DIFFERENCE\n' ...
@@ -308,35 +329,45 @@ if ~FAST
     cases{end+1} = struct('tag',' [abar=2]',    'pg', pgA);
     cases{end+1} = struct('tag',' [psi_inc=1]', 'pg', pgI);
 end
-Fv = {};
+% flatten (case, instrument) into an independent work list
+wl = {};
 for c = 1:numel(cases)
-    pg = cases{c}.pg;
     for ii = 1:numel(inst)
-        try
-            % no-program equilibrium
-            [P0e, epsS0, ~] = solve_P_and_epsS(r_cal, D0, pg, 0);
-            % program equilibrium under the instrument (fixed real g at P0e scale)
-            gP  = @(P) Gg_cal ./ P;
-            tls = @(P) inst{ii}.tls(P, gP(P));
-            vth = @(P) inst{ii}.vth(P, gP(P), D0);
-            P1e = solve_P_instrument(r_cal, D0, pg, tls, vth, P0e);
-            act = log(P1e/P0e);
-            % eta_g at fixed P = P0e: switch the program on at unchanged price
-            pgv = pg; pgv.vartheta = vth(P0e);
-            S_on  = S_green(r_cal, tls(P0e), D0, pgv);
-            S_off = S_green(r_cal, r_cal*pg0.Bnom/P0e, D0, pg);
-            gg0   = gP(P0e);
-            eta   = (log(S_on) - log(S_off)) / gg0;
-            pred  = -eta*gg0 / (1 + epsS0);
-            Fv{end+1} = struct('name',[inst{ii}.name cases{c}.tag],'eta',eta, ...
-                'epsS',epsS0,'pred',pred,'act',act,'abserr',abs(pred-act), ...
-                'relerr',abs(pred-act)/max(abs(act),eps)); %#ok<SAGROW>
-            tee('%-14s %+9.3f %+9.3f %9.3f %+12.4f %+12.4f %10.2e %9.2e\n', ...
-                Fv{end}.name, eta, epsS0, 1+epsS0, pred, act, ...
-                Fv{end}.abserr, Fv{end}.relerr);
-        catch ME
-            tee('%-14s FAILED: %s\n', [inst{ii}.name cases{c}.tag], ME.message);
-        end
+        wl{end+1} = struct('pg',cases{c}.pg,'tag',cases{c}.tag,'inst',inst{ii}); %#ok<SAGROW>
+    end
+end
+Fcell = cell(numel(wl), 1);
+parfor iw = 1:numel(wl)
+    w = wl{iw}; pg = w.pg;
+    try
+        [P0e, epsS0, ~] = solve_P_and_epsS(r_cal, D0, pg, 0);
+        gP  = @(P) Gg_cal ./ P;
+        tls = @(P) w.inst.tls(P, gP(P));
+        vth = @(P) w.inst.vth(P, gP(P), D0);
+        P1e = solve_P_instrument(r_cal, D0, pg, tls, vth, P0e);
+        act = log(P1e/P0e);
+        pgv = pg; pgv.vartheta = vth(P0e);
+        S_on  = S_green(r_cal, tls(P0e), D0, pgv);
+        S_off = S_green(r_cal, r_cal*pg0.Bnom/P0e, D0, pg);
+        gg0   = gP(P0e);
+        eta   = (log(S_on) - log(S_off)) / gg0;
+        pred  = -eta*gg0 / (1 + epsS0);
+        Fcell{iw} = struct('name',[w.inst.name w.tag],'eta',eta, ...
+            'epsS',epsS0,'pred',pred,'act',act,'abserr',abs(pred-act), ...
+            'relerr',abs(pred-act)/max(abs(act),eps),'err','');
+    catch ME
+        Fcell{iw} = struct('name',[w.inst.name w.tag],'eta',NaN,'epsS',NaN, ...
+            'pred',NaN,'act',NaN,'abserr',NaN,'relerr',NaN,'err',ME.message);
+    end
+end
+Fv = Fcell;
+for iw = 1:numel(Fv)
+    r = Fv{iw};
+    if isempty(r.err)
+        tee('%-14s %+9.3f %+9.3f %9.3f %+12.4f %+12.4f %10.2e %9.2e\n', ...
+            r.name, r.eta, r.epsS, 1+r.epsS, r.pred, r.act, r.abserr, r.relerr);
+    else
+        tee('%-14s FAILED: %s\n', r.name, r.err);
     end
 end
 AU.blockF = Fv;
@@ -351,20 +382,22 @@ tee('===== BLOCK G: grid audit =====\n');
 nas = [250 500 1000];
 if FAST, nas = [150 250]; end
 tee('%-8s %12s %12s %12s %10s\n', 'na', 'eps_tau', 'cov/rev', 'dist/rev', 'runtime(s)');
-Gv = struct('na',{},'eps_tau',{},'cov',{},'dist',{},'rt',{});
-for k = 1:numel(nas)
+Gcell = cell(numel(nas), 1);
+parfor k = 1:numel(nas)                              % independent grids
     tg = tic;
     pg = pg0; pg.na = nas(k); pg = rebuild_grid_local(pg);
     et = ctau(r_cal, tau0, 1e-2, D0, pg);
-    % covariance/distribution split at this grid
     [Sg0, og0] = S_green_v(r_cal, tau0, D0, pg, 0);
     pgT2 = pg; pgT2.vartheta = -dv;
-    [Sg1, og1] = S_green(r_cal, tau0+rev, D0, pgT2);
+    [Sg1, og1] = S_green(r_cal, tau0+rev, D0, pgT2); %#ok<ASGLU>
     dpol  = sum(sum((og1.polA - og0.polA) .* og0.dist)) / (Sg0*rev);
     ddist = sum(sum(og1.polA .* (og1.dist - og0.dist))) / (Sg0*rev);
-    rt = toc(tg);
-    Gv(k) = struct('na',nas(k),'eps_tau',et,'cov',dpol,'dist',ddist,'rt',rt);
-    tee('%-8d %+12.4f %+12.4f %+12.4f %10.1f\n', nas(k), et, dpol, ddist, rt);
+    Gcell{k} = struct('na',nas(k),'eps_tau',et,'cov',dpol,'dist',ddist,'rt',toc(tg));
+end
+Gv = [Gcell{:}];
+for k = 1:numel(Gv)
+    tee('%-8d %+12.4f %+12.4f %+12.4f %10.1f\n', Gv(k).na, Gv(k).eps_tau, ...
+        Gv(k).cov, Gv(k).dist, Gv(k).rt);
 end
 if numel(Gv) >= 2
     rel = abs(Gv(end).eps_tau - Gv(end-1).eps_tau)/abs(Gv(end-1).eps_tau);

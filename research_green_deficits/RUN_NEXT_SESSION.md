@@ -68,11 +68,15 @@ Checks to eyeball in `output/tables/twoasset_kv.txt`:
 
 ## 3. Incidence audit — smoke test, then full (full run is hours)
 
+The audit is now PARALLELIZED (Blocks A, D, E, F, G run under parfor).
+Open a pool first to get the speedup — otherwise it runs serially:
+
 ```matlab
+parpool;                        % once per session; uses all local cores
 clear; FAST = true; audit_tax_incidence
 ```
 
-then, ideally overnight:
+then the full run (with a pool this should be a few hours, not overnight):
 
 ```matlab
 clear; audit_tax_incidence
@@ -101,6 +105,18 @@ Push **only** `output/` and `paper/numbers_auto.tex`. Please do not upload
 your local copy of `paper/green_deficits_price_level.tex` — it is behind
 the branch and re-uploading it reverts the revision (this has happened
 twice before).
+
+## Status of the two-asset runs (updated after your first results)
+
+- Step 0: the pushed table was the FAST pass. The **full-grid rerun is
+  still pending**: `clear; main_twoasset_step0` (~1 h). The FAST numbers
+  are already in the paper labeled as the validation-grid pass; the rerun
+  replaces them via `export_paper_numbers`.
+- Variant (b): full run DONE and read. Known items for the next iteration,
+  no action needed from you yet: the liquid-margin additivity residual
+  (0.29) needs a smaller perturbation or refined candidate grids, and the
+  wealthy-hand-to-mouth share of zero is a calibration finding (documented
+  in the paper), not a bug.
 
 ## What to send back
 
