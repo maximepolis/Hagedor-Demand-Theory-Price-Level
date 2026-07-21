@@ -1,0 +1,24 @@
+TWO-ASSET VARIANT (b), speed-rebuilt. nb=70 nk=35 nx=140 nac=110 ns=25 ne=7
+lambda=0.333 zeta=2.00 r_b=0.0196 d=0.120 FAST=0
+
+----- (1) baseline equilibrium (chi secant) -----
+chi_b=0.02702  S_b=1.0969 (target 1.10)  q=2.2858  P=0.9116  omega=0.324
+HtM (b<0.02): total 0.000 | wealthy (qk>0.50): 0.000 | poor: 0.000
+wealth shares: top10 0.34 top1 0.05
+
+----- (2) financing incidence -----
+lump-sum  P=0.9127 dlnP=+0.0012  q=2.2993  S_b=1.0956
+levy      P=0.9409 dlnP=+0.0316  q=2.2666  S_b=1.0628
+vs Step 0: ls +0.0084 -> +0.0012 | levy +0.0222 -> +0.0316
+sign contrast survives: 0
+
+----- (3) liquid-margin incidence at fixed (q, r_b) -----
+per rev: lump-sum +0.315 = levy -1.157 + tilt +1.187 [resid +2.9e-01]
+tilt split: policy-flow +0.0023 + distribution +0.0100 = +0.0123
+policy-flow by group: WHtM +0.00000 | poor-HtM +0.00000 | non-HtM +0.00226
+
+----- (4) lambda sensitivity + lambda->1 consistency -----
+lambda=0.15: S_b=1.2321 q=2.2653 P=0.8116 WHtM=0.000
+lambda=0.60: S_b=1.0245 q=2.2791 P=0.9761 WHtM=0.000
+lambda=0.33: S_b=1.0969 q=2.2858 P=0.9116 WHtM=0.000 (baseline)
+lambda->1 check: KV S_b=0.9840 vs frictionless EGM S_b=0.9754 (gap 8.57e-03)
