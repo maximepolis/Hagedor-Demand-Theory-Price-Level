@@ -101,7 +101,7 @@ tee('TWO-ASSET STEP 0. nx=%d, na2=%d, ne=%d, zeta=%.2f, r_b=%.4f, d=%.3f, solver
 % (1) BASELINE: calibrate chi_b to the liquid target, solve (P, q)
 % =====================================================================
 tee('----- (1) baseline equilibrium -----\n');
-[p.chi_b, eqb] = calibrate_chi(r_b, d_div, D0, Bnom, Kbar, b_targ, p);
+[p.chi_b, eqb] = calibrate_chi(r_b, d_div, D0, Bnom, Kbar, b_targ, p, p.chi_b);
 assert(~isempty(eqb) && eqb.ok, 'baseline two-asset equilibrium failed');
 omega = eqb.Sb / (eqb.Sb + eqb.q * Kbar);
 tee('chi_b=%.5f  S_b=%.4f (target %.2f)  q=%.4f  P=%.4f\n', ...
@@ -153,24 +153,33 @@ tee('----- (3) d ln P vs zeta sweep (lump-sum instrument) -----\n');
 tee('%-8s %10s %10s %12s %12s %10s\n', 'zeta', 'chi_b', 'omega', 'dlnP(ls)', 'dlnq(ls)', 'status');
 zetas = [0.5 1.0 2.0 5.0 10.0];
 if FAST, zetas = [1.0 2.0 5.0]; end
-ZS = struct('zeta',{},'chi',{},'omega',{},'dlnP',{},'dlnq',{},'ok',{});
-for z = 1:numel(zetas)
+chi_seed = p.chi_b;                              % baseline chi warm-seeds all
+nz = numel(zetas); Zc = cell(nz, 1);
+fprintf('[%6.0fs] zeta sweep: %d values in parallel (secant chi, seed %.4f)\n', ...
+        toc(t0), nz, chi_seed);
+parfor z = 1:nz                                 % independent zeta values
     pz = p; pz.zeta_b = zetas(z);
-    [pz.chi_b, ez0] = calibrate_chi(r_b, d_div, D0, Bnom, Kbar, b_targ, pz);
+    [pz.chi_b, ez0] = calibrate_chi(r_b, d_div, D0, Bnom, Kbar, b_targ, pz, chi_seed);
     if isempty(ez0) || ~ez0.ok
-        ZS(end+1) = struct('zeta',zetas(z),'chi',NaN,'omega',NaN, ...
-                           'dlnP',NaN,'dlnq',NaN,'ok',false); %#ok<SAGROW>
-        tee('%-8.2f %10s %10s %12s %12s %10s\n', zetas(z), '--','--','--','--','no-base');
+        Zc{z} = struct('zeta',zetas(z),'chi',NaN,'omega',NaN, ...
+                       'dlnP',NaN,'dlnq',NaN,'ok',false);
         continue;
     end
     ez1 = solve_twoasset_eq(r_b, d_div, D0, Gg/ez0.P, 0, Bnom, Kbar, pz);
-    okz = ez1.ok;
-    dlnP = NaN; dlnq = NaN;
+    okz = ez1.ok; dlnP = NaN; dlnq = NaN;
     if okz, dlnP = log(ez1.P/ez0.P); dlnq = log(ez1.q/ez0.q); end
-    ZS(end+1) = struct('zeta',zetas(z),'chi',pz.chi_b, ...
-        'omega',ez0.Sb/(ez0.Sb + ez0.q*Kbar),'dlnP',dlnP,'dlnq',dlnq,'ok',okz); %#ok<SAGROW>
-    tee('%-8.2f %10.5f %10.3f %+12.4f %+12.4f %10s\n', zetas(z), pz.chi_b, ...
-        ZS(end).omega, dlnP, dlnq, tern(okz,'ok','fail'));
+    Zc{z} = struct('zeta',zetas(z),'chi',pz.chi_b, ...
+        'omega',ez0.Sb/(ez0.Sb + ez0.q*Kbar),'dlnP',dlnP,'dlnq',dlnq,'ok',okz);
+end
+ZS = [Zc{:}];
+fprintf('[%6.0fs] zeta sweep done\n', toc(t0));
+for z = 1:nz
+    if ZS(z).ok
+        tee('%-8.2f %10.5f %10.3f %+12.4f %+12.4f %10s\n', ZS(z).zeta, ZS(z).chi, ...
+            ZS(z).omega, ZS(z).dlnP, ZS(z).dlnq, 'ok');
+    else
+        tee('%-8.2f %10s %10s %12s %12s %10s\n', ZS(z).zeta, '--','--','--','--','no-base');
+    end
 end
 tee(['Reading: as zeta grows the nominal share turns rigid, which PINS\n' ...
      'S_b and drives d ln P toward ZERO -- the rigid-share limit is not\n' ...
@@ -248,15 +257,27 @@ fclose(fid);
 fprintf('[main_twoasset_step0] wrote %s (%.1f s)\n', sf, toc(t0));
 
 % =========================================================================
-function [chi_star, eq0] = calibrate_chi(rb, d, D, Bnom, Kbar, b_targ, p)
-% bisect the liquidity weight so baseline liquid demand hits the target
-    clo = 1e-5; chi = 1.0; eq0 = [];
-    for itc = 1:40
-        p.chi_b = sqrt(clo * chi);                % log-midpoint
-        eq0 = solve_twoasset_eq(rb, d, D, 0, 0, Bnom, Kbar, p);
-        if ~eq0.ok, clo = p.chi_b; continue; end  % failures at tiny chi
-        if eq0.Sb > b_targ, chi = p.chi_b; else, clo = p.chi_b; end
-        if abs(eq0.Sb - b_targ) < 5e-3, break; end
+function [chi_star, eq0] = calibrate_chi(rb, d, D, Bnom, Kbar, b_targ, p, chi0)
+% SECANT in log-chi so baseline liquid demand hits the target. S_b is
+% increasing in chi, so err(log chi) = log S_b - log b_targ is monotone;
+% secant converges in ~4-6 solves vs ~40 for bisection. chi0 warm-seeds it
+% (the baseline chi is a good guess for nearby zeta).
+    if nargin < 8 || isempty(chi0), chi0 = 0.03; end
+    lc = log(chi0); lc_p = NaN; e_p = NaN; eq0 = [];
+    for itc = 1:14
+        p.chi_b = exp(lc);
+        eqc = solve_twoasset_eq(rb, d, D, 0, 0, Bnom, Kbar, p);
+        if ~eqc.ok, lc = lc + 0.5; continue; end  % tiny chi can fail; grow
+        eq0 = eqc;
+        err = log(eqc.Sb) - log(b_targ);
+        if abs(err) < 5e-3, break; end
+        if isfinite(e_p) && abs(err - e_p) > 1e-9
+            step = -err * (lc - lc_p)/(err - e_p);   % secant
+            step = max(min(step, 1.2), -1.2);
+        else
+            step = -sign(err)*0.4;                   % first move
+        end
+        lc_p = lc; e_p = err; lc = lc + step;
     end
     chi_star = p.chi_b;
 end
@@ -283,9 +304,9 @@ function eq = solve_twoasset_eq(rb, d, D, g, use_levy, Bnom, Kbar, p)
     cache = [];                                   % policy warm start
     % economically anchored q bracket around the frictionless bound d/rb
     qlo = 0.15*d/max(rb, 5e-3); qhi = 1.5*d/max(rb, 5e-3);
-    qs = linspace(qlo, qhi, 8); fs = nan(size(qs));
+    qs = linspace(qlo, qhi, 6); fs = nan(size(qs)); tau0s = tau0;
     for i = 1:numel(qs)
-        [fs(i), ~, ~, ~, cache] = eval_at_q(qs(i), tau0, cache);
+        [fs(i), tau0s, ~, ~, cache] = eval_at_q(qs(i), tau0s, cache);
     end
     kk = find(isfinite(fs(1:end-1)) & isfinite(fs(2:end)) & ...
               sign(fs(1:end-1)) ~= sign(fs(2:end)), 1, 'first');
@@ -300,7 +321,7 @@ function eq = solve_twoasset_eq(rb, d, D, g, use_levy, Bnom, Kbar, p)
         m = 0.5*(a+b);
         [fm, tau_m, Sb_m, res_m, cache] = eval_at_q(m, tau_m, cache);
         if ~isfinite(fm), b = m; continue; end
-        if abs(fm) < 1e-4 || (b-a) < 1e-6, break; end
+        if abs(fm) < 5e-4 || (b-a) < 1e-4, break; end
         if sign(fm) == sign(fa), a = m; fa = fm; else, b = m; end
     end
     if ~isfinite(Sb_m) || Sb_m <= 0
@@ -312,15 +333,22 @@ function eq = solve_twoasset_eq(rb, d, D, g, use_levy, Bnom, Kbar, p)
     eq.P = Bnom / Sb_m;
 
     function [f, tt, Sb, resid, cch] = eval_at_q(qq, tinit, cch)
-        % damped tau fixed point at this q: tau = rb*S_b(tau) + (ls ? g : 0)
-        tt = tinit; Sb = NaN; Sk = NaN; resid = Inf;
-        for itt = 1:30
+        % tau fixed point: tau = rb*S_b(tau) + (ls ? g : 0). Contraction
+        % factor ~ rb*dS_b/dtau ~ 0.06, so FULL updates converge in a few
+        % steps; damp only on a growing oscillation.
+        tt = tinit; Sb = NaN; Sk = NaN; resid = Inf; rprev = NaN;
+        for itt = 1:15
             [Sb, Sk, okh, ~, ~, cch] = agg_two(rb, qq, d, tt, pe, cch);
             if ~okh, f = NaN; return; end
             tgt = rb*Sb + (~use_levy)*g;
-            resid = abs(tgt - tt);
+            r1 = tgt - tt; resid = abs(r1);
             if resid < 1e-6, break; end
-            tt = 0.5*tt + 0.5*tgt;
+            if isfinite(rprev) && sign(r1) ~= sign(rprev) && abs(r1) > abs(rprev)
+                tt = 0.5*(tt + tgt);
+            else
+                tt = tgt;
+            end
+            rprev = r1;
         end
         f = Sk - Kbar;
     end

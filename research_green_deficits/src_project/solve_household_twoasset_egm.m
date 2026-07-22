@@ -59,9 +59,13 @@ function [polB, polK, polC, C, V, diag] = solve_household_twoasset_egm(rb, q, d,
         Cn = zeros(na, ne); Bn = zeros(na, ne); Xn = zeros(na, ne);
         for ie = 1:ne
             b = Bsplit(:, ie);                        % na x 1 warm start
-            % ---- branch K: interior k' (inner damped fixed point on b') ----
+            % ---- branch K: interior k' (inner fixed point on b') ----
+            % Loose inner tolerance: the b' feedback into x' is second-order
+            % and b is warm-started across sweeps, so 1-3 iterations suffice
+            % once the policy settles; the OUTER policy iteration drives the
+            % final accuracy. (Tight 1e-9 here just burned interp1 calls.)
             cK = []; %#ok<NASGU>
-            for inner = 1:40
+            for inner = 1:20
                 % x'(a, e') and marginal continuation under the k-FOC
                 Emu = zeros(na, 1);
                 for jep = 1:ne
@@ -75,7 +79,7 @@ function [polB, polK, polC, C, V, diag] = solve_household_twoasset_egm(rb, q, d,
                 bnew = min(bnew, aG);
                 dif  = max(abs(bnew - b));
                 b    = 0.5*b + 0.5*bnew;
-                if dif < 1e-9, break; end
+                if dif < 1e-7, break; end
             end
             % ---- branch B: k' = 0 where liquid demand hits the outlay ----
             % on those nodes b' = a and the b-FOC prices consumption directly
