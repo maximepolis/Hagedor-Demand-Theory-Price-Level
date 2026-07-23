@@ -109,6 +109,28 @@ exists, rerun Step 0 at that zeta: its lump-sum sign is the paper's
 DISCIPLINED answer. If the separable model cannot reach the KVJ range, the
 CES variant takes over. Eyeball `output/tables/convenience_kvj.txt`.
 
+## 2d. R1 + R2: welfare-by-decile and ownership recalibration (new)
+
+**R1 — who pays, in the two-asset world** (runs in minutes; needs
+`twoasset_step0.mat`, uses `twoasset_kv.mat` too if present):
+```matlab
+clear; main_twoasset_welfare
+```
+Output `output/tables/twoasset_welfare.txt`: CE incidence by baseline-wealth
+decile for lump-sum and levy, in BOTH two-asset economies. This is the table
+that answers the paper's title in the disciplined model — compare the decile
+profile against the one-asset Section 5 tables.
+
+**R2 — ownership-calibrated economy** (intermediation wedge iota_H, direct
+liquid target 0.30 of income, superstar income state, endogenous fund
+dividend):
+```matlab
+parpool; clear; FAST = true; main_twoasset_ownership
+```
+Eyeball `output/tables/twoasset_ownership.txt`: does WHtM turn positive, do
+the top wealth shares approach the data, and what happens to dlnP per
+instrument when only the directly-held slice of debt clears the bond market.
+
 ## 3. Incidence audit — smoke test, then full (full run is hours)
 
 The audit is now PARALLELIZED (Blocks A, D, E, F, G run under parfor).
@@ -168,7 +190,8 @@ twice before).
 2. `output/tables/twoasset_kv.txt`
 3. `output/tables/audit_tax_incidence.txt`
 4. `output/tables/twoasset_nonsep.txt`, `output/tables/twoasset_transition.txt`
-5. Any MATLAB error text, verbatim, if a driver dies.
+5. `output/tables/twoasset_welfare.txt`, `output/tables/twoasset_ownership.txt`, `output/tables/convenience_kvj.txt`
+6. Any MATLAB error text, verbatim, if a driver dies.
 
 ## What happens with the results
 
