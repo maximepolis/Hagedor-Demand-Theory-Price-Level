@@ -65,15 +65,16 @@ tee('TWO-ASSET NON-SEPARABLE LIQUIDITY. nx=%d nac=%d ns=%d ne=%d r_b=%.4f FAST=%
 xis = [0.25 0.50 0.75 1.50];                    % <1 complements; >1 substitutes
 if FAST, xis = [0.5 1.5]; end
 tee('%-8s %10s %10s %12s %12s %10s\n', 'xi', 'chi_b', 'omega', 'dlnP(ls)', 'dlnP(levy)', 'ls sign');
-NS = struct('xi',{},'chi',{},'omega',{},'dlnP_ls',{},'dlnP_levy',{},'ok',{});
-for iz = 1:numel(xis)
+% xi values are independent -> parfor (parallel with a pool, serial without)
+fprintf('[%5.0fs] xi sweep: %d values in parallel\n', toc(t0), numel(xis));
+NSc = cell(numel(xis), 1);
+parfor iz = 1:numel(xis)
     pz = p; pz.xi_liq = xis(iz);
     % calibrate chi to the liquid target (secant in log-chi)
-    [pz.chi_b, eq0] = calib_chi_ns(r_b, d_div, D0, Bnom, Kbar, b_targ, pz, 0.05, t0);
+    [pz.chi_b, eq0] = calib_chi_ns(r_b, d_div, D0, Bnom, Kbar, b_targ, pz, 0.05, []);
     if isempty(eq0) || ~eq0.ok
-        NS(end+1) = struct('xi',xis(iz),'chi',NaN,'omega',NaN, ...
-            'dlnP_ls',NaN,'dlnP_levy',NaN,'ok',false); %#ok<SAGROW>
-        tee('%-8.2f %10s %10s %12s %12s %10s\n', xis(iz),'--','--','--','--','--');
+        NSc{iz} = struct('xi',xis(iz),'chi',NaN,'omega',NaN, ...
+            'dlnP_ls',NaN,'dlnP_levy',NaN,'ok',false);
         continue;
     end
     g_real = Gg / eq0.P;
@@ -83,10 +84,18 @@ for iz = 1:numel(xis)
     if els.ok, dP_ls = log(els.P/eq0.P); end
     if elv.ok, dP_lv = log(elv.P/eq0.P); end
     om = eq0.Sb/(eq0.Sb + eq0.q*Kbar);
-    NS(end+1) = struct('xi',xis(iz),'chi',pz.chi_b,'omega',om, ...
-        'dlnP_ls',dP_ls,'dlnP_levy',dP_lv,'ok',els.ok && elv.ok); %#ok<SAGROW>
-    tee('%-8.2f %10.4f %10.3f %+12.4f %+12.4f %10s\n', xis(iz), pz.chi_b, om, ...
-        dP_ls, dP_lv, sgnstr(dP_ls));
+    NSc{iz} = struct('xi',xis(iz),'chi',pz.chi_b,'omega',om, ...
+        'dlnP_ls',dP_ls,'dlnP_levy',dP_lv,'ok',els.ok && elv.ok);
+end
+NS = [NSc{:}];
+for iz = 1:numel(NS)
+    if isfinite(NS(iz).chi)
+        tee('%-8.2f %10.4f %10.3f %+12.4f %+12.4f %10s\n', NS(iz).xi, ...
+            NS(iz).chi, NS(iz).omega, NS(iz).dlnP_ls, NS(iz).dlnP_levy, ...
+            sgnstr(NS(iz).dlnP_ls));
+    else
+        tee('%-8.2f %10s %10s %12s %12s %10s\n', NS(iz).xi,'--','--','--','--','--');
+    end
 end
 tee(['\nReading: the one-asset lump-sum response is disinflationary (d ln P<0).\n' ...
      'Step 0 (separable) flips it positive. If some xi<1 (complements) turns\n' ...
@@ -107,8 +116,9 @@ function [chi_star, eq0] = calib_chi_ns(rb, d, D, Bnom, Kbar, b_targ, p, chi0, t
         eqc = nseq(rb, d, D, 0, 0, Bnom, Kbar, p);
         if ~eqc.ok, lc = lc + 0.5; continue; end
         eq0 = eqc; err = log(eqc.Sb) - log(b_targ);
+        el = 0; if ~isempty(t0), try el = toc(t0); catch, el = 0; end, end
         fprintf('[%5.0fs] xi=%.2f chi=%.4f S_b=%.4f err=%+.4f\n', ...
-                toc(t0), p.xi_liq, p.chi_b, eqc.Sb, err);
+                el, p.xi_liq, p.chi_b, eqc.Sb, err);
         if abs(err) < 6e-3, break; end
         if isfinite(e_p) && abs(err-e_p) > 1e-9
             step = -err*(lc-lc_p)/(err-e_p); step = max(min(step,1.2),-1.2);

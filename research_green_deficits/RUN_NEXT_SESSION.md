@@ -73,8 +73,10 @@ Both reuse the Step 0 economy; run after Step 0 has produced
 
 **Non-separable liquidity** — the specification test of whether the one-asset
 lump-sum *disinflation* survives when consumption and liquidity are
-complements (CES bundle, elasticity xi):
+complements (CES bundle, elasticity xi). The xi sweep runs under parfor —
+open a pool first:
 ```matlab
+parpool;
 clear; FAST = true; main_twoasset_nonsep
 ```
 Eyeball `output/tables/twoasset_nonsep.txt`: the `ls sign` column. If any
@@ -82,7 +84,10 @@ Eyeball `output/tables/twoasset_nonsep.txt`: the `ls sign` column. If any
 complementary liquidity and that becomes the benchmark specification.
 
 **Two-asset nonlinear transition** — the joint {P_t, q_t} announcement path
-(the computational showpiece):
+(the computational showpiece). Note: the transition is inherently sequential
+(backward/forward passes in time), so it does not use the pool; its speed
+comes from vectorization and from skipping the value-evaluation pass, and
+the earlier "ok"-field crash is fixed:
 ```matlab
 clear; FAST = true; main_twoasset_transition
 ```

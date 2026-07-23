@@ -29,7 +29,9 @@ function [polB, polK, polC, C, V, diag] = solve_household_twoasset_egm(rb, q, d,
 %         C0 : optional (nx x ne) warm-start consumption policy ([] = none).
 % OUTPUTS polB, polK, polC : (nx x ne) policies on p.xGrid.
 %         C    : converged consumption policy (pass back as next C0).
-%         V    : values on p.xGrid (policy evaluation; for welfare).
+%         V    : values on p.xGrid, computed ONLY if p.compute_V = true
+%                ([] otherwise -- the evaluation costs as much as the policy
+%                iteration and no equilibrium loop needs it).
 %         diag : .converged .iters .supnorm .sprd .neg_spread
 %
 % STATUS: scaffolded, untested pending a MATLAB run.
@@ -135,7 +137,14 @@ function [polB, polK, polC, C, V, diag] = solve_household_twoasset_egm(rb, q, d,
     end
     polK = (Atot - polB) / q;
 
-    % ---- policy evaluation for V (linear operator, fast) ----
+    % ---- policy evaluation for V (OPT-IN: set p.compute_V = true) ----
+    % No equilibrium loop needs V (only welfare exercises do), and this
+    % evaluation costs as much as the policy iteration itself, so it is
+    % skipped unless explicitly requested.
+    if ~(isfield(p, 'compute_V') && p.compute_V)
+        V = [];
+        return;
+    end
     flowu = zeros(nx, ne);
     for ie = 1:ne
         cc = C(:, ie); bb = max(polB(:, ie), 1e-12);
