@@ -66,6 +66,32 @@ Checks to eyeball in `output/tables/twoasset_kv.txt`:
   on the covariance channel with realistic bond ownership.
 - `sign contrast survives: 1` under (2).
 
+## 2b. Non-separable liquidity + two-asset transition (new scaffolds)
+
+Both reuse the Step 0 economy; run after Step 0 has produced
+`output/twoasset_step0.mat`.
+
+**Non-separable liquidity** — the specification test of whether the one-asset
+lump-sum *disinflation* survives when consumption and liquidity are
+complements (CES bundle, elasticity xi):
+```matlab
+clear; FAST = true; main_twoasset_nonsep
+```
+Eyeball `output/tables/twoasset_nonsep.txt`: the `ls sign` column. If any
+`xi < 1` shows `NEG(!)` for `dlnP(ls)`, the disinflation is a feature of
+complementary liquidity and that becomes the benchmark specification.
+
+**Two-asset nonlinear transition** — the joint {P_t, q_t} announcement path
+(the computational showpiece):
+```matlab
+clear; FAST = true; main_twoasset_transition
+```
+Watch the `outer NN: max dlnP / max dlnq` convergence lines. Eyeball
+`output/tables/twoasset_transition.txt`: the `front-loading share` vs the
+one-asset Section 6.3 value, and the `max tree-market residual`. Both drivers
+are first-run scaffolds — send the console output verbatim if either fails to
+converge and I will tune the damping / grids.
+
 ## 3. Incidence audit — smoke test, then full (full run is hours)
 
 The audit is now PARALLELIZED (Blocks A, D, E, F, G run under parfor).
@@ -106,24 +132,26 @@ your local copy of `paper/green_deficits_price_level.tex` — it is behind
 the branch and re-uploading it reverts the revision (this has happened
 twice before).
 
-## Status of the two-asset runs (updated after your first results)
+## Status (updated after the latest results)
 
-- Step 0: the pushed table was the FAST pass. The **full-grid rerun is
-  still pending**: `clear; main_twoasset_step0` (~1 h). The FAST numbers
-  are already in the paper labeled as the validation-grid pass; the rerun
-  replaces them via `export_paper_numbers`.
-- Variant (b): full run DONE and read. Known items for the next iteration,
-  no action needed from you yet: the liquid-margin additivity residual
-  (0.29) needs a smaller perturbation or refined candidate grids, and the
-  wealthy-hand-to-mouth share of zero is a calibration finding (documented
-  in the paper), not a bug.
+- Step 0: full-grid rerun DONE and integrated (matched the FAST pass to the
+  third decimal; the full zeta sweep is now in the paper).
+- Variant (b): DONE and integrated.
+- Audit: DONE and integrated — it drove a correctness fix (the
+  borrowing-limit sign flip is a debt-target-collapse artifact; the honest
+  recalibrated sweep is monotone positive), the exact policy-flow vs
+  distribution split (machine-precision reconstruction), and the
+  sufficient-statistic validation (formula matches solved d ln P to 10%).
+- NEW to run: the two scaffolds in section 2b (non-separable liquidity,
+  two-asset transition). These are the only pending runs.
 
 ## What to send back
 
 1. `output/tables/twoasset_step0.txt`
 2. `output/tables/twoasset_kv.txt`
 3. `output/tables/audit_tax_incidence.txt`
-4. Any MATLAB error text, verbatim, if a driver dies.
+4. `output/tables/twoasset_nonsep.txt`, `output/tables/twoasset_transition.txt`
+5. Any MATLAB error text, verbatim, if a driver dies.
 
 ## What happens with the results
 
