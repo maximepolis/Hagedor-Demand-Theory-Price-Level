@@ -136,6 +136,41 @@ if exist(tef, 'file') == 2
     end
 end
 
+% ---- tax-incidence audit (audit_tax_incidence): exact decomposition,
+%      recalibrated borrowing-limit map, sufficient-statistic validation ----
+auf = fullfile(projdir, 'output', 'audit_tax_incidence.mat');
+if exist(auf, 'file') == 2
+    AUf = load(auf, 'AU'); AU = AUf.AU;
+    % Block B: exact policy-flow vs distribution split (per unit revenue)
+    if isfield(AU, 'blockB') && isfield(AU.blockB, 'per_rev')
+        pr = AU.blockB.per_rev;
+        mac('covPolExact',  sprintf('%+.2f', pr.pol));   % exact direct term
+        mac('covDistExact', sprintf('%+.2f', pr.dist));  % distribution term
+        mac('covReconResid', sprintf('%.0e', abs(AU.blockB.recon_resid)));
+    end
+    % Block D: recalibrated-beta borrowing-limit endpoints (debt target fixed
+    % => the honest sweep; the fixed-beta flip is a debt-collapse artifact)
+    if isfield(AU, 'blockD')
+        D = AU.blockD;
+        rc = D(strcmp({D.mode}, 'recal-beta'));
+        if numel(rc) >= 2
+            av = [rc.abar]; el = [rc.eps_ls];
+            [~, io] = sort(av);
+            mac('epsAbarRecalLo', sprintf('%+.2f', el(io(1))));
+            mac('epsAbarRecalHi', sprintf('%+.2f', el(io(end))));
+        end
+    end
+    % Block F: worst-case relative error of the sufficient-statistic formula
+    if isfield(AU, 'blockF')
+        F = AU.blockF; re = [];
+        for iF = 1:numel(F)
+            if iscell(F), fi = F{iF}; else, fi = F(iF); end
+            if isfield(fi,'relerr') && isfinite(fi.relerr), re(end+1) = fi.relerr; end %#ok<AGROW>
+        end
+        if ~isempty(re), mac('suffMaxRelErr', sprintf('%.0f', 100*max(re))); end
+    end
+end
+
 % ---- matched DTPL-vs-NK announcement experiment (run_matched_dtpl_nk) ----
 % Guarded: exported only if the matched driver has been run. Percent,
 % annualized; DTPL side is the announcement-year deviation from trend.

@@ -1,0 +1,96 @@
+TAX-INCIDENCE AUDIT. na=100, D0=0.06, r=0.0196, beta=0.9267, FAST=1
+
+===== BLOCK A: step-size and identity validation =====
+h               eps_ls     eps_levy     eps_tilt      levy+tilt    abs_resid    rel_resid
+1.0e-02         2.7279      -0.9961       3.7246         2.7285    -5.75e-04     2.11e-04
+1.0e-03         2.7261      -0.9960       3.7221         2.7260     1.00e-04     3.68e-05
+1.0e-04         2.7257      -0.9962       3.7219         2.7257     3.01e-09     1.11e-09
+Reading: if abs_resid falls with h, the identity is local-exact and
+the finite-change residual at h=1e-2 is a NONLINEAR INTERACTION term
+(Shapley-style), not numerical error. If it does not fall, the
+finite-difference step interacts with the grid; rerun at higher na.
+
+===== BLOCK B: exact decomposition (tilt experiment, dv=0.01) =====
+total equilibrium response        dS = +0.039500  (dlnS/rev = +3.7125)
+  direct policy-flow term            = +0.003537  (per rev +0.3383)
+  covariance (1st-order) approx      = -0.000737  (per rev -0.0705)
+  policy-vs-covariance gap           = +0.004274   [nonlinearity of b'(y)]
+  stationary distribution term       = +0.035962  (per rev +3.4397)
+  price-level feedback               = 0 (r fixed; taxes exogenous in the experiment)
+  return/tax feedback                = 0 (by design of the experiment)
+reconstructed total                  = +0.039500
+reconstruction residual              = +3.58e-13  (target < 1e-6 abs / 1e-4 rel)
+invariance residuals (S - int b' dOmega): base +1.19e-11, tilt +1.23e-11
+
+===== BLOCK C: dynamic PE path (unexpected permanent tilt) =====
+(distribution iterated forward under the post-reform policy at fixed r;
+ the implied price is the static clearing counterfactual B/S_t, NOT the
+ perfect-foresight announcement path)
+horizon     total dS_t       policy    dist-to-t  constr mass      leaving    P_t/P_0-1
+0            +0.003537    +0.003537    +0.000000       0.1790       0.0184      -0.0032
+1            +0.006737    +0.003537    +0.003200       0.1790       0.0184      -0.0060
+2            +0.009636    +0.003537    +0.006098       0.1785       0.0183      -0.0086
+5            +0.016835    +0.003537    +0.013298       0.1771       0.0181      -0.0149
+10           +0.025160    +0.003537    +0.021623       0.1759       0.0180      -0.0221
+30           +0.037257    +0.003537    +0.033719       0.1745       0.0178      -0.0324
+inf          +0.039500    +0.003537    +0.035962       0.1741           --      -0.0343
+impact leaving-constraint mass (period 1 flow): 0.0184
+No short-run sign reversal: impact dS_0 >= 0.
+
+===== BLOCK D: dense borrowing-limit map =====
+
+-- fixed-beta --
+abar   beta            S0    cmass    nearc     c_min    eps_ls  eps_levy   fd_stab     P_eq     eps_S   1+eps_S status  
+0.00   0.9267      1.1122   0.1790   0.8845    0.2428    +2.726    -0.996   3.8e-05   0.8985    -0.060     0.940 ok      
+0.50   0.9267      0.6427   0.1740   0.8821    0.2330    +4.925    -1.718   1.1e-04   1.6311    -0.060     0.940 ok      
+0.90   0.9267      0.2680   0.1678   0.8801    0.2251   +12.252    -4.106   5.5e-05      NaN       NaN       NaN ok/P-fail
+1.00   0.9267      0.1745   0.1655   0.8795    0.2232   +18.984    -6.300   5.6e-05      NaN       NaN       NaN ok/P-fail
+1.10   0.9267      0.0810   0.1633   0.8790    0.2212   +41.253   -13.559   3.3e-04      NaN       NaN       NaN ok/P-fail
+1.50   0.9267     -0.2923   0.1570   0.8769    0.2134   -11.836    +3.735   3.5e-04      NaN       NaN       NaN ok/P-fail
+2.00   0.9267     -0.7576   0.1514   0.8741    0.2036    -4.782    +1.429   1.8e-05      NaN       NaN       NaN ok/P-fail
+
+-- recal-beta --
+abar   beta            S0    cmass    nearc     c_min    eps_ls  eps_levy   fd_stab     P_eq     eps_S   1+eps_S status  
+0.00   0.9287      1.1865   0.1723   0.8738    0.2428    +2.672    -0.998   1.1e-04   0.8387    -0.063     0.937 ok      
+0.50   0.9382      1.1616   0.1300   0.8066    0.2330    +3.507    -1.398   5.6e-05   0.8569    -0.080     0.920 ok      
+0.90   0.9447      1.2318   0.1020   0.7429    0.2251    +3.978    -1.668   2.5e-04   0.8026    -0.097     0.903 ok      
+1.00   0.9463      1.2674   0.0938   0.7254    0.2232    +4.045    -1.719   1.2e-04   0.7774    -0.102     0.898 ok      
+1.10   0.9472      1.2538   0.0894   0.7146    0.2212    +4.215    -1.797   1.2e-06   0.7863    -0.105     0.895 ok      
+1.50   0.9516      1.3493   0.0403   0.6554    0.2134    +4.530    -1.995   1.0e-05   0.7227    -0.122     0.878 beta-edge
+2.00   0.9550      1.3639   0.0335   0.6000    0.2036    +5.117    -2.285   2.2e-06   0.7111    -0.140     0.860 beta-edge
+
+Reading: attribute the non-monotonicity to borrowing capacity ONLY if
+it appears in BOTH rows; in the fixed-beta row the debt target moves
+with abar, so that sweep confounds borrowing capacity with leverage.
+Flag any point with fd_stab > 1e-2 or |1+eps_S| < 0.1 (near-singular
+denominator) before quoting its elasticity.
+
+===== BLOCK E: instrument map, lump-sum vs levy across primitives =====
+primitive                         value       eps_ls     eps_levy   difference
+borrowing limit abar              0.000       +2.726       -0.996       +3.722
+borrowing limit abar              0.500       +4.925       -1.718       +6.643
+borrowing limit abar              1.000      +18.984       -6.300      +25.284
+borrowing limit abar              2.000       -4.782       +1.429       -6.211
+Reading: the paper's claim is the instrument DIFFERENCE
+d lnS/d tau_ls - d lnS/d vartheta > 0, not the lump-sum sign alone;
+check whether the difference stays positive where eps_ls flips.
+
+===== BLOCK F: price-response formula vs solved equilibrium =====
+(fixed damages D0 on both sides of each comparison, so the test is
+ internally consistent; the regimes table additionally endogenizes
+ D(P) via the climate block, which this validation deliberately mutes)
+instrument         eta_g     eps_S   1+eps_S    pred dlnP     act dlnP    abs err   rel err
+lump-sum          +2.775    -0.060     0.940      -0.0597      -0.0640   4.31e-03  6.74e-02
+levy              -1.006    -0.060     0.940      +0.0216      +0.0212   4.44e-04  2.09e-02
+levy+rebate       -4.844    -0.060     0.940      +0.1042      +0.0944   9.82e-03  1.04e-01
+Reading: the formula is local; expect agreement to first order in the
+program scale. Large errors flag either a small/changing denominator
+(quote 1+eps_S) or strong nonlinearity over the program step.
+
+===== BLOCK G: grid audit =====
+na            eps_tau      cov/rev     dist/rev runtime(s)
+150           +2.7263      +0.3392      +3.4391        0.4
+250           +2.7240      +0.3394      +3.4398        0.5
+relative change of eps_tau between last two grids: 8.44e-04 (target < 1e-2)
+
+SETTINGS: na=100, ne=7, hh-solver tol=1e-08, dist tol=1e-12, elapsed 60.0 s

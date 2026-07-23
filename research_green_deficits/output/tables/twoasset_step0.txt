@@ -1,15 +1,15 @@
-TWO-ASSET STEP 0. nx=120, na2=100, ne=7, zeta=2.00, r_b=0.0196, d=0.120, solver=egm, FAST=1
+TWO-ASSET STEP 0. nx=220, na2=180, ne=7, zeta=2.00, r_b=0.0196, d=0.120, solver=egm, FAST=0
 
 ----- (1) baseline equilibrium -----
-chi_b=0.03429  S_b=1.0978 (target 1.10)  q=2.3462  P=0.9109
-liquid share omega = 0.319;  equity-bond spread = 0.0315 (conv. yield)
-tau fixed-point resid = 2.41e-08;  k-market resid = -6.86e-05
+chi_b=0.03458  S_b=1.1001 (target 1.10)  q=2.3421  P=0.9090
+liquid share omega = 0.320;  equity-bond spread = 0.0316 (conv. yield)
+tau fixed-point resid = 5.18e-08;  k-market resid = -1.45e-04
 
 ----- (2) financing incidence on the nominal market -----
-lump-sum  P=0.9186 (dlnP=+0.0084)  q=2.3728 (dlnq=+0.0112)  S_b=1.0886
-levy      P=0.9314 (dlnP=+0.0222)  q=2.3344 (dlnq=-0.0051)  S_b=1.0737
+lump-sum  P=0.9167 (dlnP=+0.0085)  q=2.3679 (dlnq=+0.0110)  S_b=1.0909
+levy      P=0.9294 (dlnP=+0.0222)  q=2.3300 (dlnq=-0.0052)  S_b=1.0759
 
-one-asset comparison:  lump-sum dlnP -0.0545 -> two-asset +0.0084 (ratio -0.16)
+one-asset comparison:  lump-sum dlnP -0.0545 -> two-asset +0.0085 (ratio -0.16)
                        levy     dlnP +0.0279 -> two-asset +0.0222 (ratio 0.80)
 sign contrast survives: 0
 Reading: the two-asset d ln P is the revaluation falling on the
@@ -18,21 +18,24 @@ much of the one-asset magnitude the portfolio margin absorbs.
 
 ----- (3) d ln P vs zeta sweep (lump-sum instrument) -----
 zeta          chi_b      omega     dlnP(ls)     dlnq(ls)     status
-1.00        0.02738      0.326      +0.0132      +0.0120         ok
-2.00        0.03429      0.319      +0.0084      +0.0112         ok
-5.00        0.04914      0.311      +0.0040      +0.0115         ok
-Reading: as zeta grows the nominal share turns rigid and d ln P
-should approach the one-asset benchmark; at low zeta the elastic
-share absorbs the shift and d ln P shrinks.
+0.50        0.02204      0.333      +0.0182      +0.0133         ok
+1.00        0.02754      0.327      +0.0136      +0.0120         ok
+2.00        0.03458      0.320      +0.0085      +0.0110         ok
+5.00        0.04973      0.311      +0.0038      +0.0112         ok
+10.00       0.08061      0.307      +0.0020      +0.0120         ok
+Reading: as zeta grows the nominal share turns rigid, which PINS
+S_b and drives d ln P toward ZERO -- the rigid-share limit is not
+the one-asset economy (that is the no-tree limit, a different
+experiment). At low zeta the elastic share responds most.
 
 ----- (4) liquid-margin incidence (fixed q, fixed r_b, fixed tau base) -----
-per unit revenue, liquid margin: lump-sum -0.527 = levy -1.072 + tilt +0.548  [resid -3.0e-03]
-tilt split: policy-flow -0.0015 + distribution +0.0072 = total +0.0057 (per rev: -0.144 / +0.694)
+per unit revenue, liquid margin: lump-sum -0.519 = levy -1.076 + tilt +0.553  [resid +4.1e-03]
+tilt split: policy-flow -0.0015 + distribution +0.0072 = total +0.0057 (per rev: -0.140 / +0.695)
 => compare with the one-asset audit: does the direct term stay
    near zero on the liquid margin too, or does the portfolio
    margin revive the direct channel?
-tilt GE: P=0.9050 (dlnP=-0.0065), q=2.3640 (dlnq=+0.0075)
+tilt GE: P=0.9031 (dlnP=-0.0065), q=2.3595 (dlnq=+0.0074)
 
 ----- (5) solver self-test (coarse grid) -----
-EGM: S_b=1.09888 S_k=1.00442 | VFI: S_b=1.09631 S_k=1.00502 | dS_b=2.57e-03 dS_k=6.02e-04
+EGM: S_b=1.10297 S_k=1.01049 | VFI: S_b=1.10034 S_k=1.01063 | dS_b=2.64e-03 dS_k=1.38e-04
 
