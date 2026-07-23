@@ -97,6 +97,18 @@ one-asset Section 6.3 value, and the `max tree-market residual`. Both drivers
 are first-run scaffolds — send the console output verbatim if either fails to
 converge and I will tune the damping / grids.
 
+## 2c. Convenience-yield calibration (closes the specification fork with data)
+
+```matlab
+parpool; clear; FAST = true; calibrate_convenience_kvj
+```
+Computes the model's d(spread)/d ln(debt) — the Krishnamurthy--Vissing-
+Jorgensen regression object — across the curvature zeta, and reports the
+zeta* matching the empirical headline (−0.75 pp per log point). If a zeta*
+exists, rerun Step 0 at that zeta: its lump-sum sign is the paper's
+DISCIPLINED answer. If the separable model cannot reach the KVJ range, the
+CES variant takes over. Eyeball `output/tables/convenience_kvj.txt`.
+
 ## 3. Incidence audit — smoke test, then full (full run is hours)
 
 The audit is now PARALLELIZED (Blocks A, D, E, F, G run under parfor).
