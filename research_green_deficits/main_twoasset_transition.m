@@ -15,9 +15,10 @@
 % UNKNOWNS. Two price paths {P_t}_{t=1}^T and {q_t}_{t=1}^T. At each date:
 %   nominal-bond market:  int b'_t dOmega_t = B / P_t
 %   tree market:          int k'_t dOmega_t = Kbar
-% The nominal bond's realized real gross return is R^b_t = (1+i^ss) P_{t-1}/P_t
-% (DTPL Fisher block); the tree pays dividend d and trades at q_t, real gross
-% return R^k_{t+1} = (q_{t+1} + d)/q_t.
+% The nominal bond's realized stationarized real gross return is
+% R^b_t = (1+r_b) Phat_{t-1}/Phat_t with Phat_0 the pre-announcement price
+% (DTPL Fisher block, trend inflation inside r_b); the tree pays dividend d
+% and trades at q_t, real gross return R^k_{t+1} = (q_{t+1} + d)/q_t.
 %
 % METHOD. Outer damped fixed point on ({P_t},{q_t}): (i) backward pass solves
 % household consumption policies from the terminal steady state using a
@@ -54,7 +55,6 @@ S0 = load(s0f);
 p = S0.p;                                       % grids + calibrated chi_b
 r_b = S0.r_b; d_div = S0.d_div; D0 = S0.D0; Gg = S0.Gg;
 Bnom = pg.Bnom; Kbar = 1.0;
-i_ss = pg.i_ss;
 
 % ensure EGM grids present (step0 stored them)
 if ~isfield(p,'xGrid'), error('twoasset_step0.mat lacks EGM grids'); end
@@ -66,7 +66,10 @@ T = 80; if FAST, T = 40; end
 % ---- terminal (program) and initial (no-program) steady states ----
 % Terminal: lump-sum program steady state; read P,q,tau from step0 EX(1) if
 % present, else recompute is required (flagged).
-haveEX = isfield(S0,'EX') && numel(S0.EX) >= 1 && S0.EX(1).ok;
+% EX holds only equilibria that converged (fields: name/P/q/Sb/dlnP/dlnq --
+% no 'ok' field; presence implies success)
+haveEX = isfield(S0,'EX') && numel(S0.EX) >= 1 && ...
+         isfield(S0.EX, 'P') && isfinite(S0.EX(1).P);
 eq_init = S0.eqb;                               % no-program baseline
 assert(eq_init.ok, 'initial steady state missing');
 if haveEX
@@ -99,7 +102,7 @@ qpath = linspace(eq_init.q, qterm, T);
 Ppath(T) = Pterm; qpath(T) = qterm;
 
 % terminal continuation consumption policy (program steady state household)
-peT = p; peT.eGrid = (1 - Dterm) * p.eGrid; peT.eGrid = peT.eGrid; % lump-sum
+peT = p; peT.eGrid = (1 - Dterm) * p.eGrid;   % lump-sum program economy
 tauT = r_b*Bnom/Pterm + g_real;
 [~,~,~, Cterm, ~, dgT] = solve_household_twoasset_egm_ss(r_b, qterm, d_div, tauT, peT);
 assert(dgT.converged, 'terminal steady-state household solve failed');
@@ -116,8 +119,12 @@ assert(dg0.converged && dd0.converged, 'initial steady state failed');
 % =====================================================================
 relax = 0.3; maxout = 60; if FAST, maxout = 40; end
 for outer = 1:maxout
-    % taxes along the path (lump-sum: tau_t = r^b_t * B/P_t + g)
-    Rb_t = (1 + i_ss) * [1, Ppath(1:end-1)] ./ Ppath;   % real gross bond return
+    % taxes along the path (lump-sum: tau_t = r^b_t * B/P_t + g).
+    % Stationarized real gross bond return: (1+r_b) * Phat_{t-1}/Phat_t,
+    % with Phat_0 the PRE-announcement steady-state price -- so at a constant
+    % path Rb = 1 + r_b (trend inflation already inside r_b), and the
+    % announcement-date revaluation enters through Phat_0/Phat_1.
+    Rb_t = (1 + r_b) * [eq_init.P, Ppath(1:end-1)] ./ Ppath;
     rb_t = Rb_t - 1;
     tau_t = rb_t * Bnom ./ Ppath + g_real;
 
@@ -157,7 +164,6 @@ end
 % =====================================================================
 % REPORT: announcement effect and front-loading
 % =====================================================================
-mu = pg.mu;
 piPath = [Ppath(1)/eq_init.P - 1, Ppath(2:end)./Ppath(1:end-1) - 1];  % gross P growth
 dlnP_impact = log(Ppath(1)/eq_init.P);
 dlnP_total  = log(Pterm/eq_init.P);
