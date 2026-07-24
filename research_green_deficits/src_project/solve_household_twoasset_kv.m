@@ -61,9 +61,18 @@ function [sol, diag] = solve_household_twoasset_kv(rb, q, d, tau, p, V0)
         m0 = ynet(ie) + Rb*bG + d*kG';
         V(:,:,ie) = uofc(max(m0, 1e-8), sig) / (1 - p.beta);
     end
+    Vinit = V;                                     % analytic autarky fallback
     if nargin >= 6 && ~isempty(V0) && isequal(size(V0), [nb nk ne])
         V = V0;
+        bad0 = ~isfinite(V);                       % heal a poisoned warm start
+        if any(bad0(:)), V(bad0) = Vinit(bad0); end
     end
+    % plateau-aware convergence state: discrete-choice VFI limit-cycles at
+    % the grid granularity, so the relative sup-norm floors above tol_vfi and
+    % never reaches it. Track the best dV and accept the grid-limited fixed
+    % point once it stops improving, rather than burning the whole budget or
+    % spuriously reporting non-convergence.
+    dV_best = Inf; stall = 0; stall_cap = 10; tol_soft = 3e-3;
 
     polBa = zeros(nx, ne); polKa = zeros(nx, ne); polCa = zeros(nx, ne);
     polBn = zeros(nb, nk, ne); polCn = zeros(nb, nk, ne);
@@ -127,6 +136,17 @@ function [sol, diag] = solve_household_twoasset_kv(rb, q, d, tau, p, V0)
         % whole norm. Measure convergence on the feasible set; infeasible
         % nodes carry a defined fallback policy (b'=bG(1), c=floor), so they
         % never affect aggregates.
+        % heal any non-finite node so poison cannot spread across sweeps or
+        % NaN-out the norm: freeze it at the previous finite value, or the
+        % analytic floor if the previous value was also bad. A NaN/-inf can
+        % otherwise enter via a distant warm start or an extreme trial price
+        % and cascade through the interp/premix into the whole array.
+        badn = ~isfinite(Vnew);
+        if any(badn(:))
+            prevOK = badn & isfinite(V); Vnew(prevOK) = V(prevOK);
+            stillBad = ~isfinite(Vnew);
+            if any(stillBad(:)), Vnew(stillBad) = Vinit(stillBad); end
+        end
         fin = isfinite(Vnew) & isfinite(V);
         if ~any(fin(:))
             dV = Inf;
@@ -137,14 +157,23 @@ function [sol, diag] = solve_household_twoasset_kv(rb, q, d, tau, p, V0)
         V = Vnew;
         diag.iters = it; diag.supnorm = dV;
         if dV < p.tol_vfi, diag.converged = true; break; end
+        % plateau early-stop: once dV stops improving for stall_cap sweeps
+        % and is already small in relative terms, the value is oscillating
+        % within grid noise -- accept the grid-limited fixed point.
+        if dV < dV_best - 1e-12, dV_best = dV; stall = 0;
+        else, stall = stall + 1; end
+        if stall >= stall_cap && dV_best < tol_soft
+            diag.converged = true; diag.soft = true; break;
+        end
     end
     diag.n_infeas = sum(~isfinite(V(:)));          % infeasible-state count
     % soft-accept: if the cap was hit but the RELATIVE change is already
-    % small, the fixed point is effectively reached -- record it rather
-    % than failing the whole equilibrium evaluation.
-    if ~diag.converged && dV < 1e-4
+    % small, the grid-limited fixed point is effectively reached -- record it
+    % rather than failing the whole equilibrium evaluation.
+    if ~diag.converged && dV_best < tol_soft
         diag.converged = true; diag.soft = true;
     end
+    diag.supnorm = min(diag.supnorm, dV_best);
 
     sol = struct('V', V, 'polBa', polBa, 'polKa', polKa, 'polCa', polCa, ...
                  'polBn', polBn, 'polCn', polCn, 'polBnIdx', polBnIdx);

@@ -54,7 +54,14 @@ if exist(wff,'file') == 2
 end
 [eG2, Pi2, st2] = add_superstar_state(pg.eGrid(:), pg.Pi, ss);
 p.eGrid = eG2(:)'; p.Pi = Pi2; p.stationary_e = st2;
-p.zeta_b = 2.0; p.chi_b = 0.02; p.lambda_adj = 1/3;
+% lambda_adj is the per-period free-rebalancing probability. At 1/3
+% (adjust every ~3 periods) illiquid wealth is far too fluid to generate
+% wealthy hand-to-mouth: households top up their liquid buffer too often,
+% so nobody runs down to b~0 while holding large k (WHtM=0, and liquidity
+% is so abundant that S_b floors well above the 0.30 target). The KV/KVW
+% mechanism needs INFREQUENT adjustment -- households load illiquid k at a
+% rebalancing date and draw down b over a long spell, ending low-b/high-k.
+p.zeta_b = 2.0; p.chi_b = 0.02; p.lambda_adj = 0.15;
 p.tol_vfi = 1e-6; p.maxit_vfi = 800;
 p.tol_dist = 1e-11; p.maxit_dist = 50000;
 p.gold_outer = 0; p.gold_inner = 0;             % unused by the discrete solver
@@ -173,15 +180,33 @@ function [chi_star, eq0] = calib_chi(rb, d, D, g, lv, Bnom, Kbar, btH, iota, p, 
     if isempty(eq0), return; end                 % nothing solved -- report to caller
     % secant refinement from the best pre-scan point
     err = log(eq0.Sb) - log(btH);
+    nfail = 0;                                    % consecutive-failure guard
     for itc = 1:8
         if abs(err) < 8e-3, break; end
         if isfinite(e_p) && abs(err-e_p) > 1e-9
             step = -err*(lc-lc_p)/(err-e_p); step = max(min(step,1.0),-1.0);
         else, step = -sign(err)*0.3; end
-        lc_p = lc; e_p = err; lc = lc + step;
+        lc_p_try = lc; lc = lc + step;
         pk = p; pk.chi_b = exp(lc);
         eqk = solve_own_kv(rb, d, D, g, lv, Bnom, Kbar, iota, pk, q_ref, false);
-        if ~eqk.ok, fprintf('[%5.0fs] secant chi=%.4f FAILED\n', toc(t0), exp(lc)); continue; end
+        if ~eqk.ok
+            fprintf('[%5.0fs] secant chi=%.4f FAILED (%s)\n', toc(t0), exp(lc), eqk.msg);
+            nfail = nfail + 1;
+            % Target below the KV solvable floor: the household solve breaks
+            % down as bond demand approaches its no-liquidity-premium corner.
+            % Stop after two consecutive failures and report the closest
+            % FEASIBLE equilibrium rather than burning hours in the cliff.
+            if nfail >= 2
+                fprintf(['[calib] direct-liquid target %.2f is below the KV solvable ' ...
+                    'floor (best feasible S_b=%.4f at chi=%.5f); stopping secant.\n'], ...
+                    btH, eq0.Sb, chi_star);
+                break;
+            end
+            lc = lc_p_try;                        % step back to the feasible side
+            continue;
+        end
+        nfail = 0;
+        lc_p = lc_p_try; e_p = err;
         eq0 = eqk; chi_star = exp(lc); err = log(eqk.Sb) - log(btH);
         fprintf('[%5.0fs] secant chi=%.5f S_b=%.4f err=%+.4f (min_c=%.3f)\n', ...
             toc(t0), chi_star, eqk.Sb, err, eqk.min_c);
@@ -243,6 +268,12 @@ function eq = solve_own_kv(rb, d, D, g, use_levy, Bnom, Kbar, iota, p, q_ref, ve
         if ~isempty(Vc), pev.maxit_vfi = 250; end
         for itt = 1:10
             [sol, dg] = solve_household_twoasset_kv(rb, qq, dv, tt, pev, Vc);
+            if ~dg.converged && ~isempty(Vc)
+                % the warm start may be poisoned by a distant trial q -- retry
+                % ONCE from the analytic cold init before giving up.
+                pcold = pev; pcold.maxit_vfi = max(pev.maxit_vfi, 400);
+                [sol, dg] = solve_household_twoasset_kv(rb, qq, dv, tt, pcold, []);
+            end
             Vc = sol.V;                          % KEEP progress even on failure
             if ~dg.converged
                 f = NaN;
