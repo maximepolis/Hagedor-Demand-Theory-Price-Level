@@ -58,9 +58,9 @@ p.zeta_b = 2.0; p.chi_b = 0.02; p.lambda_adj = 1/3;
 p.tol_vfi = 1e-6; p.maxit_vfi = 500;
 p.tol_dist = 1e-11; p.maxit_dist = 50000;
 p.gold_outer = 0; p.gold_inner = 0;             % unused by the discrete solver
-nb = 70; nk = 40; nx = 150; nac = 110; nsh = 25;
+nb = 60; nk = 34; nx = 130; nac = 90; nsh = 22;
 bmax = 12; kmax = 80; xmax = 160;               % superstar illiquid headroom
-if FAST, nb = 48; nk = 26; nx = 100; nac = 74; nsh = 18; end
+if FAST, nb = 40; nk = 22; nx = 80; nac = 60; nsh = 15; end
 ub  = linspace(0,1,nb)';  p.bGrid  = 1e-4 + (bmax-1e-4)*(ub.^2.4);
 uk  = linspace(0,1,nk)';  p.kGrid  = kmax*(uk.^2.4);
 uxA = linspace(0,1,nx)';  p.xGridA = 0.05 + (xmax-0.05)*(uxA.^2.4);
@@ -73,6 +73,15 @@ b_debt = 1.10; b_targ_H = 0.30; iota_H = b_targ_H/b_debt;
 Gg = 0.02 * (Bnom / b_debt);
 htm_b = 0.02; whtm_k = 0.50;
 
+% anchor the tree-price bracket on the KNOWN frictionless-ownership solution
+% (that run converged at q ~ 3.0); falls back to the d/r bound otherwise.
+q_ref = d_base / max(r_b, 5e-3);
+ownf = fullfile(projdir, 'output', 'twoasset_ownership.mat');
+if exist(ownf, 'file') == 2
+    Ow = load(ownf, 'eq0');
+    if isfield(Ow,'eq0') && isstruct(Ow.eq0) && Ow.eq0.ok, q_ref = Ow.eq0.q; end
+end
+
 if ~isfolder(pg.tabdir), mkdir(pg.tabdir); end
 sf = fullfile(pg.tabdir, 'twoasset_ownership_kv.txt');
 fid = fopen(sf, 'w'); assert(fid > 0, 'cannot open %s', sf);
@@ -82,10 +91,25 @@ tee('OWNERSHIP + INFREQUENT ADJUSTMENT. nb=%d nk=%d nx=%d ne=%d lambda=%.2f FAST
 tee('iota_H=%.3f (direct target %.2f of income); superstar mult=%.1f p_in=%.3f\n\n', ...
     iota_H, b_targ_H, ss.mult, ss.p_in);
 
+% ---- (0) diagnostic single solve: is the household/distribution healthy? ----
+tee('----- (0) diagnostic single equilibrium (chi=%.3f) -----\n', p.chi_b);
+pdiag = p; pdiag.chi_b = 0.02;
+eqd = solve_own_kv(r_b, d_base, D0, 0, 0, Bnom, Kbar, iota_H, pdiag, q_ref, true);
+if eqd.ok
+    tee('  diagnostic OK: S_b=%.4f q=%.4f P=%.4f\n', eqd.Sb, eqd.q, eqd.P);
+else
+    tee('  diagnostic FAILED: %s\n', eqd.msg);
+    tee('  (household/distribution or bracket problem -- see printed q-scan above)\n');
+end
+
 % ---- baseline: calibrate chi to the direct liquid target ----
 tee('----- (1) baseline -----\n');
-[p.chi_b, eq0] = calib_chi(r_b, d_base, D0, 0, 0, Bnom, Kbar, b_targ_H, iota_H, p, t0);
-assert(~isempty(eq0) && eq0.ok, 'ownership-kv baseline failed');
+[p.chi_b, eq0] = calib_chi(r_b, d_base, D0, 0, 0, Bnom, Kbar, b_targ_H, iota_H, p, q_ref, t0);
+if isempty(eq0) || ~eq0.ok
+    tee('BASELINE CALIBRATION FAILED -- see per-iteration diagnostics above.\n');
+    fclose(fid);
+    error('ownership-kv baseline failed (diagnostics written to %s)', sf);
+end
 omega = eq0.Sb/(eq0.Sb + eq0.q*Kbar);
 tee('chi_b=%.5f S_b=%.4f (target %.2f) q=%.4f P=%.4f omega=%.3f div=%.4f\n', ...
     p.chi_b, eq0.Sb, b_targ_H, eq0.q, eq0.P, omega, eq0.div);
@@ -97,8 +121,8 @@ tee('wealth shares: top10 %.2f top1 %.2f\n\n', H.top10, H.top1);
 % ---- financing experiment ----
 tee('----- (2) financing incidence (lump-sum vs levy) -----\n');
 g_real = Gg / eq0.P;
-eLS = solve_own_kv(r_b, d_base, D0, g_real, 0, Bnom, Kbar, iota_H, p);
-eLV = solve_own_kv(r_b, d_base, D0, g_real, 1, Bnom, Kbar, iota_H, p);
+eLS = solve_own_kv(r_b, d_base, D0, g_real, 0, Bnom, Kbar, iota_H, p, eq0.q, false);
+eLV = solve_own_kv(r_b, d_base, D0, g_real, 1, Bnom, Kbar, iota_H, p, eq0.q, false);
 EXK = struct('name',{},'P',{},'q',{},'dlnP',{});
 if eLS.ok
     EXK(end+1) = struct('name','lump-sum','P',eLS.P,'q',eLS.q,'dlnP',log(eLS.P/eq0.P)); %#ok<SAGROW>
@@ -122,25 +146,45 @@ fclose(fid);
 fprintf('[main_twoasset_ownership_kv] wrote %s (%.1f s)\n', sf, toc(t0));
 
 % =========================================================================
-function [chi_star, eq0] = calib_chi(rb, d, D, g, lv, Bnom, Kbar, btH, iota, p, t0)
-    lc = log(0.01); lc_p = NaN; e_p = NaN; eq0 = []; chi_star = exp(lc);
-    for itc = 1:12
-        p.chi_b = exp(lc);
-        eqc = solve_own_kv(rb, d, D, g, lv, Bnom, Kbar, iota, p);
-        if ~eqc.ok, lc = lc + 0.5; continue; end
-        eq0 = eqc; chi_star = p.chi_b;
-        err = log(eqc.Sb) - log(btH);
-        fprintf('[%5.0fs] chi=%.5f S_b=%.4f err=%+.4f\n', toc(t0), p.chi_b, eqc.Sb, err);
+function [chi_star, eq0] = calib_chi(rb, d, D, g, lv, Bnom, Kbar, btH, iota, p, q_ref, t0)
+    % coarse pre-scan to bracket the target before the secant
+    chi_grid = [0.005 0.01 0.02 0.04 0.08];
+    eq0 = []; chi_star = 0.02; best = Inf;
+    lc = log(0.02); lc_p = NaN; e_p = NaN;
+    for k = 1:numel(chi_grid)
+        pk = p; pk.chi_b = chi_grid(k);
+        eqk = solve_own_kv(rb, d, D, g, lv, Bnom, Kbar, iota, pk, q_ref, false);
+        if ~eqk.ok
+            fprintf('[%5.0fs] pre-scan chi=%.4f FAILED (%s)\n', toc(t0), chi_grid(k), eqk.msg);
+            continue;
+        end
+        err = log(eqk.Sb) - log(btH);
+        fprintf('[%5.0fs] pre-scan chi=%.4f S_b=%.4f err=%+.4f\n', toc(t0), chi_grid(k), eqk.Sb, err);
+        if abs(err) < best, best = abs(err); eq0 = eqk; chi_star = chi_grid(k); lc = log(chi_grid(k)); end
+    end
+    if isempty(eq0), return; end                 % nothing solved -- report to caller
+    % secant refinement from the best pre-scan point
+    err = log(eq0.Sb) - log(btH);
+    for itc = 1:8
         if abs(err) < 8e-3, break; end
         if isfinite(e_p) && abs(err-e_p) > 1e-9
-            step = -err*(lc-lc_p)/(err-e_p); step = max(min(step,1.2),-1.2);
-        else, step = -sign(err)*0.4; end
+            step = -err*(lc-lc_p)/(err-e_p); step = max(min(step,1.0),-1.0);
+        else, step = -sign(err)*0.3; end
         lc_p = lc; e_p = err; lc = lc + step;
+        pk = p; pk.chi_b = exp(lc);
+        eqk = solve_own_kv(rb, d, D, g, lv, Bnom, Kbar, iota, pk, q_ref, false);
+        if ~eqk.ok, fprintf('[%5.0fs] secant chi=%.4f FAILED\n', toc(t0), exp(lc)); continue; end
+        eq0 = eqk; chi_star = exp(lc); err = log(eqk.Sb) - log(btH);
+        fprintf('[%5.0fs] secant chi=%.4f S_b=%.4f err=%+.4f\n', toc(t0), chi_star, eqk.Sb, err);
     end
 end
 
-function eq = solve_own_kv(rb, d, D, g, use_levy, Bnom, Kbar, iota, p)
-% (P, q, tau, div) equilibrium with the KV household + intermediation wedge
+function eq = solve_own_kv(rb, d, D, g, use_levy, Bnom, Kbar, iota, p, q_ref, verbose)
+% (P, q, tau, div) equilibrium with the KV household + intermediation wedge.
+% q-bracket anchored on q_ref (the known frictionless-ownership tree price);
+% expands adaptively if the tree market does not bracket on the first pass.
+    if nargin < 11 || isempty(q_ref), q_ref = d/max(rb,5e-3); end
+    if nargin < 12, verbose = false; end
     eq = struct('ok',false,'msg','','P',NaN,'q',NaN,'Sb',NaN,'tau',NaN, ...
                 'div',NaN,'dist',[],'bch',[],'kch',[]);
     pe = p; pe.eGrid = (1 - D) * p.eGrid;
@@ -148,21 +192,33 @@ function eq = solve_own_kv(rb, d, D, g, use_levy, Bnom, Kbar, iota, p)
     tau = rb*1.10 + (~use_levy)*g;
     div = d + rb*(1-iota)*1.10/Kbar;
     Vc = [];
-    qlo = 0.15*div/max(rb,5e-3); qhi = 1.8*div/max(rb,5e-3);
-    qs = linspace(qlo, qhi, 6); fq = nan(size(qs));
+    lo = 0.55*q_ref; hi = 1.8*q_ref; qs = linspace(lo, hi, 6); fq = nan(size(qs));
     for i = 1:numel(qs), [fq(i), tau, div, ~, Vc] = evq(qs(i), tau, div, Vc); end
     kk = find(isfinite(fq(1:end-1)) & isfinite(fq(2:end)) & ...
               sign(fq(1:end-1)) ~= sign(fq(2:end)), 1, 'first');
+    for expand = 1:3                             % adaptive bracket expansion
+        if ~isempty(kk), break; end
+        lo = 0.5*lo; hi = 1.6*hi; qs = linspace(lo, hi, 7); fq = nan(size(qs));
+        for i = 1:numel(qs), [fq(i), tau, div, ~, Vc] = evq(qs(i), tau, div, Vc); end
+        kk = find(isfinite(fq(1:end-1)) & isfinite(fq(2:end)) & ...
+                  sign(fq(1:end-1)) ~= sign(fq(2:end)), 1, 'first');
+    end
+    if verbose
+        fprintf('    q-scan: q=%s\n              Sk-K=%s\n', ...
+            mat2str(qs,3), mat2str(fq,3));
+    end
     if isempty(kk)
-        eq.msg = sprintf('no q bracket (Sk-K in [%+.3f,%+.3f])', min(fq), max(fq));
+        nfin = sum(isfinite(fq));
+        eq.msg = sprintf('no q bracket (%d/%d finite; Sk-K in [%+.3f,%+.3f])', ...
+            nfin, numel(fq), min(fq), max(fq));
         return;
     end
     a = qs(kk); b = qs(kk+1); fa = fq(kk); m = a; Sb = NaN;
-    for it = 1:35
+    for it = 1:22
         m = 0.5*(a+b);
         [fm, tau, div, Sb, Vc, dist, bch, kch] = evq(m, tau, div, Vc);
         if ~isfinite(fm), b = m; continue; end
-        if abs(fm) < 8e-4 || (b-a) < 1e-4, break; end
+        if abs(fm) < 2e-3 || (b-a) < 1e-3*q_ref, break; end
         if sign(fm) == sign(fa), a = m; fa = fm; else, b = m; end
     end
     if ~isfinite(Sb) || Sb <= 0, eq.msg = 'non-finite end'; return; end
@@ -172,11 +228,13 @@ function eq = solve_own_kv(rb, d, D, g, use_levy, Bnom, Kbar, iota, p)
     function [f, tt, dv, Sb, Vc, dist, bch, kch] = evq(qq, tinit, dvinit, Vc)
         tt = tinit; dv = dvinit; Sb = NaN; Sk = NaN; rprev = NaN;
         dist = []; bch = []; kch = [];
-        for itt = 1:18
-            [sol, dg] = solve_household_twoasset_kv(rb, qq, dv, tt, pe, Vc);
+        pev = pe;                                % capped sweeps when warm
+        if ~isempty(Vc), pev.maxit_vfi = 120; end
+        for itt = 1:10
+            [sol, dg] = solve_household_twoasset_kv(rb, qq, dv, tt, pev, Vc);
             if ~dg.converged, f = NaN; return; end
             Vc = sol.V;
-            [dist, dd] = stationary_distribution_twoasset_kv(sol, rb, qq, dv, tt, pe);
+            [dist, dd] = stationary_distribution_twoasset_kv(sol, rb, qq, dv, tt, pev);
             if ~dd.converged, f = NaN; return; end
             [Sb, Sk, bch, kch] = kv_agg(sol, dist, rb, qq, dv, tt, pe);
             P = iota*Bnom/max(Sb, 1e-9);
