@@ -127,9 +127,20 @@ dividend):
 ```matlab
 parpool; clear; FAST = true; main_twoasset_ownership
 ```
-Eyeball `output/tables/twoasset_ownership.txt`: does WHtM turn positive, do
-the top wealth shares approach the data, and what happens to dlnP per
-instrument when only the directly-held slice of debt clears the bond market.
+Eyeball `output/tables/twoasset_ownership.txt`: the frictionless ownership
+run fixed wealth concentration (top-1% ~22%) and the liquid share (~0.09)
+but left WHtM = 0 (no adjustment friction). The friction+ownership COMBO
+that should finally produce wealthy hand-to-mouth:
+```matlab
+parpool; clear; FAST = true; main_twoasset_ownership_kv
+```
+Eyeball `output/tables/twoasset_ownership_kv.txt`: the `WEALTHY` HtM line --
+if it turns positive, this is the calibration for the disciplined welfare
+incidence and the covariance-on-real-bond-ownership exercise.
+
+Note: the R3 KVJ driver was fixed (it now shifts REAL tree supply, not
+nominal debt which is neutral); rerun `calibrate_convenience_kvj` to get a
+non-degenerate convenience-yield elasticity.
 
 ## 3. Incidence audit — smoke test, then full (full run is hours)
 
@@ -190,7 +201,7 @@ twice before).
 2. `output/tables/twoasset_kv.txt`
 3. `output/tables/audit_tax_incidence.txt`
 4. `output/tables/twoasset_nonsep.txt`, `output/tables/twoasset_transition.txt`
-5. `output/tables/twoasset_welfare.txt`, `output/tables/twoasset_ownership.txt`, `output/tables/convenience_kvj.txt`
+5. `output/tables/twoasset_welfare.txt`, `output/tables/twoasset_ownership.txt`, `output/tables/twoasset_ownership_kv.txt`, `output/tables/convenience_kvj.txt`
 6. Any MATLAB error text, verbatim, if a driver dies.
 
 ## What happens with the results
