@@ -101,3 +101,36 @@ Until this is built, the paper claims the mechanism exactly and the magnitudes
 as one-asset benchmarks (Position B). The build converts the benchmark
 magnitudes into predictions and retires the abstract's weakest caveat; it does
 not change the incidence theorem or the financing-incidence proposition.
+
+## 8. Stage 2 (post-first-results): the HANK upgrade path
+
+The first computed results (Step 0 + variant (b)) and the internal round-4
+report (REFEREE_REPORT_INTERNAL_R4.md) define the upgrade order:
+
+1. **Two-asset welfare incidence by decile** (R1, ~1 week). CE-transfer
+   incidence by wealth group in the two-asset steady states, baseline vs
+   lump-sum vs levy, using the solvers' value functions (EGM: p.compute_V;
+   KV: native V). This is the object that answers "who pays" in the
+   disciplined model; until it exists the distributional answer is
+   one-asset only.
+2. **Convenience-yield elasticity calibration** (R3, days;
+   calibrate_convenience_kvj.m scaffolded). The model's d(spread)/d ln B is
+   the Krishnamurthy--Vissing-Jorgensen regression object; calibrating the
+   liquidity curvature to the empirical estimate closes the
+   separable-vs-complementary fork with data and anchors the whole
+   elasticity chain.
+3. **Ownership-calibrated liquid claims** (R2, the next real build, ~2-3
+   weeks). Intermediation wedge (part of debt held inside the illiquid
+   account via a fund), direct liquid holdings calibrated to the SCF
+   distribution, superstar income state ported from the one-asset model
+   (add_superstar_state). Fixes the revaluation base in level and
+   distribution and produces wealthy hand-to-mouth households.
+4. **Accuracy pack** (R4, days). Euler errors on the simulated
+   distribution + one grid-doubling row per two-asset driver; KV incidence
+   block at a smaller perturbation; transition damping-robustness row.
+5. **Two-price sequence-space Newton** for the transition (upgrade from
+   the damped map), reusing the one-asset SSJ machinery on the stacked
+   (P, q) path.
+6. **Elastic labor in the levy welfare comparison** (R5): either the
+   production-block wedge extended to the instrument ranking, or narrowed
+   welfare language.
