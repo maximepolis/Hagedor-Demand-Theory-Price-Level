@@ -120,15 +120,25 @@ function [sol, diag] = solve_household_twoasset_kv(rb, q, d, tau, p, V0)
             VaI = interp1(xG, Va(:,ie), min(max(xbk, xG(1)), xG(end)), 'linear');
             Vnew(:,:,ie) = lam * VaI + (1 - lam) * Vn(:,:,ie);
         end
-        % RELATIVE sup-norm: the superstar income state inflates the value
-        % scale by orders of magnitude, so an absolute tolerance is
-        % unreachable there while being needlessly tight elsewhere.
-        Vscale = max(1, max(abs(Vnew(:))));
-        dV = max(abs(Vnew(:) - V(:))) / Vscale;
+        % RELATIVE sup-norm over FINITE nodes only: the superstar income
+        % state inflates the value scale (absolute tol unreachable), and
+        % infeasible states (negative net resources under a high tax) carry
+        % -inf value -- including them makes (-inf)-(-inf)=NaN poison the
+        % whole norm. Measure convergence on the feasible set; infeasible
+        % nodes carry a defined fallback policy (b'=bG(1), c=floor), so they
+        % never affect aggregates.
+        fin = isfinite(Vnew) & isfinite(V);
+        if ~any(fin(:))
+            dV = Inf;
+        else
+            Vscale = max(1, max(abs(Vnew(fin))));
+            dV = max(abs(Vnew(fin) - V(fin))) / Vscale;
+        end
         V = Vnew;
         diag.iters = it; diag.supnorm = dV;
         if dV < p.tol_vfi, diag.converged = true; break; end
     end
+    diag.n_infeas = sum(~isfinite(V(:)));          % infeasible-state count
     % soft-accept: if the cap was hit but the RELATIVE change is already
     % small, the fixed point is effectively reached -- record it rather
     % than failing the whole equilibrium evaluation.
