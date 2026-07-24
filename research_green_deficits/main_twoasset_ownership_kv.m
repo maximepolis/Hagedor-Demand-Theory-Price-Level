@@ -55,16 +55,16 @@ end
 [eG2, Pi2, st2] = add_superstar_state(pg.eGrid(:), pg.Pi, ss);
 p.eGrid = eG2(:)'; p.Pi = Pi2; p.stationary_e = st2;
 p.zeta_b = 2.0; p.chi_b = 0.02; p.lambda_adj = 1/3;
-p.tol_vfi = 1e-6; p.maxit_vfi = 500;
+p.tol_vfi = 1e-6; p.maxit_vfi = 800;
 p.tol_dist = 1e-11; p.maxit_dist = 50000;
 p.gold_outer = 0; p.gold_inner = 0;             % unused by the discrete solver
-nb = 60; nk = 34; nx = 130; nac = 90; nsh = 22;
-bmax = 12; kmax = 80; xmax = 160;               % superstar illiquid headroom
-if FAST, nb = 40; nk = 22; nx = 80; nac = 60; nsh = 15; end
+nb = 60; nk = 34; nx = 150; nac = 100; nsh = 22;
+bmax = 12; kmax = 60; xmax = 420;   % xGridA MUST cover Rb*bmax+(q+d)*kmax+ymax
+if FAST, nb = 40; nk = 22; nx = 100; nac = 70; nsh = 15; end
 ub  = linspace(0,1,nb)';  p.bGrid  = 1e-4 + (bmax-1e-4)*(ub.^2.4);
 uk  = linspace(0,1,nk)';  p.kGrid  = kmax*(uk.^2.4);
-uxA = linspace(0,1,nx)';  p.xGridA = 0.05 + (xmax-0.05)*(uxA.^2.4);
-uac = linspace(0,1,nac)'; p.acGrid = 1e-4 + (0.92*xmax-1e-4)*(uac.^2.4);
+uxA = linspace(0,1,nx)';  p.xGridA = 0.05 + (xmax-0.05)*(uxA.^2.8);  % strong curvature: low-end resolution
+uac = linspace(0,1,nac)'; p.acGrid = 1e-4 + (0.92*xmax-1e-4)*(uac.^2.8);
 p.sGrid = linspace(1/nsh, 1, nsh);
 
 D0 = 0.06; r_b = (1 + pg.i_ss)/(1 + pg.mu) - 1;
@@ -185,6 +185,7 @@ function eq = solve_own_kv(rb, d, D, g, use_levy, Bnom, Kbar, iota, p, q_ref, ve
 % expands adaptively if the tree market does not bracket on the first pass.
     if nargin < 11 || isempty(q_ref), q_ref = d/max(rb,5e-3); end
     if nargin < 12, verbose = false; end
+    lastwhy = '';                                % last failure reason (nested)
     eq = struct('ok',false,'msg','','P',NaN,'q',NaN,'Sb',NaN,'tau',NaN, ...
                 'div',NaN,'dist',[],'bch',[],'kch',[]);
     pe = p; pe.eGrid = (1 - D) * p.eGrid;
@@ -209,8 +210,8 @@ function eq = solve_own_kv(rb, d, D, g, use_levy, Bnom, Kbar, iota, p, q_ref, ve
     end
     if isempty(kk)
         nfin = sum(isfinite(fq));
-        eq.msg = sprintf('no q bracket (%d/%d finite; Sk-K in [%+.3f,%+.3f])', ...
-            nfin, numel(fq), min(fq), max(fq));
+        eq.msg = sprintf('no q bracket (%d/%d finite; Sk-K in [%+.3f,%+.3f]; last fail: %s)', ...
+            nfin, numel(fq), min(fq), max(fq), lastwhy);
         return;
     end
     a = qs(kk); b = qs(kk+1); fa = fq(kk); m = a; Sb = NaN;
@@ -229,13 +230,21 @@ function eq = solve_own_kv(rb, d, D, g, use_levy, Bnom, Kbar, iota, p, q_ref, ve
         tt = tinit; dv = dvinit; Sb = NaN; Sk = NaN; rprev = NaN;
         dist = []; bch = []; kch = [];
         pev = pe;                                % capped sweeps when warm
-        if ~isempty(Vc), pev.maxit_vfi = 120; end
+        if ~isempty(Vc), pev.maxit_vfi = 250; end
         for itt = 1:10
             [sol, dg] = solve_household_twoasset_kv(rb, qq, dv, tt, pev, Vc);
-            if ~dg.converged, f = NaN; return; end
-            Vc = sol.V;
+            Vc = sol.V;                          % KEEP progress even on failure
+            if ~dg.converged
+                f = NaN;
+                lastwhy = sprintf('household dV=%.1e after %d sweeps', dg.supnorm, dg.iters);
+                return;
+            end
             [dist, dd] = stationary_distribution_twoasset_kv(sol, rb, qq, dv, tt, pev);
-            if ~dd.converged, f = NaN; return; end
+            if ~dd.converged
+                f = NaN;
+                lastwhy = sprintf('distribution dv=%.1e after %d iters', dd.supnorm, dd.iters);
+                return;
+            end
             [Sb, Sk, bch, kch] = kv_agg(sol, dist, rb, qq, dv, tt, pe);
             P = iota*Bnom/max(Sb, 1e-9);
             tgt_tau = rb*(Bnom/P) + (~use_levy)*g;

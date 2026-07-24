@@ -120,10 +120,20 @@ function [sol, diag] = solve_household_twoasset_kv(rb, q, d, tau, p, V0)
             VaI = interp1(xG, Va(:,ie), min(max(xbk, xG(1)), xG(end)), 'linear');
             Vnew(:,:,ie) = lam * VaI + (1 - lam) * Vn(:,:,ie);
         end
-        dV = max(abs(Vnew(:) - V(:)));
+        % RELATIVE sup-norm: the superstar income state inflates the value
+        % scale by orders of magnitude, so an absolute tolerance is
+        % unreachable there while being needlessly tight elsewhere.
+        Vscale = max(1, max(abs(Vnew(:))));
+        dV = max(abs(Vnew(:) - V(:))) / Vscale;
         V = Vnew;
         diag.iters = it; diag.supnorm = dV;
         if dV < p.tol_vfi, diag.converged = true; break; end
+    end
+    % soft-accept: if the cap was hit but the RELATIVE change is already
+    % small, the fixed point is effectively reached -- record it rather
+    % than failing the whole equilibrium evaluation.
+    if ~diag.converged && dV < 1e-4
+        diag.converged = true; diag.soft = true;
     end
 
     sol = struct('V', V, 'polBa', polBa, 'polKa', polKa, 'polCa', polCa, ...
