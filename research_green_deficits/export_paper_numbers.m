@@ -171,6 +171,49 @@ if exist(auf, 'file') == 2
     end
 end
 
+% ---- two-asset welfare incidence by decile (main_twoasset_welfare) ----
+twf = fullfile(projdir, 'output', 'twoasset_welfare.mat');
+if exist(twf, 'file') == 2
+    TW = load(twf);
+    if isfield(TW,'WA') && isfield(TW.WA,'lump_sum')
+        mac('TwoAWelLsBot',   sprintf('%+.2f', 100*TW.WA.lump_sum.bot));
+        mac('TwoAWelLsTop',   sprintf('%+.2f', 100*TW.WA.lump_sum.top));
+        mac('TwoAWelLevyBot', sprintf('%+.2f', 100*TW.WA.levy.bot));
+        mac('TwoAWelLevyTop', sprintf('%+.2f', 100*TW.WA.levy.top));
+    end
+    if isfield(TW,'WK') && isfield(TW.WK,'lump_sum')
+        mac('TwoBWelLsBot',   sprintf('%+.2f', 100*TW.WK.lump_sum.bot));
+        mac('TwoBWelLsTop',   sprintf('%+.2f', 100*TW.WK.lump_sum.top));
+        mac('TwoBWelLevyBot', sprintf('%+.2f', 100*TW.WK.levy.bot));
+        mac('TwoBWelLevyTop', sprintf('%+.2f', 100*TW.WK.levy.top));
+    end
+end
+
+% ---- ownership-calibrated two-asset economy (main_twoasset_ownership) ----
+towf = fullfile(projdir, 'output', 'twoasset_ownership.mat');
+if exist(towf, 'file') == 2
+    TO = load(towf);
+    if isfield(TO,'eq0') && isstruct(TO.eq0) && TO.eq0.ok
+        mac('OwnIota',   sprintf('%.2f', TO.iota_H));
+        mac('OwnOmega',  sprintf('%.2f', TO.omega));
+        if isfield(TO,'H'), mac('OwnTopOne', sprintf('%.0f', 100*TO.H.top1)); end
+    end
+end
+
+% ---- non-separable liquidity sweep (main_twoasset_nonsep) ----
+tnsf = fullfile(projdir, 'output', 'twoasset_nonsep.mat');
+if exist(tnsf, 'file') == 2
+    TN = load(tnsf, 'NS');
+    if isfield(TN,'NS')
+        ok = [TN.NS.ok]; ns = TN.NS(ok);
+        if numel(ns) >= 2 && all(isfinite([ns.dlnP_ls]))
+            [~, io] = sort([ns.xi]);
+            mac('TwoNSlsLo', sprintf('%+.3f', ns(io(1)).dlnP_ls));   % lowest xi
+            mac('TwoNSlsHi', sprintf('%+.3f', ns(io(end)).dlnP_ls)); % highest xi
+        end
+    end
+end
+
 % ---- matched DTPL-vs-NK announcement experiment (run_matched_dtpl_nk) ----
 % Guarded: exported only if the matched driver has been run. Percent,
 % annualized; DTPL side is the announcement-year deviation from trend.

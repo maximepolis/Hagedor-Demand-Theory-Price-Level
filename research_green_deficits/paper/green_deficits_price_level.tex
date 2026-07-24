@@ -86,6 +86,13 @@
 \providecommand{\covReconResid}{\pendingnum}
 \providecommand{\epsAbarRecalLo}{\pendingnum}\providecommand{\epsAbarRecalHi}{\pendingnum}
 \providecommand{\suffMaxRelErr}{\pendingnum}
+% Two-asset welfare incidence (main_twoasset_welfare), ownership (R2), nonsep (R3)
+\providecommand{\TwoAWelLsBot}{\pendingnum}\providecommand{\TwoAWelLsTop}{\pendingnum}
+\providecommand{\TwoAWelLevyBot}{\pendingnum}\providecommand{\TwoAWelLevyTop}{\pendingnum}
+\providecommand{\TwoBWelLsBot}{\pendingnum}\providecommand{\TwoBWelLsTop}{\pendingnum}
+\providecommand{\TwoBWelLevyBot}{\pendingnum}\providecommand{\TwoBWelLevyTop}{\pendingnum}
+\providecommand{\TwoNSlsLo}{\pendingnum}\providecommand{\TwoNSlsHi}{\pendingnum}
+\providecommand{\OwnTopOne}{\pendingnum}\providecommand{\OwnOmega}{\pendingnum}\providecommand{\OwnIota}{\pendingnum}
 % Decile-resolution welfare incidence, populated by welfare_incidence_deciles.
 \providecommand{\WDecBotMed}{\pendingnum}\providecommand{\WDecTopMed}{\pendingnum}
 \providecommand{\WTopFiveMed}{\pendingnum}\providecommand{\WTopOneMed}{\pendingnum}
@@ -4420,8 +4427,44 @@ wealth, mean liquid balances above annual income), no household is
 liquidity-poor: matching the skewed micro distribution of liquid wealth
 --- and hence the wealthy-hand-to-mouth configuration --- requires
 preference heterogeneity or intermediated debt holdings, not the
-adjustment friction alone. Until then, the covariance-on-realistic-bond-
-ownership exercise remains open.
+adjustment friction alone.
+
+\paragraph{Who pays, in the two-asset world.} The decisive test is
+whether the paper's distributional answer --- regressive lump-sum
+financing, a flatter proportional levy --- survives the portfolio
+structure that overturned the aggregate price sign. It does. Computing
+the consumption-equivalent burden of the program by decile of baseline
+wealth (exact under the separable preferences: the value splits into
+consumption- and liquidity-utility components, and a proportional
+consumption transfer scales only the former), lump-sum financing is
+\emph{monotone regressive} in both two-asset economies --- the bottom
+wealth decile bears $\TwoAWelLsBot\%$ (frictionless) and $\TwoBWelLsBot\%$
+(with infrequent adjustment) against $\TwoAWelLsTop\%$ and $\TwoBWelLsTop\%$
+for the top decile --- while the proportional levy is markedly flatter
+($\TwoAWelLevyBot\%$ to $\TwoAWelLevyTop\%$; $\TwoBWelLevyBot\%$ to
+$\TwoBWelLevyTop\%$). So the \emph{welfare} incidence ordering that
+answers the paper's title is robust to the portfolio margin even though
+the \emph{price} magnitude is not: the poor bear roughly twice the
+lump-sum burden of the rich, and the levy roughly halves that gap, in the
+disciplined two-asset model exactly as in the one-asset benchmark.
+
+\paragraph{Ownership and specification checks.} Two further computed
+checks bound the remaining caveats. First, an \emph{ownership-calibrated}
+variant --- households hold only the directly-held slice of public debt
+($\iota_H=\OwnIota$, the rest intermediated through the illiquid fund, whose
+per-share dividend then revalues with the price level), the liquid target
+set to a realistic share of income, and the superstar income state ported
+from the one-asset calibration --- lowers the household liquid share to
+$\OwnOmega$ and raises the top-one-percent wealth share to $\OwnTopOne\%$,
+close to the data, while leaving the lump-sum-versus-levy price ordering
+intact. Second, a \emph{non-separable} liquidity aggregator (a CES bundle
+of consumption and liquid balances) does not restore the one-asset
+disinflation: as the two turn complementary the lump-sum response becomes
+\emph{more} inflationary, not less ($\TwoNSlsLo$ to $\TwoNSlsHi$ across the
+swept elasticity), so the sign flip is not an artifact of separable
+convenience utility. The wealthy-hand-to-mouth configuration and the
+transition-inclusive incidence remain the open items, pursued in the
+model's next stage.
 
 \noindent\emph{Status:} \textbf{computed} --- both variants solve with
 the two markets clearing separately (tree-market residual $<10^{-4}$;

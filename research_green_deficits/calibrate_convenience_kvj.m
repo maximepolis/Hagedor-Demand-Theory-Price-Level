@@ -2,19 +2,24 @@
 % data (internal report R3 / build plan Stage 2.2).
 %
 % The model's convenience yield is the equity-bond spread
-%     spr(B) = (q+d)/q - (1+r_b),
+%     spr = (q+d)/q - (1+r_b),
 % and the Krishnamurthy--Vissing-Jorgensen (2012) regression object is the
 % response of that spread to the SUPPLY of public debt: roughly -0.4 to
 % -1.5 percentage points of spread per log point of debt/GDP, headline
-% around -0.75 pp (Aaa-Treasury). The model runs the same experiment
-% exactly: raise nominal B, re-solve the (P, q, tau) equilibrium at fixed
-% preferences, and read the spread change per realized log change of real
-% debt. Sweeping the curvature zeta of the separable convenience utility
-% traces out the model elasticity; the zeta that matches the empirical
-% estimate is the DISCIPLINED specification, and the financing experiment
-% at that zeta is the paper's disciplined answer. (The same exercise for
-% the CES xi of the non-separable variant is the follow-up once
-% main_twoasset_nonsep has validated.)
+% around -0.75 pp (Aaa-Treasury).
+%
+% IMPORTANT (fixed after the first run): the experiment must vary REAL debt
+% supply, NOT nominal B. Nominal neutrality (paper Theorem 2) means a change
+% in nominal B is absorbed one-for-one by P, leaving real debt B/P and the
+% spread UNCHANGED -- the first version varied B and correctly measured a
+% zero elasticity. Here we vary the REAL quantity of liquid public claims
+% households absorb: the direct-liquid-holding target b_liq (the DTPL analog
+% of debt/GDP available to the household sector), re-solve (q, tau) with the
+% liquidity weight chi HELD FIXED at its baseline calibration, and read the
+% spread. More liquid bonds -> lower marginal convenience value -> lower
+% spread, exactly the KVJ sign. Sweeping the curvature zeta traces the model
+% elasticity; the zeta matching the empirical estimate is the DISCIPLINED
+% specification. (The CES xi of the non-separable variant is the follow-up.)
 %
 % USAGE   >> parpool; calibrate_convenience_kvj
 %         >> FAST = true; calibrate_convenience_kvj
@@ -51,7 +56,7 @@ u2 = linspace(0,1,na2)'; p.aGrid2 = 1e-4 + (0.92*xmax-1e-4)*(u2.^2.2);
 
 D0 = 0.06; r_b = (1 + pg.i_ss)/(1 + pg.mu) - 1;
 Bnom = pg.Bnom; b_targ = 1.10; d_div = 0.12; Kbar = 1.0;
-dlnB = log(1.10);                                % +10% debt-supply experiment
+hK = 0.08;                                       % +/- tree-supply perturbation
 kvj_target = -0.75; kvj_lo = -1.5; kvj_hi = -0.4;  % pp per log point (KVJ)
 
 if ~isfolder(pg.tabdir), mkdir(pg.tabdir); end
@@ -59,42 +64,51 @@ sf = fullfile(pg.tabdir, 'convenience_kvj.txt');
 fid = fopen(sf, 'w'); assert(fid > 0, 'cannot open %s', sf);
 tee = @(varargin) tee2(fid, varargin{:});
 tee('CONVENIENCE-YIELD SUPPLY ELASTICITY vs KVJ. nx=%d na2=%d FAST=%d\n', nx, na2, FAST);
-tee('experiment: B -> %.2f x B at fixed (chi, zeta, beta); KVJ target %.2f pp/logpt (range [%.1f, %.1f])\n\n', ...
-    exp(dlnB), kvj_target, kvj_lo, kvj_hi);
+tee('experiment: tree supply Kbar -> Kbar*(1+/-%.2f) at FIXED (chi, zeta, beta);\n', hK);
+tee('read spread and household real bond holdings S_b; elasticity = dspr/dlnS_b.\n');
+tee('KVJ target %.2f pp/logpt (range [%.1f, %.1f]). SIGN should be NEGATIVE.\n\n', ...
+    kvj_target, kvj_lo, kvj_hi);
 
 zetas = [0.5 1.0 1.5 2.0 3.0 5.0 8.0];
 if FAST, zetas = [1.0 2.0 5.0]; end
-tee('%-8s %10s %10s %10s %12s %14s\n', 'zeta', 'chi_b', 'spr0(pp)', 'spr1(pp)', 'dln(B/P)', 'dspr/dlnB (pp)');
+tee('%-8s %10s %10s %12s %12s %14s\n', 'zeta', 'chi_b', 'spr0(pp)', 'dln(S_b)', 'dspr(pp)', 'dspr/dlnS_b');
 nz = numel(zetas); Zc = cell(nz,1);
 parfor z = 1:nz
     pz = p; pz.zeta_b = zetas(z);
+    % calibrate chi ONCE at the baseline tree supply, then hold it fixed
     [chi_z, e0] = calib_chi(r_b, d_div, D0, Bnom, Kbar, b_targ, pz);
     if isempty(e0) || ~e0.ok
-        Zc{z} = struct('zeta',zetas(z),'chi',NaN,'spr0',NaN,'spr1',NaN, ...
-                       'dlnBP',NaN,'el',NaN,'ok',false);
+        Zc{z} = struct('zeta',zetas(z),'chi',NaN,'spr0',NaN,'dlnSb',NaN, ...
+                       'dspr',NaN,'el',NaN,'ok',false);
         continue;
     end
     pz.chi_b = chi_z;
-    e1 = solve_eq(r_b, d_div, D0, Bnom*exp(dlnB), Kbar, pz);
-    if ~e1.ok
-        Zc{z} = struct('zeta',zetas(z),'chi',chi_z,'spr0',NaN,'spr1',NaN, ...
-                       'dlnBP',NaN,'el',NaN,'ok',false);
+    % REAL supply shift: perturb the tree supply +/- hK (chi fixed). The tree
+    % market pins q -> the spread; household real bond holdings S_b adjust as
+    % the residual, tracing the convenience-yield-vs-liquidity locus.
+    ep = solve_eq(r_b, d_div, D0, Bnom, Kbar*(1+hK), pz);
+    em = solve_eq(r_b, d_div, D0, Bnom, Kbar*(1-hK), pz);
+    if ~ep.ok || ~em.ok
+        Zc{z} = struct('zeta',zetas(z),'chi',chi_z,'spr0',NaN,'dlnSb',NaN, ...
+                       'dspr',NaN,'el',NaN,'ok',false);
         continue;
     end
-    spr0 = 100*((e0.q + d_div)/e0.q - (1 + r_b));       % pp
-    spr1 = 100*((e1.q + d_div)/e1.q - (1 + r_b));
-    dlnBP = log((Bnom*exp(dlnB)/e1.P)/(Bnom/e0.P));      % realized real-debt change
-    el = (spr1 - spr0) / max(dlnBP, 1e-9);               % pp per log point
-    Zc{z} = struct('zeta',zetas(z),'chi',chi_z,'spr0',spr0,'spr1',spr1, ...
-                   'dlnBP',dlnBP,'el',el,'ok',true);
+    sprp = 100*((ep.q + d_div)/ep.q - (1 + r_b));
+    sprm = 100*((em.q + d_div)/em.q - (1 + r_b));
+    spr0 = 100*((e0.q + d_div)/e0.q - (1 + r_b));
+    dlnSb = log(ep.Sb) - log(em.Sb);                    % change in real bonds held
+    dspr  = sprp - sprm;
+    el = dspr / sign0(dlnSb);                            % pp per log point
+    Zc{z} = struct('zeta',zetas(z),'chi',chi_z,'spr0',spr0,'dlnSb',dlnSb, ...
+                   'dspr',dspr,'el',el,'ok',true);
 end
 Z = [Zc{:}];
 for z = 1:nz
     if Z(z).ok
-        tee('%-8.2f %10.5f %10.3f %10.3f %12.4f %+14.3f\n', Z(z).zeta, ...
-            Z(z).chi, Z(z).spr0, Z(z).spr1, Z(z).dlnBP, Z(z).el);
+        tee('%-8.2f %10.5f %10.3f %12.4f %12.4f %+14.3f\n', Z(z).zeta, ...
+            Z(z).chi, Z(z).spr0, Z(z).dlnSb, Z(z).dspr, Z(z).el);
     else
-        tee('%-8.2f %10s %10s %10s %12s %14s\n', Z(z).zeta, '--','--','--','--','fail');
+        tee('%-8.2f %10s %10s %12s %12s %14s\n', Z(z).zeta, '--','--','--','--','fail');
     end
 end
 % interpolate the zeta matching the KVJ headline (model elasticity should be
@@ -117,7 +131,7 @@ else
 end
 
 save(fullfile(projdir,'output','convenience_kvj.mat'), 'Z', 'zeta_star', ...
-     'kvj_target', 'kvj_lo', 'kvj_hi', 'dlnB', 'p');
+     'kvj_target', 'kvj_lo', 'kvj_hi', 'hK', 'p');
 fclose(fid);
 fprintf('[calibrate_convenience_kvj] wrote %s (%.1f s)\n', sf, toc(t0));
 
@@ -178,6 +192,11 @@ function eq = solve_eq(rb, d, D, Bnom, Kbar, p)
         end
         f = Sk - Kbar;
     end
+end
+
+function s = sign0(x)
+% x with a small floor of matching sign, to avoid division by zero
+    if x >= 0, s = max(x, 1e-9); else, s = min(x, -1e-9); end
 end
 
 function tee2(fid, varargin)
