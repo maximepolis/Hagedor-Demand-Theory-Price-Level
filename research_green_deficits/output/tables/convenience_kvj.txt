@@ -1,0 +1,12 @@
+CONVENIENCE-YIELD SUPPLY ELASTICITY vs KVJ. nx=120 na2=100 FAST=1
+experiment: B -> 1.10 x B at fixed (chi, zeta, beta); KVJ target -0.75 pp/logpt (range [-1.5, -0.4])
+
+zeta          chi_b   spr0(pp)   spr1(pp)     dln(B/P) dspr/dlnB (pp)
+1.00        0.02745      3.326      3.326       0.0000         +0.000
+2.00        0.03446      3.154      3.154       0.0000         +0.000
+5.00        0.04932      2.959      2.959       0.0000         +0.000
+
+KVJ headline not bracketed by the swept zetas: model elasticities in [+0.000, +0.000].
+If all model elasticities are SMALLER in magnitude than the KVJ range,
+the separable specification cannot generate the observed supply
+sensitivity and the CES variant (main_twoasset_nonsep) takes over.

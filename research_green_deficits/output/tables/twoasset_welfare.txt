@@ -1,0 +1,24 @@
+TWO-ASSET WELFARE INCIDENCE BY DECILE (steady-state comparison)
+CE transfer exact under separable preferences (Uc/Ub split).
+
+===== frictionless (Step 0) =====
+lump-sum  CE by baseline-wealth decile (%):
+  -3.38 -2.94 -2.72 -2.55 -2.38 -2.26 -2.10 -1.97 -1.80 -1.57 
+  bottom decile -3.38 | top decile -1.57 | top 10% -1.57
+levy      CE by baseline-wealth decile (%):
+  -1.91 -1.89 -1.86 -1.80 -1.73 -1.66 -1.58 -1.47 -1.35 -1.12 
+  bottom decile -1.91 | top decile -1.12 | top 10% -1.12
+
+===== infrequent adjustment (variant b) =====
+lump-sum  CE by baseline-wealth decile (%):
+  -3.92 -3.29 -2.93 -2.74 -2.51 -2.33 -2.15 -1.95 -1.74 -1.37 
+  bottom decile -3.92 | top decile -1.37 | top 10% -1.37
+levy      CE by baseline-wealth decile (%):
+  -2.08 -2.05 -2.02 -1.95 -1.88 -1.82 -1.76 -1.69 -1.57 -1.38 
+  bottom decile -2.08 | top decile -1.38 | top 10% -1.38
+
+Convention: steady-state comparison at unchanged household state,
+aggregated over the baseline distribution -- the same convention as
+the one-asset decile tables. Transition-inclusive incidence (which
+adds the announcement-date revaluation of the initial portfolio) is
+the next upgrade, via main_twoasset_transition.

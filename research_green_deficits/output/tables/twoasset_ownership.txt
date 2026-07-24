@@ -1,0 +1,18 @@
+OWNERSHIP-CALIBRATED TWO-ASSET ECONOMY. nx=130 ne=8 FAST=1
+iota_H=0.273 (direct liquid target 0.30 of income; total debt 1.10)
+superstar: mult=12.0 p_in=0.000 p_out=0.060
+
+----- (1) baseline -----
+chi_b=0.00223  S_b=0.2994 (target 0.30)  q=2.9860  P=0.9108  omega=0.091  div=0.1357
+HtM (b<0.02): total 0.000 | wealthy (qk>0.50): 0.000 | poor: 0.000
+wealth shares: top10 0.53 top1 0.22
+
+----- (2) financing incidence (lump-sum vs levy) -----
+lump-sum P=0.9176 dlnP=+0.0074  q=3.0228
+levy     P=0.9302 dlnP=+0.0211  q=2.9670
+sign contrast survives: 0
+
+Reading: with iota_H < 1 the direct revaluation base shrinks by the
+intermediation wedge while the fund's bond book revalues into ILLIQUID
+wealth; compare dlnP and the HtM shares against the uniform-ownership
+Step 0 to see how much of the incidence answer ownership carries.
