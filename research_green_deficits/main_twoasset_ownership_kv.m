@@ -77,6 +77,15 @@ p.zeta_b = 2.0; p.chi_b = 0.02; p.lambda_adj = 0.15;
 % constraint is then a finite, chosen cost -- the wealthy-hand-to-mouth
 % margin the friction is meant to deliver.
 p.bbar_liq = 0.03;
+% DIVIDEND PAYOUT RATIO. With phi = 1 a non-adjuster collects the whole
+% dividend d*k as LIQUID income -- at d = 0.12 that is a 12%-of-income
+% liquid flow for the average tree holder and more for the wealthy, so a
+% wealthy household never runs its liquid buffer down and WHtM is zero
+% regardless of beta, lambda or bbar. phi < 1 retains the rest inside the
+% illiquid account (k compounds at (1-phi)*d/q between adjustment dates),
+% the Kaplan-Moll-Violante convention that produces households rich in k
+% but liquidity-constrained.
+p.div_payout = 0.25;
 p.tol_vfi = 1e-6; p.maxit_vfi = 800;
 p.tol_dist = 1e-11; p.maxit_dist = 50000;
 p.gold_outer = 0; p.gold_inner = 0;             % unused by the discrete solver
@@ -116,8 +125,10 @@ tee('OWNERSHIP + INFREQUENT ADJUSTMENT. nb=%d nk=%d nx=%d ne=%d lambda=%.2f FAST
     nb, nk, nx, numel(p.eGrid), p.lambda_adj, FAST);
 tee('iota_H=%.3f (direct target %.2f of income); superstar mult=%.1f p_in=%.3f\n', ...
     iota_H, b_targ_H, ss.mult, ss.p_in);
-tee('liquidity: zeta_b=%.2f, Stone-Geary shift bbar=%.3f (0 => Inada at b=0 => HtM==0)\n\n', ...
+tee('liquidity: zeta_b=%.2f, Stone-Geary shift bbar=%.3f (0 => Inada at b=0 => HtM==0)\n', ...
     p.zeta_b, p.bbar_liq);
+tee('dividend payout phi=%.2f (1 => full d*k paid LIQUID => wealthy never run down => WHtM==0)\n\n', ...
+    p.div_payout);
 
 % ---- (0) diagnostic single solve: is the household/distribution healthy? ----
 tee('----- (0) diagnostic single equilibrium (chi=%.4f) -----\n', chi_ref);
@@ -415,8 +426,12 @@ function [Sb, Sk, bch, kch] = kv_agg(sol, dist, rb, q, d, tau, pe)
         xbk = min(max(ynet(ie) + Rb*bG + (q+d)*kG', pe.xGridA(1)), pe.xGridA(end));
         bpa = interp1(pe.xGridA, sol.polBa(:,ie), xbk, 'linear');
         kpa = interp1(pe.xGridA, sol.polKa(:,ie), xbk, 'linear');
+        % non-adjuster illiquid position: k, or the compounded k' when part
+        % of the dividend is retained inside the illiquid account (phi < 1)
+        knon = kG';
+        if isfield(sol, 'kNon'), knon = sol.kNon(:)'; end
         bch(:,:,ie) = lam*bpa + (1-lam)*squeeze(sol.polBn(:,:,ie));
-        kch(:,:,ie) = lam*kpa + (1-lam)*repmat(kG', nb, 1);
+        kch(:,:,ie) = lam*kpa + (1-lam)*repmat(knon, nb, 1);
     end
     Sb = sum(bch(:).*dist(:)); Sk = sum(kch(:).*dist(:));
 end
