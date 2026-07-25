@@ -51,10 +51,14 @@ function [sol, diag] = solve_household_twoasset_kv(rb, q, d, tau, p, V0)
     wkC = (Kcl - kG(ikC))./(kG(ikC+1)-kG(ikC));
     i11 = ibC   + (ikC-1)*nb; i21 = ibC+1 + (ikC-1)*nb;
     i12 = ibC   + ikC*nb;     i22 = ibC+1 + ikC*nb;
-    flowCand = chi * vofb(Bc(:), zet);             % chi v(b') per candidate
+    % Stone-Geary shift on liquid holdings (0 = pure CRRA, the old behaviour).
+    % See vofb: bbar > 0 removes the Inada condition at b = 0 that otherwise
+    % makes the hand-to-mouth measure identically zero.
+    if isfield(p, 'bbar_liq'), bbar = p.bbar_liq; else, bbar = 0; end
+    flowCand = chi * vofb(Bc(:), zet, bbar);       % chi v(b') per candidate
 
     % non-adjuster flow piece chi v(b_j) on the b-grid
-    vb_row = chi * vofb(bG, zet);                  % nb x 1 (over candidates j)
+    vb_row = chi * vofb(bG, zet, bbar);            % nb x 1 (over candidates j)
 
     V = zeros(nb, nk, ne);
     for ie = 1:ne
@@ -183,8 +187,30 @@ function u = uofc(c, sig)
     if sig == 1, u = log(c); else, u = (c.^(1-sig))/(1-sig); end
 end
 
-function v = vofb(b, zet)
-    bb = max(b, 1e-12);
-    if abs(zet - 1) < 1e-12, v = log(bb);
-    else, v = (bb.^(1-zet))/(1-zet); end
+function v = vofb(b, zet, bbar)
+% Liquidity (convenience) utility with an optional STONE-GEARY shift bbar.
+%
+% With bbar = 0 and zeta > 0 this is the pure CRRA form, whose marginal
+% value v'(b) = b^(-zeta) diverges as b -> 0. That is an Inada condition ON
+% LIQUID HOLDINGS: no household will ever choose b near zero, so the model
+% CANNOT generate hand-to-mouth households -- the measure is identically
+% zero by construction, at any beta, lambda or q.
+%
+% bbar > 0 gives v'(0) = bbar^(-zeta) < inf, so running the liquid buffer to
+% the constraint is a finite-cost choice and wealthy-hand-to-mouth behaviour
+% becomes possible. bbar is normalized so v(0) = 0 (a level shift only; it
+% does not affect any first-order condition).
+%
+% Default bbar = 0 preserves the previous behaviour exactly for callers that
+% do not set p.bbar_liq (e.g. main_twoasset_kv).
+    if nargin < 3 || isempty(bbar), bbar = 0; end
+    bb = max(b, 0) + bbar;
+    if bbar <= 0, bb = max(bb, 1e-12); end
+    if abs(zet - 1) < 1e-12
+        v = log(bb);
+        if bbar > 0, v = v - log(bbar); end
+    else
+        v = (bb.^(1-zet))/(1-zet);
+        if bbar > 0, v = v - (bbar.^(1-zet))/(1-zet); end
+    end
 end
