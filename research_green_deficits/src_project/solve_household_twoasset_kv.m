@@ -55,6 +55,30 @@ function [sol, diag] = solve_household_twoasset_kv(rb, q, d, tau, p, V0)
     % See vofb: bbar > 0 removes the Inada condition at b = 0 that otherwise
     % makes the hand-to-mouth measure identically zero.
     if isfield(p, 'bbar_liq'), bbar = p.bbar_liq; else, bbar = 0; end
+
+    % DIVIDEND PAYOUT RATIO phi. With phi = 1 (default) a non-adjuster
+    % receives the whole dividend d*k as LIQUID income. At the calibrated
+    % d = 0.12 that is a 12%-of-income liquid flow for the average tree
+    % holder, and larger for the wealthy -- so a wealthy household never
+    % exhausts its liquid buffer and the WEALTHY hand-to-mouth measure is
+    % zero however the rest of the model is calibrated.
+    %
+    % phi < 1 retains (1-phi)*d*k inside the illiquid account, which
+    % compounds the non-adjuster's position at k' = k*(1 + (1-phi)*d/q).
+    % This is the Kaplan-Moll-Violante convention (illiquid returns accrue
+    % within the illiquid account) and is what generates households who are
+    % rich in k yet liquidity-constrained. Stationarity is preserved: k
+    % drifts up only between adjustment dates, and adjusters rebalance back
+    % down, with q clearing aggregate tree demand against Kbar.
+    if isfield(p, 'div_payout'), phi = min(max(p.div_payout, 0), 1); else, phi = 1; end
+    gk = (1 - phi) * d / q;                        % illiquid growth per period
+    kNon = min(max(kG * (1 + gk), kG(1)), kG(end));% non-adjuster k'
+    if gk > 0                                      % interp weights onto kGrid
+        iknI = discretize(kNon, kG); iknI = min(max(iknI, 1), nk-1);
+        wknI = min(max((kNon - kG(iknI))./(kG(iknI+1) - kG(iknI)), 0), 1);
+    else
+        iknI = (1:nk)'; wknI = zeros(nk, 1);       % phi = 1: k' = k exactly
+    end
     flowCand = chi * vofb(Bc(:), zet, bbar);       % chi v(b') per candidate
 
     % non-adjuster flow piece chi v(b_j) on the b-grid
@@ -62,7 +86,7 @@ function [sol, diag] = solve_household_twoasset_kv(rb, q, d, tau, p, V0)
 
     V = zeros(nb, nk, ne);
     for ie = 1:ne
-        m0 = ynet(ie) + Rb*bG + d*kG';
+        m0 = ynet(ie) + Rb*bG + phi*d*kG';
         V(:,:,ie) = uofc(max(m0, 1e-8), sig) / (1 - p.beta);
     end
     Vinit = V;                                     % analytic autarky fallback
@@ -113,8 +137,16 @@ function [sol, diag] = solve_household_twoasset_kv(rb, q, d, tau, p, V0)
             polKa(:,ie) = aC(aIdx) .* (1 - sb) / q;
             % ---- non-adjuster: outer difference + row max per k slice ----
             for ik = 1:nk
-                m = ynet(ie) + Rb*bG + d*kG(ik);   % nb x 1 states
-                cont = vb_row + p.beta * Ee(:, ik);% nb x 1 candidates
+                % LIQUID income carries only the paid-out share phi of the
+                % dividend; the retained part compounds k to kNon(ik), so the
+                % continuation is read at k' rather than at k.
+                m = ynet(ie) + Rb*bG + phi*d*kG(ik);   % nb x 1 states
+                if gk > 0
+                    Eek = (1-wknI(ik))*Ee(:, iknI(ik)) + wknI(ik)*Ee(:, iknI(ik)+1);
+                else
+                    Eek = Ee(:, ik);               % phi = 1: exact, as before
+                end
+                cont = vb_row + p.beta * Eek;      % nb x 1 candidates
                 Cm = repmat(m, 1, nb) - repmat(bG', nb, 1);
                 Um = -inf(nb, nb);
                 fm2 = Cm > 1e-10;
@@ -179,8 +211,11 @@ function [sol, diag] = solve_household_twoasset_kv(rb, q, d, tau, p, V0)
     end
     diag.supnorm = min(diag.supnorm, dV_best);
 
+    % kNon/gk let the distribution and the aggregator apply the SAME
+    % non-adjuster illiquid drift the value function was solved under.
     sol = struct('V', V, 'polBa', polBa, 'polKa', polKa, 'polCa', polCa, ...
-                 'polBn', polBn, 'polCn', polCn, 'polBnIdx', polBnIdx);
+                 'polBn', polBn, 'polCn', polCn, 'polBnIdx', polBnIdx, ...
+                 'kNon', kNon, 'gk', gk, 'div_payout', phi);
 end
 
 function u = uofc(c, sig)

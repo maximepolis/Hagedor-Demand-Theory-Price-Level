@@ -22,6 +22,20 @@ function [dist, diag] = stationary_distribution_twoasset_kv(sol, rb, q, d, tau, 
     rows = cell(ne,1); cols = cell(ne,1); vals = cell(ne,1);
     [IB, IK] = ndgrid(1:nb, 1:nk);
     src_bk = IB(:) + (IK(:)-1)*nb;                  % nb*nk source (b,k) ids
+
+    % Non-adjuster illiquid drift. If the solver retained part of the
+    % dividend inside the illiquid account (payout phi < 1), the
+    % non-adjuster's k compounds to sol.kNon and its transition needs a
+    % lottery over the k-grid -- the SAME drift the value function was
+    % solved under. With phi = 1 (sol.gk = 0, or an older sol without the
+    % field) k is unchanged and the transition stays exact, as before.
+    gkD = 0;
+    if isfield(sol, 'gk'), gkD = sol.gk; end
+    if gkD > 0
+        kNonD = sol.kNon(:);
+        iknD  = discretize(kNonD, kG); iknD = min(max(iknD, 1), nk-1);
+        wknD  = min(max((kNonD - kG(iknD))./(kG(iknD+1) - kG(iknD)), 0), 1);
+    end
     for ie = 1:ne
         % ---- adjuster leg: policies at x(b,k,e), bilinear lottery ----
         xbk = ynet(ie) + Rb*bG + (q + d)*kG';
@@ -36,14 +50,25 @@ function [dist, diag] = stationary_distribution_twoasset_kv(sol, rb, q, d, tau, 
         wk  = min(max((kp - kG(ik))./(kG(ik+1)-kG(ik)), 0), 1);
         tgtA = [ib+(ik-1)*nb, ib+1+(ik-1)*nb, ib+ik*nb, ib+1+ik*nb];
         wA   = [(1-wb).*(1-wk), wb.*(1-wk), (1-wb).*wk, wb.*wk];
-        % ---- non-adjuster leg: exact node (on-grid b'), same k ----
+        % ---- non-adjuster leg: on-grid b'; k either unchanged (phi = 1) or
+        %      drifting to k' under retained dividends (phi < 1) ----
         jb   = reshape(sol.polBnIdx(:,:,ie), [], 1);
-        tgtN = jb + (IK(:)-1)*nb;
-        % ---- assemble (source, target) pairs, income mixing over e' ----
-        src = repmat(src_bk, 5, 1);
-        tgt = [tgtA(:,1); tgtA(:,2); tgtA(:,3); tgtA(:,4); tgtN];
-        w   = [lam*wA(:,1); lam*wA(:,2); lam*wA(:,3); lam*wA(:,4); ...
-               (1-lam)*ones(nb*nk,1)];
+        if gkD > 0
+            iknV = iknD(IK(:)); wknV = wknD(IK(:));
+            tgtN = [jb + (iknV-1)*nb, jb + iknV*nb];
+            wN   = [(1-lam)*(1-wknV), (1-lam)*wknV];
+            src  = repmat(src_bk, 6, 1);
+            tgt  = [tgtA(:,1); tgtA(:,2); tgtA(:,3); tgtA(:,4); ...
+                    tgtN(:,1); tgtN(:,2)];
+            w    = [lam*wA(:,1); lam*wA(:,2); lam*wA(:,3); lam*wA(:,4); ...
+                    wN(:,1); wN(:,2)];
+        else
+            tgtN = jb + (IK(:)-1)*nb;
+            src  = repmat(src_bk, 5, 1);
+            tgt  = [tgtA(:,1); tgtA(:,2); tgtA(:,3); tgtA(:,4); tgtN];
+            w    = [lam*wA(:,1); lam*wA(:,2); lam*wA(:,3); lam*wA(:,4); ...
+                    (1-lam)*ones(nb*nk,1)];
+        end
         keep = w > 0;
         src = src(keep); tgt = tgt(keep); w = w(keep);
         nsrc = numel(src);
