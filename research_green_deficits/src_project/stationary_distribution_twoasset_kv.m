@@ -87,12 +87,30 @@ function [dist, diag] = stationary_distribution_twoasset_kv(sol, rb, q, d, tau, 
     v = ones(N,1)/N;
     diag = struct('converged', false, 'iters', 0, 'supnorm', Inf);
     Tt = T';                                        % iterate v <- T' v
+    % SOFT tolerance. tol_dist is routinely set below what a power iteration
+    % on a slowly-mixing chain can reach within maxit_dist steps, and the
+    % non-adjuster k-drift (retained dividends) slows mixing further. A
+    % per-state change of 1e-8 on a vector that sums to ONE is converged for
+    % every aggregate computed from it. Without this, a distribution sitting
+    % at dv = 2.9e-10 against tol_dist = 1e-11 was reported as FAILED, which
+    % turned a good equilibrium into a NaN tree-market residual and destroyed
+    % the q-bracket.
+    if isfield(p, 'tol_dist_soft'), tds = p.tol_dist_soft; else, tds = 1e-8; end
+    dv_best = Inf; stall = 0;
     for it = 1:p.maxit_dist
         vn = Tt * v;
         dv = max(abs(vn - v));
         v = vn;
         diag.iters = it; diag.supnorm = dv;
         if dv < p.tol_dist, diag.converged = true; break; end
+        % plateau exit: stop burning iterations once the residual has stopped
+        % improving and is already at numerical-noise level
+        if dv < dv_best - 1e-15, dv_best = dv; stall = 0;
+        else, stall = stall + 1; end
+        if stall >= 200 && dv < tds, break; end
+    end
+    if ~diag.converged && diag.supnorm < tds
+        diag.converged = true; diag.soft = true;
     end
     v = max(v, 0); v = v / sum(v);
     dist = reshape(v, nb, nk, ne);

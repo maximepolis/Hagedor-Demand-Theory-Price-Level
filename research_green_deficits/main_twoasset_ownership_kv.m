@@ -164,7 +164,8 @@ tee('beta=%.5f chi_b=%.5f S_b=%.4f (target %.2f) q=%.4f P=%.4f omega=%.3f div=%.
     p.beta, p.chi_b, eq0.Sb, b_targ_H, eq0.q, eq0.P, omega, eq0.div);
 tee('wealth: total %.3f x income (illiquid %.3f, liquid %.3f); tree yield d/q=%.3f\n', ...
     Wtot, eq0.q*Kbar, eq0.Sb, d_base/eq0.q);
-tee('feasibility: min consumption %.4f, infeasible states %d\n', eq0.min_c, eq0.n_infeas);
+tee('feasibility: min consumption %.4f, infeasible states %d, k-grid top mass %.4f\n', ...
+    eq0.min_c, eq0.n_infeas, eq0.ksat);
 H = htm_bk(eq0.dist, eq0.bch, eq0.kch, eq0.q, htm_b, whtm_k);
 tee('HtM (b<%.2f): total %.3f | WEALTHY (qk>%.2f): %.3f | poor: %.3f\n', ...
     htm_b, H.htm, whtm_k, H.whtm, H.phtm);
@@ -332,7 +333,8 @@ function eq = solve_own_kv(rb, d, D, g, use_levy, Bnom, Kbar, iota, p, q_ref, ve
     if nargin < 12, verbose = false; end
     lastwhy = '';                                % last failure reason (nested)
     eq = struct('ok',false,'msg','','P',NaN,'q',NaN,'Sb',NaN,'tau',NaN, ...
-                'div',NaN,'dist',[],'bch',[],'kch',[],'n_infeas',0,'min_c',NaN);
+                'div',NaN,'dist',[],'bch',[],'kch',[],'n_infeas',0,'min_c',NaN, ...
+                'ksat',NaN);
     pe = p; pe.eGrid = (1 - D) * p.eGrid;
     if use_levy, pe.eGrid = (1 - g/(1-D)) * pe.eGrid; end
     tau = rb*1.10 + (~use_levy)*g;
@@ -340,14 +342,12 @@ function eq = solve_own_kv(rb, d, D, g, use_levy, Bnom, Kbar, iota, p, q_ref, ve
     Vc = [];
     lo = 0.55*q_ref; hi = 1.8*q_ref; qs = linspace(lo, hi, 6); fq = nan(size(qs));
     for i = 1:numel(qs), [fq(i), tau, div, ~, Vc] = evq(qs(i), tau, div, Vc); end
-    kk = find(isfinite(fq(1:end-1)) & isfinite(fq(2:end)) & ...
-              sign(fq(1:end-1)) ~= sign(fq(2:end)), 1, 'first');
+    kk = bracket_finite(fq);
     for expand = 1:3                             % adaptive bracket expansion
         if ~isempty(kk), break; end
         lo = 0.5*lo; hi = 1.6*hi; qs = linspace(lo, hi, 7); fq = nan(size(qs));
         for i = 1:numel(qs), [fq(i), tau, div, ~, Vc] = evq(qs(i), tau, div, Vc); end
-        kk = find(isfinite(fq(1:end-1)) & isfinite(fq(2:end)) & ...
-                  sign(fq(1:end-1)) ~= sign(fq(2:end)), 1, 'first');
+        kk = bracket_finite(fq);
     end
     if verbose
         fprintf('    q-scan: q=%s\n              Sk-K=%s\n', ...
@@ -359,10 +359,10 @@ function eq = solve_own_kv(rb, d, D, g, use_levy, Bnom, Kbar, iota, p, q_ref, ve
             nfin, numel(fq), min(fq), max(fq), lastwhy);
         return;
     end
-    a = qs(kk); b = qs(kk+1); fa = fq(kk); m = a; Sb = NaN; ninf = 0; mc = NaN;
+    a = qs(kk(1)); b = qs(kk(2)); fa = fq(kk(1)); m = a; Sb = NaN; ninf = 0; mc = NaN; ksat = NaN;
     for it = 1:22
         m = 0.5*(a+b);
-        [fm, tau, div, Sb, Vc, dist, bch, kch, ninf, mc] = evq(m, tau, div, Vc);
+        [fm, tau, div, Sb, Vc, dist, bch, kch, ninf, mc, ksat] = evq(m, tau, div, Vc);
         if ~isfinite(fm), b = m; continue; end
         if abs(fm) < 2e-3 || (b-a) < 1e-3*q_ref, break; end
         if sign(fm) == sign(fa), a = m; fa = fm; else, b = m; end
@@ -370,11 +370,11 @@ function eq = solve_own_kv(rb, d, D, g, use_levy, Bnom, Kbar, iota, p, q_ref, ve
     if ~isfinite(Sb) || Sb <= 0, eq.msg = 'non-finite end'; return; end
     eq.ok = true; eq.q = m; eq.Sb = Sb; eq.tau = tau; eq.div = div;
     eq.P = iota*Bnom/Sb; eq.dist = dist; eq.bch = bch; eq.kch = kch;
-    eq.n_infeas = ninf; eq.min_c = mc;
+    eq.n_infeas = ninf; eq.min_c = mc; eq.ksat = ksat;
 
-    function [f, tt, dv, Sb, Vc, dist, bch, kch, ninf, mc] = evq(qq, tinit, dvinit, Vc)
+    function [f, tt, dv, Sb, Vc, dist, bch, kch, ninf, mc, ksat] = evq(qq, tinit, dvinit, Vc)
         tt = tinit; dv = dvinit; Sb = NaN; Sk = NaN; rprev = NaN;
-        dist = []; bch = []; kch = []; ninf = 0; mc = NaN;
+        dist = []; bch = []; kch = []; ninf = 0; mc = NaN; ksat = NaN;
         pev = pe;                                % capped sweeps when warm
         if ~isempty(Vc), pev.maxit_vfi = 250; end
         for itt = 1:10
@@ -400,6 +400,12 @@ function eq = solve_own_kv(rb, d, D, g, use_levy, Bnom, Kbar, iota, p, q_ref, ve
             if isfield(dg,'n_infeas'), ninf = dg.n_infeas; end
             msk = dist(:) > 1e-8;                 % min consumption on the support
             if any(msk), cc = sol.polCn(:); mc = min(cc(msk)); end
+            % k-grid saturation: with retained dividends the non-adjuster's k
+            % drifts UP, so mass can pile against kGrid(end) and make the
+            % tree aggregate grid-dependent. Report the share at the top two
+            % nodes; a non-trivial value means kmax must be raised.
+            kmass = squeeze(sum(sum(dist, 1), 3)); kmass = kmass(:);
+            ksat = sum(kmass(max(1,end-1):end)) / max(sum(kmass), eps);
             [Sb, Sk, bch, kch] = kv_agg(sol, dist, rb, qq, dv, tt, pe);
             P = iota*Bnom/max(Sb, 1e-9);
             tgt_tau = rb*(Bnom/P) + (~use_levy)*g;
@@ -414,6 +420,23 @@ function eq = solve_own_kv(rb, d, D, g, use_levy, Bnom, Kbar, iota, p, q_ref, ve
             dv = tgt_div; rprev = r1;
         end
         f = Sk - Kbar;
+    end
+end
+
+function ij = bracket_finite(fq)
+% First sign change between CONSECUTIVE FINITE entries of the q-scan,
+% BRIDGING any NaN gap between them. The previous test demanded that the
+% sign-change pair be grid-ADJACENT, so a single failed q in the middle of
+% an otherwise good scan destroyed a bracket that plainly existed (e.g.
+% Sk-K running from +57 down to -0.97 with two NaNs in between). Returns
+% [i1 i2] with i1 < i2, or [] if the finite points never change sign.
+    ij = [];
+    fi = find(isfinite(fq));
+    for jj = 1:numel(fi)-1
+        if sign(fq(fi(jj))) ~= sign(fq(fi(jj+1)))
+            ij = [fi(jj), fi(jj+1)];
+            return;
+        end
     end
 end
 
