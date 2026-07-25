@@ -62,6 +62,21 @@ p.eGrid = eG2(:)'; p.Pi = Pi2; p.stationary_e = st2;
 % mechanism needs INFREQUENT adjustment -- households load illiquid k at a
 % rebalancing date and draw down b over a long spell, ending low-b/high-k.
 p.zeta_b = 2.0; p.chi_b = 0.02; p.lambda_adj = 0.15;
+% STONE-GEARY shift on liquid holdings. With bbar = 0 the convenience
+% utility chi*b^(1-zeta)/(1-zeta) has v'(b) = chi*b^(-zeta) -> inf as b -> 0:
+% an Inada condition on LIQUIDITY that makes running the liquid buffer to
+% zero infinitely costly, so the hand-to-mouth measure is identically zero
+% at ANY beta/lambda/q. (Confirmed: HtM was 0.000 in every run except the
+% degenerate one where the calibration drove chi -> 0 and switched the Inada
+% force off -- that run showed HtM = 0.175.)
+%
+% bbar > 0 makes v'(0) = chi*bbar^(-zeta) finite. Choose it so the marginal
+% liquidity value at b = 0 is well below the marginal utility of consumption
+% for a constrained household: chi*bbar^-2 = 0.00223*0.03^-2 ~ 2.5, versus
+% u'(c) ~ c^-2 ~ 19 at the observed min_c ~ 0.23. Hitting the liquid
+% constraint is then a finite, chosen cost -- the wealthy-hand-to-mouth
+% margin the friction is meant to deliver.
+p.bbar_liq = 0.03;
 p.tol_vfi = 1e-6; p.maxit_vfi = 800;
 p.tol_dist = 1e-11; p.maxit_dist = 50000;
 p.gold_outer = 0; p.gold_inner = 0;             % unused by the discrete solver
@@ -99,8 +114,10 @@ fid = fopen(sf, 'w'); assert(fid > 0, 'cannot open %s', sf);
 tee = @(varargin) tee2(fid, varargin{:});
 tee('OWNERSHIP + INFREQUENT ADJUSTMENT. nb=%d nk=%d nx=%d ne=%d lambda=%.2f FAST=%d\n', ...
     nb, nk, nx, numel(p.eGrid), p.lambda_adj, FAST);
-tee('iota_H=%.3f (direct target %.2f of income); superstar mult=%.1f p_in=%.3f\n\n', ...
+tee('iota_H=%.3f (direct target %.2f of income); superstar mult=%.1f p_in=%.3f\n', ...
     iota_H, b_targ_H, ss.mult, ss.p_in);
+tee('liquidity: zeta_b=%.2f, Stone-Geary shift bbar=%.3f (0 => Inada at b=0 => HtM==0)\n\n', ...
+    p.zeta_b, p.bbar_liq);
 
 % ---- (0) diagnostic single solve: is the household/distribution healthy? ----
 tee('----- (0) diagnostic single equilibrium (chi=%.4f) -----\n', chi_ref);
