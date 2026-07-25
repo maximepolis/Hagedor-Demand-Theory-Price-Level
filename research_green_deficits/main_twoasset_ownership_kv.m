@@ -87,8 +87,11 @@ ownf = fullfile(projdir, 'output', 'twoasset_ownership.mat');
 if exist(ownf, 'file') == 2
     Ow = load(ownf, 'eq0', 'p');
     if isfield(Ow,'eq0') && isstruct(Ow.eq0) && Ow.eq0.ok, q_ref = Ow.eq0.q; end
-    if isfield(Ow,'p') && isfield(Ow.p,'chi_b'), chi_ref = 0.6*Ow.p.chi_b; end % KV holds
-end                                                % more bonds/chi -> start lower
+    % chi is now the SHARE instrument, held at the frictionless-calibrated
+    % value; beta is recalibrated below to carry the LEVEL. (Previously chi
+    % was scaled down to chase the level target and could not reach it.)
+    if isfield(Ow,'p') && isfield(Ow.p,'chi_b'), chi_ref = Ow.p.chi_b; end
+end
 
 if ~isfolder(pg.tabdir), mkdir(pg.tabdir); end
 sf = fullfile(pg.tabdir, 'twoasset_ownership_kv.txt');
@@ -111,17 +114,28 @@ else
     tee('  (household/distribution or bracket problem -- see printed q-scan above)\n');
 end
 
-% ---- baseline: calibrate chi to the direct liquid target ----
-tee('----- (1) baseline -----\n');
-[p.chi_b, eq0] = calib_chi(r_b, d_base, D0, 0, 0, Bnom, Kbar, b_targ_H, iota_H, p, q_ref, chi_ref, t0);
+% ---- baseline: calibrate BETA to the direct liquid target (chi fixed) ----
+% The adjustment friction roughly DOUBLES precautionary wealth relative to
+% the frictionless ownership economy at a common beta (W = 3.3 -> 6.8 x
+% income), so the level target is out of chi's reach: S_b = omega * W, and
+% chi moves only omega, whose floor RISES with the friction. beta is the
+% level instrument. This mirrors the borrowing-limit audit, where holding
+% beta fixed across economies produced the artifact and the recalibrated
+% sweep was the honest one.
+tee('----- (1) baseline (beta recalibrated; chi fixed at %.5f) -----\n', chi_ref);
+p.chi_b = chi_ref;
+[p.beta, eq0] = calib_beta(r_b, d_base, D0, 0, 0, Bnom, Kbar, b_targ_H, iota_H, p, q_ref, t0);
 if isempty(eq0) || ~eq0.ok
     tee('BASELINE CALIBRATION FAILED -- see per-iteration diagnostics above.\n');
     fclose(fid);
     error('ownership-kv baseline failed (diagnostics written to %s)', sf);
 end
 omega = eq0.Sb/(eq0.Sb + eq0.q*Kbar);
-tee('chi_b=%.5f S_b=%.4f (target %.2f) q=%.4f P=%.4f omega=%.3f div=%.4f\n', ...
-    p.chi_b, eq0.Sb, b_targ_H, eq0.q, eq0.P, omega, eq0.div);
+Wtot = eq0.Sb + eq0.q*Kbar;                     % total household wealth/income
+tee('beta=%.5f chi_b=%.5f S_b=%.4f (target %.2f) q=%.4f P=%.4f omega=%.3f div=%.4f\n', ...
+    p.beta, p.chi_b, eq0.Sb, b_targ_H, eq0.q, eq0.P, omega, eq0.div);
+tee('wealth: total %.3f x income (illiquid %.3f, liquid %.3f); tree yield d/q=%.3f\n', ...
+    Wtot, eq0.q*Kbar, eq0.Sb, d_base/eq0.q);
 tee('feasibility: min consumption %.4f, infeasible states %d\n', eq0.min_c, eq0.n_infeas);
 H = htm_bk(eq0.dist, eq0.bch, eq0.kch, eq0.q, htm_b, whtm_k);
 tee('HtM (b<%.2f): total %.3f | WEALTHY (qk>%.2f): %.3f | poor: %.3f\n', ...
@@ -210,6 +224,75 @@ function [chi_star, eq0] = calib_chi(rb, d, D, g, lv, Bnom, Kbar, btH, iota, p, 
         eq0 = eqk; chi_star = exp(lc); err = log(eqk.Sb) - log(btH);
         fprintf('[%5.0fs] secant chi=%.5f S_b=%.4f err=%+.4f (min_c=%.3f)\n', ...
             toc(t0), chi_star, eqk.Sb, err, eqk.min_c);
+    end
+end
+
+function [beta_star, eq0] = calib_beta(rb, d, D, g, lv, Bnom, Kbar, btH, iota, p, q_ref, t0)
+    % LEVEL calibration: beta targets the direct liquid holding S_b.
+    %
+    % Why beta and not chi. Household liquid wealth factors as S_b = omega*W,
+    % where omega is the liquid SHARE and W total wealth. chi moves only
+    % omega. The infrequent-adjustment friction raises W sharply (the tree is
+    % a poor buffer, so households self-insure with more of everything: at the
+    % frictionless-calibrated beta, W = 3.3 -> 6.8 x income) AND raises
+    % omega's floor (absent a liquidity premium an illiquid asset is dominated
+    % as a buffer, so bond demand cannot be squeezed below it). Both moves
+    % push S_b UP, and chi -> 0 merely asymptotes to omega_min*W. beta is the
+    % instrument that moves W, hence the only one that reaches the level.
+    %
+    % Monotone: lower beta -> less patient -> lower W -> lower S_b. Lowering
+    % beta also deflates q (raising the tree's dividend yield toward a
+    % plausible value) and thins liquid buffers, which is what generates the
+    % wealthy-hand-to-mouth mass the friction is there to deliver.
+    b0 = p.beta;
+    beta_grid = b0 * [0.95 0.97 0.985 1.00];
+    eq0 = []; beta_star = b0; best = Inf;
+    bb = b0; bb_p = NaN; e_p = NaN;
+    for k = 1:numel(beta_grid)
+        pk = p; pk.beta = beta_grid(k);
+        eqk = solve_own_kv(rb, d, D, g, lv, Bnom, Kbar, iota, pk, q_ref, false);
+        if ~eqk.ok
+            fprintf('[%5.0fs] pre-scan beta=%.5f FAILED (%s)\n', toc(t0), beta_grid(k), eqk.msg);
+            continue;
+        end
+        err = log(eqk.Sb) - log(btH);
+        fprintf('[%5.0fs] pre-scan beta=%.5f S_b=%.4f q=%.3f W=%.3f err=%+.4f (min_c=%.3f)\n', ...
+            toc(t0), beta_grid(k), eqk.Sb, eqk.q, eqk.Sb + eqk.q*Kbar, err, eqk.min_c);
+        if abs(err) < best
+            best = abs(err); eq0 = eqk; beta_star = beta_grid(k); bb = beta_grid(k);
+        end
+    end
+    if isempty(eq0), return; end
+    % secant in beta from the best pre-scan point
+    err = log(eq0.Sb) - log(btH);
+    nfail = 0; damp = 1;
+    for itc = 1:8
+        if abs(err) < 2e-2, break; end
+        if isfinite(e_p) && abs(err - e_p) > 1e-9
+            step = -err*(bb - bb_p)/(err - e_p);
+        else
+            step = -sign(err) * 0.015 * b0;      % err>0 (S_b too high) -> beta down
+        end
+        step = damp * max(min(step, 0.02*b0), -0.02*b0);   % damped trust region
+        bb_try = min(max(bb + step, 0.80), 0.9995); % keep beta admissible
+        if abs(bb_try - bb) < 1e-6, break; end
+        pk = p; pk.beta = bb_try;
+        eqk = solve_own_kv(rb, d, D, g, lv, Bnom, Kbar, iota, pk, q_ref, false);
+        if ~eqk.ok
+            fprintf('[%5.0fs] secant beta=%.5f FAILED (%s)\n', toc(t0), bb_try, eqk.msg);
+            nfail = nfail + 1; damp = 0.4*damp;  % retry closer to the feasible point
+            if nfail >= 3
+                fprintf(['[calib] beta secant stalled; reporting best feasible ' ...
+                    'S_b=%.4f at beta=%.5f.\n'], eq0.Sb, beta_star);
+                break;
+            end
+            continue;                            % keep (bb, err); retry a shorter step
+        end
+        nfail = 0; damp = min(1, 2*damp);
+        bb_p = bb; e_p = err; bb = bb_try;
+        eq0 = eqk; beta_star = bb_try; err = log(eqk.Sb) - log(btH);
+        fprintf('[%5.0fs] secant beta=%.5f S_b=%.4f q=%.3f W=%.3f err=%+.4f (min_c=%.3f)\n', ...
+            toc(t0), beta_star, eqk.Sb, eqk.q, eqk.Sb + eqk.q*Kbar, err, eqk.min_c);
     end
 end
 
