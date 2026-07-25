@@ -54,7 +54,14 @@ if exist(wff,'file') == 2
 end
 [eG2, Pi2, st2] = add_superstar_state(pg.eGrid(:), pg.Pi, ss);
 p.eGrid = eG2(:)'; p.Pi = Pi2; p.stationary_e = st2;
-p.zeta_b = 2.0; p.chi_b = 0.02; p.lambda_adj = 1/3;
+% lambda_adj is the per-period free-rebalancing probability. At 1/3
+% (adjust every ~3 periods) illiquid wealth is far too fluid to generate
+% wealthy hand-to-mouth: households top up their liquid buffer too often,
+% so nobody runs down to b~0 while holding large k (WHtM=0, and liquidity
+% is so abundant that S_b floors well above the 0.30 target). The KV/KVW
+% mechanism needs INFREQUENT adjustment -- households load illiquid k at a
+% rebalancing date and draw down b over a long spell, ending low-b/high-k.
+p.zeta_b = 2.0; p.chi_b = 0.02; p.lambda_adj = 0.15;
 p.tol_vfi = 1e-6; p.maxit_vfi = 800;
 p.tol_dist = 1e-11; p.maxit_dist = 50000;
 p.gold_outer = 0; p.gold_inner = 0;             % unused by the discrete solver
@@ -75,12 +82,13 @@ htm_b = 0.02; whtm_k = 0.50;
 
 % anchor the tree-price bracket on the KNOWN frictionless-ownership solution
 % (that run converged at q ~ 3.0); falls back to the d/r bound otherwise.
-q_ref = d_base / max(r_b, 5e-3);
+q_ref = d_base / max(r_b, 5e-3); chi_ref = 0.0015;
 ownf = fullfile(projdir, 'output', 'twoasset_ownership.mat');
 if exist(ownf, 'file') == 2
-    Ow = load(ownf, 'eq0');
+    Ow = load(ownf, 'eq0', 'p');
     if isfield(Ow,'eq0') && isstruct(Ow.eq0) && Ow.eq0.ok, q_ref = Ow.eq0.q; end
-end
+    if isfield(Ow,'p') && isfield(Ow.p,'chi_b'), chi_ref = 0.6*Ow.p.chi_b; end % KV holds
+end                                                % more bonds/chi -> start lower
 
 if ~isfolder(pg.tabdir), mkdir(pg.tabdir); end
 sf = fullfile(pg.tabdir, 'twoasset_ownership_kv.txt');
@@ -92,11 +100,12 @@ tee('iota_H=%.3f (direct target %.2f of income); superstar mult=%.1f p_in=%.3f\n
     iota_H, b_targ_H, ss.mult, ss.p_in);
 
 % ---- (0) diagnostic single solve: is the household/distribution healthy? ----
-tee('----- (0) diagnostic single equilibrium (chi=%.3f) -----\n', p.chi_b);
-pdiag = p; pdiag.chi_b = 0.02;
+tee('----- (0) diagnostic single equilibrium (chi=%.4f) -----\n', chi_ref);
+pdiag = p; pdiag.chi_b = chi_ref;
 eqd = solve_own_kv(r_b, d_base, D0, 0, 0, Bnom, Kbar, iota_H, pdiag, q_ref, true);
 if eqd.ok
-    tee('  diagnostic OK: S_b=%.4f q=%.4f P=%.4f\n', eqd.Sb, eqd.q, eqd.P);
+    tee('  diagnostic OK: S_b=%.4f q=%.4f P=%.4f min_c=%.4f n_infeas=%d\n', ...
+        eqd.Sb, eqd.q, eqd.P, eqd.min_c, eqd.n_infeas);
 else
     tee('  diagnostic FAILED: %s\n', eqd.msg);
     tee('  (household/distribution or bracket problem -- see printed q-scan above)\n');
@@ -104,7 +113,7 @@ end
 
 % ---- baseline: calibrate chi to the direct liquid target ----
 tee('----- (1) baseline -----\n');
-[p.chi_b, eq0] = calib_chi(r_b, d_base, D0, 0, 0, Bnom, Kbar, b_targ_H, iota_H, p, q_ref, t0);
+[p.chi_b, eq0] = calib_chi(r_b, d_base, D0, 0, 0, Bnom, Kbar, b_targ_H, iota_H, p, q_ref, chi_ref, t0);
 if isempty(eq0) || ~eq0.ok
     tee('BASELINE CALIBRATION FAILED -- see per-iteration diagnostics above.\n');
     fclose(fid);
@@ -113,6 +122,7 @@ end
 omega = eq0.Sb/(eq0.Sb + eq0.q*Kbar);
 tee('chi_b=%.5f S_b=%.4f (target %.2f) q=%.4f P=%.4f omega=%.3f div=%.4f\n', ...
     p.chi_b, eq0.Sb, b_targ_H, eq0.q, eq0.P, omega, eq0.div);
+tee('feasibility: min consumption %.4f, infeasible states %d\n', eq0.min_c, eq0.n_infeas);
 H = htm_bk(eq0.dist, eq0.bch, eq0.kch, eq0.q, htm_b, whtm_k);
 tee('HtM (b<%.2f): total %.3f | WEALTHY (qk>%.2f): %.3f | poor: %.3f\n', ...
     htm_b, H.htm, whtm_k, H.whtm, H.phtm);
@@ -146,36 +156,60 @@ fclose(fid);
 fprintf('[main_twoasset_ownership_kv] wrote %s (%.1f s)\n', sf, toc(t0));
 
 % =========================================================================
-function [chi_star, eq0] = calib_chi(rb, d, D, g, lv, Bnom, Kbar, btH, iota, p, q_ref, t0)
-    % coarse pre-scan to bracket the target before the secant
-    chi_grid = [0.005 0.01 0.02 0.04 0.08];
-    eq0 = []; chi_star = 0.02; best = Inf;
-    lc = log(0.02); lc_p = NaN; e_p = NaN;
+function [chi_star, eq0] = calib_chi(rb, d, D, g, lv, Bnom, Kbar, btH, iota, p, q_ref, chi0, t0)
+    % coarse pre-scan (log-spaced around chi0) to bracket the target before
+    % the secant. The KV household holds more bonds per unit chi than the
+    % frictionless one, so the target lives at SMALL chi -- start low and
+    % stay in the feasible region (high chi -> S_b overshoot -> low P ->
+    % high tax -> infeasible-poor states).
+    chi_grid = chi0 * [0.25 0.5 1 2 4];
+    eq0 = []; chi_star = chi0; best = Inf;
+    lc = log(chi0); lc_p = NaN; e_p = NaN;
     for k = 1:numel(chi_grid)
         pk = p; pk.chi_b = chi_grid(k);
         eqk = solve_own_kv(rb, d, D, g, lv, Bnom, Kbar, iota, pk, q_ref, false);
         if ~eqk.ok
-            fprintf('[%5.0fs] pre-scan chi=%.4f FAILED (%s)\n', toc(t0), chi_grid(k), eqk.msg);
+            fprintf('[%5.0fs] pre-scan chi=%.5f FAILED (%s)\n', toc(t0), chi_grid(k), eqk.msg);
             continue;
         end
         err = log(eqk.Sb) - log(btH);
-        fprintf('[%5.0fs] pre-scan chi=%.4f S_b=%.4f err=%+.4f\n', toc(t0), chi_grid(k), eqk.Sb, err);
+        fprintf('[%5.0fs] pre-scan chi=%.5f S_b=%.4f err=%+.4f (min_c=%.3f)\n', ...
+            toc(t0), chi_grid(k), eqk.Sb, err, eqk.min_c);
         if abs(err) < best, best = abs(err); eq0 = eqk; chi_star = chi_grid(k); lc = log(chi_grid(k)); end
     end
     if isempty(eq0), return; end                 % nothing solved -- report to caller
     % secant refinement from the best pre-scan point
     err = log(eq0.Sb) - log(btH);
+    nfail = 0;                                    % consecutive-failure guard
     for itc = 1:8
         if abs(err) < 8e-3, break; end
         if isfinite(e_p) && abs(err-e_p) > 1e-9
             step = -err*(lc-lc_p)/(err-e_p); step = max(min(step,1.0),-1.0);
         else, step = -sign(err)*0.3; end
-        lc_p = lc; e_p = err; lc = lc + step;
+        lc_p_try = lc; lc = lc + step;
         pk = p; pk.chi_b = exp(lc);
         eqk = solve_own_kv(rb, d, D, g, lv, Bnom, Kbar, iota, pk, q_ref, false);
-        if ~eqk.ok, fprintf('[%5.0fs] secant chi=%.4f FAILED\n', toc(t0), exp(lc)); continue; end
+        if ~eqk.ok
+            fprintf('[%5.0fs] secant chi=%.4f FAILED (%s)\n', toc(t0), exp(lc), eqk.msg);
+            nfail = nfail + 1;
+            % Target below the KV solvable floor: the household solve breaks
+            % down as bond demand approaches its no-liquidity-premium corner.
+            % Stop after two consecutive failures and report the closest
+            % FEASIBLE equilibrium rather than burning hours in the cliff.
+            if nfail >= 2
+                fprintf(['[calib] direct-liquid target %.2f is below the KV solvable ' ...
+                    'floor (best feasible S_b=%.4f at chi=%.5f); stopping secant.\n'], ...
+                    btH, eq0.Sb, chi_star);
+                break;
+            end
+            lc = lc_p_try;                        % step back to the feasible side
+            continue;
+        end
+        nfail = 0;
+        lc_p = lc_p_try; e_p = err;
         eq0 = eqk; chi_star = exp(lc); err = log(eqk.Sb) - log(btH);
-        fprintf('[%5.0fs] secant chi=%.4f S_b=%.4f err=%+.4f\n', toc(t0), chi_star, eqk.Sb, err);
+        fprintf('[%5.0fs] secant chi=%.5f S_b=%.4f err=%+.4f (min_c=%.3f)\n', ...
+            toc(t0), chi_star, eqk.Sb, err, eqk.min_c);
     end
 end
 
@@ -187,7 +221,7 @@ function eq = solve_own_kv(rb, d, D, g, use_levy, Bnom, Kbar, iota, p, q_ref, ve
     if nargin < 12, verbose = false; end
     lastwhy = '';                                % last failure reason (nested)
     eq = struct('ok',false,'msg','','P',NaN,'q',NaN,'Sb',NaN,'tau',NaN, ...
-                'div',NaN,'dist',[],'bch',[],'kch',[]);
+                'div',NaN,'dist',[],'bch',[],'kch',[],'n_infeas',0,'min_c',NaN);
     pe = p; pe.eGrid = (1 - D) * p.eGrid;
     if use_levy, pe.eGrid = (1 - g/(1-D)) * pe.eGrid; end
     tau = rb*1.10 + (~use_levy)*g;
@@ -214,10 +248,10 @@ function eq = solve_own_kv(rb, d, D, g, use_levy, Bnom, Kbar, iota, p, q_ref, ve
             nfin, numel(fq), min(fq), max(fq), lastwhy);
         return;
     end
-    a = qs(kk); b = qs(kk+1); fa = fq(kk); m = a; Sb = NaN;
+    a = qs(kk); b = qs(kk+1); fa = fq(kk); m = a; Sb = NaN; ninf = 0; mc = NaN;
     for it = 1:22
         m = 0.5*(a+b);
-        [fm, tau, div, Sb, Vc, dist, bch, kch] = evq(m, tau, div, Vc);
+        [fm, tau, div, Sb, Vc, dist, bch, kch, ninf, mc] = evq(m, tau, div, Vc);
         if ~isfinite(fm), b = m; continue; end
         if abs(fm) < 2e-3 || (b-a) < 1e-3*q_ref, break; end
         if sign(fm) == sign(fa), a = m; fa = fm; else, b = m; end
@@ -225,14 +259,21 @@ function eq = solve_own_kv(rb, d, D, g, use_levy, Bnom, Kbar, iota, p, q_ref, ve
     if ~isfinite(Sb) || Sb <= 0, eq.msg = 'non-finite end'; return; end
     eq.ok = true; eq.q = m; eq.Sb = Sb; eq.tau = tau; eq.div = div;
     eq.P = iota*Bnom/Sb; eq.dist = dist; eq.bch = bch; eq.kch = kch;
+    eq.n_infeas = ninf; eq.min_c = mc;
 
-    function [f, tt, dv, Sb, Vc, dist, bch, kch] = evq(qq, tinit, dvinit, Vc)
+    function [f, tt, dv, Sb, Vc, dist, bch, kch, ninf, mc] = evq(qq, tinit, dvinit, Vc)
         tt = tinit; dv = dvinit; Sb = NaN; Sk = NaN; rprev = NaN;
-        dist = []; bch = []; kch = [];
+        dist = []; bch = []; kch = []; ninf = 0; mc = NaN;
         pev = pe;                                % capped sweeps when warm
         if ~isempty(Vc), pev.maxit_vfi = 250; end
         for itt = 1:10
             [sol, dg] = solve_household_twoasset_kv(rb, qq, dv, tt, pev, Vc);
+            if ~dg.converged && ~isempty(Vc)
+                % the warm start may be poisoned by a distant trial q -- retry
+                % ONCE from the analytic cold init before giving up.
+                pcold = pev; pcold.maxit_vfi = max(pev.maxit_vfi, 400);
+                [sol, dg] = solve_household_twoasset_kv(rb, qq, dv, tt, pcold, []);
+            end
             Vc = sol.V;                          % KEEP progress even on failure
             if ~dg.converged
                 f = NaN;
@@ -245,6 +286,9 @@ function eq = solve_own_kv(rb, d, D, g, use_levy, Bnom, Kbar, iota, p, q_ref, ve
                 lastwhy = sprintf('distribution dv=%.1e after %d iters', dd.supnorm, dd.iters);
                 return;
             end
+            if isfield(dg,'n_infeas'), ninf = dg.n_infeas; end
+            msk = dist(:) > 1e-8;                 % min consumption on the support
+            if any(msk), cc = sol.polCn(:); mc = min(cc(msk)); end
             [Sb, Sk, bch, kch] = kv_agg(sol, dist, rb, qq, dv, tt, pe);
             P = iota*Bnom/max(Sb, 1e-9);
             tgt_tau = rb*(Bnom/P) + (~use_levy)*g;

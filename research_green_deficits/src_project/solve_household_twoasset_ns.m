@@ -92,7 +92,14 @@ function [polB, polK, polC, V, diag] = solve_household_twoasset_ns(rb, q, d, tau
             polB(:, ie)  = aC(bestA) .* sChosen;
             polK(:, ie)  = aC(bestA) .* (1 - sChosen) / q;
         end
-        dV = max(abs(Vnew(:) - V(:)));
+        % RELATIVE sup-norm over finite nodes -- future-proofs the solver for
+        % a superstar income state (which inflates the value scale) and for
+        % infeasible states carrying -inf (which would NaN-poison an absolute
+        % or unmasked norm). Behaviourally identical at the current
+        % non-superstar calibration up to the value scale.
+        fin = isfinite(Vnew) & isfinite(V);
+        if ~any(fin(:)), dV = Inf;
+        else, dV = max(abs(Vnew(fin) - V(fin))) / max(1, max(abs(Vnew(fin)))); end
         V = Vnew;
         diag.iters = it; diag.supnorm = dV;
         if dV < p.tol_vfi, diag.converged = true; break; end

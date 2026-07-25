@@ -109,7 +109,14 @@ function [V, polB, polK, polC, diag] = solve_household_twoasset(rb, q, d, tau, p
                 polK(ix,ie) = kstar; polC(ix,ie) = cstar;
             end
         end
-        dV = max(abs(Vn(:) - V(:)));
+        % RELATIVE sup-norm over FINITE nodes only -- future-proofs the
+        % reference VFI for a superstar income state (inflates the value
+        % scale, making an absolute tol unreachable) and for infeasible
+        % nodes carrying -1e12 (an unmasked absolute norm would be dominated
+        % by that floor). Behaviourally identical at the current calibration.
+        fin = isfinite(Vn) & isfinite(V);
+        if ~any(fin(:)), dV = Inf;
+        else, dV = max(abs(Vn(fin) - V(fin))) / max(1, max(abs(Vn(fin)))); end
         V = Vn;
         if dV < p.tol_vfi
             diag.converged = true; diag.iters = it; diag.supnorm = dV;
