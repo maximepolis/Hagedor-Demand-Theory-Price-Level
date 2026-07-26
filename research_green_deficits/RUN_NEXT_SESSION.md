@@ -47,6 +47,25 @@ Header must show `dividend payout phi=1.00`. Expected result: essentially a
 repeat of the beta=0.87421 run (S_b=0.30, q=1.51, contrast survives=1).
 This rewrites the benchmark .mat that Run 2 consumes.
 
+## RUN 1-FULL — full-grid headline (~40 min) — REFEREE-CRITICAL
+
+The restoration number dlnP = -0.010 is currently FAST-grid only, and it is
+the paper's headline; referee point M1 (REFEREE_REPORT_INTERNAL_R5.md) says
+the claim lives or dies on this. After the FAST regen looks right:
+
+```matlab
+clear; main_twoasset_ownership_kv
+```
+
+Compare the financing pair against the FAST run. If the lump-sum dlnP stays
+negative and within ~30% of -0.010, the headline stands and I write the
+full-grid numbers in. If it moves materially, send both tables.
+
+OPTIONAL but cheap immunization (one line each, ~9 min each): the lambda
+sweep. Edit `p.lambda_adj` to 0.10, rerun FAST, then 0.25, rerun FAST, and
+send the three financing pairs. This answers "is the contrast knife-edge in
+the friction parameter?" before a referee asks.
+
 ## RUN 1b — the KMV (friction-only) variant (~10 min)
 
 The WHtM question is now settled analytically: convenience utility places a
