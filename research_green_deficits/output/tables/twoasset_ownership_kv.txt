@@ -1,17 +1,20 @@
 OWNERSHIP + INFREQUENT ADJUSTMENT. nb=40 nk=22 nx=100 ne=8 lambda=0.15 FAST=1
 iota_H=0.273 (direct target 0.30 of income); superstar mult=12.0 p_in=0.000
+liquidity: zeta_b=2.00, Stone-Geary shift bbar=0.030 (0 => Inada at b=0 => HtM==0)
+dividend payout phi=0.25 (1 => full d*k paid LIQUID => wealthy never run down => WHtM==0)
 
------ (0) diagnostic single equilibrium (chi=0.0013) -----
-  diagnostic OK: S_b=0.8951 q=6.0080 P=0.3047 min_c=0.1844 n_infeas=0
------ (1) baseline -----
-chi_b=0.00000 S_b=0.8174 (target 0.30) q=6.0080 P=0.3337 omega=0.120 div=0.1627
-feasibility: min consumption 0.1898, infeasible states 0
-HtM (b<0.02): total 0.175 | WEALTHY (qk>0.50): 0.000 | poor: 0.175
-wealth shares: top10 0.67 top1 0.41
+----- (0) diagnostic single equilibrium (chi=0.0022) -----
+  diagnostic OK: S_b=1.2288 q=9.3109 P=0.2220 min_c=0.1602 n_infeas=0
+----- (1) baseline (beta recalibrated; chi fixed at 0.00223) -----
+beta=0.84224 chi_b=0.00223 S_b=0.2971 (target 0.30) q=3.4149 P=0.9180 omega=0.080 div=0.1355
+wealth: total 3.712 x income (illiquid 3.415, liquid 0.297); tree yield d/q=0.035
+feasibility: min consumption 0.2272, infeasible states 0, k-grid top mass 0.0052
+HtM (b<0.02): total 0.088 | WEALTHY (qk>0.50): 0.000 | poor: 0.088
+wealth shares: top10 0.95 top1 0.75
 
 ----- (2) financing incidence (lump-sum vs levy) -----
-lump-sum P=0.4810 dlnP=+0.3657 q=3.0762
-levy     P=0.5795 dlnP=+0.5520 q=2.8571
+lump-sum P=0.9507 dlnP=+0.0349 q=3.9058
+levy     P=0.9891 dlnP=+0.0745 q=3.9058
 sign contrast survives: 0
 
 Reading: does the ADJUSTMENT FRICTION on top of the ownership wedge
