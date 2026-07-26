@@ -111,27 +111,41 @@ for z = 1:nz
         tee('%-8.2f %10s %10s %12s %12s %14s\n', Z(z).zeta, '--','--','--','--','fail');
     end
 end
-% interpolate the zeta matching the KVJ headline (model elasticity should be
-% negative and increasing in magnitude with curvature)
-ok = [Z.ok]; zs = [Z(ok).zeta]; els = [Z(ok).el];
-zeta_star = NaN;
-if numel(zs) >= 2 && min(els) < kvj_target && max(els) > kvj_target
-    [els_s, io] = sort(els); zs_s = zs(io);
-    zeta_star = interp1(els_s, zs_s, kvj_target, 'linear');
-    tee('\nzeta matching the KVJ headline (%.2f pp/logpt): zeta* = %.2f\n', ...
-        kvj_target, zeta_star);
-    tee('=> rerun main_twoasset_step0 with p.zeta_b = %.2f for the DISCIPLINED\n', zeta_star);
-    tee('   financing experiment; that dlnP(lump-sum) sign is the paper''s answer.\n');
-else
-    tee(['\nKVJ headline not bracketed by the swept zetas: model elasticities in ' ...
-         '[%+.3f, %+.3f].\n'], min(els), max(els));
-    tee(['If all model elasticities are SMALLER in magnitude than the KVJ range,\n' ...
-         'the separable specification cannot generate the observed supply\n' ...
-         'sensitivity and the CES variant (main_twoasset_nonsep) takes over.\n']);
-end
+% ---- interpretation ----
+% The GE ratio dspr/dlnS_b above is NOT the KVJ regression coefficient.
+% In KVJ, Treasuries must be held, so a supply shift moves equilibrium
+% HOLDINGS one-for-one and the coefficient is the slope of the convenience
+% demand curve. Here the instrument shifts the OTHER asset's supply
+% (Kbar); household real bond holdings are demand-determined and barely
+% move (|dlnS_b| << ln(1+hK)), so the ratio divides a spread change that
+% mostly reflects the tree market by a near-zero denominator and explodes
+% (the -16..-59 readings). It is kept above as a GE diagnostic only.
+%
+% The structural object IS available in closed form for the separable
+% specification. The liquid FOC chi v'(b) = u'(c) * spread/(1+r_k) gives,
+% along the demand curve at given (c, r_k),
+%     dln(spread)/dln(b) = -zeta * b/(b+bbar)  ~  -zeta.
+% KVJ's point estimate (-0.75 pp per log point on a mean AAA-Treasury
+% spread of ~0.73 pp) is a LOG-elasticity of ~ -1.0, with the reported
+% range mapping to roughly [-2.05, -0.55]. The raw pp semi-elasticity is
+% not comparable across level differences (the model's tree spread is
+% equity-scale, ~3 pp); the level-free curvature is what KVJ pins down.
+ok = [Z.ok]; els = [Z(ok).el]; %#ok<NASGU>
+kvj_logel = -0.75/0.73; kvj_log_lo = -1.5/0.73; kvj_log_hi = -0.4/0.73;
+zeta_star = -kvj_logel;                         % structural mapping zeta ~ -logel
+tee('\nSTRUCTURAL mapping (the KVJ-comparable object):\n');
+tee('  model demand-curve log-elasticity  dln(spr)/dln(b) = -zeta*b/(b+bbar) ~ -zeta\n');
+tee('  KVJ log-elasticity: point %.2f, range [%.2f, %.2f]\n', ...
+    kvj_logel, kvj_log_lo, kvj_log_hi);
+tee('  => disciplined curvature: zeta* ~ %.2f (range ~ [%.2f, %.2f])\n', ...
+    zeta_star, -kvj_log_hi, -kvj_log_lo);
+tee(['  => the benchmark zeta = 2 lies INSIDE the KVJ range (log-elasticity ~ -1.8\n' ...
+     '     vs bound -2.05) but at its steep edge; zeta = 1 is the point estimate.\n' ...
+     '  => referee-critical follow-up: rerun the ownership-KV benchmark with\n' ...
+     '     ZETA = 1.0 and check the restoration (dlnP lump-sum < 0) survives.\n']);
 
 save(fullfile(projdir,'output','convenience_kvj.mat'), 'Z', 'zeta_star', ...
-     'kvj_target', 'kvj_lo', 'kvj_hi', 'hK', 'p');
+     'kvj_target', 'kvj_lo', 'kvj_hi', 'kvj_logel', 'hK', 'p');
 fclose(fid);
 fprintf('[calibrate_convenience_kvj] wrote %s (%.1f s)\n', sf, toc(t0));
 

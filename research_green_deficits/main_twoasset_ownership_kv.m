@@ -21,7 +21,7 @@
 % OUTPUT  output/twoasset_ownership_kv.mat, output/tables/twoasset_ownership_kv.txt
 % STATUS: scaffolded, untested pending a MATLAB run.
 
-clearvars -except FAST KMV; close all; clc;
+clearvars -except FAST KMV ZETA; close all; clc;
 rng(20260723, 'twister'); t0 = tic;
 
 projdir = fileparts(mfilename('fullpath'));
@@ -73,6 +73,12 @@ p.eGrid = eG2(:)'; p.Pi = Pi2; p.stationary_e = st2;
 % mechanism needs INFREQUENT adjustment -- households load illiquid k at a
 % rebalancing date and draw down b over a long spell, ending low-b/high-k.
 p.zeta_b = 2.0; p.chi_b = 0.02; p.lambda_adj = 0.15;
+% ZETA workspace override: the KVJ evidence disciplines the convenience
+% curvature through the demand-curve log-elasticity dln(spr)/dln(b) ~ -zeta
+% (see calibrate_convenience_kvj); the point estimate maps to zeta ~ 1, the
+% range to ~[0.55, 2.05]. `ZETA = 1.0` reruns the benchmark at the
+% point-disciplined curvature, writing to suffixed output files.
+if exist('ZETA','var') && ~isempty(ZETA), p.zeta_b = ZETA; end
 % STONE-GEARY shift on liquid holdings. With bbar = 0 the convenience
 % utility chi*b^(1-zeta)/(1-zeta) has v'(b) = chi*b^(-zeta) -> inf as b -> 0:
 % an Inada condition on LIQUIDITY that makes running the liquid buffer to
@@ -140,6 +146,9 @@ if KMV, chi_ref = 0; end                        % friction-only: no convenience 
 
 if ~isfolder(pg.tabdir), mkdir(pg.tabdir); end
 if KMV, tag = 'twoasset_ownership_kmv'; else, tag = 'twoasset_ownership_kv'; end
+if abs(p.zeta_b - 2.0) > 1e-12                  % non-default curvature: suffix
+    tag = sprintf('%s_z%02.0f', tag, 10*p.zeta_b);
+end
 sf = fullfile(pg.tabdir, [tag '.txt']);
 fid = fopen(sf, 'w'); assert(fid > 0, 'cannot open %s', sf);
 tee = @(varargin) tee2(fid, varargin{:});

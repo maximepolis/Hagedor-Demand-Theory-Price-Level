@@ -4372,7 +4372,16 @@ convenience-yield term in preferences,
 \qquad v(b) = \frac{b^{1-\zeta}}{1-\zeta},
 \]
 so the nominal share is interior and elastic with curvature $\zeta$
-(\citealp{krishnamurthy2012}). With frictionless rebalancing the household
+(\citealp{krishnamurthy2012}). The \citeauthor{krishnamurthy2012}
+evidence disciplines this curvature directly: along the liquid first-order
+condition the demand-curve log-elasticity is
+$d\ln(\text{spread})/d\ln b = -\zeta\, b/(b+\bar b) \approx -\zeta$, and
+their semi-elasticity ($-0.75$\,pp per log point on a mean spread of
+$\approx 0.73$\,pp) maps to a log-elasticity near $-1$, with the reported
+range spanning roughly $[-2.05, -0.55]$ --- so $\zeta \approx 1$ at the
+point estimate, with the benchmark $\zeta = 2$ inside the admissible
+range at its steep edge. The financing experiments at the
+point-disciplined $\zeta = 1$ are part of the accuracy pack. With frictionless rebalancing the household
 state is cash-on-hand $x = y - \tau + (1+r_b)b + (q+d)k$ --- the
 one-dimensional aggregation is exact in this variant by construction, not an
 approximation; what it cannot generate is wealthy hand-to-mouth households,
@@ -4487,7 +4496,28 @@ one-asset economy --- against $\OwnKVDlnPLevy$ under the levy. The
 equilibrium simultaneously delivers top-decile and top-percentile wealth
 shares of $\OwnKVTopTen\%$ and $\OwnKVTopOne\%$ (data: roughly $70$ and
 $35$), total wealth of $\OwnKVW\times$ income, and an illiquidity premium
-of $\OwnKVPrem$\,pp, none of which are targeted. The restoration is
+of $\OwnKVPrem$\,pp, none of which are targeted. The full
+two-by-two of computed experiments locates the restoration precisely ---
+neither ingredient suffices alone:
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+$d\ln P$: lump-sum (levy) & uniform ownership & calibrated ownership \\
+\midrule
+frictionless rebalancing & $\TwoADlnPLS$ ($\TwoADlnPLevy$) & $\OwnDlnPLS$ ($\OwnDlnPLevy$) \\
+infrequent adjustment    & $\TwoBDlnPLS$ ($\TwoBDlnPLevy$) & $\OwnKVDlnPLS$ ($\OwnKVDlnPLevy$) \\
+\bottomrule
+\end{tabular}
+\end{center}
+\noindent Only the cell with \emph{both} the ownership calibration and
+the adjustment friction produces the lump-sum disinflation; ownership
+alone and the friction alone leave the response (weakly) inflationary.
+One honest caveat on reading the cells: each economy is calibrated to its
+own targets (the uniform-ownership cells set $\chi_b$ to the public-debt
+target; the calibrated-ownership friction cell recalibrates $\beta$ to
+the direct-holding target), so the cells differ by their labeled
+ingredient \emph{plus} the recalibration that ingredient requires ---
+the matched-parameter decomposition is part of the accuracy pack. The restoration is
 robust to the liquidity-utility specification --- the benchmark carries a
 Stone--Geary shift in $v$ (removing the marginal-utility divergence at
 zero balances), and dropping the shift moves the pair only to
@@ -4509,17 +4539,22 @@ a liquid floor \emph{increasing in consumption}. At the benchmark
 calibration the floor crosses the hand-to-mouth cutoff at
 $c \approx \OwnKVcThresh$: a household consuming above roughly mean
 income cannot be hand-to-mouth at \emph{any} discount factor, adjustment
-frequency, or payout convention, so the wealthy-hand-to-mouth measure of
-\citet{kaplanviolanteweidner2014} is zero by construction in this model
-class. The computed variants confirm the bound: every hand-to-mouth
+frequency, or payout convention. Since consumption rises with illiquid
+wealth in every computed policy, households above the wealth cutoff
+consume above the threshold, and the wealthy-hand-to-mouth measure of
+\citet{kaplanviolanteweidner2014} is zero in every specification we
+solve --- a joint implication of the floor and policy monotonicity, not
+a calibration failure. The computed variants confirm the bound: every hand-to-mouth
 household in every specification lies in the poor segment (total measures
 of $5.7$--$8.8\%$), and an uncalibrated probe with $\chi_b \to 0$ ---
 where the floor vanishes --- raised the hand-to-mouth mass to $17.5\%$.
 Wealthy hand-to-mouth therefore lives only in the \emph{friction-only}
 limit in which liquid demand is purely buffer-stock \citep{kaplan2018};
-but it is exactly the convenience-yield term that disciplines bond demand
-to the \citet{krishnamurthy2012} evidence and gives the demand theory its
-interior nominal margin. The two desiderata sit at opposite ends of a
+but it is exactly the convenience-yield term that gives bond demand the
+interior, elastic form the \citet{krishnamurthy2012} evidence measures
+--- the quantitative match is the object of the convenience-yield
+calibration exercise in the numerical appendix --- and gives the demand
+theory its nominal margin. The two desiderata sit at opposite ends of a
 one-parameter family in $\chi_b$. Whether the friction-only end
 quantitatively delivers the wealthy-hand-to-mouth mass is a queued
 computed check (the $\chi_b = 0$ ownership economy with retained

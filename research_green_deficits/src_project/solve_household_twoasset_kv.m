@@ -101,6 +101,10 @@ function [sol, diag] = solve_household_twoasset_kv(rb, q, d, tau, p, V0)
     % point once it stops improving, rather than burning the whole budget or
     % spuriously reporting non-convergence.
     dV_best = Inf; stall = 0; stall_cap = 10; tol_soft = 3e-3;
+    % policy-stability diagnostic: discrete choices typically lock in exactly
+    % well before the value plateaus, so "policies unchanged for N sweeps" is
+    % the sharp accuracy statement for the soft-accepted fixed point.
+    prevIdxN = []; polStable = 0;
 
     polBa = zeros(nx, ne); polKa = zeros(nx, ne); polCa = zeros(nx, ne);
     polBn = zeros(nb, nk, ne); polCn = zeros(nb, nk, ne);
@@ -191,6 +195,12 @@ function [sol, diag] = solve_household_twoasset_kv(rb, q, d, tau, p, V0)
             dV = max(abs(Vnew(fin) - V(fin))) / Vscale;
         end
         V = Vnew;
+        if ~isempty(prevIdxN) && isequal(polBnIdx, prevIdxN)
+            polStable = polStable + 1;
+        else
+            polStable = 0;
+        end
+        prevIdxN = polBnIdx;
         diag.iters = it; diag.supnorm = dV;
         if dV < p.tol_vfi, diag.converged = true; break; end
         % plateau early-stop: once dV stops improving for stall_cap sweeps
@@ -203,6 +213,7 @@ function [sol, diag] = solve_household_twoasset_kv(rb, q, d, tau, p, V0)
         end
     end
     diag.n_infeas = sum(~isfinite(V(:)));          % infeasible-state count
+    diag.pol_stable = polStable;                   % sweeps since a policy changed
     % soft-accept: if the cap was hit but the RELATIVE change is already
     % small, the grid-limited fixed point is effectively reached -- record it
     % rather than failing the whole equilibrium evaluation.

@@ -19,6 +19,16 @@ clear functions; rehash
 which main_twoasset_ownership_kv    % confirm it points at THIS repo copy
 ```
 
+**parpool note:** open the pool ONCE per MATLAB session:
+
+```matlab
+if isempty(gcp('nocreate')), parpool; end
+```
+
+Calling `parpool` again while a pool exists errors (this killed a run).
+None of the commands below include `parpool` — run the guard line once at
+the start instead.
+
 **Verification gate.** When Run 1 starts it must print these two lines:
 
 ```
@@ -40,12 +50,31 @@ now phi=1 + bbar=0.03 (the run that restored the one-asset disinflation:
 dlnP lump-sum = -0.0098, levy = +0.0273, top1 = 0.33). Regenerate it:
 
 ```matlab
-parpool; clear; FAST = true; main_twoasset_ownership_kv
+clear; FAST = true; main_twoasset_ownership_kv
 ```
 
 Header must show `dividend payout phi=1.00`. Expected result: essentially a
 repeat of the beta=0.87421 run (S_b=0.30, q=1.51, contrast survives=1).
 This rewrites the benchmark .mat that Run 2 consumes.
+
+## RUN 1-FULL — full-grid headline (~40 min) — REFEREE-CRITICAL
+
+The restoration number dlnP = -0.010 is currently FAST-grid only, and it is
+the paper's headline; referee point M1 (REFEREE_REPORT_INTERNAL_R5.md) says
+the claim lives or dies on this. After the FAST regen looks right:
+
+```matlab
+clear; main_twoasset_ownership_kv
+```
+
+Compare the financing pair against the FAST run. If the lump-sum dlnP stays
+negative and within ~30% of -0.010, the headline stands and I write the
+full-grid numbers in. If it moves materially, send both tables.
+
+OPTIONAL but cheap immunization (one line each, ~9 min each): the lambda
+sweep. Edit `p.lambda_adj` to 0.10, rerun FAST, then 0.25, rerun FAST, and
+send the three financing pairs. This answers "is the contrast knife-edge in
+the friction parameter?" before a referee asks.
 
 ## RUN 1b — the KMV (friction-only) variant (~10 min)
 
@@ -83,16 +112,36 @@ question answered in the disciplined model.
 
 ---
 
-## RUN 3 — convenience-yield calibration (~15 min)
+## RUN 3 — convenience-yield calibration: DONE, interpreted
+
+Your run produced sign-correct but hugely inflated ratios (-16 to -59).
+Diagnosis: the GE ratio divides by dlnS_b, but bond holdings are
+demand-determined and barely move when the instrument shifts the TREE
+supply — the ratio is not the KVJ coefficient. The structural object is
+closed-form: dln(spread)/dln(b) ~ -zeta, and KVJ's point estimate
+(-0.75pp on a 0.73pp mean spread) is a log-elasticity of ~ -1.0 with
+range ~[-2.05, -0.55]. So: **zeta is disciplined to ~1 (point), with the
+benchmark zeta=2 inside the range at its steep edge.** The driver now
+prints this mapping. No rerun needed unless you want the updated table
+text:
 
 ```matlab
-parpool; clear; FAST = true; calibrate_convenience_kvj
+clear; FAST = true; calibrate_convenience_kvj
 ```
 
-Output: `output/tables/convenience_kvj.txt`. This was fixed to shift REAL
-tree supply (nominal debt is neutral by Theorem 2), so it should now give a
-non-degenerate elasticity. Look for a `zeta*` matching the KVJ headline of
-about -0.75pp per log point.
+## RUN 3b — headline at the KVJ point-disciplined curvature (~9 min) — REFEREE-CRITICAL (M5)
+
+Does the restoration survive zeta = 1? Writes to suffixed files
+(`twoasset_ownership_kv_z10.*`), benchmark untouched:
+
+```matlab
+clear; FAST = true; ZETA = 1.0; main_twoasset_ownership_kv
+```
+
+Read the financing pair. If dlnP(lump-sum) stays negative, the headline is
+disciplined at the KVJ point estimate and I write it in as such; if it
+flips, the paper reports the restoration as holding on the steep half of
+the KVJ range — either way the claim gets sharper.
 
 ---
 
@@ -101,7 +150,7 @@ about -0.75pp per log point.
 Both reuse the Step 0 economy and need `output/twoasset_step0.mat`.
 
 ```matlab
-parpool; clear; FAST = true; main_twoasset_nonsep
+clear; FAST = true; main_twoasset_nonsep
 clear; FAST = true; main_twoasset_transition
 ```
 
@@ -159,7 +208,7 @@ Also paste into the chat:
 | Ownership frictionless (R2) | done — `S_b`=0.30, omega=0.09, WHtM=0 |
 | Ownership + friction | benchmark computed (restores one-asset disinflation); .mat regen = **Run 1** |
 | Welfare by decile (R1) | **Run 2** — rerun under the regenerated benchmark |
-| Convenience yield (R3) | **Run 3** |
+| Convenience yield (R3) | DONE — zeta disciplined to ~1 (point), zeta=2 at range edge; **Run 3b** checks headline at zeta=1 |
 | Non-separable, transition | **Run 4** |
 
 ### Open items on my side (not yours to run)
