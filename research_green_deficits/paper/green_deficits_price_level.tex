@@ -93,6 +93,14 @@
 \providecommand{\TwoBWelLevyBot}{\pendingnum}\providecommand{\TwoBWelLevyTop}{\pendingnum}
 \providecommand{\TwoNSlsLo}{\pendingnum}\providecommand{\TwoNSlsHi}{\pendingnum}
 \providecommand{\OwnTopOne}{\pendingnum}\providecommand{\OwnOmega}{\pendingnum}\providecommand{\OwnIota}{\pendingnum}
+% Ownership + infrequent adjustment (main_twoasset_ownership_kv), benchmark
+% phi=1, bbar=0.03; the b0 pair is the bbar=0 robustness run.
+\providecommand{\OwnKVLam}{\pendingnum}\providecommand{\OwnKVSb}{\pendingnum}
+\providecommand{\OwnKVTopTen}{\pendingnum}\providecommand{\OwnKVTopOne}{\pendingnum}
+\providecommand{\OwnKVW}{\pendingnum}\providecommand{\OwnKVPrem}{\pendingnum}
+\providecommand{\OwnKVDlnPLS}{\pendingnum}\providecommand{\OwnKVDlnPLevy}{\pendingnum}
+\providecommand{\OwnKVDlnPLSb}{\pendingnum}\providecommand{\OwnKVDlnPLevyb}{\pendingnum}
+\providecommand{\OwnKVcThresh}{\pendingnum}
 % Decile-resolution welfare incidence, populated by welfare_incidence_deciles.
 \providecommand{\WDecBotMed}{\pendingnum}\providecommand{\WDecTopMed}{\pendingnum}
 \providecommand{\WTopFiveMed}{\pendingnum}\providecommand{\WTopOneMed}{\pendingnum}
@@ -4424,10 +4432,11 @@ wealthy-hand-to-mouth share is $\TwoBWhtm\%$. With homogeneous
 convenience preferences calibrated so that households absorb the entire
 public-debt stock (aggregate liquid holdings of $\TwoBOmega$ of total
 wealth, mean liquid balances above annual income), no household is
-liquidity-poor: matching the skewed micro distribution of liquid wealth
---- and hence the wealthy-hand-to-mouth configuration --- requires
-preference heterogeneity or intermediated debt holdings, not the
-adjustment friction alone.
+liquidity-poor. The deeper reason is structural rather than
+calibrational: convenience utility itself places a liquid floor under
+every household's portfolio that rises with consumption (see the remark
+in the ownership discussion below), so the wealthy-hand-to-mouth
+configuration requires removing that floor, not recalibrating around it.
 
 \paragraph{Who pays, in the two-asset world.} The decisive test is
 whether the paper's distributional answer --- regressive lump-sum
@@ -4462,9 +4471,61 @@ of consumption and liquid balances) does not restore the one-asset
 disinflation: as the two turn complementary the lump-sum response becomes
 \emph{more} inflationary, not less ($\TwoNSlsLo$ to $\TwoNSlsHi$ across the
 swept elasticity), so the sign flip is not an artifact of separable
-convenience utility. The wealthy-hand-to-mouth configuration and the
-transition-inclusive incidence remain the open items, pursued in the
-model's next stage.
+convenience utility.
+
+\paragraph{Ownership plus illiquidity restores the one-asset sign.}
+Combining the ownership calibration with the adjustment friction --- the
+intermediation wedge and superstar state on the infrequent-adjustment
+household ($\lambda=\OwnKVLam$), the discount factor recalibrated so the
+\emph{directly held} liquid position matches its target ($\OwnKVSb$ of
+income), and the liquidity weight held at its frictionless-calibrated
+value --- yields the disciplined two-asset economy, and it
+\emph{restores} the sign contrast that both frictionless variants
+overturn: the same program moves the price level by $\OwnKVDlnPLS$ log
+points under lump-sum financing --- a \emph{disinflation}, as in the
+one-asset economy --- against $\OwnKVDlnPLevy$ under the levy. The
+equilibrium simultaneously delivers top-decile and top-percentile wealth
+shares of $\OwnKVTopTen\%$ and $\OwnKVTopOne\%$ (data: roughly $70$ and
+$35$), total wealth of $\OwnKVW\times$ income, and an illiquidity premium
+of $\OwnKVPrem$\,pp, none of which are targeted. The restoration is
+robust to the liquidity-utility specification --- the benchmark carries a
+Stone--Geary shift in $v$ (removing the marginal-utility divergence at
+zero balances), and dropping the shift moves the pair only to
+$\OwnKVDlnPLSb$ against $\OwnKVDlnPLevyb$ --- but
+sensitive to the dividend-payout convention: retaining dividends inside
+the illiquid account and recalibrating overshoots wealth concentration
+badly (a top-percentile share of $75\%$) while losing the contrast, so we
+fix the payout margin by the concentration data and report the
+sensitivity rather than average over it.
+
+\medskip\noindent\emph{Remark (why wealthy hand-to-mouth cannot arise
+under convenience utility).} Interior optimality of the liquid choice
+requires $u'(c) \ge \chi_b v'(b')$; with CRRA consumption utility and
+$v'(b) = (b + \bar b)^{-\zeta}$ this reads
+\[
+b' \;\ge\; \big(\chi_b\, c^{\sigma}\big)^{1/\zeta} - \bar b,
+\]
+a liquid floor \emph{increasing in consumption}. At the benchmark
+calibration the floor crosses the hand-to-mouth cutoff at
+$c \approx \OwnKVcThresh$: a household consuming above roughly mean
+income cannot be hand-to-mouth at \emph{any} discount factor, adjustment
+frequency, or payout convention, so the wealthy-hand-to-mouth measure of
+\citet{kaplanviolanteweidner2014} is zero by construction in this model
+class. The computed variants confirm the bound: every hand-to-mouth
+household in every specification lies in the poor segment (total measures
+of $5.7$--$8.8\%$), and an uncalibrated probe with $\chi_b \to 0$ ---
+where the floor vanishes --- raised the hand-to-mouth mass to $17.5\%$.
+Wealthy hand-to-mouth therefore lives only in the \emph{friction-only}
+limit in which liquid demand is purely buffer-stock \citep{kaplan2018};
+but it is exactly the convenience-yield term that disciplines bond demand
+to the \citet{krishnamurthy2012} evidence and gives the demand theory its
+interior nominal margin. The two desiderata sit at opposite ends of a
+one-parameter family in $\chi_b$. Whether the friction-only end
+quantitatively delivers the wealthy-hand-to-mouth mass is a queued
+computed check (the $\chi_b = 0$ ownership economy with retained
+dividends); the bound above establishes only that it is the sole place
+the mass can live. The transition-inclusive two-asset incidence remains
+the other open item, pursued in the model's next stage.
 
 \noindent\emph{Status:} \textbf{computed} --- both variants solve with
 the two markets clearing separately (tree-market residual $<10^{-4}$;
@@ -4472,10 +4533,15 @@ endogenous-grid and discrete-choice solvers agree to $2.6\times10^{-3}$ on
 liquid demand; the $\lambda\to1$ limit reproduces the frictionless
 economy to $8.6\times10^{-3}$). The frictionless numbers are from the
 validation-grid pass and a refined-grid rerun is queued; the variant-(b)
-numbers are from the full grid. Conclusions drawn in the body from these
-results are limited to the two stated here: the instrument ordering is
-robust across portfolio structures, and the level sign of the lump-sum
-response is specification-dependent.
+numbers are from the full grid; the ownership-plus-friction economy is
+computed at the validation grid (tree-market bisection, distribution
+converged to $10^{-8}$ per state on a unit-mass vector). Conclusions
+drawn in the body from these results are limited to the three stated
+here: the instrument ordering is robust across every portfolio structure
+computed; the level sign of the lump-sum response is
+specification-dependent in the \emph{frictionless} two-asset variants;
+and with bond ownership and portfolio illiquidity jointly calibrated to
+the data the one-asset lump-sum disinflation reappears.
 
 \subsection{The worked example in full}\label{subsec:workedexample}
 

@@ -21,7 +21,7 @@
 % OUTPUT  output/twoasset_ownership_kv.mat, output/tables/twoasset_ownership_kv.txt
 % STATUS: scaffolded, untested pending a MATLAB run.
 
-clearvars -except FAST; close all; clc;
+clearvars -except FAST KMV; close all; clc;
 rng(20260723, 'twister'); t0 = tic;
 
 projdir = fileparts(mfilename('fullpath'));
@@ -32,6 +32,17 @@ addpath(genpath(fullfile(rootdir, 'src')));
 addpath(genpath(fullfile(projdir, 'src_project')));
 
 if ~exist('FAST','var'), FAST = false; end
+% KMV = true runs the FRICTION-ONLY (Kaplan-Moll-Violante limit) variant:
+% chi_b -> 0, so liquid demand comes purely from the buffer-stock motive
+% created by the adjustment friction, and part of the dividend is retained
+% inside the illiquid account. Rationale (see the WHtM remark in the paper):
+% with convenience utility the interior liquid FOC u'(c) >= chi v'(b')
+% implies b' >= (chi c^sigma)^(1/zeta) - bbar, so hand-to-mouth status is
+% possible only below a consumption threshold (~1.06 x mean income at the
+% benchmark calibration) and WEALTHY hand-to-mouth is zero BY CONSTRUCTION
+% at any beta/lambda/payout. Only chi -> 0 removes the bound. This variant
+% writes to *_kmv output files and never touches the benchmark ones.
+if ~exist('KMV','var'), KMV = false; end
 pg = setup_params_green();
 
 p = struct();
@@ -85,7 +96,16 @@ p.bbar_liq = 0.03;
 % illiquid account (k compounds at (1-phi)*d/q between adjustment dates),
 % the Kaplan-Moll-Violante convention that produces households rich in k
 % but liquidity-constrained.
-p.div_payout = 0.25;
+%
+% BENCHMARK phi = 1: the phi = 0.25 recalibrated economy overshoots wealth
+% concentration badly (top1 = 0.75 vs ~0.35 in the data; retained dividends
+% compound the superstar tail) and is not an admissible calibration, so the
+% payout margin is exercised only in the KMV variant, where the buffer-
+% drawdown between adjustment dates is the whole point.
+p.div_payout = 1.00;
+if KMV
+    p.chi_b = 0; p.div_payout = 0.25;           % friction-only liquidity demand
+end
 p.tol_vfi = 1e-6; p.maxit_vfi = 800;
 p.tol_dist = 1e-11; p.maxit_dist = 50000;
 p.gold_outer = 0; p.gold_inner = 0;             % unused by the discrete solver
@@ -116,11 +136,16 @@ if exist(ownf, 'file') == 2
     % was scaled down to chase the level target and could not reach it.)
     if isfield(Ow,'p') && isfield(Ow.p,'chi_b'), chi_ref = Ow.p.chi_b; end
 end
+if KMV, chi_ref = 0; end                        % friction-only: no convenience utility
 
 if ~isfolder(pg.tabdir), mkdir(pg.tabdir); end
-sf = fullfile(pg.tabdir, 'twoasset_ownership_kv.txt');
+if KMV, tag = 'twoasset_ownership_kmv'; else, tag = 'twoasset_ownership_kv'; end
+sf = fullfile(pg.tabdir, [tag '.txt']);
 fid = fopen(sf, 'w'); assert(fid > 0, 'cannot open %s', sf);
 tee = @(varargin) tee2(fid, varargin{:});
+if KMV
+    tee('OWNERSHIP + FRICTION-ONLY LIQUIDITY (KMV limit, chi_b=0, phi=%.2f).\n', p.div_payout);
+end
 tee('OWNERSHIP + INFREQUENT ADJUSTMENT. nb=%d nk=%d nx=%d ne=%d lambda=%.2f FAST=%d\n', ...
     nb, nk, nx, numel(p.eGrid), p.lambda_adj, FAST);
 tee('iota_H=%.3f (direct target %.2f of income); superstar mult=%.1f p_in=%.3f\n', ...
@@ -193,7 +218,7 @@ tee(['\nReading: does the ADJUSTMENT FRICTION on top of the ownership wedge\n' .
      'is the calibration for the covariance-on-realistic-bond-ownership\n' ...
      'exercise and the disciplined welfare incidence.\n']);
 
-save(fullfile(projdir,'output','twoasset_ownership_kv.mat'), 'eq0', 'EXK', ...
+save(fullfile(projdir,'output',[tag '.mat']), 'eq0', 'EXK', ...
      'omega', 'H', 'p', 'iota_H', 'b_targ_H', 'ss', 'r_b', 'd_base', 'D0', 'Gg');
 fclose(fid);
 fprintf('[main_twoasset_ownership_kv] wrote %s (%.1f s)\n', sf, toc(t0));
