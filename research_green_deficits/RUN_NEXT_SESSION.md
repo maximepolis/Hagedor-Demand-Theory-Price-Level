@@ -11,7 +11,7 @@ before letting anything run long.
 
 ```bash
 git pull origin claude/hagedorn-dtpl-matlab-9abghk
-git log --oneline -1        # must show f25451d or later
+git log --oneline -1        # must show the "restores the one-asset sign" commit or later
 ```
 
 ```matlab
@@ -23,43 +23,51 @@ which main_twoasset_ownership_kv    % confirm it points at THIS repo copy
 
 ```
 liquidity: zeta_b=2.00, Stone-Geary shift bbar=0.030 (0 => Inada at b=0 => HtM==0)
-dividend payout phi=0.25 (1 => full d*k paid LIQUID => wealthy never run down => WHtM==0)
+dividend payout phi=1.00 (1 => full d*k paid LIQUID => wealthy never run down => WHtM==0)
 ```
 
-If the `dividend payout phi=` line is **missing**, the code is stale — stop,
-re-pull, restart MATLAB. Everything below assumes those lines appeared.
+If the `dividend payout phi=` line is **missing** or shows `0.25`, the code
+is stale — stop, re-pull, restart MATLAB. Everything below assumes the gate
+passed.
 
 ---
 
-## RUN 1 — ownership + infrequent adjustment (~8 min) — THE PRIORITY
+## RUN 1 — regenerate the BENCHMARK ownership-KV economy (~9 min)
+
+The phi=0.25 experiment overwrote `output/twoasset_ownership_kv.mat` with an
+economy we rejected (top1 = 0.75, contrast lost). The driver's benchmark is
+now phi=1 + bbar=0.03 (the run that restored the one-asset disinflation:
+dlnP lump-sum = -0.0098, levy = +0.0273, top1 = 0.33). Regenerate it:
 
 ```matlab
 parpool; clear; FAST = true; main_twoasset_ownership_kv
 ```
 
-Output: `output/tables/twoasset_ownership_kv.txt`
+Header must show `dividend payout phi=1.00`. Expected result: essentially a
+repeat of the beta=0.87421 run (S_b=0.30, q=1.51, contrast survives=1).
+This rewrites the benchmark .mat that Run 2 consumes.
 
-Three things to read, in order:
+## RUN 1b — the KMV (friction-only) variant (~10 min)
 
-1. **`HtM ... | WEALTHY (qk>0.50): ___`** — the point of the whole variant.
-   Positive is the goal (US target ~20%).
-2. **`sign contrast survives: ___`** — must stay `1`. This is the paper's
-   headline; it held at bbar=0 and at bbar=0.03, and must survive phi=0.25.
-3. **`wealth:` line** — total wealth x income, and the tree yield `d/q`.
-
-### If WHtM is still 0.000
-
-Change one line in `main_twoasset_ownership_kv.m` and rerun (8 min):
+The WHtM question is now settled analytically: convenience utility places a
+liquid floor b >= sqrt(chi)*c - bbar under every household, so ONLY
+households consuming below ~1.06 x mean income can be hand-to-mouth, and
+wealthy-HtM is zero by construction. The one place WHtM can live is the
+chi_b -> 0 friction-only limit (KMV). The driver now runs it off a flag,
+writing to SEPARATE files (`twoasset_ownership_kmv.*`), so the benchmark is
+never clobbered:
 
 ```matlab
-p.div_payout = 0.10;     % was 0.25 — retain even more inside the illiquid account
+clear; FAST = true; KMV = true; main_twoasset_ownership_kv
 ```
 
-If that still gives 0, stop and send the table. Do not keep sweeping — at
-that point the obstacle is structural and I write it up as a limitation
-rather than burning your compute.
-
----
+Read in `output/tables/twoasset_ownership_kmv.txt`:
+- `WEALTHY` HtM — the bound vanishes here, so this run decides whether the
+  friction-only end quantitatively delivers WHtM (the paper's remark
+  currently claims only that it is the sole place the mass can live).
+- The financing pair — with chi_b=0 the convenience-yield discipline is
+  gone, so whatever the contrast does here is reported as the OTHER end of
+  the chi_b trade-off, not as the benchmark.
 
 ## RUN 2 — welfare incidence under the new calibration (~minutes)
 
@@ -149,8 +157,8 @@ Also paste into the chat:
 | Variant (b) KV | done, integrated |
 | Incidence audit | done, integrated |
 | Ownership frictionless (R2) | done — `S_b`=0.30, omega=0.09, WHtM=0 |
-| Ownership + friction | **Run 1** — `S_b`=0.30 hit, sign contrast survives, WHtM pending |
-| Welfare by decile (R1) | **Run 2** — rerun under the new calibration |
+| Ownership + friction | benchmark computed (restores one-asset disinflation); .mat regen = **Run 1** |
+| Welfare by decile (R1) | **Run 2** — rerun under the regenerated benchmark |
 | Convenience yield (R3) | **Run 3** |
 | Non-separable, transition | **Run 4** |
 
