@@ -176,8 +176,8 @@ h_fd = min(max(sqrt(max(max(abs(r_ss)), eps)), 1e-5), 1e-2);
 tee('finite-difference step set to h = %.1e (from the measured floor)\n', h_fd);
 nopts = struct('newton_maxit', 60, 'newton_tol', 1e-4, 'fd_step', h_fd, ...
                'refresh_after', 10, 'verbose', true, 't0', t0, ...
-               'noise_floor', max(abs(r_ss)), 'time_budget', 900);
-if FAST, nopts.newton_maxit = 40; nopts.time_budget = 600; end
+               'noise_floor', max(abs(r_ss)), 'time_budget', 5400);
+if FAST, nopts.newton_maxit = 60; nopts.time_budget = 2400; end
 TRN = solve_twoasset_transition_ssj(ctx, nopts);
 
 % ALWAYS adopt the Newton path: it is the best iterate found so far, and the
@@ -276,7 +276,20 @@ tee('impact d ln P (announcement year) = %+.4f\n', dlnP_impact);
 tee('long-run d ln P (across steady states) = %+.4f\n', dlnP_total);
 tee('front-loading share (impact / total) = %.3f\n', frontshare);
 tee('impact tree repricing d ln q = %+.4f\n', log(qpath(1)/eq_init.q));
-tee('max tree-market residual along path = %.2e\n', max(abs(Sk_t - Kbar)));
+tee('max tree-market residual over IMPOSED dates = %.2e\n', ...
+    max(abs(Sk_t(1:end-1) - Kbar)));
+% The terminal date carries no clearing condition (the path has 2(T-1) free
+% prices and 2(T-1) equations, with t=T pinned at the program steady state),
+% so any gap there is a HORIZON diagnostic, not a solver residual: it says
+% whether the distribution has settled by T. Reporting it inside the path
+% maximum, as an earlier version did, made a short horizon look like a failed
+% solve.
+tee('terminal-date tree gap |S^k_T - Kbar| = %.2e (horizon check, not imposed)\n', ...
+    abs(Sk_t(end) - Kbar));
+if abs(Sk_t(end) - Kbar) > 1e-2
+    tee('  NOTE: the distribution has not settled by T=%d; lengthen the horizon\n', T);
+    tee('  before reading the front-loading share as a long-run decomposition.\n');
+end
 if outconv
     tee('market clearing CONVERGED (||r||inf < 1e-4)\n');
 else

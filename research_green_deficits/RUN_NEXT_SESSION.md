@@ -145,32 +145,30 @@ the KVJ range — either way the claim gets sharper.
 
 ---
 
-## RUN 4 — two-asset transition, now a sequence-space Newton solve (~10-25 min)
+## RUN 4 — two-asset transition (sequence-space Newton) — OPEN A POOL FIRST
 
-The damped map could not solve this system and has been replaced by a Newton
-solve on the joint path {P_t, q_t}, following the same sequence-space
-approach as the one-asset `verify_transition_ssj` cross-check. The damped map
-remains underneath purely as a fallback.
+The Jacobian is now built with `parfor`, and it is ~95% of the runtime, so a
+pool matters more here than anywhere else in the project:
 
 ```matlab
+if isempty(gcp('nocreate')), parpool; end
 clear; FAST = true; main_twoasset_transition
 ```
 
-Watch the console:
-- `newton  0: ||r||inf = ...` then `newton  1, 2, ...`. The norm should fall
-  by orders of magnitude, not drift. Jacobian builds announce themselves
-  (`building Jacobian (78 residual solves)`) and are the slow part.
-- Success prints `solver: sequence-space Newton, converged in N iterations`
-  plus a `sigma_min` / `cond` line, which is the determinacy diagnostic:
-  a near-singular Jacobian would flag the dynamic analogue of the flat
-  asset-demand crossing.
-- If it prints `did NOT converge` it falls back to the damped map and labels
-  the numbers provisional, exactly as before. Send the console output either
-  way.
+The first three lines tell you the numerical health before any solving:
+- endpoint refinement, `||r||` about 1e-15 for each boundary steady state;
+- `steady-state consistency check`, expect about 6e-08;
+- `finite-difference step set to h`, auto-derived, expect about 2e-04.
 
-Read in `output/tables/twoasset_transition.txt`: the `impact d ln P`, the
-`front-loading share`, and the residual line. The front-loading share is the
-number the paper wants, to compare against the one-asset value.
+Then the Newton trace should fall monotonically in `||r||2`. Target is
+`1.0e-04`. Budget is 40 minutes under FAST.
+
+Two lines at the end are worth reading carefully:
+- `max tree-market residual over IMPOSED dates` is the real accuracy figure.
+- `terminal-date tree gap` is a HORIZON diagnostic, not a solver residual:
+  t=T carries no clearing condition. If it exceeds 1e-2 the distribution has
+  not settled by T and the driver says so; the fix is a longer horizon
+  (drop FAST, which raises T from 40 to 80), not more solver work.
 
 ## RUN 4b — non-separable liquidity (unchanged, only if not already current)
 

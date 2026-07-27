@@ -41,20 +41,28 @@ function [J, r0, aux0] = twoasset_transition_jacobian(x0, ctx, h)
               'residual infeasible at the linearization point (date %d).', aux0.tbad);
     end
 
-    J = zeros(n, n);
-    for j = 1:n
+    % The 2(T-1) columns are INDEPENDENT residual solves, so the Jacobian is
+    % embarrassingly parallel and is by far the dominant cost of the whole
+    % transition (78 solves at roughly 2s each). parfor cuts it by the worker
+    % count; with no pool open it degrades to a serial loop, so the code is
+    % correct either way.
+    cols = cell(n, 1);
+    parfor j = 1:n
         xp = x0; xp(j) = xp(j) + h;
         [rp, auxp] = twoasset_transition_residual(xp, ctx);
-        if ~auxp.feas
-            xp = x0; xp(j) = xp(j) - h;              % fall back to a backward step
-            [rp, auxp] = twoasset_transition_residual(xp, ctx);
-            if ~auxp.feas
-                J(:, j) = 0; J(j, j) = 1;            % neutral column, keep J invertible
-                continue;
+        if auxp.feas
+            cols{j} = (rp - r0)/h;
+        else
+            xm = x0; xm(j) = xm(j) - h;          % forward step infeasible: step back
+            [rm, auxm] = twoasset_transition_residual(xm, ctx);
+            if auxm.feas
+                cols{j} = (r0 - rm)/h;
+            else
+                e = zeros(n,1); e(j) = 1;        % neutral column keeps J invertible
+                cols{j} = e;
             end
-            J(:, j) = (r0 - rp) / h;
-            continue;
         end
-        J(:, j) = (rp - r0) / h;
     end
+    J = zeros(n, n);
+    for j = 1:n, J(:, j) = cols{j}; end
 end
