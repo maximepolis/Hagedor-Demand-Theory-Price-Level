@@ -153,24 +153,31 @@ end
 % floor (r_ss above), or the Jacobian is dominated by grid noise and no step
 % direction is trustworthy. h=1e-2 keeps the signal roughly two orders above
 % the floor measured by the consistency check.
-nopts = struct('newton_maxit', 12, 'newton_tol', 1e-4, 'fd_step', 1e-2, ...
-               'refresh_after', 3, 'verbose', true, 't0', t0, ...
+% Between full rebuilds the Jacobian is carried by Broyden rank-1 updates,
+% so iterations are cheap and refreshes should be rare: an LM step costs one
+% residual solve, a rebuild costs 2(T-1) of them.
+nopts = struct('newton_maxit', 60, 'newton_tol', 1e-4, 'fd_step', 1e-2, ...
+               'refresh_after', 10, 'verbose', true, 't0', t0, ...
                'noise_floor', max(abs(r_ss)));
-if FAST, nopts.newton_maxit = 8; end
+if FAST, nopts.newton_maxit = 40; end
 TRN = solve_twoasset_transition_ssj(ctx, nopts);
 
-if TRN.converged
-    Ppath = TRN.Ppath; qpath = TRN.qpath;
-    Sb_t  = TRN.Sb;    Sk_t  = TRN.Sk;
-    outconv = true; dbest = TRN.rnorm;
+% ALWAYS adopt the Newton path: it is the best iterate found so far, and the
+% fallback below is only allowed to replace it if it does strictly better.
+% (Previously an unconverged Newton path was discarded and the fallback's
+% own, worse, result was reported instead.)
+Ppath = TRN.Ppath; qpath = TRN.qpath;
+Sb_t  = TRN.Sb;    Sk_t  = TRN.Sk;
+dbest = TRN.rnorm; outconv = TRN.converged;
+if outconv
     tee('solver: sequence-space Newton, converged in %d iterations\n', TRN.iters);
-    tee('  ||market residual||inf = %.2e\n', TRN.rnorm);
-    tee('  GE Jacobian: sigma_min = %.3e, cond = %.3e (determinacy diagnostic)\n', ...
-        TRN.sigma_min, TRN.cond_J);
 else
-    tee('solver: sequence-space Newton did NOT converge (||r||inf = %.2e);\n', TRN.rnorm);
-    tee('  falling back to the damped fixed point.\n');
+    tee('solver: sequence-space Newton stopped at %d iterations\n', TRN.iters);
 end
+tee('  ||market residual||inf = %.2e (target %.1e)\n', ...
+    TRN.rnorm, max(1e-4, 5*max(abs(r_ss))));
+tee('  GE Jacobian: sigma_min = %.3e, cond = %.3e (determinacy diagnostic)\n', ...
+    TRN.sigma_min, TRN.cond_J);
 
 % =====================================================================
 % FALLBACK: damped fixed point on (Ppath, qpath)
@@ -203,6 +210,7 @@ lpb = log(linspace(eq_init.P, Pterm, T+1)); lpb = lpb(2:end-1);
 lqb = log(linspace(eq_init.q, qterm, T+1)); lqb = lqb(2:end-1);
 xd = [lpb(:); lqb(:)];
 nfree = T - 1; relax = 0.05; step_max = 0.03; kappa = 0.5;
+dnewton = dbest;                      % Newton's best, to beat
 [rd, auxd] = twoasset_transition_residual(xd, ctx);
 dbest = max(abs(rd)); auxbest = auxd; outconv = false;
 maxout = 60; if FAST, maxout = 40; end
@@ -222,8 +230,15 @@ for outer = 1:maxout
     fprintf('[%5.0fs] damped %2d: ||r||inf = %.3e  (relax %.4f)\n', ...
             toc(t0), outer, dbest, relax);
 end
-Ppath = auxbest.Ppath; qpath = auxbest.qpath;
-Sb_t  = auxbest.Sb;    Sk_t  = auxbest.Sk;
+if dbest < dnewton
+    Ppath = auxbest.Ppath; qpath = auxbest.qpath;
+    Sb_t  = auxbest.Sb;    Sk_t  = auxbest.Sk;
+    tee('  damped fallback improved on the Newton path (%.2e -> %.2e)\n', ...
+        dnewton, dbest);
+else
+    dbest = dnewton;
+    tee('  damped fallback did not improve on the Newton path; keeping Newton\n');
+end
 if dbest < 1e-4, outconv = true; end
 end
 if ~outconv

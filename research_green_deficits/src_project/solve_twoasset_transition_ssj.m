@@ -28,8 +28,10 @@ function TR = solve_twoasset_transition_ssj(ctx, opts)
 % is the sequence-space analogue of the flat asset-demand crossing that
 % generates steady-state multiplicity.
 %
-% OPTS  .newton_maxit (12) .newton_tol (1e-4) .fd_step (1e-2)
-%       .refresh_after (3) .verbose (true) .t0 (tic handle)
+% OPTS  .newton_maxit (60) .newton_tol (1e-4) .fd_step (1e-2)
+%       .refresh_after (10) .verbose (true) .t0 (tic handle)
+%         Between full rebuilds the Jacobian is carried by Broyden rank-1
+%         updates, so refreshes can be rare: a rebuild is 2(T-1) solves.
 %       .noise_floor (0) : measured discretization floor of the residual. The
 %         effective tolerance is max(newton_tol, 5*noise_floor), because no
 %         solver can drive a residual below the noise of its own evaluation.
@@ -38,10 +40,10 @@ function TR = solve_twoasset_transition_ssj(ctx, opts)
 %           .sigma_min .cond_J .J .history
 
     if nargin < 2, opts = struct(); end
-    nmax    = getopt(opts, 'newton_maxit', 12);
+    nmax    = getopt(opts, 'newton_maxit', 60);
     ntol    = getopt(opts, 'newton_tol',  1e-4);
     hfd     = getopt(opts, 'fd_step',     1e-2);
-    refresh = getopt(opts, 'refresh_after', 3);
+    refresh = getopt(opts, 'refresh_after', 10);
     verbose = getopt(opts, 'verbose', true);
     nfloor  = getopt(opts, 'noise_floor', 0);
     t0      = getopt(opts, 't0', tic);
@@ -92,6 +94,13 @@ function TR = solve_twoasset_transition_ssj(ctx, opts)
             if ~all(isfinite(dx)), lam = 5*lam; continue; end
             [rt, auxt] = twoasset_transition_residual(x + dx, ctx);
             if auxt.feas && max(abs(rt)) < rn
+                % BROYDEN update. A full rebuild costs 2(T-1) residual solves
+                % (the dominant expense); this rank-1 correction keeps the
+                % Jacobian current along the direction just travelled for
+                % free, so the chord stays accurate for many more steps.
+                dr = rt - r;
+                den = dx.'*dx;
+                if den > 0, J = J + ((dr - J*dx)*dx.')/den; end
                 x = x + dx; r = rt; aux = auxt; rn = max(abs(rt));
                 lam = max(lam/3, 1e-9); ok = true; break;
             end
