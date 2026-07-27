@@ -106,36 +106,33 @@ Ppath = linspace(eq_init.P, Pterm, T);
 qpath = linspace(eq_init.q, qterm, T);
 Ppath(T) = Pterm; qpath(T) = qterm;
 
-% terminal continuation consumption policy (program steady state household)
-peT = p; peT.eGrid = (1 - Dterm) * p.eGrid;   % lump-sum program economy
-tauT = r_b*Bnom/Pterm + g_real;
-[~,~,~, Cterm, ~, dgT] = solve_household_twoasset_egm_ss(r_b, qterm, d_div, tauT, peT);
-assert(dgT.converged, 'terminal steady-state household solve failed');
+% ---- boundary steady states, re-solved to the transition's own accuracy ----
+% The path is pinned at these two endpoints, so its market residual can never
+% be smaller than their error. Step 0 returns them at its bisection tolerance
+% (about 1e-4 in the clearing conditions), and that -- not the path solver --
+% was the floor under every date's residual. Re-solving both here with the
+% same household solver and forward operator the residual uses removes it.
+tee('refining boundary steady states under the transition operators...\n');
+pe0 = p; pe0.eGrid = (1 - D0)    * p.eGrid;
+peT = p; peT.eGrid = (1 - Dterm) * p.eGrid;
 
-% initial distribution (no-program steady state)
-pe0 = p; pe0.eGrid = (1 - D0) * p.eGrid;
-tau0 = r_b*Bnom/eq_init.P;
-[pB0, pK0, ~, C0, ~, dg0] = solve_household_twoasset_egm_ss(r_b, eq_init.q, d_div, tau0, pe0);
-[Omega0, dd0] = stationary_distribution_twoasset(pB0, pK0, r_b, eq_init.q, d_div, tau0, pe0);
-assert(dg0.converged && dd0.converged, 'initial steady state failed');
+g_real = Gg / eq_init.P;                        % real appropriation (initial P)
+SS0 = refine_twoasset_steady_state(r_b, d_div, 0,      Bnom, Kbar, pe0, ...
+                                   eq_init.P, eq_init.q, 1e-11, false);
+tee('  initial : P = %.8f  q = %.8f  ||r|| = %.2e  (%d its, converged %d)\n', ...
+    SS0.P, SS0.q, max(abs(SS0.resid)), SS0.iters, SS0.converged);
+g_real = Gg / SS0.P;                            % restate g at the refined P
+SST = refine_twoasset_steady_state(r_b, d_div, g_real, Bnom, Kbar, peT, ...
+                                   Pterm, qterm, 1e-11, false);
+tee('  terminal: P = %.8f  q = %.8f  ||r|| = %.2e  (%d its, converged %d)\n', ...
+    SST.P, SST.q, max(abs(SST.resid)), SST.iters, SST.converged);
 
-% Re-converge the initial distribution under the TRANSITION's own forward
-% operator. The steady-state routine leaves next-period cash-on-hand
-% unclamped where the transition push clamps it to the grid, so the two have
-% slightly different invariant distributions. Feeding the transition a state
-% that is not its own fixed point puts a floor under the market residual,
-% and that floor is what previously swamped the finite-difference Jacobian
-% and stalled the Newton solve short of clearing. Starting from the
-% steady-state answer, this converges in a handful of sweeps.
-for itPsi = 1:2000
-    Om1 = push_forward_twoasset_x(Omega0, pB0, pK0, r_b, eq_init.q, d_div, tau0, pe0);
-    dPsi = max(abs(Om1(:) - Omega0(:)));
-    Omega0 = Om1;
-    if dPsi < 1e-14, break; end
-end
-Omega0 = Omega0 / sum(Omega0(:));
-tee('initial distribution re-converged under the transition operator: ');
-tee('d = %.1e after %d sweeps\n', dPsi, itPsi);
+eq_init.P = SS0.P; eq_init.q = SS0.q;
+Pterm = SST.P;     qterm = SST.q;
+pB0 = SS0.polB; pK0 = SS0.polK; C0 = SS0.C; Omega0 = SS0.dist;
+Cterm = SST.C;
+tee('P0=%.6f -> P_term=%.6f ; q0=%.6f -> q_term=%.6f ; g=%.6f (refined)\n\n', ...
+    eq_init.P, Pterm, eq_init.q, qterm, g_real);
 
 % =====================================================================
 % SEQUENCE-SPACE NEWTON on the joint path (Ppath, qpath)
