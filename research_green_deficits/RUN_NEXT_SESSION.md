@@ -170,6 +170,40 @@ Two lines at the end are worth reading carefully:
   not settled by T and the driver says so; the fix is a longer horizon
   (drop FAST, which raises T from 40 to 80), not more solver work.
 
+## RUN 4c — matched-parameter ladder (~35 min) — REFEREE-CRITICAL (M2)
+
+The paper's 2x2 table compares economies that are each separately
+recalibrated, so a referee can fairly ask whether the restored sign comes
+from the INGREDIENTS or from the discount factor that came with them. This
+holds beta, chi and the grids at the benchmark and switches one ingredient
+off at a time, so consecutive rows differ by exactly one thing:
+
+```matlab
+if isempty(gcp('nocreate')), parpool; end
+clear; FAST = true; LADDER = true; main_twoasset_ownership_kv
+```
+
+Writes `output/tables/twoasset_ownership_kv_ladder.txt`; the benchmark
+outputs are untouched. The table reports dlnP under each instrument, whether
+the sign contrast survives, and top-1% wealth for each cell. What I expect,
+and what would settle M2: the contrast should hold in the benchmark row and
+break in the rows that remove the wedge or the friction, at unchanged
+preferences.
+
+## RUN 4d — transition at the LONG horizon (~20 min)
+
+The T=40 solve converged (||r||inf = 9.5e-05) but its terminal-date tree gap
+is 0.33, so the distribution has not settled and the front-loading share is
+not yet interpretable. Doubling the horizon is the fix:
+
+```matlab
+clear; main_twoasset_transition        % no FAST: T goes 40 -> 80
+```
+
+Read `terminal-date tree gap`. Below 1e-2 means the front-loading share is
+real and I write it into the paper; still large means the horizon must go
+further and I would rather see the number than guess.
+
 ## RUN 4b — non-separable liquidity (unchanged, only if not already current)
 
 ```matlab
