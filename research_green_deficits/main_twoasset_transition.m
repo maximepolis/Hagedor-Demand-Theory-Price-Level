@@ -119,6 +119,24 @@ tau0 = r_b*Bnom/eq_init.P;
 [Omega0, dd0] = stationary_distribution_twoasset(pB0, pK0, r_b, eq_init.q, d_div, tau0, pe0);
 assert(dg0.converged && dd0.converged, 'initial steady state failed');
 
+% Re-converge the initial distribution under the TRANSITION's own forward
+% operator. The steady-state routine leaves next-period cash-on-hand
+% unclamped where the transition push clamps it to the grid, so the two have
+% slightly different invariant distributions. Feeding the transition a state
+% that is not its own fixed point puts a floor under the market residual,
+% and that floor is what previously swamped the finite-difference Jacobian
+% and stalled the Newton solve short of clearing. Starting from the
+% steady-state answer, this converges in a handful of sweeps.
+for itPsi = 1:2000
+    Om1 = push_forward_twoasset_x(Omega0, pB0, pK0, r_b, eq_init.q, d_div, tau0, pe0);
+    dPsi = max(abs(Om1(:) - Omega0(:)));
+    Omega0 = Om1;
+    if dPsi < 1e-14, break; end
+end
+Omega0 = Omega0 / sum(Omega0(:));
+tee('initial distribution re-converged under the transition operator: ');
+tee('d = %.1e after %d sweeps\n', dPsi, itPsi);
+
 % =====================================================================
 % SEQUENCE-SPACE NEWTON on the joint path (Ppath, qpath)
 % =====================================================================
@@ -149,14 +167,17 @@ if max(abs(r_ss)) > 5e-3
     tee('  Treat any transition number below as unvalidated.\n');
 end
 
-% The finite-difference step must sit well above the residual's own noise
-% floor (r_ss above), or the Jacobian is dominated by grid noise and no step
-% direction is trustworthy. h=1e-2 keeps the signal roughly two orders above
-% the floor measured by the consistency check.
+% The finite-difference step is set FROM the measured noise floor rather than
+% fixed: the optimal step for a noisy forward difference scales as the square
+% root of the noise, and with the operator mismatch removed the floor is many
+% orders smaller, so a much finer (and far more accurate) step is now
+% justified. Clamped to a sane range.
 % Between full rebuilds the Jacobian is carried by Broyden rank-1 updates,
 % so iterations are cheap and refreshes should be rare: an LM step costs one
 % residual solve, a rebuild costs 2(T-1) of them.
-nopts = struct('newton_maxit', 60, 'newton_tol', 1e-4, 'fd_step', 1e-2, ...
+h_fd = min(max(sqrt(max(max(abs(r_ss)), eps)), 1e-5), 1e-2);
+tee('finite-difference step set to h = %.1e (from the measured floor)\n', h_fd);
+nopts = struct('newton_maxit', 60, 'newton_tol', 1e-4, 'fd_step', h_fd, ...
                'refresh_after', 10, 'verbose', true, 't0', t0, ...
                'noise_floor', max(abs(r_ss)), 'time_budget', 900);
 if FAST, nopts.newton_maxit = 40; nopts.time_budget = 600; end
