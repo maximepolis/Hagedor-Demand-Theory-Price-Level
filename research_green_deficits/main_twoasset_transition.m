@@ -158,8 +158,8 @@ end
 % residual solve, a rebuild costs 2(T-1) of them.
 nopts = struct('newton_maxit', 60, 'newton_tol', 1e-4, 'fd_step', 1e-2, ...
                'refresh_after', 10, 'verbose', true, 't0', t0, ...
-               'noise_floor', max(abs(r_ss)));
-if FAST, nopts.newton_maxit = 40; end
+               'noise_floor', max(abs(r_ss)), 'time_budget', 900);
+if FAST, nopts.newton_maxit = 40; nopts.time_budget = 600; end
 TRN = solve_twoasset_transition_ssj(ctx, nopts);
 
 % ALWAYS adopt the Newton path: it is the best iterate found so far, and the
