@@ -1,6 +1,8 @@
 TWO-ASSET NONLINEAR TRANSITION. T=40 nx=220 ne=7 FAST=1
 P0=0.9090 -> P_term=0.9167 ; q0=2.3421 -> q_term=2.3679 ; g=0.0200
 
+solver: sequence-space Newton did NOT converge (||r||inf = 1.70e-02);
+  falling back to the damped fixed point.
 ----- results -----
 impact d ln P (announcement year) = +0.0000
 long-run d ln P (across steady states) = +0.0085
