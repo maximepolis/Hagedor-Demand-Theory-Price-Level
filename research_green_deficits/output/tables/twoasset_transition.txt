@@ -1,3 +1,17 @@
 TWO-ASSET NONLINEAR TRANSITION. T=40 nx=220 ne=7 FAST=1
 P0=0.9090 -> P_term=0.9167 ; q0=2.3421 -> q_term=2.3679 ; g=0.0200
 
+----- results -----
+impact d ln P (announcement year) = +0.0000
+long-run d ln P (across steady states) = +0.0085
+front-loading share (impact / total) = 0.000
+impact tree repricing d ln q = +0.0000
+max tree-market residual along path = 1.95e-02
+outer loop NOT converged: best max|dln| = 1.74e-02 -- numbers are provisional
+(compare the one-asset front-loading share reported in Section 6.3)
+
+Reading: the impact d ln P is the announcement-date revaluation on the
+nominal market with the tree absorbing part of the portfolio shift.
+Front-loading share near the one-asset value would show the timing
+result is portfolio-robust; a lower share would show the tree margin
+spreads the repricing over time.
