@@ -149,8 +149,13 @@ if max(abs(r_ss)) > 5e-3
     tee('  Treat any transition number below as unvalidated.\n');
 end
 
-nopts = struct('newton_maxit', 12, 'newton_tol', 1e-4, 'fd_step', 1e-3, ...
-               'refresh_after', 3, 'verbose', true, 't0', t0);
+% The finite-difference step must sit well above the residual's own noise
+% floor (r_ss above), or the Jacobian is dominated by grid noise and no step
+% direction is trustworthy. h=1e-2 keeps the signal roughly two orders above
+% the floor measured by the consistency check.
+nopts = struct('newton_maxit', 12, 'newton_tol', 1e-4, 'fd_step', 1e-2, ...
+               'refresh_after', 3, 'verbose', true, 't0', t0, ...
+               'noise_floor', max(abs(r_ss)));
 if FAST, nopts.newton_maxit = 8; end
 TRN = solve_twoasset_transition_ssj(ctx, nopts);
 
