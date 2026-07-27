@@ -145,20 +145,38 @@ the KVJ range — either way the claim gets sharper.
 
 ---
 
-## RUN 4 — the two remaining scaffolds
+## RUN 4 — two-asset transition, now a sequence-space Newton solve (~10-25 min)
 
-Both reuse the Step 0 economy and need `output/twoasset_step0.mat`.
+The damped map could not solve this system and has been replaced by a Newton
+solve on the joint path {P_t, q_t}, following the same sequence-space
+approach as the one-asset `verify_transition_ssj` cross-check. The damped map
+remains underneath purely as a fallback.
 
 ```matlab
-clear; FAST = true; main_twoasset_nonsep
 clear; FAST = true; main_twoasset_transition
 ```
 
-Outputs: `output/tables/twoasset_nonsep.txt`,
-`output/tables/twoasset_transition.txt`. These are first-run scaffolds — if
-either dies, send the console text verbatim rather than debugging it.
+Watch the console:
+- `newton  0: ||r||inf = ...` then `newton  1, 2, ...`. The norm should fall
+  by orders of magnitude, not drift. Jacobian builds announce themselves
+  (`building Jacobian (78 residual solves)`) and are the slow part.
+- Success prints `solver: sequence-space Newton, converged in N iterations`
+  plus a `sigma_min` / `cond` line, which is the determinacy diagnostic:
+  a near-singular Jacobian would flag the dynamic analogue of the flat
+  asset-demand crossing.
+- If it prints `did NOT converge` it falls back to the damped map and labels
+  the numbers provisional, exactly as before. Send the console output either
+  way.
 
----
+Read in `output/tables/twoasset_transition.txt`: the `impact d ln P`, the
+`front-loading share`, and the residual line. The front-loading share is the
+number the paper wants, to compare against the one-asset value.
+
+## RUN 4b — non-separable liquidity (unchanged, only if not already current)
+
+```matlab
+clear; FAST = true; main_twoasset_nonsep
+```
 
 ## RUN 5 — refresh the paper macros (always last)
 

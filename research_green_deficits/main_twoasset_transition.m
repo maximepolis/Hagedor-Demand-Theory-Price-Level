@@ -20,14 +20,19 @@
 % (DTPL Fisher block, trend inflation inside r_b); the tree pays dividend d
 % and trades at q_t, real gross return R^k_{t+1} = (q_{t+1} + d)/q_t.
 %
-% METHOD. Outer damped fixed point on ({P_t},{q_t}): (i) backward pass solves
-% household consumption policies from the terminal steady state using a
-% single-step frictionless two-asset EGM operator with the time-varying
-% returns/taxes/damages; (ii) forward pass rolls the distribution from the
-% initial steady state; (iii) update P_t toward B / S^b_t (bond clearing) and
-% q_t toward the level that clears the tree (raise q_t on excess tree demand).
-% A full sequence-space Newton is the production upgrade; the damped map is the
-% robust scaffold.
+% METHOD. Sequence-space Newton on the joint path. Each residual evaluation
+% is (i) a backward pass solving household consumption policies from the
+% terminal steady state with a single-step frictionless two-asset EGM
+% operator under the time-varying returns/taxes/damages, and (ii) a forward
+% pass rolling the distribution from the initial steady state; the two market
+% residuals are then read off in logs. The Newton step inverts the
+% sequence-space (GE) Jacobian of Auclert et al. (2021), whose off-diagonal
+% blocks carry the portfolio-substitution channel between the two markets.
+%
+% A damped fixed point on this system DIVERGES: P_t enters both the
+% stationarized bond return and the tax, so bond demand is far too elastic
+% for any scalar relaxation to both converge and move. That map is retained
+% only as a fallback if the Newton solve fails.
 %
 % USAGE   >> FAST = true; main_twoasset_transition
 %         >> main_twoasset_transition
@@ -115,7 +120,37 @@ tau0 = r_b*Bnom/eq_init.P;
 assert(dg0.converged && dd0.converged, 'initial steady state failed');
 
 % =====================================================================
-% OUTER LOOP: damped fixed point on (Ppath, qpath)
+% SEQUENCE-SPACE NEWTON on the joint path (Ppath, qpath)
+% =====================================================================
+% The damped fixed point below diverges on this system (P_t enters both the
+% revaluation return and the tax, so bond demand is far too elastic for any
+% scalar relaxation). The Newton solve uses the actual Jacobian, including
+% the cross-market blocks a scalar update cannot see. The damped map is
+% retained underneath as a fallback and as an independent check.
+ctx = struct('T', T, 'p', p, 'r_b', r_b, 'd_div', d_div, 'Bnom', Bnom, ...
+             'Kbar', Kbar, 'Dpath', Dpath, 'g_real', g_real, ...
+             'P0', eq_init.P, 'q0', eq_init.q, 'Pterm', Pterm, 'qterm', qterm, ...
+             'Cterm', Cterm, 'Omega0', Omega0);
+nopts = struct('newton_maxit', 12, 'newton_tol', 1e-4, 'fd_step', 1e-3, ...
+               'refresh_after', 3, 'verbose', true, 't0', t0);
+if FAST, nopts.newton_maxit = 8; end
+TRN = solve_twoasset_transition_ssj(ctx, nopts);
+
+if TRN.converged
+    Ppath = TRN.Ppath; qpath = TRN.qpath;
+    Sb_t  = TRN.Sb;    Sk_t  = TRN.Sk;
+    outconv = true; dbest = TRN.rnorm;
+    tee('solver: sequence-space Newton, converged in %d iterations\n', TRN.iters);
+    tee('  ||market residual||inf = %.2e\n', TRN.rnorm);
+    tee('  GE Jacobian: sigma_min = %.3e, cond = %.3e (determinacy diagnostic)\n', ...
+        TRN.sigma_min, TRN.cond_J);
+else
+    tee('solver: sequence-space Newton did NOT converge (||r||inf = %.2e);\n', TRN.rnorm);
+    tee('  falling back to the damped fixed point.\n');
+end
+
+% =====================================================================
+% FALLBACK: damped fixed point on (Ppath, qpath)
 % =====================================================================
 % Damped fixed point with a TRUST REGION and adaptive relaxation.
 %
@@ -135,6 +170,7 @@ assert(dg0.converged && dd0.converged, 'initial steady state failed');
 % guards on a non-positive equity-bond spread (sprd = 1 - Rb/Rk <= 0) by
 % returning [], and the diverging path drove Rb_t high enough to trip it,
 % so polB{t} .* Om hit a size mismatch.
+if ~exist('outconv','var') || ~outconv
 relax = 0.08; relax_min = 5e-3; relax_max = 0.20;
 step_max = 0.04;                                 % max |d ln x| per sweep
 maxout = 60; if FAST, maxout = 40; end
@@ -227,10 +263,11 @@ for outer = 1:maxout
             toc(t0), outer, dP, dq, max(abs(Sk_t - Kbar)), relax);
     if dcur < 1e-4, outconv = true; break; end
 end
+end   % end of the damped-map fallback
 % Always report the best EVALUATED iterate, so the reported prices and the
 % reported aggregates are the same path (the loop's trailing update moves
 % Ppath past the point where Sb_t/Sk_t were computed).
-if isfinite(dbest)
+if exist('Sb_good','var') && isfinite(dbest)
     Ppath = Pgood; qpath = qgood; Sb_t = Sb_good; Sk_t = Sk_good;
 end
 if ~outconv
