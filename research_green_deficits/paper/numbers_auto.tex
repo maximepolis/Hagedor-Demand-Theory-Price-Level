@@ -134,21 +134,28 @@
 \newcommand{\OwnDlnPLS}{+0.007}
 \newcommand{\OwnDlnPLevy}{+0.021}
 % Ownership + infrequent adjustment benchmark (main_twoasset_ownership_kv,
-% FAST grid, phi=1, bbar=0.03, beta recalibrated to 0.874): hand-transcribed
+% FULL grid nb=60/nk=34/nx=150, phi=1, bbar=0.03, beta=0.874): hand-transcribed
 % from output/tables/twoasset_ownership_kv.txt (2026-07-26 run) pending the
 % export_paper_numbers guard for this driver. The b-suffixed pair is the
 % bbar=0 robustness run (beta 0.866).
 \newcommand{\OwnKVLam}{0.15}
 \newcommand{\OwnKVSb}{0.30}
-\newcommand{\OwnKVTopTen}{67}
-\newcommand{\OwnKVTopOne}{33}
+\newcommand{\OwnKVTopTen}{66}
+\newcommand{\OwnKVTopOne}{32}
 \newcommand{\OwnKVW}{1.8}
-\newcommand{\OwnKVPrem}{6.0}
-\newcommand{\OwnKVDlnPLS}{-0.010}
-\newcommand{\OwnKVDlnPLevy}{+0.027}
+\newcommand{\OwnKVPrem}{5.9}
+\newcommand{\OwnKVDlnPLS}{-0.023}
+\newcommand{\OwnKVDlnPLevy}{+0.014}
+% FAST-grid same-specification pass (grid robustness)
+\newcommand{\OwnKVDlnPLSf}{-0.010}
+\newcommand{\OwnKVDlnPLevyf}{+0.027}
+% bbar = 0 (no Stone-Geary shift), FAST grid
 \newcommand{\OwnKVDlnPLSb}{-0.012}
 \newcommand{\OwnKVDlnPLevyb}{+0.032}
 \newcommand{\OwnKVcThresh}{1.06}
+% KMV friction-only limit (chi_b = 0, phi = 0.25)
+\newcommand{\KmvHtM}{54}
+\newcommand{\KmvTopTen}{98}
 \newcommand{\OwnOmega}{0.09}
 \newcommand{\OwnTopOne}{22}
 \newcommand{\TwoNSlsLo}{+0.019}

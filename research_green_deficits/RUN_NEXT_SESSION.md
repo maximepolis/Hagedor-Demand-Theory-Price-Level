@@ -202,22 +202,17 @@ Also paste into the chat:
 
 | Item | State |
 |---|---|
-| Step 0 (frictionless two-asset) | done, integrated |
-| Variant (b) KV | done, integrated |
-| Incidence audit | done, integrated |
-| Ownership frictionless (R2) | done — `S_b`=0.30, omega=0.09, WHtM=0 |
-| Ownership + friction | benchmark computed (restores one-asset disinflation); .mat regen = **Run 1** |
-| Welfare by decile (R1) | **Run 2** — rerun under the regenerated benchmark |
-| Convenience yield (R3) | DONE — zeta disciplined to ~1 (point), zeta=2 at range edge; **Run 3b** checks headline at zeta=1 |
-| Non-separable, transition | **Run 4** |
+| Step 0, variant (b), audit, frictionless ownership | done, integrated |
+| **Ownership + friction, FULL grid** | **DONE — sign contrast survives: dlnP -0.023 (ls) vs +0.014 (levy)** |
+| Welfare by decile (R1) | done, integrated |
+| Convenience yield (R3) | done — zeta disciplined to ~1; benchmark zeta=2 at range edge |
+| Non-separable (R3 fork) | done — both xi give positive dlnP(ls), integrated |
+| KMV friction-only | done — HtM 54% but WHtM still 0 (top10 = 98%); written up as a model-class bound |
+| zeta=1 rerun (z10) | INVALID — experiment q halved vs baseline (branch jump); rerun after the bracket fix |
+| Two-asset transition | crashed on a diverging outer loop; solver rebuilt, **rerun** |
 
-### Open items on my side (not yours to run)
+### Open items on my side
 
-- Total wealth `W`=1.81 x income vs KMV ~3.2: we hit `S_b` by shrinking
-  wealth rather than by fixing the split (`omega`=0.166 vs ~0.09). The fix is
-  a 2D beta x chi calibration, deferred until WHtM resolves since dividend
-  retention moves `omega` anyway.
-- `chi` is set at the frictionless value rather than re-disciplined to the
-  KVJ elasticity. Run 3 supplies that number.
-- Paper integration of the two-asset ownership results (sign contrast
-  survives at bbar=0 and bbar=0.03) once Run 5 refreshes the macros.
+- M2 matched-parameter ladder and M3 2D (beta x chi) calibration: code to
+  scaffold, then ~6 runs.
+- M6 restructure (promote two-asset to the body) once zeta=1 is re-checked.
