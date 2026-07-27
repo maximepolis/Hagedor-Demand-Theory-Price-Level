@@ -31,8 +31,23 @@ function style_figure(fh)
     LW_AXIS   = 0.9;                 % axis/box line width
     LW_MIN    = 1.8;                 % minimum data-line width
     GRIDA     = 0.15;                % grid alpha (light)
+    MS_MIN    = 5;                   % minimum marker size
+
+    % House palette: one ordering used by EVERY figure, so a given series
+    % position carries the same colour throughout the paper. Colourblind-safe
+    % (Okabe-Ito ordering) and legible in greyscale, where the sequence also
+    % runs light-to-dark. Applying it here rather than in each driver is what
+    % makes figures produced by different drivers look like one set.
+    PALETTE = [ 0.00 0.45 0.70;      % blue
+                0.84 0.37 0.00;      % vermillion
+                0.00 0.62 0.45;      % green
+                0.80 0.47 0.65;      % purple
+                0.90 0.62 0.00;      % amber
+                0.35 0.35 0.35;      % grey
+                0.34 0.71 0.91 ];    % sky
 
     set(fh, 'Color', 'w');
+    try, colororder(fh, PALETTE); catch, end   % no-op on older releases
 
     % ---- axes ------------------------------------------------------------
     ax = findall(fh, 'Type', 'axes');
@@ -54,12 +69,34 @@ function style_figure(fh)
         end
     end
 
-    % ---- data lines: enforce a legible minimum weight --------------------
+    % ---- data lines: enforce a legible minimum weight and marker size ----
     ln = findall(fh, 'Type', 'line');
     for k = 1:numel(ln)
         try
             if get(ln(k), 'LineWidth') < LW_MIN
                 set(ln(k), 'LineWidth', LW_MIN);
+            end
+            if ~strcmp(get(ln(k), 'Marker'), 'none') && ...
+                    get(ln(k), 'MarkerSize') < MS_MIN
+                set(ln(k), 'MarkerSize', MS_MIN);
+            end
+        catch
+        end
+    end
+
+    % ---- zero reference line: same weight/colour wherever one is drawn ---
+    % Many panels report deviations, where the y = 0 line is the reading aid.
+    % Standardizing it here keeps that cue identical across the paper.
+    for k = 1:numel(ax)
+        try
+            a = ax(k); yl = get(a, 'YLim');
+            if yl(1) < 0 && yl(2) > 0
+                hold(a, 'on');
+                z = plot(a, get(a,'XLim'), [0 0], '-', ...
+                         'Color', [0.45 0.45 0.45], 'LineWidth', 0.8);
+                uistack(z, 'bottom');
+                set(get(get(z,'Annotation'),'LegendInformation'), ...
+                    'IconDisplayStyle', 'off');   % keep it out of legends
             end
         catch
         end

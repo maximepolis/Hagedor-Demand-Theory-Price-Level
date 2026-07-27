@@ -1,0 +1,36 @@
+% numbers_manual.tex -- hand-transcribed result macros for drivers the
+% exporter does not yet cover. This file is NEVER regenerated, so re-running
+% export_paper_numbers cannot wipe these values (which it did once, breaking
+% the build). Each block cites the table it was read from.
+%
+% Every macro is also \providecommand-guarded in the preamble, so a missing
+% value degrades to the "pending" marker rather than a compile failure.
+
+% ---- Frictionless ownership economy (tables: two-asset ownership) ----
+\newcommand{\OwnDlnPLS}{+0.007}
+\newcommand{\OwnDlnPLevy}{+0.021}
+
+% ---- Ownership + infrequent adjustment, BENCHMARK ----
+% Full grid (n_b=60, n_k=34, n_x=150); payout phi=1; Stone-Geary shift
+% bbar=0.03; discount factor recalibrated to 0.874 against the direct
+% liquid-holding target.
+\newcommand{\OwnKVLam}{0.15}
+\newcommand{\OwnKVSb}{0.30}
+\newcommand{\OwnKVTopTen}{66}
+\newcommand{\OwnKVTopOne}{32}
+\newcommand{\OwnKVW}{1.8}
+\newcommand{\OwnKVPrem}{5.9}
+\newcommand{\OwnKVDlnPLS}{-0.023}
+\newcommand{\OwnKVDlnPLevy}{+0.014}
+% Coarse-grid pass of the same specification (grid robustness).
+\newcommand{\OwnKVDlnPLSf}{-0.010}
+\newcommand{\OwnKVDlnPLevyf}{+0.027}
+% Without the Stone-Geary shift (bbar=0), coarse grid.
+\newcommand{\OwnKVDlnPLSb}{-0.012}
+\newcommand{\OwnKVDlnPLevyb}{+0.032}
+% Consumption threshold below which hand-to-mouth status is attainable.
+\newcommand{\OwnKVcThresh}{1.06}
+
+% ---- Friction-only limit (no convenience utility) ----
+\newcommand{\KmvHtM}{54}
+\newcommand{\KmvTopTen}{98}
