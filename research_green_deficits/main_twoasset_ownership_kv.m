@@ -21,7 +21,7 @@
 % OUTPUT  output/twoasset_ownership_kv.mat, output/tables/twoasset_ownership_kv.txt
 % STATUS: scaffolded, untested pending a MATLAB run.
 
-clearvars -except FAST KMV ZETA; close all; clc;
+clearvars -except FAST KMV ZETA LADDER; close all; clc;
 rng(20260723, 'twister'); t0 = tic;
 
 projdir = fileparts(mfilename('fullpath'));
@@ -43,6 +43,19 @@ if ~exist('FAST','var'), FAST = false; end
 % at any beta/lambda/payout. Only chi -> 0 removes the bound. This variant
 % writes to *_kmv output files and never touches the benchmark ones.
 if ~exist('KMV','var'), KMV = false; end
+% LADDER = true runs the MATCHED-PARAMETER decomposition. The 2x2 table in
+% the paper compares economies that each carry their own recalibration, so a
+% referee can fairly ask whether the restored sign comes from the
+% INGREDIENTS or from the discount factor that came with them. This variant
+% holds beta, chi and lambda fixed at the benchmark values and switches
+% ingredients one at a time, so consecutive cells differ by exactly one
+% thing:
+%   (i)   benchmark
+%   (ii)  no intermediation wedge   (iota_H = 1)
+%   (iii) no superstar income state
+%   (iv)  no adjustment friction    (lambda -> 1)
+% Writes to *_ladder files; the benchmark outputs are never touched.
+if ~exist('LADDER','var'), LADDER = false; end
 pg = setup_params_green();
 
 p = struct();
@@ -63,6 +76,7 @@ if exist(wff,'file') == 2
         if isfield(Wf.best,'p_out'), ss.p_out = Wf.best.p_out; end
     end
 end
+eG_plain = pg.eGrid(:)'; Pi_plain = pg.Pi;      % pre-superstar process (ladder)
 [eG2, Pi2, st2] = add_superstar_state(pg.eGrid(:), pg.Pi, ss);
 p.eGrid = eG2(:)'; p.Pi = Pi2; p.stationary_e = st2;
 % lambda_adj is the per-period free-rebalancing probability. At 1/3
@@ -146,6 +160,7 @@ if KMV, chi_ref = 0; end                        % friction-only: no convenience 
 
 if ~isfolder(pg.tabdir), mkdir(pg.tabdir); end
 if KMV, tag = 'twoasset_ownership_kmv'; else, tag = 'twoasset_ownership_kv'; end
+if LADDER, tag = [tag '_ladder']; end
 if abs(p.zeta_b - 2.0) > 1e-12                  % non-default curvature: suffix
     tag = sprintf('%s_z%02.0f', tag, 10*p.zeta_b);
 end
@@ -226,6 +241,51 @@ tee(['\nReading: does the ADJUSTMENT FRICTION on top of the ownership wedge\n' .
      'finally deliver WEALTHY hand-to-mouth households (WHtM > 0)? If so this\n' ...
      'is the calibration for the covariance-on-realistic-bond-ownership\n' ...
      'exercise and the disciplined welfare incidence.\n']);
+
+% =====================================================================
+% (3) MATCHED-PARAMETER LADDER (LADDER = true)
+% =====================================================================
+% Every cell below holds beta, chi_b and the grids at the BENCHMARK values
+% calibrated above and switches exactly one ingredient off. That is what the
+% paper's 2x2 table cannot do, because each of its cells is separately
+% recalibrated: this isolates the ingredient from the recalibration that
+% normally accompanies it.
+if LADDER
+    tee('\n----- (3) matched-parameter ladder (beta, chi, grids FIXED) -----\n');
+    tee('beta = %.5f, chi_b = %.5f held at the benchmark throughout\n', p.beta, p.chi_b);
+    tee('%-26s %10s %10s %10s %8s\n', 'economy', 'dlnP(ls)', 'dlnP(levy)', 'contrast', 'top1');
+    LAD = struct('name',{},'dlnPls',{},'dlnPlevy',{},'contrast',{},'top1',{});
+    for cell = 1:4
+        pc = p; iota_c = iota_H; nm = '';
+        switch cell
+            case 1, nm = 'benchmark';
+            case 2, nm = 'no intermediation wedge'; iota_c = 1.0;
+            case 3, nm = 'no superstar state';
+                    pc.eGrid = eG_plain; pc.Pi = Pi_plain;
+                    pc = rmfield(pc, 'stationary_e');
+            case 4, nm = 'no adjustment friction';  pc.lambda_adj = 1.0;
+        end
+        e0c = solve_own_kv(r_b, d_base, D0, 0, 0, Bnom, Kbar, iota_c, pc, q_ref, false);
+        if ~e0c.ok
+            tee('%-26s   baseline FAILED (%s)\n', nm, e0c.msg); continue;
+        end
+        gc  = Gg / e0c.P;
+        eLc = solve_own_kv(r_b, d_base, D0, gc, 0, Bnom, Kbar, iota_c, pc, e0c.q, false, [0.85 1.20]);
+        eVc = solve_own_kv(r_b, d_base, D0, gc, 1, Bnom, Kbar, iota_c, pc, e0c.q, false, [0.85 1.20]);
+        if ~eLc.ok || ~eVc.ok
+            tee('%-26s   experiment FAILED\n', nm); continue;
+        end
+        dls = log(eLc.P/e0c.P); dlv = log(eVc.P/e0c.P);
+        Hc  = htm_bk(e0c.dist, e0c.bch, e0c.kch, e0c.q, htm_b, whtm_k);
+        tee('%-26s %+10.4f %+10.4f %10d %8.2f\n', nm, dls, dlv, sign(dls)~=sign(dlv), Hc.top1);
+        LAD(end+1) = struct('name',nm,'dlnPls',dls,'dlnPlevy',dlv, ...
+                            'contrast',sign(dls)~=sign(dlv),'top1',Hc.top1); %#ok<SAGROW>
+    end
+    tee(['\nReading: consecutive rows differ by ONE ingredient at fixed\n' ...
+         'preferences, so any change in the sign contrast is attributable to\n' ...
+         'that ingredient rather than to a recalibration.\n']);
+    save(fullfile(projdir,'output',[tag '_ladder.mat']), 'LAD', 'p', 'iota_H');
+end
 
 save(fullfile(projdir,'output',[tag '.mat']), 'eq0', 'EXK', ...
      'omega', 'H', 'p', 'iota_H', 'b_targ_H', 'ss', 'r_b', 'd_base', 'D0', 'Gg');
