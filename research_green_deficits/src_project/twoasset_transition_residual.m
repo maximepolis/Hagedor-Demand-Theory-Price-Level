@@ -89,7 +89,7 @@ function [resid, aux] = twoasset_transition_residual(x, ctx)
     % At constant prices this recursion reproduces the stationary
     % distribution, so the steady state is a fixed point of it by construction.
     pe1 = p; pe1.eGrid = (1 - ctx.Dpath(1)) * p.eGrid;
-    Om  = push_forward_2a(ctx.Psi0, ctx.pB0, ctx.pK0, rb_t(1), qpath(1), ...
+    Om  = push_forward_twoasset_x(ctx.Psi0, ctx.pB0, ctx.pK0, rb_t(1), qpath(1), ...
                           ctx.d_div, tau_t(1), pe1);
     Sb = zeros(1,T); Sk = zeros(1,T);
     for t = 1:T
@@ -97,7 +97,7 @@ function [resid, aux] = twoasset_transition_residual(x, ctx)
         Sk(t) = sum(sum(polK{t} .* Om));
         if t < T
             petp = p; petp.eGrid = (1 - ctx.Dpath(t+1)) * p.eGrid;
-            Om = push_forward_2a(Om, polB{t}, polK{t}, rb_t(t+1), qpath(t+1), ...
+            Om = push_forward_twoasset_x(Om, polB{t}, polK{t}, rb_t(t+1), qpath(t+1), ...
                                  ctx.d_div, tau_t(t+1), petp);
         end
     end
@@ -106,27 +106,4 @@ function [resid, aux] = twoasset_transition_residual(x, ctx)
     % ---- residuals on the free dates ----
     resid(1:n)       = log(max(Sb(1:n), 1e-12) .* Ppath(1:n) / Bnom).';
     resid(n+1:2*n)   = log(max(Sk(1:n), 1e-12) / Kbar).';
-end
-
-function Om2 = push_forward_2a(Om, polB, polK, rb, q, d, tau, pe)
-% One-period forward push of the (nx x ne) distribution on the cash-on-hand
-% grid (Young lottery, e'-specific targets). Kept local so the residual is
-% self-contained and the Jacobian can be evaluated without the driver.
-    xG = pe.xGrid(:); nx = numel(xG); ne = numel(pe.eGrid);
-    ynet = pe.eGrid(:)' - tau; Rb = 1 + rb;
-    Om2 = zeros(nx, ne);
-    for ie = 1:ne
-        col = Om(:, ie); if ~any(col), continue; end
-        base = Rb*polB(:, ie) + (q + d)*polK(:, ie);
-        for jep = 1:ne
-            xp  = min(max(ynet(jep) + base, xG(1)), xG(end));
-            idx = discretize(xp, xG); idx(~isfinite(idx)) = nx-1;
-            idx = min(max(idx,1), nx-1);
-            w   = min(max((xp - xG(idx))./(xG(idx+1)-xG(idx)), 0), 1);
-            pm  = pe.Pi(ie, jep);
-            Om2(:, jep) = Om2(:, jep) ...
-                + accumarray(idx,   col.*(1-w)*pm, [nx 1]) ...
-                + accumarray(idx+1, col.*w*pm,     [nx 1]);
-        end
-    end
 end
