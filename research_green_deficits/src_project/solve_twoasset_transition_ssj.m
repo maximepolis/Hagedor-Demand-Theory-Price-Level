@@ -32,6 +32,8 @@ function TR = solve_twoasset_transition_ssj(ctx, opts)
 %       .refresh_after (10) .verbose (true) .t0 (tic handle)
 %         Between full rebuilds the Jacobian is carried by Broyden rank-1
 %         updates, so refreshes can be rare: a rebuild is 2(T-1) solves.
+%       .time_budget (900) : wall-clock cap in seconds. The solve stops
+%         gracefully and reports its best path rather than running away.
 %       .noise_floor (0) : measured discretization floor of the residual. The
 %         effective tolerance is max(newton_tol, 5*noise_floor), because no
 %         solver can drive a residual below the noise of its own evaluation.
@@ -46,6 +48,7 @@ function TR = solve_twoasset_transition_ssj(ctx, opts)
     refresh = getopt(opts, 'refresh_after', 10);
     verbose = getopt(opts, 'verbose', true);
     nfloor  = getopt(opts, 'noise_floor', 0);
+    tbudget = getopt(opts, 'time_budget', 900);   % wall-clock cap, seconds
     t0      = getopt(opts, 't0', tic);
 
     T = ctx.T; n = T - 1;
@@ -55,11 +58,10 @@ function TR = solve_twoasset_transition_ssj(ctx, opts)
     x   = [lpb(:); lqb(:)];
 
     [r, aux] = twoasset_transition_residual(x, ctx);
-    rn = max(abs(r));
+    rn = max(abs(r));               % sup-norm: the economic convergence test
+    r2 = norm(r);                   % 2-norm: the merit LM actually minimizes
     hist = rn;
-    if verbose
-        report_split(0, r, n, rn, NaN, toc(t0));
-    end
+    if verbose, report_split(0, r, n, rn, r2, NaN, toc(t0)); end
 
     % Convergence target cannot be below the discretization floor of the
     % residual itself (measured by the driver's steady-state consistency
@@ -67,57 +69,81 @@ function TR = solve_twoasset_transition_ssj(ctx, opts)
     % solver to chase grid noise.
     tol_eff = max(ntol, 5*nfloor);
 
-    J = []; sinceJ = 0; converged = false; it = 0; lam = 1e-3;
+    lam0 = 1e-3; lam = lam0; lam_max = 1e8;
+    J = []; Jprev = []; tjac = 0; sinceJ = 0; converged = false; it = 0; nstall = 0;
     for it = 1:nmax
         if rn < tol_eff, converged = true; break; end
+        if toc(t0) > tbudget
+            if verbose
+                fprintf('   wall-clock budget (%.0fs) reached; stopping with the best path\n', tbudget);
+            end
+            break;
+        end
         if isempty(J) || sinceJ >= refresh
             if verbose
                 fprintf('[%5.0fs]   building Jacobian (%d residual solves, h=%.1e)...\n', ...
                         toc(t0), 2*n, hfd);
             end
+            if toc(t0) + 1.2*tjac > tbudget && ~isempty(Jprev)
+                if verbose
+                    fprintf('   not enough budget for another Jacobian; stopping\n');
+                end
+                break;
+            end
+            tj = tic;
             J = twoasset_transition_jacobian(x, ctx, hfd);
-            sinceJ = 0;
+            tjac = toc(tj); Jprev = J;
+            sinceJ = 0; lam = lam0;      % a FRESH Jacobian deserves a fresh lam
         end
 
-        % LEVENBERG-MARQUARDT step. A plain Newton solve, x <- x - J\r, is
-        % the wrong tool here: J is built by finite differences on a residual
-        % with a nonzero noise floor, and the tree market (fixed supply) can
-        % make the price block genuinely ill-conditioned. LM interpolates
-        % between Gauss-Newton and gradient descent, damping the directions
-        % the data do not support, and adapts lambda instead of merely
-        % shortening a fixed direction the way a line search does.
+        % LEVENBERG-MARQUARDT step on the Gauss-Newton system. Acceptance is
+        % tested on the 2-NORM, which is the objective LM actually descends;
+        % judging it by the sup-norm (as an earlier version did) rejects steps
+        % that genuinely improve the fit merely because they raise one element,
+        % and the solve then stalls with lam running away.
         JtJ = J.'*J;  Jtr = J.'*r;  dg = diag(JtJ);
         dg(dg <= 0) = max(max(dg), 1);
-        ok = false;
-        for attempt = 1:8
+        ok = false; dead = false;
+        for attempt = 1:10
+            if lam > lam_max, break; end
             dx = -(JtJ + lam*diag(dg)) \ Jtr;
             if ~all(isfinite(dx)), lam = 5*lam; continue; end
+            if max(abs(dx)) < 1e-11, dead = true; break; end   % step is numerically nil
             [rt, auxt] = twoasset_transition_residual(x + dx, ctx);
-            if auxt.feas && max(abs(rt)) < rn
-                % BROYDEN update. A full rebuild costs 2(T-1) residual solves
+            if auxt.feas && norm(rt) < r2
+                % BROYDEN update: a full rebuild costs 2(T-1) residual solves
                 % (the dominant expense); this rank-1 correction keeps the
-                % Jacobian current along the direction just travelled for
-                % free, so the chord stays accurate for many more steps.
-                dr = rt - r;
-                den = dx.'*dx;
+                % Jacobian current along the direction just travelled for free.
+                dr = rt - r; den = dx.'*dx;
                 if den > 0, J = J + ((dr - J*dx)*dx.')/den; end
-                x = x + dx; r = rt; aux = auxt; rn = max(abs(rt));
+                x = x + dx; r = rt; aux = auxt;
+                r2 = norm(r); rn = max(abs(r));
                 lam = max(lam/3, 1e-9); ok = true; break;
             end
             lam = 5*lam;
         end
         sinceJ = sinceJ + 1;
         hist(end+1) = rn; %#ok<AGROW>
-        if verbose, report_split(it, r, n, rn, lam, toc(t0)); end
-        if ~ok
-            if ~isempty(J) && sinceJ > 0
-                J = []; sinceJ = 0;
-                if verbose, fprintf('   no LM step accepted; refreshing Jacobian\n'); end
-                continue;
+        if verbose, report_split(it, r, n, rn, r2, lam, toc(t0)); end
+
+        if ok, nstall = 0; continue; end
+
+        % No improving step. Try ONE fresh Jacobian with lam reset; if that
+        % also fails, stop. Rebuilding repeatedly with a runaway lam is pure
+        % waste: the step is already numerically zero, so nothing can change.
+        nstall = nstall + 1;
+        if dead || lam > lam_max || nstall >= 2
+            if verbose
+                if dead
+                    fprintf('   step is numerically zero; at a local minimum of the merit\n');
+                else
+                    fprintf('   no improving step after %d fresh Jacobian(s); stopping\n', nstall);
+                end
             end
-            if verbose, fprintf('   no LM step accepted with a fresh Jacobian; stopping\n'); end
             break;
         end
+        if verbose, fprintf('   no LM step accepted; refreshing Jacobian with lam reset\n'); end
+        J = []; sinceJ = 0; lam = lam0;
     end
     if rn < tol_eff, converged = true; end
 
@@ -127,9 +153,7 @@ function TR = solve_twoasset_transition_ssj(ctx, opts)
     % (the sequence-space analogue of a flat asset-demand crossing) rather
     % than that the solver was badly tuned.
     sig = NaN; cnd = NaN;
-    if isempty(J)
-        try, J = twoasset_transition_jacobian(x, ctx, hfd); catch, end
-    end
+    if isempty(J) && ~isempty(Jprev), J = Jprev; end
     if ~isempty(J)
         sv = svd(J); sig = min(sv); cnd = max(sv)/max(min(sv), eps);
         if verbose
@@ -150,17 +174,19 @@ function v = getopt(s, f, d)
     if isstruct(s) && isfield(s, f) && ~isempty(s.(f)), v = s.(f); else, v = d; end
 end
 
-function report_split(it, r, n, rn, lam, tsec)
+function report_split(it, r, n, rn, r2, lam, tsec)
 % Residual broken out by market and by date. Which BLOCK binds, and WHERE in
 % the path, is what distinguishes a conditioning problem from a horizon that
 % is too short for the distribution to settle.
     [mb, ib] = max(abs(r(1:n)));
     [mk, ik] = max(abs(r(n+1:2*n)));
     if isnan(lam)
-        fprintf('[%5.0fs] newton %2d: ||r||inf = %.3e   bond %.2e (t=%d)  tree %.2e (t=%d)\n', ...
-                tsec, it, rn, mb, ib, mk, ik);
+        fprintf(['[%5.0fs] newton %2d: ||r||inf = %.3e  ||r||2 = %.3e   ' ...
+                 'bond %.2e (t=%d)  tree %.2e (t=%d)\n'], ...
+                tsec, it, rn, r2, mb, ib, mk, ik);
     else
-        fprintf('[%5.0fs] newton %2d: ||r||inf = %.3e   bond %.2e (t=%d)  tree %.2e (t=%d)  lam %.1e\n', ...
-                tsec, it, rn, mb, ib, mk, ik, lam);
+        fprintf(['[%5.0fs] newton %2d: ||r||inf = %.3e  ||r||2 = %.3e   ' ...
+                 'bond %.2e (t=%d)  tree %.2e (t=%d)  lam %.1e\n'], ...
+                tsec, it, rn, r2, mb, ib, mk, ik, lam);
     end
 end
