@@ -115,7 +115,7 @@ assert(dgT.converged, 'terminal steady-state household solve failed');
 % initial distribution (no-program steady state)
 pe0 = p; pe0.eGrid = (1 - D0) * p.eGrid;
 tau0 = r_b*Bnom/eq_init.P;
-[pB0, pK0, ~, ~, ~, dg0] = solve_household_twoasset_egm_ss(r_b, eq_init.q, d_div, tau0, pe0);
+[pB0, pK0, ~, C0, ~, dg0] = solve_household_twoasset_egm_ss(r_b, eq_init.q, d_div, tau0, pe0);
 [Omega0, dd0] = stationary_distribution_twoasset(pB0, pK0, r_b, eq_init.q, d_div, tau0, pe0);
 assert(dg0.converged && dd0.converged, 'initial steady state failed');
 
@@ -130,7 +130,25 @@ assert(dg0.converged && dd0.converged, 'initial steady state failed');
 ctx = struct('T', T, 'p', p, 'r_b', r_b, 'd_div', d_div, 'Bnom', Bnom, ...
              'Kbar', Kbar, 'Dpath', Dpath, 'g_real', g_real, ...
              'P0', eq_init.P, 'q0', eq_init.q, 'Pterm', Pterm, 'qterm', qterm, ...
-             'Cterm', Cterm, 'Omega0', Omega0);
+             'Cterm', Cterm, 'Psi0', Omega0, 'pB0', pB0, 'pK0', pK0);
+% ---- consistency gate ------------------------------------------------
+% With NO program and constant prices, the forward recursion must reproduce
+% the initial steady state, so the market residual must vanish. This is a
+% direct test of the forward-pass timing: a portfolio chosen at t earns its
+% return at t+1, and the date-1 state must be the pre-announcement portfolio
+% revalued at date-1 prices. Getting either wrong leaves the system with no
+% solution at all, which is not visible from a solver trace (it looks like
+% slow convergence) but is immediately visible here.
+ctx0 = ctx; ctx0.g_real = 0; ctx0.Pterm = eq_init.P; ctx0.qterm = eq_init.q;
+ctx0.Cterm = C0;
+x_ss  = [log(eq_init.P)*ones(T-1,1); log(eq_init.q)*ones(T-1,1)];
+r_ss  = twoasset_transition_residual(x_ss, ctx0);
+tee('steady-state consistency check: ||r||inf = %.2e\n', max(abs(r_ss)));
+if max(abs(r_ss)) > 5e-3
+    tee('  WARNING: the recursion does not reproduce the initial steady state.\n');
+    tee('  Treat any transition number below as unvalidated.\n');
+end
+
 nopts = struct('newton_maxit', 12, 'newton_tol', 1e-4, 'fd_step', 1e-3, ...
                'refresh_after', 3, 'verbose', true, 't0', t0);
 if FAST, nopts.newton_maxit = 8; end
@@ -171,108 +189,41 @@ end
 % returning [], and the diverging path drove Rb_t high enough to trip it,
 % so polB{t} .* Om hit a size mismatch.
 if ~exist('outconv','var') || ~outconv
-relax = 0.08; relax_min = 5e-3; relax_max = 0.20;
-step_max = 0.04;                                 % max |d ln x| per sweep
+% Damped fallback. It now calls the SAME residual as the Newton solve, so the
+% two solvers share one timing implementation and cannot silently disagree.
+% Update directions come from the two clearing conditions:
+%   bonds : P clears at B / S^b, so d log P = -resid_P
+%   tree  : excess demand raises q, so d log q = +kappa * resid_q
+lpb = log(linspace(eq_init.P, Pterm, T+1)); lpb = lpb(2:end-1);
+lqb = log(linspace(eq_init.q, qterm, T+1)); lqb = lqb(2:end-1);
+xd = [lpb(:); lqb(:)];
+nfree = T - 1; relax = 0.05; step_max = 0.03; kappa = 0.5;
+[rd, auxd] = twoasset_transition_residual(xd, ctx);
+dbest = max(abs(rd)); auxbest = auxd; outconv = false;
 maxout = 60; if FAST, maxout = 40; end
-dlast = Inf; dbest = Inf; Pgood = Ppath; qgood = qpath;
-nbad = 0; outconv = false; dcur = Inf;
-Sb_t = zeros(1,T); Sk_t = zeros(1,T);
 for outer = 1:maxout
-    % taxes along the path (lump-sum: tau_t = r^b_t * B/P_t + g).
-    % Stationarized real gross bond return: (1+r_b) * Phat_{t-1}/Phat_t,
-    % with Phat_0 the PRE-announcement steady-state price -- so at a constant
-    % path Rb = 1 + r_b (trend inflation already inside r_b), and the
-    % announcement-date revaluation enters through Phat_0/Phat_1.
-    Rb_t = (1 + r_b) * [eq_init.P, Ppath(1:end-1)] ./ Ppath;
-    rb_t = Rb_t - 1;
-    tau_t = rb_t * Bnom ./ Ppath + g_real;
-
-    % ---- backward pass: consumption policies C_t (single EGM step/date) ----
-    % Feasibility-guarded: the EGM solver returns EMPTY policies when the
-    % equity-bond spread goes non-positive at the trial prices.
-    Cnext = Cterm;
-    polB = cell(1,T); polK = cell(1,T);
-    feas = true; tbad = 0; szx = [numel(p.xGrid) numel(p.eGrid)];
-    for t = T:-1:1
-        pet = p; pet.eGrid = (1 - Dpath(t)) * p.eGrid;
-        [bB, bK, ~, Ct] = twoasset_egm_step(rb_t(t), qpath(t), d_div, tau_t(t), pet, Cnext);
-        if isempty(bB) || isempty(Ct) || ~isequal(size(bB), szx)
-            feas = false; tbad = t; break;
-        end
-        polB{t} = bB; polK{t} = bK; Cnext = Ct;
-    end
-    if ~feas
-        nbad = nbad + 1;
-        relax = max(0.35*relax, relax_min);
-        Ppath = Pgood; qpath = qgood;            % retreat to the last good path
-        fprintf(['[%5.0fs] outer %2d: INFEASIBLE at t=%d (non-positive equity-bond ' ...
-                 'spread at trial prices) -- relax -> %.4f, reverting\n'], ...
-                toc(t0), outer, tbad, relax);
-        if nbad >= 8 || relax <= relax_min*1.001
-            fprintf('  repeated infeasible steps; stopping and reporting best path\n');
-            break;
-        end
-        continue;
-    end
-
-    % ---- forward pass: roll the distribution, collect S^b_t, S^k_t ----
-    Om = Omega0;
-    for t = 1:T
-        pet = p; pet.eGrid = (1 - Dpath(t)) * p.eGrid;
-        Sb_t(t) = sum(sum(polB{t} .* Om));
-        Sk_t(t) = sum(sum(polK{t} .* Om));
-        Om = push_forward(Om, polB{t}, polK{t}, rb_t(t), qpath(t), d_div, tau_t(t), pet);
-    end
-
-    % ---- residuals and damped update ----
-    Ptar = Bnom ./ max(Sb_t, 1e-9);              % bond clearing: P = B / S^b
-    % tree clearing: raise q where S^k > Kbar (excess demand), lower otherwise;
-    % elasticity ~ -1 locally, so a proportional nudge on the gap. The factor
-    % is clamped so a large transient gap can never drive q non-positive
-    % (which would make log(qtar) complex and poison the whole path).
-    qfac = 1 + 0.5*(Sk_t - Kbar)/Kbar;
-    qfac = min(max(qfac, 0.7), 1.4);
-    qtar = qpath .* qfac;
-    Ptar(T) = Pterm; qtar(T) = qterm;            % pin terminal
-    dP = max(abs(log(Ptar./Ppath))); dq = max(abs(log(qtar./qpath)));
-    dcur = max(dP, dq);
-
-    % adaptive relaxation: cut hard when the residual worsens, creep back up
-    % when it improves; checkpoint the best path seen for the retreat above.
-    if dcur > dlast
-        relax = max(0.4*relax, relax_min);
+    if dbest < 1e-4, outconv = true; break; end
+    dx = [-relax*rd(1:nfree); relax*kappa*rd(nfree+1:end)];
+    dx = min(max(dx, -step_max), step_max);
+    [rt, auxt] = twoasset_transition_residual(xd + dx, ctx);
+    if auxt.feas && max(abs(rt)) < dbest
+        xd = xd + dx; rd = rt;
+        dbest = max(abs(rt)); auxbest = auxt;
+        relax = min(1.10*relax, 0.30);
     else
-        relax = min(1.06*relax, relax_max);
+        relax = 0.40*relax;
+        if relax < 1e-4, break; end
     end
-    dlast = dcur;
-    % checkpoint BEFORE the update, so the stored path and the stored
-    % aggregates are the same iterate (what the report needs)
-    if dcur < dbest
-        dbest = dcur; Pgood = Ppath; qgood = qpath;
-        Sb_good = Sb_t; Sk_good = Sk_t;
-    end
-
-    % trust-region damped log update
-    sP = min(max(relax*(log(Ptar) - log(Ppath)), -step_max), step_max);
-    sq = min(max(relax*(log(qtar) - log(qpath)), -step_max), step_max);
-    Ppath = exp(log(Ppath) + sP);
-    qpath = exp(log(qpath) + sq);
-    Ppath(T) = Pterm; qpath(T) = qterm;
-    fprintf(['[%5.0fs] outer %2d: max dlnP=%.2e  max dlnq=%.2e  ' ...
-             '(Sk-K max %.2e, relax %.3f)\n'], ...
-            toc(t0), outer, dP, dq, max(abs(Sk_t - Kbar)), relax);
-    if dcur < 1e-4, outconv = true; break; end
+    fprintf('[%5.0fs] damped %2d: ||r||inf = %.3e  (relax %.4f)\n', ...
+            toc(t0), outer, dbest, relax);
 end
-end   % end of the damped-map fallback
-% Always report the best EVALUATED iterate, so the reported prices and the
-% reported aggregates are the same path (the loop's trailing update moves
-% Ppath past the point where Sb_t/Sk_t were computed).
-if exist('Sb_good','var') && isfinite(dbest)
-    Ppath = Pgood; qpath = qgood; Sb_t = Sb_good; Sk_t = Sk_good;
+Ppath = auxbest.Ppath; qpath = auxbest.qpath;
+Sb_t  = auxbest.Sb;    Sk_t  = auxbest.Sk;
+if dbest < 1e-4, outconv = true; end
 end
 if ~outconv
-    fprintf(['[transition] outer loop did NOT reach 1e-4; best max|dln| = %.2e ' ...
-             '-- reporting the best path found.\n'], dbest);
+    fprintf(['[transition] did NOT reach the market-clearing tolerance; ' ...
+             'best ||r||inf = %.2e -- numbers are provisional.\n'], dbest);
 end
 
 % =====================================================================
@@ -289,9 +240,9 @@ tee('front-loading share (impact / total) = %.3f\n', frontshare);
 tee('impact tree repricing d ln q = %+.4f\n', log(qpath(1)/eq_init.q));
 tee('max tree-market residual along path = %.2e\n', max(abs(Sk_t - Kbar)));
 if outconv
-    tee('outer loop CONVERGED (max|dln| < 1e-4)\n');
+    tee('market clearing CONVERGED (||r||inf < 1e-4)\n');
 else
-    tee('outer loop NOT converged: best max|dln| = %.2e -- numbers are provisional\n', dbest);
+    tee('NOT converged: best ||market residual||inf = %.2e -- provisional\n', dbest);
 end
 % compare to the one-asset nonlinear transition front-loading if available
 trf = fullfile(projdir, 'output', 'transition_results.mat');
@@ -325,28 +276,6 @@ function [polB, polK, polC, C] = twoasset_egm_step(rb, q, d, tau, pe, Cnext)
 % Cnext (maxit_pol = 1), so the solver's internal step IS the backward map.
     pe.maxit_pol = 1; pe.tol_pol = 0;            % force exactly one sweep
     [polB, polK, polC, C] = solve_household_twoasset_egm(rb, q, d, tau, pe, Cnext);
-end
-
-function Om2 = push_forward(Om, polB, polK, rb, q, d, tau, pe)
-% one-period forward push of the (nx x ne) distribution under this date's
-% policies (Young lottery on the cash-on-hand grid, e'-specific targets)
-    xG = pe.xGrid(:); nx = numel(xG); ne = numel(pe.eGrid);
-    ynet = pe.eGrid(:)' - tau; Rb = 1 + rb;
-    Om2 = zeros(nx, ne);
-    for ie = 1:ne
-        col = Om(:, ie); if ~any(col), continue; end
-        base = Rb*polB(:, ie) + (q + d)*polK(:, ie);
-        for jep = 1:ne
-            xp = min(max(ynet(jep) + base, xG(1)), xG(end));
-            idx = discretize(xp, xG); idx(~isfinite(idx)) = nx-1;
-            idx = min(max(idx,1), nx-1);
-            w = min(max((xp - xG(idx))./(xG(idx+1)-xG(idx)), 0), 1);
-            pm = pe.Pi(ie, jep);
-            Om2(:, jep) = Om2(:, jep) ...
-                + accumarray(idx,   col.*(1-w)*pm, [nx 1]) ...
-                + accumarray(idx+1, col.*w*pm,     [nx 1]);
-        end
-    end
 end
 
 function tee2(fid, varargin)

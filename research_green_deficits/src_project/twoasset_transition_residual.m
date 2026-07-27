@@ -18,7 +18,10 @@ function [resid, aux] = twoasset_transition_residual(x, ctx)
 %   ctx : context built by the driver, with fields
 %         .T .p .r_b .d_div .Bnom .Kbar .Dpath .g_real
 %         .P0 (pre-announcement price) .Pterm .qterm
-%         .Cterm (terminal consumption policy) .Omega0 (initial distribution)
+%         .Cterm (terminal consumption policy)
+%         .Psi0  pre-announcement distribution over cash-on-hand
+%         .pB0 .pK0  pre-announcement portfolio policies, revalued at the
+%                    date-1 prices to form the date-1 state
 %
 % OUTPUT
 %   resid : 2(T-1) x 1 residuals, in LOGS so both blocks are scale-free and
@@ -70,13 +73,33 @@ function [resid, aux] = twoasset_transition_residual(x, ctx)
     end
 
     % ---- forward pass: roll the distribution, collect the two aggregates ----
-    Om = ctx.Omega0; Sb = zeros(1,T); Sk = zeros(1,T);
+    % TIMING. A portfolio (b',k') chosen at date t earns its return at date
+    % t+1, so the push from Omega_t to Omega_{t+1} must be evaluated at
+    % DATE t+1 prices, not date t. Equivalently, cash-on-hand entering t+1 is
+    %   x_{t+1} = y_{t+1} - tau_{t+1} + (1+r^b_{t+1}) b'_t + (q_{t+1}+d) k'_t.
+    %
+    % The date-1 state needs the same care and is where the economics lives.
+    % Omega0 is the pre-announcement distribution over cash-on-hand, formed at
+    % OLD prices. Households enter date 1 holding the pre-announcement
+    % PORTFOLIOS (pB0, pK0); the announcement revalues them at the new date-1
+    % prices. Starting the recursion from Omega0 directly would freeze that
+    % revaluation, which is exactly the announcement-date effect the exercise
+    % is about, and would leave the market-clearing system with no solution
+    % (the state would be inconsistent with the prices at every date).
+    % At constant prices this recursion reproduces the stationary
+    % distribution, so the steady state is a fixed point of it by construction.
+    pe1 = p; pe1.eGrid = (1 - ctx.Dpath(1)) * p.eGrid;
+    Om  = push_forward_2a(ctx.Psi0, ctx.pB0, ctx.pK0, rb_t(1), qpath(1), ...
+                          ctx.d_div, tau_t(1), pe1);
+    Sb = zeros(1,T); Sk = zeros(1,T);
     for t = 1:T
-        pet = p; pet.eGrid = (1 - ctx.Dpath(t)) * p.eGrid;
         Sb(t) = sum(sum(polB{t} .* Om));
         Sk(t) = sum(sum(polK{t} .* Om));
-        Om = push_forward_2a(Om, polB{t}, polK{t}, rb_t(t), qpath(t), ...
-                             ctx.d_div, tau_t(t), pet);
+        if t < T
+            petp = p; petp.eGrid = (1 - ctx.Dpath(t+1)) * p.eGrid;
+            Om = push_forward_2a(Om, polB{t}, polK{t}, rb_t(t+1), qpath(t+1), ...
+                                 ctx.d_div, tau_t(t+1), petp);
+        end
     end
     aux.Sb = Sb; aux.Sk = Sk; aux.feas = true;
 
