@@ -1,21 +1,21 @@
-OWNERSHIP + INFREQUENT ADJUSTMENT. nb=40 nk=22 nx=100 ne=8 lambda=0.15 FAST=1
+OWNERSHIP + INFREQUENT ADJUSTMENT. nb=60 nk=34 nx=150 ne=8 lambda=0.15 FAST=0
 iota_H=0.273 (direct target 0.30 of income); superstar mult=12.0 p_in=0.000
 liquidity: zeta_b=2.00, Stone-Geary shift bbar=0.030 (0 => Inada at b=0 => HtM==0)
-dividend payout phi=0.25 (1 => full d*k paid LIQUID => wealthy never run down => WHtM==0)
+dividend payout phi=1.00 (1 => full d*k paid LIQUID => wealthy never run down => WHtM==0)
 
 ----- (0) diagnostic single equilibrium (chi=0.0022) -----
-  diagnostic OK: S_b=1.2288 q=9.3109 P=0.2220 min_c=0.1602 n_infeas=0
+  diagnostic OK: S_b=0.9534 q=6.0080 P=0.2861 min_c=0.1800 n_infeas=0
 ----- (1) baseline (beta recalibrated; chi fixed at 0.00223) -----
-beta=0.84224 chi_b=0.00223 S_b=0.2971 (target 0.30) q=3.4149 P=0.9180 omega=0.080 div=0.1355
-wealth: total 3.712 x income (illiquid 3.415, liquid 0.297); tree yield d/q=0.035
-feasibility: min consumption 0.2272, infeasible states 0, k-grid top mass 0.0052
-HtM (b<0.02): total 0.088 | WEALTHY (qk>0.50): 0.000 | poor: 0.088
-wealth shares: top10 0.95 top1 0.75
+beta=0.87396 chi_b=0.00223 S_b=0.2985 (target 0.30) q=1.5175 P=0.9136 omega=0.164 div=0.1356
+wealth: total 1.816 x income (illiquid 1.517, liquid 0.299); tree yield d/q=0.079
+feasibility: min consumption 0.2271, infeasible states 0, k-grid top mass 0.0014
+HtM (b<0.02): total 0.067 | WEALTHY (qk>0.50): 0.000 | poor: 0.067
+wealth shares: top10 0.66 top1 0.32
 
 ----- (2) financing incidence (lump-sum vs levy) -----
-lump-sum P=0.9507 dlnP=+0.0349 q=3.9058
-levy     P=0.9891 dlnP=+0.0745 q=3.9058
-sign contrast survives: 0
+lump-sum P=0.8932 dlnP=-0.0226 q=1.5370
+levy     P=0.9263 dlnP=+0.0137 q=1.5133
+sign contrast survives: 1
 
 Reading: does the ADJUSTMENT FRICTION on top of the ownership wedge
 finally deliver WEALTHY hand-to-mouth households (WHtM > 0)? If so this

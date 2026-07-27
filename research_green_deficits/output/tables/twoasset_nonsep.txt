@@ -1,8 +1,8 @@
 TWO-ASSET NON-SEPARABLE LIQUIDITY. nx=120 nac=80 ns=16 ne=7 r_b=0.0196 FAST=1
 
 xi            chi_b      omega     dlnP(ls)   dlnP(levy)    ls sign
-0.50         0.0356      0.325      +0.0192      +0.0408        pos
-1.50         0.0334      0.329      +0.0147      +0.0713        pos
+0.50         0.0356      0.325      +0.0192      +0.0445        pos
+1.50         0.0334      0.329      +0.0165      +0.0732        pos
 
 Reading: the one-asset lump-sum response is disinflationary (d ln P<0).
 Step 0 (separable) flips it positive. If some xi<1 (complements) turns

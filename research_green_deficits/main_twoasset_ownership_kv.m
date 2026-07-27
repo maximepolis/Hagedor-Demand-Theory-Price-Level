@@ -208,8 +208,8 @@ tee('wealth shares: top10 %.2f top1 %.2f\n\n', H.top10, H.top1);
 % ---- financing experiment ----
 tee('----- (2) financing incidence (lump-sum vs levy) -----\n');
 g_real = Gg / eq0.P;
-eLS = solve_own_kv(r_b, d_base, D0, g_real, 0, Bnom, Kbar, iota_H, p, eq0.q, false);
-eLV = solve_own_kv(r_b, d_base, D0, g_real, 1, Bnom, Kbar, iota_H, p, eq0.q, false);
+eLS = solve_own_kv(r_b, d_base, D0, g_real, 0, Bnom, Kbar, iota_H, p, eq0.q, false, [0.85 1.20]);
+eLV = solve_own_kv(r_b, d_base, D0, g_real, 1, Bnom, Kbar, iota_H, p, eq0.q, false, [0.85 1.20]);
 EXK = struct('name',{},'P',{},'q',{},'dlnP',{});
 if eLS.ok
     EXK(end+1) = struct('name','lump-sum','P',eLS.P,'q',eLS.q,'dlnP',log(eLS.P/eq0.P)); %#ok<SAGROW>
@@ -359,12 +359,20 @@ function [beta_star, eq0] = calib_beta(rb, d, D, g, lv, Bnom, Kbar, btH, iota, p
     end
 end
 
-function eq = solve_own_kv(rb, d, D, g, use_levy, Bnom, Kbar, iota, p, q_ref, verbose)
+function eq = solve_own_kv(rb, d, D, g, use_levy, Bnom, Kbar, iota, p, q_ref, verbose, qwin)
 % (P, q, tau, div) equilibrium with the KV household + intermediation wedge.
 % q-bracket anchored on q_ref (the known frictionless-ownership tree price);
 % expands adaptively if the tree market does not bracket on the first pass.
     if nargin < 11 || isempty(q_ref), q_ref = d/max(rb,5e-3); end
-    if nargin < 12, verbose = false; end
+    if nargin < 12 || isempty(verbose), verbose = false; end
+    % qwin: relative [lo hi] multipliers on q_ref for the initial tree-price
+    % bracket. The BASELINE searches wide (the level is unknown); a FINANCING
+    % EXPERIMENT is a small perturbation of a known baseline, so it searches
+    % tight. Searching wide there let the bisection settle on a DIFFERENT
+    % root: the zeta=1 experiments returned q = 1.56 against a baseline of
+    % 3.42, and the KMV/phi=0.25 experiments returned the SAME q for lump-sum
+    % and levy -- both branch jumps, not economics.
+    if nargin < 13 || isempty(qwin), qwin = [0.55 1.80]; end
     lastwhy = '';                                % last failure reason (nested)
     eq = struct('ok',false,'msg','','P',NaN,'q',NaN,'Sb',NaN,'tau',NaN, ...
                 'div',NaN,'dist',[],'bch',[],'kch',[],'n_infeas',0,'min_c',NaN, ...
@@ -374,7 +382,7 @@ function eq = solve_own_kv(rb, d, D, g, use_levy, Bnom, Kbar, iota, p, q_ref, ve
     tau = rb*1.10 + (~use_levy)*g;
     div = d + rb*(1-iota)*1.10/Kbar;
     Vc = [];
-    lo = 0.55*q_ref; hi = 1.8*q_ref; qs = linspace(lo, hi, 6); fq = nan(size(qs));
+    lo = qwin(1)*q_ref; hi = qwin(2)*q_ref; qs = linspace(lo, hi, 6); fq = nan(size(qs));
     for i = 1:numel(qs), [fq(i), tau, div, ~, Vc] = evq(qs(i), tau, div, Vc); end
     kk = bracket_finite(fq);
     for expand = 1:3                             % adaptive bracket expansion
@@ -394,11 +402,11 @@ function eq = solve_own_kv(rb, d, D, g, use_levy, Bnom, Kbar, iota, p, q_ref, ve
         return;
     end
     a = qs(kk(1)); b = qs(kk(2)); fa = fq(kk(1)); m = a; Sb = NaN; ninf = 0; mc = NaN; ksat = NaN;
-    for it = 1:22
+    for it = 1:26
         m = 0.5*(a+b);
         [fm, tau, div, Sb, Vc, dist, bch, kch, ninf, mc, ksat] = evq(m, tau, div, Vc);
         if ~isfinite(fm), b = m; continue; end
-        if abs(fm) < 2e-3 || (b-a) < 1e-3*q_ref, break; end
+        if abs(fm) < 5e-4 || (b-a) < 2e-4*q_ref, break; end
         if sign(fm) == sign(fa), a = m; fa = fm; else, b = m; end
     end
     if ~isfinite(Sb) || Sb <= 0, eq.msg = 'non-finite end'; return; end

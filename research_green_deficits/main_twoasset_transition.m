@@ -117,7 +117,30 @@ assert(dg0.converged && dd0.converged, 'initial steady state failed');
 % =====================================================================
 % OUTER LOOP: damped fixed point on (Ppath, qpath)
 % =====================================================================
-relax = 0.3; maxout = 60; if FAST, maxout = 40; end
+% Damped fixed point with a TRUST REGION and adaptive relaxation.
+%
+% The plain damped map DIVERGED geometrically (max dlnP 1.7e-2 -> 6.6e-2 ->
+% 2.5e-1, a multiplier of ~3.8 per sweep). The destabilizer is the
+% revaluation channel: P_t enters BOTH the stationarized bond return
+% Rb_t = (1+r_b) Phat_{t-1}/Phat_t and the tax tau_t = rb_t B/P_t, so a rise
+% in P_t cuts the tax twice over, raises saving, and the target B/S^b_t
+% overshoots downward. The implied local elasticity dln S^b/dln P is ~15,
+% which needs relax < 1/(1+15) ~ 0.06 -- far below the 0.3 previously used.
+%
+% Rather than hard-code a small constant, we (i) cap the per-sweep log-step
+% (trust region), (ii) cut relax whenever the residual worsens and let it
+% creep back up when it improves, and (iii) treat a household solve that
+% returns EMPTY policies as an infeasible trial step to back away from
+% rather than an error. That last case was the actual crash: the EGM solver
+% guards on a non-positive equity-bond spread (sprd = 1 - Rb/Rk <= 0) by
+% returning [], and the diverging path drove Rb_t high enough to trip it,
+% so polB{t} .* Om hit a size mismatch.
+relax = 0.08; relax_min = 5e-3; relax_max = 0.20;
+step_max = 0.04;                                 % max |d ln x| per sweep
+maxout = 60; if FAST, maxout = 40; end
+dlast = Inf; dbest = Inf; Pgood = Ppath; qgood = qpath;
+nbad = 0; outconv = false; dcur = Inf;
+Sb_t = zeros(1,T); Sk_t = zeros(1,T);
 for outer = 1:maxout
     % taxes along the path (lump-sum: tau_t = r^b_t * B/P_t + g).
     % Stationarized real gross bond return: (1+r_b) * Phat_{t-1}/Phat_t,
@@ -129,16 +152,35 @@ for outer = 1:maxout
     tau_t = rb_t * Bnom ./ Ppath + g_real;
 
     % ---- backward pass: consumption policies C_t (single EGM step/date) ----
+    % Feasibility-guarded: the EGM solver returns EMPTY policies when the
+    % equity-bond spread goes non-positive at the trial prices.
     Cnext = Cterm;
     polB = cell(1,T); polK = cell(1,T);
+    feas = true; tbad = 0; szx = [numel(p.xGrid) numel(p.eGrid)];
     for t = T:-1:1
         pet = p; pet.eGrid = (1 - Dpath(t)) * p.eGrid;
         [bB, bK, ~, Ct] = twoasset_egm_step(rb_t(t), qpath(t), d_div, tau_t(t), pet, Cnext);
+        if isempty(bB) || isempty(Ct) || ~isequal(size(bB), szx)
+            feas = false; tbad = t; break;
+        end
         polB{t} = bB; polK{t} = bK; Cnext = Ct;
+    end
+    if ~feas
+        nbad = nbad + 1;
+        relax = max(0.35*relax, relax_min);
+        Ppath = Pgood; qpath = qgood;            % retreat to the last good path
+        fprintf(['[%5.0fs] outer %2d: INFEASIBLE at t=%d (non-positive equity-bond ' ...
+                 'spread at trial prices) -- relax -> %.4f, reverting\n'], ...
+                toc(t0), outer, tbad, relax);
+        if nbad >= 8 || relax <= relax_min*1.001
+            fprintf('  repeated infeasible steps; stopping and reporting best path\n');
+            break;
+        end
+        continue;
     end
 
     % ---- forward pass: roll the distribution, collect S^b_t, S^k_t ----
-    Om = Omega0; Sb_t = zeros(1,T); Sk_t = zeros(1,T);
+    Om = Omega0;
     for t = 1:T
         pet = p; pet.eGrid = (1 - Dpath(t)) * p.eGrid;
         Sb_t(t) = sum(sum(polB{t} .* Om));
@@ -147,18 +189,53 @@ for outer = 1:maxout
     end
 
     % ---- residuals and damped update ----
-    Ptar = Bnom ./ Sb_t;                         % bond clearing: P = B / S^b
+    Ptar = Bnom ./ max(Sb_t, 1e-9);              % bond clearing: P = B / S^b
     % tree clearing: raise q where S^k > Kbar (excess demand), lower otherwise;
-    % elasticity ~ -1 locally, so a proportional nudge on the gap
-    qtar = qpath .* (1 + 0.5*(Sk_t - Kbar)/Kbar);
+    % elasticity ~ -1 locally, so a proportional nudge on the gap. The factor
+    % is clamped so a large transient gap can never drive q non-positive
+    % (which would make log(qtar) complex and poison the whole path).
+    qfac = 1 + 0.5*(Sk_t - Kbar)/Kbar;
+    qfac = min(max(qfac, 0.7), 1.4);
+    qtar = qpath .* qfac;
     Ptar(T) = Pterm; qtar(T) = qterm;            % pin terminal
     dP = max(abs(log(Ptar./Ppath))); dq = max(abs(log(qtar./qpath)));
-    Ppath = exp((1-relax)*log(Ppath) + relax*log(Ptar));
-    qpath = exp((1-relax)*log(qpath) + relax*log(qtar));
+    dcur = max(dP, dq);
+
+    % adaptive relaxation: cut hard when the residual worsens, creep back up
+    % when it improves; checkpoint the best path seen for the retreat above.
+    if dcur > dlast
+        relax = max(0.4*relax, relax_min);
+    else
+        relax = min(1.06*relax, relax_max);
+    end
+    dlast = dcur;
+    % checkpoint BEFORE the update, so the stored path and the stored
+    % aggregates are the same iterate (what the report needs)
+    if dcur < dbest
+        dbest = dcur; Pgood = Ppath; qgood = qpath;
+        Sb_good = Sb_t; Sk_good = Sk_t;
+    end
+
+    % trust-region damped log update
+    sP = min(max(relax*(log(Ptar) - log(Ppath)), -step_max), step_max);
+    sq = min(max(relax*(log(qtar) - log(qpath)), -step_max), step_max);
+    Ppath = exp(log(Ppath) + sP);
+    qpath = exp(log(qpath) + sq);
     Ppath(T) = Pterm; qpath(T) = qterm;
-    fprintf('[%5.0fs] outer %2d: max dlnP=%.2e  max dlnq=%.2e  (Sk-K max %.2e)\n', ...
-            toc(t0), outer, dP, dq, max(abs(Sk_t - Kbar)));
-    if max(dP, dq) < 1e-4, break; end
+    fprintf(['[%5.0fs] outer %2d: max dlnP=%.2e  max dlnq=%.2e  ' ...
+             '(Sk-K max %.2e, relax %.3f)\n'], ...
+            toc(t0), outer, dP, dq, max(abs(Sk_t - Kbar)), relax);
+    if dcur < 1e-4, outconv = true; break; end
+end
+% Always report the best EVALUATED iterate, so the reported prices and the
+% reported aggregates are the same path (the loop's trailing update moves
+% Ppath past the point where Sb_t/Sk_t were computed).
+if isfinite(dbest)
+    Ppath = Pgood; qpath = qgood; Sb_t = Sb_good; Sk_t = Sk_good;
+end
+if ~outconv
+    fprintf(['[transition] outer loop did NOT reach 1e-4; best max|dln| = %.2e ' ...
+             '-- reporting the best path found.\n'], dbest);
 end
 
 % =====================================================================
@@ -174,6 +251,11 @@ tee('long-run d ln P (across steady states) = %+.4f\n', dlnP_total);
 tee('front-loading share (impact / total) = %.3f\n', frontshare);
 tee('impact tree repricing d ln q = %+.4f\n', log(qpath(1)/eq_init.q));
 tee('max tree-market residual along path = %.2e\n', max(abs(Sk_t - Kbar)));
+if outconv
+    tee('outer loop CONVERGED (max|dln| < 1e-4)\n');
+else
+    tee('outer loop NOT converged: best max|dln| = %.2e -- numbers are provisional\n', dbest);
+end
 % compare to the one-asset nonlinear transition front-loading if available
 trf = fullfile(projdir, 'output', 'transition_results.mat');
 if exist(trf,'file') == 2
