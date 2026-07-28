@@ -32,6 +32,10 @@ function TR = solve_twoasset_transition_ssj(ctx, opts)
 %       .refresh_after (10) .verbose (true) .t0 (tic handle)
 %         Between full rebuilds the Jacobian is carried by Broyden rank-1
 %         updates, so refreshes can be rare: a rebuild is 2(T-1) solves.
+%       .x0 (empty) : warm start. Supplying a previously solved path is what
+%         makes continuation in the shock size work; from a nearby solution
+%         the Newton has a good starting point even when the log-linear
+%         bridge does not.
 %       .time_budget (900) : wall-clock cap in seconds. The solve stops
 %         gracefully and reports its best path rather than running away.
 %       .noise_floor (0) : measured discretization floor of the residual. The
@@ -49,13 +53,18 @@ function TR = solve_twoasset_transition_ssj(ctx, opts)
     verbose = getopt(opts, 'verbose', true);
     nfloor  = getopt(opts, 'noise_floor', 0);
     tbudget = getopt(opts, 'time_budget', 900);   % wall-clock cap, seconds
+    x0in    = getopt(opts, 'x0', []);             % warm start (continuation)
     t0      = getopt(opts, 't0', tic);
 
     T = ctx.T; n = T - 1;
     % start from the log-linear bridge between the two steady states
-    lpb = log(linspace(ctx.P0, ctx.Pterm, T+1)); lpb = lpb(2:end-1);
-    lqb = log(linspace(ctx.q0, ctx.qterm, T+1)); lqb = lqb(2:end-1);
-    x   = [lpb(:); lqb(:)];
+    if ~isempty(x0in) && numel(x0in) == 2*n
+        x = x0in(:);                 % continue from a previously solved path
+    else
+        lpb = log(linspace(ctx.P0, ctx.Pterm, T+1)); lpb = lpb(2:end-1);
+        lqb = log(linspace(ctx.q0, ctx.qterm, T+1)); lqb = lqb(2:end-1);
+        x   = [lpb(:); lqb(:)];
+    end
 
     [r, aux] = twoasset_transition_residual(x, ctx);
     rn = max(abs(r));               % sup-norm: the economic convergence test
