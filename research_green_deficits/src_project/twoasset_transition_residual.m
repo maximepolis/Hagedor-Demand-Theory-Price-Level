@@ -44,7 +44,7 @@ function [resid, aux] = twoasset_transition_residual(x, ctx)
 
     aux = struct('feas', false, 'Ppath', Ppath, 'qpath', qpath, ...
                  'Sb', nan(1,T), 'Sk', nan(1,T), 'rb_t', nan(1,T), ...
-                 'tau_t', nan(1,T), 'tbad', 0);
+                 'tau_t', nan(1,T), 'tbad', 0, 'xsat', NaN, 'xsat_t', 0);
     resid = zeros(2*n, 1);
 
     % Stationarized real gross bond return, (1+r_b) Phat_{t-1}/Phat_t, with
@@ -92,9 +92,17 @@ function [resid, aux] = twoasset_transition_residual(x, ctx)
     Om  = push_forward_twoasset_x(ctx.Psi0, ctx.pB0, ctx.pK0, rb_t(1), qpath(1), ...
                           ctx.d_div, tau_t(1), pe1);
     Sb = zeros(1,T); Sk = zeros(1,T);
+    % Cash-on-hand grid saturation. push_forward clamps x' to the grid, so if
+    % the announcement revaluation drives mass onto the top node the
+    % aggregates stop responding to prices there. That shows up as a
+    % near-singular Jacobian and a residual stuck at the announcement dates,
+    % which no amount of solver work can fix -- the grid has to be widened.
+    xsat_max = 0; xsat_arg = 0;
     for t = 1:T
         Sb(t) = sum(sum(polB{t} .* Om));
         Sk(t) = sum(sum(polK{t} .* Om));
+        stop_mass = sum(Om(end,:)) / max(sum(Om(:)), eps);
+        if stop_mass > xsat_max, xsat_max = stop_mass; xsat_arg = t; end
         if t < T
             petp = p; petp.eGrid = (1 - ctx.Dpath(t+1)) * p.eGrid;
             Om = push_forward_twoasset_x(Om, polB{t}, polK{t}, rb_t(t+1), qpath(t+1), ...
@@ -102,6 +110,7 @@ function [resid, aux] = twoasset_transition_residual(x, ctx)
         end
     end
     aux.Sb = Sb; aux.Sk = Sk; aux.feas = true;
+    aux.xsat = xsat_max; aux.xsat_t = xsat_arg;
 
     % ---- residuals on the free dates ----
     resid(1:n)       = log(max(Sb(1:n), 1e-12) .* Ppath(1:n) / Bnom).';
