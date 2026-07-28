@@ -1,4 +1,4 @@
-TWO-ASSET NONLINEAR TRANSITION. T=80 nx=220 ne=7 FAST=0
+TWO-ASSET NONLINEAR TRANSITION. T=120 nx=220 ne=7 FAST=0
 P0=0.9090 -> P_term=0.9167 ; q0=2.3421 -> q_term=2.3679 ; g=0.0200
 
 refining boundary steady states under the transition operators...
@@ -6,22 +6,37 @@ refining boundary steady states under the transition operators...
   terminal: P = 0.91669645  q = 2.36810880  ||r|| = 7.66e-15  (3 its, converged 1)
 P0=0.908999 -> P_term=0.916696 ; q0=2.341979 -> q_term=2.368109 ; g=0.020002 (refined)
 
-steady-state consistency check: ||r||inf = 8.64e-08
-finite-difference step set to h = 2.9e-04 (from the measured floor)
-solver: sequence-space Newton stopped at 16 iterations
-  ||market residual||inf = 6.42e-03 (target 1.0e-04)
-  GE Jacobian: sigma_min = 9.906e-03, cond = 3.195e+03 (determinacy diagnostic)
+steady-state consistency check: ||r||inf = 9.56e-08
+finite-difference step set to h = 3.1e-04 (from the measured floor)
+projecting paths onto 7 decaying basis functions per price (unknowns 238 -> 14)
+
+--- continuation step 1/4: g = 0.005001 (25% of target)
+    ||r||inf = 1.56e-03  (converged 0)  sigma_min = 4.34e-03
+    max cash-on-hand grid-top mass = 1.03e-12 (at t=1)
+
+--- continuation step 2/4: g = 0.010001 (50% of target)
+    ||r||inf = 2.88e-03  (converged 0)  sigma_min = 5.27e-03
+    max cash-on-hand grid-top mass = 5.90e-12 (at t=1)
+
+--- continuation step 3/4: g = 0.015002 (75% of target)
+    ||r||inf = 4.83e-03  (converged 0)  sigma_min = 4.36e-03
+    max cash-on-hand grid-top mass = 6.61e-11 (at t=1)
+
+--- continuation step 4/4: g = 0.020002 (100% of target)
+    ||r||inf = 6.62e-03  (converged 0)  sigma_min = 4.36e-03
+    max cash-on-hand grid-top mass = 3.78e-10 (at t=1)
+solver: sequence-space Newton stopped at 18 iterations
+  ||market residual||inf = 6.62e-03 (target 1.0e-04)
+  GE Jacobian: sigma_min = 4.358e-03, cond = 9.242e+03 (determinacy diagnostic)
   damped fallback did not improve on the Newton path; keeping Newton
 ----- results -----
-impact d ln P (announcement year) = +0.0104
+impact d ln P (announcement year) = +0.0106
 long-run d ln P (across steady states) = +0.0084
-front-loading share (impact / total) = 1.235
-impact tree repricing d ln q = +0.1807
-max tree-market residual over IMPOSED dates = 6.40e-03
-terminal-date tree gap |S^k_T - Kbar| = 3.39e-02 (horizon check, not imposed)
-  NOTE: the distribution has not settled by T=80; lengthen the horizon
-  before reading the front-loading share as a long-run decomposition.
-NOT converged: best ||market residual||inf = 6.42e-03 -- provisional
+front-loading share (impact / total) = 1.262
+impact tree repricing d ln q = +0.1866
+max tree-market residual over IMPOSED dates = 6.60e-03
+terminal-date tree gap |S^k_T - Kbar| = 1.36e-04 (horizon check, not imposed)
+NOT converged: best ||market residual||inf = 6.62e-03 -- provisional
 (compare the one-asset front-loading share reported in Section 6.3)
 
 Reading: the impact d ln P is the announcement-date revaluation on the
