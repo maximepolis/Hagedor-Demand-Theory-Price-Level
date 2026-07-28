@@ -54,19 +54,34 @@ function TR = solve_twoasset_transition_ssj(ctx, opts)
     nfloor  = getopt(opts, 'noise_floor', 0);
     tbudget = getopt(opts, 'time_budget', 900);   % wall-clock cap, seconds
     x0in    = getopt(opts, 'x0', []);             % warm start (continuation)
+    Phi     = getopt(opts, 'basis', []);          % (T-1) x K projection basis
     t0      = getopt(opts, 't0', tic);
 
     T = ctx.T; n = T - 1;
-    % start from the log-linear bridge between the two steady states
-    if ~isempty(x0in) && numel(x0in) == 2*n
-        x = x0in(:);                 % continue from a previously solved path
+    % PROJECTION. With a basis, the unknown is the coefficient vector and the
+    % path is reconstructed as log X_t = log X_term + Phi*a. Without one, the
+    % unknown is the path itself (every date free).
+    useB = ~isempty(Phi) && size(Phi,1) == n;
+    if useB
+        K = size(Phi, 2); nvar = 2*K;
+        lPT = log(ctx.Pterm); lqT = log(ctx.qterm);
+        expand = @(a) [lPT + Phi*a(1:K); lqT + Phi*a(K+1:2*K)];
     else
-        lpb = log(linspace(ctx.P0, ctx.Pterm, T+1)); lpb = lpb(2:end-1);
-        lqb = log(linspace(ctx.q0, ctx.qterm, T+1)); lqb = lqb(2:end-1);
-        x   = [lpb(:); lqb(:)];
+        K = 0; nvar = 2*n; expand = @(a) a(:);
     end
 
-    [r, aux] = twoasset_transition_residual(x, ctx);
+    lpb = log(linspace(ctx.P0, ctx.Pterm, T+1)); lpb = lpb(2:end-1).';
+    lqb = log(linspace(ctx.q0, ctx.qterm, T+1)); lqb = lqb(2:end-1).';
+    if ~isempty(x0in) && numel(x0in) == nvar
+        a = x0in(:);                 % continue from a previously solved point
+    elseif useB
+        a = [Phi\(lpb - lPT); Phi\(lqb - lqT)];   % least-squares fit of the bridge
+    else
+        a = [lpb; lqb];
+    end
+    x = expand(a);
+
+    [r, aux] = twoasset_transition_residual(expand(a), ctx);
     rn = max(abs(r));               % sup-norm: the economic convergence test
     r2 = norm(r);                   % 2-norm: the merit LM actually minimizes
     hist = rn;
@@ -98,7 +113,7 @@ function TR = solve_twoasset_transition_ssj(ctx, opts)
         if isempty(J) || sinceJ >= refresh
             if verbose
                 fprintf('[%5.0fs]   building Jacobian (%d residual solves, h=%.1e)...\n', ...
-                        toc(t0), 2*n, hfd);
+                        toc(t0), nvar, hfd);
             end
             if toc(t0) + 1.2*tjac > tbudget && ~isempty(Jprev)
                 if verbose
@@ -116,7 +131,7 @@ function TR = solve_twoasset_transition_ssj(ctx, opts)
             end
             r2_at_last_J = r2;
             tj = tic;
-            J = twoasset_transition_jacobian(x, ctx, hfd);
+            J = ssj_jac(a, expand, ctx, hfd, r);
             tjac = toc(tj); Jprev = J;
             sinceJ = 0; lam = lam0;      % a FRESH Jacobian deserves a fresh lam
         end
@@ -134,14 +149,14 @@ function TR = solve_twoasset_transition_ssj(ctx, opts)
             dx = -(JtJ + lam*diag(dg)) \ Jtr;
             if ~all(isfinite(dx)), lam = 5*lam; continue; end
             if max(abs(dx)) < 1e-11, dead = true; break; end   % step is numerically nil
-            [rt, auxt] = twoasset_transition_residual(x + dx, ctx);
+            [rt, auxt] = twoasset_transition_residual(expand(a + dx), ctx);
             if auxt.feas && norm(rt) < r2
                 % BROYDEN update: a full rebuild costs 2(T-1) residual solves
                 % (the dominant expense); this rank-1 correction keeps the
                 % Jacobian current along the direction just travelled for free.
                 dr = rt - r; den = dx.'*dx;
                 if den > 0, J = J + ((dr - J*dx)*dx.')/den; end
-                x = x + dx; r = rt; aux = auxt;
+                a = a + dx; r = rt; aux = auxt;
                 r2 = norm(r); rn = max(abs(r));
                 lam = max(lam/3, 1e-9); ok = true; break;
             end
@@ -186,9 +201,10 @@ function TR = solve_twoasset_transition_ssj(ctx, opts)
         end
     end
 
+    x = expand(a);
     Ppath = [exp(x(1:n)).', ctx.Pterm];
     qpath = [exp(x(n+1:2*n)).', ctx.qterm];
-    TR = struct('x', x, 'Ppath', Ppath, 'qpath', qpath, ...
+    TR = struct('x', a, 'path', x, 'nvar', nvar, 'Ppath', Ppath, 'qpath', qpath, ...
                 'Sb', aux.Sb, 'Sk', aux.Sk, 'rb_t', aux.rb_t, 'tau_t', aux.tau_t, ...
                 'resid', r, 'rnorm', rn, 'converged', converged, 'iters', it, ...
                 'sigma_min', sig, 'cond_J', cnd, 'J', J, 'history', hist, ...
@@ -215,4 +231,30 @@ function report_split(it, r, n, rn, r2, lam, tsec)
                  'bond %.2e (t=%d)  tree %.2e (t=%d)  lam %.1e\n'], ...
                 tsec, it, rn, r2, mb, ib, mk, ik, lam);
     end
+end
+
+function J = ssj_jac(a, expand, ctx, h, r0)
+% Finite-difference Jacobian in the COEFFICIENT space. With a projection
+% basis this is 2K columns rather than 2(T-1), so a rebuild costs 16 residual
+% solves at T=120 instead of 238. Columns are independent, so parfor applies
+% exactly as before.
+    a = a(:); m = numel(a); nr = numel(r0);
+    cols = cell(m,1);
+    parfor j = 1:m
+        ap = a; ap(j) = ap(j) + h;
+        [rp, auxp] = twoasset_transition_residual(expand(ap), ctx);
+        if auxp.feas
+            cols{j} = (rp - r0)/h;
+        else
+            am = a; am(j) = am(j) - h;
+            [rm, auxm] = twoasset_transition_residual(expand(am), ctx);
+            if auxm.feas
+                cols{j} = (r0 - rm)/h;
+            else
+                cols{j} = zeros(nr,1);
+            end
+        end
+    end
+    J = zeros(nr, m);
+    for j = 1:m, J(:,j) = cols{j}; end
 end

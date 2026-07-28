@@ -193,14 +193,33 @@ if FAST, nopts.newton_maxit = 60; nopts.time_budget = 2400; end
 % already-converged path, so the Newton always starts close.
 %
 % The terminal steady state moves with g, so it is re-refined at each step.
+% Project the paths onto a small decaying basis. Solved date by date the
+% unknown is 2(T-1) prices, but distant dates move no market, so those
+% directions are unidentified and their finite-difference columns are noise:
+% sigma_min of the Jacobian fell to 5.9e-05 at T=120 and the solve stalled at
+% a local minimum however it was damped. A handful of decaying functions
+% represents these smooth paths to better than the solver can resolve, cuts
+% the unknown to 2K, and makes every retained direction one that genuinely
+% moves the residual.
+Phi = twoasset_transition_basis(T);
+nopts.basis = Phi;
+tee('projecting paths onto %d decaying basis functions per price ', size(Phi,2));
+tee('(unknowns %d -> %d)\n', 2*(T-1), 2*size(Phi,2));
+
 homot = [0.25 0.5 0.75 1.0];
 g_full = g_real; xwarm = [];
+% Each continuation step gets its OWN share of the clock. Previously they
+% shared one budget measured from the driver's start, so the early steps
+% consumed it and the final step -- the only one at the target shock -- ran
+% zero iterations and reported its initial guess.
+tbud_step = nopts.time_budget / numel(homot);
 for ih = 1:numel(homot)
     g_s = homot(ih) * g_full;
     SSs = refine_twoasset_steady_state(r_b, d_div, g_s, Bnom, Kbar, peT, ...
                                        Pterm, qterm, 1e-11, false);
     ctx.g_real = g_s; ctx.Pterm = SSs.P; ctx.qterm = SSs.q; ctx.Cterm = SSs.C;
     nopts.x0 = xwarm;
+    nopts.t0 = tic; nopts.time_budget = tbud_step;
     tee('\n--- continuation step %d/%d: g = %.6f (%.0f%% of target)\n', ...
         ih, numel(homot), g_s, 100*homot(ih));
     TRN = solve_twoasset_transition_ssj(ctx, nopts);
