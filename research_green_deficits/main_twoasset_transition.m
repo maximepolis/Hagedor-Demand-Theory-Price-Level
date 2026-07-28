@@ -41,7 +41,7 @@
 % OUTPUT  output/twoasset_transition.mat, output/tables/twoasset_transition.txt
 % STATUS: scaffolded, untested pending a MATLAB run.
 
-clearvars -except FAST; close all; clc;
+clearvars -except FAST TT; close all; clc;
 rng(20260723, 'twister'); t0 = tic;
 
 projdir = fileparts(mfilename('fullpath'));
@@ -67,6 +67,11 @@ if ~isfield(p,'aGrid2'), nx=numel(p.xGrid); u2=linspace(0,1,180)'; p.aGrid2 = 1e
 p.tol_pol = 1e-7; p.maxit_pol = 1;              % SINGLE backward step per date
 
 T = 80; if FAST, T = 40; end
+% TT overrides the horizon from the workspace. The terminal date carries no
+% clearing condition, so a horizon too short to let the distribution settle
+% leaves a gap there that contaminates the front-loading share; the gap falls
+% by roughly an order of magnitude per doubling of T.
+if exist('TT','var') && ~isempty(TT), T = TT; end
 
 % ---- terminal (program) and initial (no-program) steady states ----
 % Terminal: lump-sum program steady state; read P,q,tau from step0 EX(1) if
@@ -178,7 +183,32 @@ nopts = struct('newton_maxit', 60, 'newton_tol', 1e-4, 'fd_step', h_fd, ...
                'refresh_after', 10, 'verbose', true, 't0', t0, ...
                'noise_floor', max(abs(r_ss)), 'time_budget', 5400);
 if FAST, nopts.newton_maxit = 60; nopts.time_budget = 2400; end
-TRN = solve_twoasset_transition_ssj(ctx, nopts);
+% ---- CONTINUATION IN THE SHOCK SIZE ----------------------------------
+% Solving the full program in one go from a log-linear bridge is fragile: at
+% T=80 that bridge is far from a path that decays quickly, and the Newton
+% stalled at a local minimum of the merit with a well-conditioned Jacobian
+% (cond ~ 3e3), which is the signature of a bad starting point rather than a
+% bad system. Continuation removes the problem: at g = 0 the constant path is
+% the exact solution, and each subsequent step is a small perturbation of an
+% already-converged path, so the Newton always starts close.
+%
+% The terminal steady state moves with g, so it is re-refined at each step.
+homot = [0.25 0.5 0.75 1.0];
+g_full = g_real; xwarm = [];
+for ih = 1:numel(homot)
+    g_s = homot(ih) * g_full;
+    SSs = refine_twoasset_steady_state(r_b, d_div, g_s, Bnom, Kbar, peT, ...
+                                       Pterm, qterm, 1e-11, false);
+    ctx.g_real = g_s; ctx.Pterm = SSs.P; ctx.qterm = SSs.q; ctx.Cterm = SSs.C;
+    nopts.x0 = xwarm;
+    tee('\n--- continuation step %d/%d: g = %.6f (%.0f%% of target)\n', ...
+        ih, numel(homot), g_s, 100*homot(ih));
+    TRN = solve_twoasset_transition_ssj(ctx, nopts);
+    xwarm = TRN.x;
+    tee('    ||r||inf = %.2e  (converged %d)\n', TRN.rnorm, TRN.converged);
+end
+% the final step IS the target economy; keep its endpoints for reporting
+Pterm = ctx.Pterm; qterm = ctx.qterm; g_real = ctx.g_real;
 
 % ALWAYS adopt the Newton path: it is the best iterate found so far, and the
 % fallback below is only allowed to replace it if it does strictly better.
