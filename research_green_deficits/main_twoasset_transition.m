@@ -193,17 +193,17 @@ if FAST, nopts.newton_maxit = 60; nopts.time_budget = 2400; end
 % already-converged path, so the Newton always starts close.
 %
 % The terminal steady state moves with g, so it is re-refined at each step.
-% Project the paths onto a small decaying basis. Solved date by date the
-% unknown is 2(T-1) prices, but distant dates move no market, so those
-% directions are unidentified and their finite-difference columns are noise:
-% sigma_min of the Jacobian fell to 5.9e-05 at T=120 and the solve stalled at
-% a local minimum however it was damped. A handful of decaying functions
-% represents these smooth paths to better than the solver can resolve, cuts
-% the unknown to 2K, and makes every retained direction one that genuinely
-% moves the residual.
+% Project the paths onto a small basis. Solved date by date the unknown is
+% 2(T-1) prices, but distant dates move no market, so those directions are
+% unidentified and their finite-difference columns are noise: sigma_min of the
+% Jacobian fell to 5.9e-05 at T=120 and the solve stalled at a local minimum
+% however it was damped. The basis keeps the first few dates individually free,
+% where the announcement jump lives and the residual concentrated, and
+% represents the tail by a handful of decaying functions, which is finer than
+% the solver can resolve there anyway.
 Phi = twoasset_transition_basis(T);
 nopts.basis = Phi;
-tee('projecting paths onto %d decaying basis functions per price ', size(Phi,2));
+tee('projecting paths onto %d basis functions per price ', size(Phi,2));
 tee('(unknowns %d -> %d)\n', 2*(T-1), 2*size(Phi,2));
 
 homot = [0.25 0.5 0.75 1.0];

@@ -170,7 +170,7 @@ Two lines at the end are worth reading carefully:
   not settled by T and the driver says so; the fix is a longer horizon
   (drop FAST, which raises T from 40 to 80), not more solver work.
 
-## RUN 4c — matched-parameter ladder (~35 min) — REFEREE-CRITICAL (M2)
+## RUN 4c — matched-parameter ladder (~35 min) — REFEREE-CRITICAL (M2) — RUN THIS FIRST
 
 The paper's 2x2 table compares economies that are each separately
 recalibrated, so a referee can fairly ask whether the restored sign comes
@@ -190,19 +190,38 @@ and what would settle M2: the contrast should hold in the benchmark row and
 break in the rows that remove the wedge or the friction, at unchanged
 preferences.
 
-## RUN 4d — transition at the LONG horizon (~20 min)
-
-The T=40 solve converged (||r||inf = 9.5e-05) but its terminal-date tree gap
-is 0.33, so the distribution has not settled and the front-loading share is
-not yet interpretable. Doubling the horizon is the fix:
+## RUN 4d — transition at T = 120 (~25 min) — LAST transition change
 
 ```matlab
-clear; main_twoasset_transition        % no FAST: T goes 40 -> 80
+if isempty(gcp('nocreate')), parpool; end
+clear; TT = 120; main_twoasset_transition
 ```
 
-Read `terminal-date tree gap`. Below 1e-2 means the front-loading share is
-real and I write it into the paper; still large means the horizon must go
-further and I would rather see the number than guess.
+Where this stands. The horizon problem is solved: the terminal-date tree gap
+fell from 0.33 (T=40) to 1.4e-04 (T=120), so the front-loading share is now
+an interpretable number rather than an artefact of a horizon that was too
+short. Conditioning is solved too: sigma_min went from 5.9e-05 to 4.4e-03.
+What remained was `||r||inf = 6.6e-03` against a 1.0e-04 target, sitting at
+t = 1 and t = 2 in every continuation step. That is a basis problem, not a
+solver problem: with seven exponentials the system was 238 equations in 14
+unknowns, and a sum of smooth decaying functions cannot represent the
+announcement-date jump. The basis now leaves the first eight dates
+individually free and keeps the exponentials only for the tail.
+
+What to read off the run, in order:
+- `projecting paths onto 15 basis functions per price (unknowns 238 -> 30)`
+  confirms the new basis is live. If it still says 7 / 14, the checkout is
+  stale.
+- `||r||inf` at the end of continuation step 4/4. Target 1.0e-04. The
+  `bond ... (t=)` and `tree ... (t=)` tags say WHERE the misfit sits; if it
+  has moved off t = 1, 2 and onto t = 9, 10, the free window needs widening
+  and I will do that in one line.
+- `terminal-date tree gap` should stay near 1e-04.
+- `front-loading share`, which is the number the paper actually reports.
+
+This is one appendix number. If it converges, good; if it stalls again at
+some level below 1e-2, I will report the path with its accuracy stated and
+move on rather than spend more runs on it.
 
 ## RUN 4b — non-separable liquidity (unchanged, only if not already current)
 
@@ -258,11 +277,12 @@ Also paste into the chat:
 | Convenience yield (R3) | done — zeta disciplined to ~1; benchmark zeta=2 at range edge |
 | Non-separable (R3 fork) | done — both xi give positive dlnP(ls), integrated |
 | KMV friction-only | done — HtM 54% but WHtM still 0 (top10 = 98%); written up as a model-class bound |
-| zeta=1 rerun (z10) | INVALID — experiment q halved vs baseline (branch jump); rerun after the bracket fix |
-| Two-asset transition | crashed on a diverging outer loop; solver rebuilt, **rerun** |
+| zeta=1 rerun (z10) | INVALID — experiment q halved vs baseline (branch jump); rerun after the bracket fix (RUN 3b) |
+| Matched-parameter ladder (M2) | code done, **never run** — RUN 4c, the highest-value 35 minutes left in the project |
+| Two-asset transition | horizon and conditioning solved; residual floor at 6.6e-03 traced to the basis, basis rewritten — RUN 4d |
 
 ### Open items on my side
 
-- M2 matched-parameter ladder and M3 2D (beta x chi) calibration: code to
-  scaffold, then ~6 runs.
+- M3 2D (beta x chi) calibration: code to scaffold, then ~3 runs.
 - M6 restructure (promote two-asset to the body) once zeta=1 is re-checked.
+- Regenerate figures under the new palette (`replot_paper_figures`).
