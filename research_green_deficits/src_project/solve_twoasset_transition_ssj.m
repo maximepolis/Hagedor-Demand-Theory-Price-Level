@@ -78,6 +78,13 @@ function TR = solve_twoasset_transition_ssj(ctx, opts)
     % solver to chase grid noise.
     tol_eff = max(ntol, 5*nfloor);
 
+    % Progress guard. A Jacobian rebuild costs 2(T-1) residual solves (about
+    % 450s at T=120), so a refresh cycle that buys almost nothing is pure
+    % waste: the last run spent ~2000s and five rebuilds improving ||r||2 by
+    % 0.2%. If a full cycle does not cut the merit by at least min_gain, the
+    % solve is at a local minimum of a near-singular system and stops.
+    min_gain = getopt(opts, 'min_gain', 0.02);
+    r2_at_last_J = Inf;
     lam0 = 1e-3; lam = lam0; lam_max = 1e8;
     J = []; Jprev = []; tjac = 0; sinceJ = 0; converged = false; it = 0; nstall = 0;
     for it = 1:nmax
@@ -99,6 +106,15 @@ function TR = solve_twoasset_transition_ssj(ctx, opts)
                 end
                 break;
             end
+            if isfinite(r2_at_last_J) && r2 > (1 - min_gain)*r2_at_last_J
+                if verbose
+                    fprintf(['   last Jacobian cycle cut the merit by only %.2f%% ' ...
+                             '(< %.0f%%); at a local minimum, stopping\n'], ...
+                            100*(1 - r2/r2_at_last_J), 100*min_gain);
+                end
+                break;
+            end
+            r2_at_last_J = r2;
             tj = tic;
             J = twoasset_transition_jacobian(x, ctx, hfd);
             tjac = toc(tj); Jprev = J;
@@ -176,6 +192,7 @@ function TR = solve_twoasset_transition_ssj(ctx, opts)
                 'Sb', aux.Sb, 'Sk', aux.Sk, 'rb_t', aux.rb_t, 'tau_t', aux.tau_t, ...
                 'resid', r, 'rnorm', rn, 'converged', converged, 'iters', it, ...
                 'sigma_min', sig, 'cond_J', cnd, 'J', J, 'history', hist, ...
+                'xsat', aux.xsat, 'xsat_t', aux.xsat_t, ...
                 'method', 'ssj-newton');
 end
 

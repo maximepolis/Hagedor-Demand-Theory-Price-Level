@@ -205,7 +205,14 @@ for ih = 1:numel(homot)
         ih, numel(homot), g_s, 100*homot(ih));
     TRN = solve_twoasset_transition_ssj(ctx, nopts);
     xwarm = TRN.x;
-    tee('    ||r||inf = %.2e  (converged %d)\n', TRN.rnorm, TRN.converged);
+    tee('    ||r||inf = %.2e  (converged %d)  sigma_min = %.2e\n', ...
+        TRN.rnorm, TRN.converged, TRN.sigma_min);
+    tee('    max cash-on-hand grid-top mass = %.2e (at t=%d)\n', TRN.xsat, TRN.xsat_t);
+    if TRN.xsat > 1e-3
+        tee('    WARNING: mass is pinned on the x-grid boundary. The forward push\n');
+        tee('    clamps there, so aggregates stop responding to prices and the\n');
+        tee('    Jacobian goes singular. Widen xmax before trusting this path.\n');
+    end
 end
 % the final step IS the target economy; keep its endpoints for reporting
 Pterm = ctx.Pterm; qterm = ctx.qterm; g_real = ctx.g_real;
