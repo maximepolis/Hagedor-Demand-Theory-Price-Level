@@ -110,6 +110,14 @@
 \providecommand{\OwnKVDlnPLevyf}{\pendingnum}
 \providecommand{\KmvHtM}{\pendingnum}
 \providecommand{\KmvTopTen}{\pendingnum}
+\providecommand{\LadBenchLS}{\pendingnum}\providecommand{\LadBenchLevy}{\pendingnum}
+\providecommand{\LadBenchTopOne}{\pendingnum}
+\providecommand{\LadNoWedgeLS}{\pendingnum}\providecommand{\LadNoWedgeLevy}{\pendingnum}
+\providecommand{\LadNoWedgeTopOne}{\pendingnum}
+\providecommand{\LadNoSupLS}{\pendingnum}\providecommand{\LadNoSupLevy}{\pendingnum}
+\providecommand{\LadNoSupTopOne}{\pendingnum}
+\providecommand{\LadNoFricLS}{\pendingnum}\providecommand{\LadNoFricLevy}{\pendingnum}
+\providecommand{\LadNoFricTopOne}{\pendingnum}
 % Decile-resolution welfare incidence, populated by welfare_incidence_deciles.
 \providecommand{\WDecBotMed}{\pendingnum}\providecommand{\WDecTopMed}{\pendingnum}
 \providecommand{\WTopFiveMed}{\pendingnum}\providecommand{\WTopOneMed}{\pendingnum}
@@ -4518,11 +4526,40 @@ infrequent adjustment    & $\TwoBDlnPLS$ ($\TwoBDlnPLevy$) & $\OwnKVDlnPLS$ ($\O
 \noindent Only the cell with both the ownership calibration and
 the adjustment friction produces the lump-sum disinflation; ownership
 alone and the friction alone leave the response (weakly) inflationary.
-One honest caveat on reading the cells: each economy is calibrated to its
-own targets (the uniform-ownership cells set $\chi_b$ to the public-debt
-target; the calibrated-ownership friction cell recalibrates $\beta$ to
-the direct-holding target), so the cells differ by their labeled
-ingredient plus the recalibration that ingredient requires, a matched-parameter decomposition is left for future work. The restoration is
+The cells of this table are each calibrated to their own targets, so
+they differ by their labeled ingredient plus whatever recalibration that
+ingredient requires. A matched-parameter decomposition removes the
+confound: holding the discount factor, the liquidity weight, and the
+grids at their benchmark values throughout, we switch off one ingredient
+at a time and re-solve for the equilibrium price of each economy.
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+ & $d\ln P$ (lump-sum) & $d\ln P$ (levy) & top $1\%$ share \\
+\midrule
+benchmark                & $\LadBenchLS$   & $\LadBenchLevy$   & $\LadBenchTopOne\%$ \\
+no intermediation wedge  & $\LadNoWedgeLS$ & $\LadNoWedgeLevy$ & $\LadNoWedgeTopOne\%$ \\
+no superstar state       & $\LadNoSupLS$   & $\LadNoSupLevy$   & $\LadNoSupTopOne\%$ \\
+no adjustment friction   & $\LadNoFricLS$  & $\LadNoFricLevy$  & $\LadNoFricTopOne\%$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\noindent Each row differs from the benchmark by exactly one ingredient
+at fixed preferences, and each removal destroys the sign contrast in an
+economically legible way. Removing the intermediation wedge flips the
+lump-sum response to inflationary while leaving wealth concentration
+essentially unchanged: the wedge is what routes part of the debt
+revaluation through the intermediated dividend, so it is the sign of the
+lump-sum response, not the wealth distribution, that depends on it.
+Removing the superstar state collapses concentration (a top-percentile
+share of $\LadNoSupTopOne\%$) and turns both responses strongly
+inflationary. Removing the adjustment friction at fixed patience
+overshoots concentration in the opposite direction (a top-percentile
+share of $\LadNoFricTopOne\%$) and makes \emph{both} instruments
+disinflationary, erasing the contrast from the other side. The sign
+contrast therefore requires all three ingredients jointly, and it is
+attributable to the ingredients themselves rather than to the
+recalibration that accompanied them in the two-by-two. The restoration is
 robust along two dimensions we can check. Dropping the Stone--Geary shift
 in $v$ that the benchmark carries (which removes the marginal-utility
 divergence at zero balances) moves the pair to $\OwnKVDlnPLSb$ against

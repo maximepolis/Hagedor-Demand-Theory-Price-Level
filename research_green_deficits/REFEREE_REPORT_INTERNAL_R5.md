@@ -42,7 +42,27 @@ Fixes, in order of power:
 Status: (2) done in code; (1), (3), (4) need runs. Until (1) lands, the
 paper's Status block honestly labels the numbers "validation grid".
 
-### M2. One calibration point; the 2×2 cells are not matched-parameter (FATAL RISK)
+### M2. One calibration point; the 2×2 cells are not matched-parameter — **SETTLED 2026-07-28**
+
+The ladder ran (`twoasset_ownership_kv_ladder.txt`, coarse grid, β = 0.874
+and χ_b = 0.00223 held throughout):
+
+| economy | dlnP(ls) | dlnP(levy) | contrast | top1 |
+|---|---|---|---|---|
+| benchmark | −0.0108 | +0.0116 | yes | 0.33 |
+| no intermediation wedge | +0.0028 | +0.0079 | no | 0.34 |
+| no superstar state | +0.0344 | +0.0613 | no | 0.06 |
+| no adjustment friction | −0.0607 | −0.0330 | no | 0.71 |
+
+Every removal destroys the contrast at fixed preferences, each through a
+legible channel (wedge: lump-sum sign flips with concentration unchanged;
+superstar: concentration collapses; friction: both signs go negative while
+concentration overshoots). The paper now reports this table in place of the
+"left for future work" footnote. Objection converted to strength, as hoped.
+The λ-sweep immunization remains optional. Original item kept below for the
+record.
+
+### M2 (original). One calibration point; the 2×2 cells are not matched-parameter (FATAL RISK)
 
 The 2×2 table locates the restoration, but each cell is calibrated to its
 own targets — the uniform cells set χ_b to the debt target, the benchmark
