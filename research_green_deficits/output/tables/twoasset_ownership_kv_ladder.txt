@@ -1,0 +1,35 @@
+OWNERSHIP + INFREQUENT ADJUSTMENT. nb=40 nk=22 nx=100 ne=8 lambda=0.15 FAST=1
+iota_H=0.273 (direct target 0.30 of income); superstar mult=12.0 p_in=0.000
+liquidity: zeta_b=2.00, Stone-Geary shift bbar=0.030 (0 => Inada at b=0 => HtM==0)
+dividend payout phi=1.00 (1 => full d*k paid LIQUID => wealthy never run down => WHtM==0)
+
+----- (0) diagnostic single equilibrium (chi=0.0022) -----
+  diagnostic OK: S_b=0.9228 q=6.0069 P=0.2955 min_c=0.1829 n_infeas=0
+----- (1) baseline (beta recalibrated; chi fixed at 0.00223) -----
+beta=0.87404 chi_b=0.00223 S_b=0.2998 (target 0.30) q=1.5121 P=0.9098 omega=0.165 div=0.1357
+wealth: total 1.812 x income (illiquid 1.512, liquid 0.300); tree yield d/q=0.079
+feasibility: min consumption 0.2270, infeasible states 0, k-grid top mass 0.0020
+HtM (b<0.02): total 0.057 | WEALTHY (qk>0.50): 0.000 | poor: 0.057
+wealth shares: top10 0.67 top1 0.33
+
+----- (2) financing incidence (lump-sum vs levy) -----
+lump-sum P=0.9000 dlnP=-0.0108 q=1.5878
+levy     P=0.9205 dlnP=+0.0116 q=1.5878
+sign contrast survives: 1
+
+Reading: does the ADJUSTMENT FRICTION on top of the ownership wedge
+finally deliver WEALTHY hand-to-mouth households (WHtM > 0)? If so this
+is the calibration for the covariance-on-realistic-bond-ownership
+exercise and the disciplined welfare incidence.
+
+----- (3) matched-parameter ladder (beta, chi, grids FIXED) -----
+beta = 0.87404, chi_b = 0.00223 held at the benchmark throughout
+economy                      dlnP(ls) dlnP(levy)   contrast     top1
+benchmark                     -0.0108    +0.0116          1     0.33
+no intermediation wedge       +0.0028    +0.0079          0     0.34
+no superstar state            +0.0344    +0.0613          0     0.06
+no adjustment friction        -0.0607    -0.0330          0     0.71
+
+Reading: consecutive rows differ by ONE ingredient at fixed
+preferences, so any change in the sign contrast is attributable to
+that ingredient rather than to a recalibration.

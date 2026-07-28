@@ -1,4 +1,4 @@
-TWO-ASSET NONLINEAR TRANSITION. T=40 nx=220 ne=7 FAST=1
+TWO-ASSET NONLINEAR TRANSITION. T=80 nx=220 ne=7 FAST=0
 P0=0.9090 -> P_term=0.9167 ; q0=2.3421 -> q_term=2.3679 ; g=0.0200
 
 refining boundary steady states under the transition operators...
@@ -6,21 +6,22 @@ refining boundary steady states under the transition operators...
   terminal: P = 0.91669645  q = 2.36810880  ||r|| = 7.66e-15  (3 its, converged 1)
 P0=0.908999 -> P_term=0.916696 ; q0=2.341979 -> q_term=2.368109 ; g=0.020002 (refined)
 
-steady-state consistency check: ||r||inf = 5.82e-08
-finite-difference step set to h = 2.4e-04 (from the measured floor)
-solver: sequence-space Newton, converged in 42 iterations
-  ||market residual||inf = 9.47e-05 (target 1.0e-04)
-  GE Jacobian: sigma_min = 8.845e-03, cond = 5.839e+03 (determinacy diagnostic)
+steady-state consistency check: ||r||inf = 8.64e-08
+finite-difference step set to h = 2.9e-04 (from the measured floor)
+solver: sequence-space Newton stopped at 16 iterations
+  ||market residual||inf = 6.42e-03 (target 1.0e-04)
+  GE Jacobian: sigma_min = 9.906e-03, cond = 3.195e+03 (determinacy diagnostic)
+  damped fallback did not improve on the Newton path; keeping Newton
 ----- results -----
-impact d ln P (announcement year) = -0.0003
+impact d ln P (announcement year) = +0.0104
 long-run d ln P (across steady states) = +0.0084
-front-loading share (impact / total) = -0.039
-impact tree repricing d ln q = +0.0157
-max tree-market residual over IMPOSED dates = 9.47e-05
-terminal-date tree gap |S^k_T - Kbar| = 3.27e-01 (horizon check, not imposed)
-  NOTE: the distribution has not settled by T=40; lengthen the horizon
+front-loading share (impact / total) = 1.235
+impact tree repricing d ln q = +0.1807
+max tree-market residual over IMPOSED dates = 6.40e-03
+terminal-date tree gap |S^k_T - Kbar| = 3.39e-02 (horizon check, not imposed)
+  NOTE: the distribution has not settled by T=80; lengthen the horizon
   before reading the front-loading share as a long-run decomposition.
-market clearing CONVERGED (||r||inf < 1e-4)
+NOT converged: best ||market residual||inf = 6.42e-03 -- provisional
 (compare the one-asset front-loading share reported in Section 6.3)
 
 Reading: the impact d ln P is the announcement-date revaluation on the
