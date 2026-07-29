@@ -197,14 +197,15 @@ if FAST, nopts.newton_maxit = 60; nopts.time_budget = 2400; end
 % 2(T-1) prices, but distant dates move no market, so those directions are
 % unidentified and their finite-difference columns are noise: sigma_min of the
 % Jacobian fell to 5.9e-05 at T=120 and the solve stalled at a local minimum
-% however it was damped. The basis keeps the first few dates individually free,
-% where the announcement jump lives and the residual concentrated, and
-% represents the tail by a handful of decaying functions, which is finer than
-% the solver can resolve there anyway.
-Phi = twoasset_transition_basis(T);
+% however it was damped. The basis is a piecewise-linear interpolant on a knot
+% grid that is dense over the announcement window and geometrically coarser
+% thereafter, so every date is resolved at a resolution matched to how much
+% the residual can identify it.
+[Phi, kn] = twoasset_transition_basis(T);
 nopts.basis = Phi;
 tee('projecting paths onto %d basis functions per price ', size(Phi,2));
 tee('(unknowns %d -> %d)\n', 2*(T-1), 2*size(Phi,2));
+tee('  knots: %s\n', strtrim(sprintf('%d ', kn)));
 
 homot = [0.25 0.5 0.75 1.0];
 g_full = g_real; xwarm = [];
@@ -212,7 +213,8 @@ g_full = g_real; xwarm = [];
 % shared one budget measured from the driver's start, so the early steps
 % consumed it and the final step -- the only one at the target shock -- ran
 % zero iterations and reported its initial guess.
-tbud_step = nopts.time_budget / numel(homot);
+tbud_total = nopts.time_budget;
+tbud_step  = tbud_total / numel(homot);
 for ih = 1:numel(homot)
     g_s = homot(ih) * g_full;
     SSs = refine_twoasset_steady_state(r_b, d_div, g_s, Bnom, Kbar, peT, ...
@@ -233,6 +235,39 @@ for ih = 1:numel(homot)
         tee('    Jacobian goes singular. Widen xmax before trusting this path.\n');
     end
 end
+
+% ---- BASIS REFINEMENT ------------------------------------------------
+% If the coarse basis stops at a nonzero least-squares minimum, the residual
+% is approximation error, not solver failure, and the test is sharp: it comes
+% out proportional to the shock size, because for a small shock the solution
+% is g times the linear impulse response and a direction outside the span
+% leaves a residual linear in g. The remedy is more knots, not more damping.
+% Refine once, warm-started by projecting the coarse path onto the dense
+% basis (least squares, so it does not matter that the knots are not nested),
+% and keep the refined answer only if it is strictly better.
+if ~TRN.converged
+    [Phi2, kn2] = twoasset_transition_basis(T, 16, 36);
+    K1 = size(Phi,2); K2 = size(Phi2,2);
+    tee('\n--- basis refinement: %d -> %d functions per price ', K1, K2);
+    tee('(unknowns %d -> %d)\n', 2*K1, 2*K2);
+    tee('  knots: %s\n', strtrim(sprintf('%d ', kn2)));
+    % coarse coefficients -> path -> dense coefficients
+    aP = TRN.x(1:K1); aQ = TRN.x(K1+1:2*K1);
+    xw2 = [Phi2 \ (Phi * aP); Phi2 \ (Phi * aQ)];
+    nopts.basis = Phi2; nopts.x0 = xw2;
+    nopts.t0 = tic; nopts.time_budget = 2 * tbud_step;
+    TRN2 = solve_twoasset_transition_ssj(ctx, nopts);
+    tee('    refined ||r||inf = %.2e  (converged %d)  sigma_min = %.2e\n', ...
+        TRN2.rnorm, TRN2.converged, TRN2.sigma_min);
+    if TRN2.rnorm < TRN.rnorm
+        tee('    refinement improved the fit by %.1fx; adopting it\n', ...
+            TRN.rnorm / max(TRN2.rnorm, eps));
+        TRN = TRN2;
+    else
+        tee('    refinement did not improve on the coarse basis; keeping it\n');
+    end
+end
+
 % the final step IS the target economy; keep its endpoints for reporting
 Pterm = ctx.Pterm; qterm = ctx.qterm; g_real = ctx.g_real;
 
