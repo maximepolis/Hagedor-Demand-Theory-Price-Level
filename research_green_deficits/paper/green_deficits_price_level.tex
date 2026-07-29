@@ -127,6 +127,11 @@
 \providecommand{\MThrW}{\pendingnum}\providecommand{\MThrLS}{\pendingnum}
 \providecommand{\MThrLevy}{\pendingnum}\providecommand{\MThrChiFall}{\pendingnum}
 \providecommand{\MThrOmA}{\pendingnum}\providecommand{\MThrOmB}{\pendingnum}
+\providecommand{\ZtenChi}{\pendingnum}\providecommand{\ZtenBeta}{\pendingnum}
+\providecommand{\ZtenLS}{\pendingnum}\providecommand{\ZtenLevy}{\pendingnum}
+\providecommand{\ZtenW}{\pendingnum}\providecommand{\ZtenTopOne}{\pendingnum}
+\providecommand{\ZtenOmega}{\pendingnum}\providecommand{\ZtenQ}{\pendingnum}
+\providecommand{\ZtenYield}{\pendingnum}\providecommand{\ZtenHtM}{\pendingnum}
 % Decile-resolution welfare incidence, populated by welfare_incidence_deciles.
 \providecommand{\WDecBotMed}{\pendingnum}\providecommand{\WDecTopMed}{\pendingnum}
 \providecommand{\WTopFiveMed}{\pendingnum}\providecommand{\WTopOneMed}{\pendingnum}
@@ -3027,14 +3032,25 @@ disinflationary, erasing the contrast from the other side. The sign
 contrast therefore requires all three ingredients jointly, and it is
 attributable to the ingredients themselves rather than to the
 recalibration that accompanied them in the two-by-two. The restoration is
-robust along two dimensions we can check. Dropping the Stone--Geary shift
+robust along three dimensions we can check. Dropping the Stone--Geary shift
 in $v$ that the benchmark carries (which removes the marginal-utility
 divergence at zero balances) moves the pair to $\OwnKVDlnPLSb$ against
 $\OwnKVDlnPLevyb$; halving every grid dimension moves it to
-$\OwnKVDlnPLSf$ against $\OwnKVDlnPLevyf$. The magnitudes are
-therefore grid-sensitive at the factor-of-two level and we do not lean on
+$\OwnKVDlnPLSf$ against $\OwnKVDlnPLevyf$. Most importantly, the
+restoration holds at the \emph{opposite end of the disciplined curvature
+range}: at the \citeauthor{krishnamurthy2012} point estimate $\zeta = 1$,
+with the liquidity weight rescaled so that only the curvature of liquidity
+demand changes (the rotation their elasticity identifies;
+Appendix~\ref{subsec:zten}), the same experiment gives $\ZtenLS$ against
+$\ZtenLevy$ --- larger magnitudes, same contrast --- in an economy whose
+total wealth, at $\ZtenW$ times income, lies inside the data range while
+wealth concentration overshoots it. The two curvature calibrations
+bracket the wealth data on complementary moments and agree on the sign.
+The magnitudes are
+therefore sensitive to curvature and grids at the factor-of-five level and
+we do not lean on
 them; the \emph{sign contrast} is what survives, and it survives every
-specification and grid we have solved. The result is, however,
+specification, curvature, and grid we have solved. The result is, however,
 sensitive to the dividend-payout convention: retaining dividends inside
 the illiquid account and recalibrating overshoots wealth concentration
 badly (a top-percentile share of $75\%$) while losing the contrast, so we
@@ -3170,12 +3186,13 @@ the frictionless economy to $8.6\times10^{-3}$, and the invariant
 distribution converges to $10^{-8}$ per state. The
 ownership-plus-illiquidity economy is solved at the finer of the two grid
 resolutions and the frictionless variants at the coarser. Two limits
-bound what this section claims. First, at the elastic end of the
-admissible curvature range
-($\zeta \approx 1$) the financing experiment does not admit a clean local
-comparative static --- the tree market re-solves at a distant price ---
-so the restoration is established at $\zeta = 2$ and its curvature
-sensitivity is left open. Second, the announcement path is solved for the
+bound what this section claims. First, $\chi_b$ and $\zeta$ are jointly
+identified only up to the marginal value of liquidity at the calibrated
+position, so curvature experiments rescale the weight to rotate the
+liquidity demand curve through that point
+(Appendix~\ref{subsec:zten}); the restoration holds at both ends of the
+admissible range, with magnitudes that differ by a factor of five between
+them. Second, the announcement path is solved for the
 frictionless economy; the infrequent-adjustment variant carries a second
 endogenous state along the path and its transition is not attempted here.
 The rest of the paper relies on four conclusions from this section: the instrument ordering
@@ -4672,7 +4689,7 @@ the $-1$ line.}
 % --------------------------------------------------------------------------
 \section{Supplementary results}\label{app:supp}
 % ==========================================================================
-This appendix collects five supporting analyses whose headline conclusions
+This appendix collects six supporting analyses whose headline conclusions
 are stated (in one paragraph each) in the body; here each is developed
 in full. Section~\ref{subsec:maturity} disciplines the \emph{size} of the
 revaluation channel against the inflating-away literature: maturity,
@@ -4682,6 +4699,10 @@ attach to the one-asset magnitudes. Section~\ref{subsec:twoasset} verifies
 the one-asset conclusions in a linearized two-asset economy in which the
 liquid-bond margin is observable, the qualification cited in
 Sections~\ref{subsec:equilibrium} and~\ref{subsec:tier2}.
+Section~\ref{subsec:zten} establishes the sign restoration of
+Section~\ref{subsec:twoassetnl} at the
+\citeauthor{krishnamurthy2012} point estimate of the convenience-yield
+curvature.
 Section~\ref{subsec:workedexample} states the worked example of
 Section~\ref{subsec:calibration} in full, parameterization, the benchmark
 table, and the $\nu(\theta_g)$ sweep. Section~\ref{subsec:optmu} reports the
@@ -4822,6 +4843,56 @@ regime & $\pi$ impact (ann.) & $Y$ impact & $r^b$ impact & debt (40q) & $K_g$ (4
 \bottomrule
 \end{tabular}
 \end{table}
+
+\subsection{The sign restoration at the KVJ point estimate}
+\label{subsec:zten}
+
+The benchmark curvature of convenience utility, $\zeta = 2$, sits at the
+steep edge of the range the \citet{krishnamurthy2012} evidence admits; the
+point estimate maps to $\zeta \approx 1$
+(Section~\ref{subsec:twoassetnl}). A referee may reasonably ask whether the
+restored disinflation depends on the steep end. This appendix answers at
+the point estimate itself.
+
+The experiment must rotate the liquidity demand curve, not shift it.
+$\chi_b$ and $\zeta$ enter household behavior only through the liquid
+first-order condition $\chi_b (b + \underline{b})^{-\zeta} = u'(c) \cdot
+\text{spread}$, which pins their combination at the calibrated liquid
+position: changing $\zeta$ at a fixed weight also changes the \emph{level}
+of liquidity preference, which is not a curvature experiment. (At
+$\zeta = 1$ it cuts the marginal value of liquidity at the target position
+threefold, and the resulting economy differs from the benchmark in every
+targeted moment.) We therefore rescale the weight by
+$(b^{\mathrm{tgt}} + \underline{b})^{\zeta - 2}$ --- the unique rescaling
+that holds the marginal value of liquidity at the calibrated position
+fixed and rotates the demand curve through it, which is precisely the
+rotation the \citeauthor{krishnamurthy2012} elasticity
+$d\ln(\text{spread})/d\ln b \approx -\zeta$ identifies. At $\zeta = 1$
+this takes $\chi_b$ from $0.0022$ to $\ZtenChi$; the discount factor is
+then recalibrated to the direct-holding target as in the benchmark
+($\beta = \ZtenBeta$).
+
+The sign contrast survives at the point estimate: the same program moves
+the price level by $\ZtenLS$ log points under lump-sum financing against
+$\ZtenLevy$ under the levy. The magnitudes are roughly five times the
+benchmark pair, consistent with the section's position that magnitudes
+are curvature-sensitive while the ordering and the contrast are not.
+
+The equilibrium behind the pair is itself informative. Flatter curvature
+raises the value of liquidity away from the calibrated position, prices
+the tree richer ($q = \ZtenQ$, a dividend yield of $\ZtenYield\%$), and
+delivers total wealth of $\ZtenW$ times income --- inside the three-to-five
+range in United States data --- at the cost of overshooting concentration
+(a top-percentile share of $\ZtenTopOne\%$ against roughly $35$ in the
+data, with a hand-to-mouth share of $\ZtenHtM\%$). The $\zeta = 2$
+benchmark inverts the pattern: concentration on target, total wealth low.
+The two curvature calibrations therefore bracket the wealth data on
+complementary moments and agree on the sign contrast; together with the
+wealth-matched recalibration of Section~\ref{subsec:twoassetnl}, the
+contrast now holds at three wealth configurations spanning $1.8$ to
+$\ZtenW$ times income. The wealthy-hand-to-mouth measure remains zero, as
+the liquid floor of the remark in Section~\ref{subsec:twoassetnl} requires
+at any curvature $\zeta \ge 1$.
 
 \subsection{The worked example in full}\label{subsec:workedexample}
 
