@@ -424,6 +424,7 @@ function [beta_star, chi_star, eq0] = calib_beta_chi(rb, d, D, g, lv, Bnom, Kbar
     % economically identified rather than merely numerically hard.
     om_t   = btH / Wt;                          % implied liquid-share target
     lb_max = log(0.999/(1 + rb));               % patience boundary
+    chi_lo = 0.10 * max(p.chi_b, 1e-12);        % identification floor, see below
     x  = [min(log(p.beta), lb_max); log(max(p.chi_b, 1e-8))];
     ev = @(xx) eval_own(rb, d, D, g, lv, Bnom, Kbar, iota, ...
                         setfield(setfield(p, 'beta', exp(min(xx(1), lb_max))), ...
@@ -448,6 +449,25 @@ function [beta_star, chi_star, eq0] = calib_beta_chi(rb, d, D, g, lv, Bnom, Kbar
     best = norm(r);
     for it = 1:12
         if norm(r, Inf) < 2e-2, break; end
+        % IDENTIFICATION GUARD. chi moves the liquid share only from ABOVE:
+        % with infrequent rebalancing the tree is a poor buffer, so
+        % self-insurance holds a minimum liquid position whatever the
+        % convenience weight, and omega is bounded below by that floor.
+        % Below the floor chi is not identified -- the solver keeps cutting
+        % it for no movement in omega, and lands at chi ~ 0, where the
+        % convenience yield the KVJ evidence disciplines has been removed
+        % and the tree market approaches the flat-demand boundary of
+        % Proposition~determinacy. Stop and report the floor instead: it is
+        % a property of the model, not a solver failure.
+        if exp(x(2)) < chi_lo
+            fprintf(['  2D calibration: chi has fallen below %.1e (a tenth of ' ...
+                     'its\n  disciplined value) while omega has stalled at ' ...
+                     '%.3f against a %.3f\n  target. The liquid share is at ' ...
+                     'its floor and chi is not identified\n  below it; ' ...
+                     'reporting the best identified point.\n'], ...
+                    chi_lo, eq0.Sb/max(eq0.Sb + eq0.q*eq0.Kbar, 1e-12), om_t);
+            break;
+        end
         dx = -(J \ r);
         st = min(1, 0.35/max(abs(dx)));          % trust region in logs
         accepted = false;
