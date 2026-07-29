@@ -21,7 +21,7 @@
 % OUTPUT  output/twoasset_ownership_kv.mat, output/tables/twoasset_ownership_kv.txt
 % STATUS: scaffolded, untested pending a MATLAB run.
 
-clearvars -except FAST KMV ZETA LADDER; close all; clc;
+clearvars -except FAST KMV ZETA LADDER WTARGET; close all; clc;
 rng(20260723, 'twister'); t0 = tic;
 
 projdir = fileparts(mfilename('fullpath'));
@@ -93,6 +93,14 @@ p.zeta_b = 2.0; p.chi_b = 0.02; p.lambda_adj = 0.15;
 % range to ~[0.55, 2.05]. `ZETA = 1.0` reruns the benchmark at the
 % point-disciplined curvature, writing to suffixed output files.
 if exist('ZETA','var') && ~isempty(ZETA), p.zeta_b = ZETA; end
+% WTARGET workspace override: total household wealth as a multiple of income.
+% Empty (the default) keeps the one-instrument calibration in which beta
+% carries the direct-holding level and total wealth is whatever it implies;
+% a value switches on the two-instrument calibration of referee item M3.
+% US data put net worth at roughly 3 to 5 times income; 3.0 is the
+% conservative end of that range.
+W_targ = [];
+if exist('WTARGET','var') && ~isempty(WTARGET), W_targ = WTARGET; end
 % STONE-GEARY shift on liquid holdings. With bbar = 0 the convenience
 % utility chi*b^(1-zeta)/(1-zeta) has v'(b) = chi*b^(-zeta) -> inf as b -> 0:
 % an Inada condition on LIQUIDITY that makes running the liquid buffer to
@@ -156,6 +164,27 @@ if exist(ownf, 'file') == 2
     % was scaled down to chase the level target and could not reach it.)
     if isfield(Ow,'p') && isfield(Ow.p,'chi_b'), chi_ref = Ow.p.chi_b; end
 end
+% CURVATURE REPARAMETERIZATION. chi_ref is calibrated at the default
+% curvature zeta = 2, and chi and zeta are not separately meaningful: the
+% liquid first-order condition chi*(b+bbar)^(-zeta) = u'(c)*spread pins only
+% their combination at the calibrated liquid position. Changing zeta at
+% FIXED chi therefore moves the level of liquidity preference as well as its
+% curvature, which is not the KVJ experiment. Measured: at zeta = 1 it cut
+% the marginal value of liquidity at the target position threefold, so the
+% economy loaded the difference into the tree -- household wealth 1.8 -> 3.7
+% times income, top-1% share 33% -> 65%, hand-to-mouth 6% -> 44% -- and the
+% financing experiment returned +27 and +32 log points from a 2%-of-income
+% program, on a tree price that had moved outside its own bracket. That is a
+% different economy, not a curvature robustness check.
+%
+% Rescale chi so the marginal value of liquidity AT THE TARGET liquid
+% position is unchanged. This is the unique rescaling that isolates
+% curvature: it holds the calibrated point of the liquidity demand curve
+% fixed and rotates the curve through it, which is exactly what the KVJ
+% elasticity dln(spread)/dln(b) ~ -zeta identifies.
+if abs(p.zeta_b - 2.0) > 1e-12
+    chi_ref = chi_ref * (b_targ_H + p.bbar_liq)^(p.zeta_b - 2.0);
+end
 if KMV, chi_ref = 0; end                        % friction-only: no convenience utility
 
 if ~isfolder(pg.tabdir), mkdir(pg.tabdir); end
@@ -163,6 +192,9 @@ if KMV, tag = 'twoasset_ownership_kmv'; else, tag = 'twoasset_ownership_kv'; end
 if LADDER, tag = [tag '_ladder']; end
 if abs(p.zeta_b - 2.0) > 1e-12                  % non-default curvature: suffix
     tag = sprintf('%s_z%02.0f', tag, 10*p.zeta_b);
+end
+if ~isempty(W_targ)                             % 2D wealth-matched calibration
+    tag = sprintf('%s_w%02.0f', tag, 10*W_targ);
 end
 sf = fullfile(pg.tabdir, [tag '.txt']);
 fid = fopen(sf, 'w'); assert(fid > 0, 'cannot open %s', sf);
@@ -176,6 +208,11 @@ tee('iota_H=%.3f (direct target %.2f of income); superstar mult=%.1f p_in=%.3f\n
     iota_H, b_targ_H, ss.mult, ss.p_in);
 tee('liquidity: zeta_b=%.2f, Stone-Geary shift bbar=%.3f (0 => Inada at b=0 => HtM==0)\n', ...
     p.zeta_b, p.bbar_liq);
+if abs(p.zeta_b - 2.0) > 1e-12
+    tee(['curvature reparameterized: chi rescaled to %.5f so the marginal ' ...
+         'value of\n  liquidity at the target position b=%.2f is unchanged ' ...
+         '(curvature only)\n'], chi_ref, b_targ_H);
+end
 tee('dividend payout phi=%.2f (1 => full d*k paid LIQUID => wealthy never run down => WHtM==0)\n\n', ...
     p.div_payout);
 
@@ -199,9 +236,26 @@ end
 % level instrument. This mirrors the borrowing-limit audit, where holding
 % beta fixed across economies produced the artifact and the recalibrated
 % sweep was the honest one.
-tee('----- (1) baseline (beta recalibrated; chi fixed at %.5f) -----\n', chi_ref);
 p.chi_b = chi_ref;
+if ~isempty(W_targ)
+    % TWO-DIMENSIONAL CALIBRATION (referee item M3). With chi held at its
+    % frictionless value and beta carrying the level, the economy hits the
+    % direct-holding target by being POOR: total household wealth is 1.8
+    % times income against roughly 3 to 5 in the data, so a referee can ask
+    % whether the restored disinflation is a poor-economy artifact. Two
+    % instruments answer it. The pairing matters for conditioning: beta and
+    % chi both raise S_b, so targeting (W, S_b) is near-collinear, whereas
+    % beta moves the LEVEL of wealth and chi the liquid SHARE, so targeting
+    % (W, omega) is close to triangular. Since S_b = omega * W, hitting both
+    % hits the direct-holding target as well.
+    tee('----- (1) baseline (2D: beta -> W=%.2f, chi -> omega=%.3f) -----\n', ...
+        W_targ, b_targ_H/W_targ);
+    [p.beta, p.chi_b, eq0] = calib_beta_chi(r_b, d_base, D0, 0, 0, Bnom, Kbar, ...
+                                 b_targ_H, W_targ, iota_H, p, q_ref, t0);
+else
+tee('----- (1) baseline (beta recalibrated; chi fixed at %.5f) -----\n', chi_ref);
 [p.beta, eq0] = calib_beta(r_b, d_base, D0, 0, 0, Bnom, Kbar, b_targ_H, iota_H, p, q_ref, t0);
+end
 if isempty(eq0) || ~eq0.ok
     tee('BASELINE CALIBRATION FAILED -- see per-iteration diagnostics above.\n');
     fclose(fid);
@@ -348,6 +402,98 @@ function [chi_star, eq0] = calib_chi(rb, d, D, g, lv, Bnom, Kbar, btH, iota, p, 
         fprintf('[%5.0fs] secant chi=%.5f S_b=%.4f err=%+.4f (min_c=%.3f)\n', ...
             toc(t0), chi_star, eqk.Sb, err, eqk.min_c);
     end
+end
+
+function [beta_star, chi_star, eq0] = calib_beta_chi(rb, d, D, g, lv, Bnom, Kbar, ...
+                                          btH, Wt, iota, p, q_ref, t0)
+    % TWO-INSTRUMENT calibration (referee item M3): beta and chi_b jointly
+    % target total household wealth W and the liquid share omega.
+    %
+    % WHY THIS PAIRING. Both instruments raise the direct liquid holding
+    % S_b, so targeting (W, S_b) with (beta, chi) is a near-collinear system
+    % and the Newton is ill-conditioned. The economics is triangular
+    % instead: beta sets the LEVEL of precautionary wealth (patience), chi
+    % sets the SHARE held liquid (the convenience yield). Targeting
+    % (W, omega) exploits that, and since S_b = omega * W, hitting both
+    % delivers the direct-holding target as a by-product -- the residuals
+    % satisfy r_W + r_omega = log S_b - log btH exactly.
+    %
+    % Solved by damped Broyden in (log beta, log chi) with a finite-
+    % difference seed. beta is clamped below the 1/(1+r) boundary, where
+    % aggregate asset demand diverges and the calibration stops being
+    % economically identified rather than merely numerically hard.
+    om_t   = btH / Wt;                          % implied liquid-share target
+    lb_max = log(0.999/(1 + rb));               % patience boundary
+    x  = [min(log(p.beta), lb_max); log(max(p.chi_b, 1e-8))];
+    ev = @(xx) eval_own(rb, d, D, g, lv, Bnom, Kbar, iota, ...
+                        setfield(setfield(p, 'beta', exp(min(xx(1), lb_max))), ...
+                                 'chi_b', exp(xx(2))), q_ref); %#ok<SFLD>
+    beta_star = p.beta; chi_star = p.chi_b; eq0 = [];
+
+    [r, eqx] = resid_of(ev(x), Wt, om_t);
+    if isempty(eqx), fprintf('  2D calibration: initial point infeasible\n'); return; end
+    eq0 = eqx; beta_star = exp(min(x(1), lb_max)); chi_star = exp(x(2));
+    report2d(t0, 0, x, eqx, r, lb_max);
+
+    % finite-difference seed for the Jacobian (2 extra solves)
+    h = 0.02; J = zeros(2,2);
+    for j = 1:2
+        xp = x; xp(j) = xp(j) + h;
+        [rp, eqp] = resid_of(ev(xp), Wt, om_t);
+        if isempty(eqp), rp = r + h*[1;1]; end   % crude fallback: keep it invertible
+        J(:,j) = (rp - r)/h;
+    end
+    if abs(det(J)) < 1e-8, J = J + 1e-3*eye(2); end
+
+    best = norm(r);
+    for it = 1:12
+        if norm(r, Inf) < 2e-2, break; end
+        dx = -(J \ r);
+        st = min(1, 0.35/max(abs(dx)));          % trust region in logs
+        accepted = false;
+        for bt = 1:5                             % backtracking
+            xn = x + st*dx; xn(1) = min(xn(1), lb_max);
+            [rn, eqn] = resid_of(ev(xn), Wt, om_t);
+            if ~isempty(eqn) && norm(rn) < norm(r)
+                dr = rn - r; s = xn - x;
+                J = J + ((dr - J*s) * s.') / max(s.'*s, 1e-12);   % Broyden
+                x = xn; r = rn;
+                if norm(r) < best
+                    best = norm(r); eq0 = eqn;
+                    beta_star = exp(min(x(1), lb_max)); chi_star = exp(x(2));
+                end
+                accepted = true; break;
+            end
+            st = st/2;
+        end
+        report2d(t0, it, x, eq0, r, lb_max);
+        if ~accepted
+            fprintf('  2D calibration: no improving step; keeping the best point\n');
+            break;
+        end
+    end
+end
+
+function [r, eqx] = resid_of(eqx, Wt, om_t)
+    if isempty(eqx) || ~eqx.ok, r = [NaN; NaN]; eqx = []; return; end
+    W  = eqx.Sb + eqx.q * eqx.Kbar;
+    om = eqx.Sb / max(W, 1e-12);
+    r  = [log(max(W,1e-12)) - log(Wt); log(max(om,1e-12)) - log(om_t)];
+    if ~all(isfinite(r)), r = [NaN; NaN]; eqx = []; end
+end
+
+function report2d(t0, it, x, eqx, r, lb_max)
+    if isempty(eqx), return; end
+    W = eqx.Sb + eqx.q * eqx.Kbar;
+    fprintf(['[%5.0fs] 2D %2d: beta=%.5f chi=%.5f | W=%.3f omega=%.3f ' ...
+             'S_b=%.4f q=%.3f | rW=%+.4f rom=%+.4f\n'], ...
+            toc(t0), it, exp(min(x(1), lb_max)), exp(x(2)), W, ...
+            eqx.Sb/max(W,1e-12), eqx.Sb, eqx.q, r(1), r(2));
+end
+
+function eqx = eval_own(rb, d, D, g, lv, Bnom, Kbar, iota, pp, q_ref)
+    eqx = solve_own_kv(rb, d, D, g, lv, Bnom, Kbar, iota, pp, q_ref, false);
+    if isstruct(eqx) && eqx.ok, eqx.Kbar = Kbar; end
 end
 
 function [beta_star, eq0] = calib_beta(rb, d, D, g, lv, Bnom, Kbar, btH, iota, p, q_ref, t0)
