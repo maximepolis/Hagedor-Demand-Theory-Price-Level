@@ -1,4 +1,4 @@
-function [polB, polK, polC, C, V, diag] = solve_household_twoasset_egm(rb, q, d, tau, p, C0)
+function [polB, polK, polC, C, V, diag] = solve_household_twoasset_egm(rb, q, d, tau, p, C0, nxt)
 % SOLVE_HOUSEHOLD_TWOASSET_EGM  Endogenous-grid solver for the frictionless
 % two-asset household (two-asset build plan, Step 0) -- the fast default.
 %
@@ -6,18 +6,33 @@ function [polB, polK, polC, C, V, diag] = solve_household_twoasset_egm(rb, q, d,
 % convenience utility chi*v(b), tree k at price q, frictionless rebalancing),
 % solved on consumption policies rather than values. Interior optimality:
 %
-%   k-FOC (k'>0):  u'(c) = beta * Rk * E[u'(c'(x'))],  Rk = (q+d)/q,
+%   k-FOC (k'>0):  u'(c) = beta * Rk * E[u'(c'(x'))],  Rk = (q' + d)/q,
 %   split (k'>0):  chi v'(b') = u'(c) * sprd,          sprd = 1 - Rb/Rk,
 %   b-FOC (k'=0):  u'(c) = chi v'(b') + beta * Rb * E[u'(c'(x'))], b' = a,
 %
-% with a = b' + q k' the total outlay and x' = y(e') - tau + Rb b' + Rk (a q
-% k')/q = y(e') - tau + Rk a - (Rk - Rb) b'. The EGM iterates on c(x,e) over
+% with a = b' + q k' the total outlay, Rb = 1 + rb' the NEXT-period bond
+% return, Rk = (q' + d)/q the tree payoff NEXT period per unit spent at
+% TODAY's price, and next-period cash-on-hand
+%   x' = y(e') - tau' + Rb b' + Rk (a - b') = y(e') - tau' + Rk a - (Rk-Rb) b'.
+% The EGM iterates on c(x,e) over
 % an exogenous a-grid: per (a,e) node an inner damped fixed point on b'
 % (fast: the b' feedback into x' is second-order), then the endogenous grid
 % x = c + a. Nodes whose unconstrained liquid demand reaches a are recomputed
 % on the k'=0 branch, where the b-FOC gives c in closed form (no inner loop).
 % Because v'(0) = +inf (zeta >= 1), b' > 0 and a > 0 always: there is no
 % zero-saving corner, and the lowest a-node anchors the constrained region.
+%
+% DATING. Every object inside the expectation is dated t+1: the bond return
+% rb', the tree payoff q'+d, the tax tau', and the income grid y(e'). The
+% ONLY date-t price in the problem is q, which converts tree shares to
+% today's outlay (a = b' + q k', and polK = (a - b')/q). In a STATIONARY
+% solve the two dates carry the same values and the distinction is
+% invisible; on a TRANSITION they differ, and passing date-t values where
+% t+1 belongs makes households expect today's realized announcement
+% revaluation to recur tomorrow. That mis-dating put a shock-proportional,
+% basis-invariant floor under the transition residual at the announcement
+% dates. Callers on a path MUST pass nxt; stationary callers omit it and
+% get exactly the old behavior.
 %
 % This solves the exact joint FOCs, unlike the VFI's within-search split
 % substitution (which is exact only at the optimum); the two are
@@ -27,18 +42,27 @@ function [polB, polK, polC, C, V, diag] = solve_household_twoasset_egm(rb, q, d,
 %           uses .aGrid2 (exogenous total-outlay grid; built by the driver),
 %           .tol_pol (policy sup-norm tol), .maxit_pol.
 %         C0 : optional (nx x ne) warm-start consumption policy ([] = none).
+%         nxt: optional struct with NEXT-period objects for transition use:
+%              .rb, .q, .tau, and optionally .eGrid (next period's
+%              damage-scaled income grid). Any missing field defaults to the
+%              corresponding current-period argument, so omitting nxt
+%              reproduces the stationary solver bit for bit.
 % OUTPUTS polB, polK, polC : (nx x ne) policies on p.xGrid.
 %         C    : converged consumption policy (pass back as next C0).
 %         V    : values on p.xGrid, computed ONLY if p.compute_V = true
 %                ([] otherwise -- the evaluation costs as much as the policy
 %                iteration and no equilibrium loop needs it).
 %         diag : .converged .iters .supnorm .sprd .neg_spread
-%
-% STATUS: scaffolded, untested pending a MATLAB run.
+
+    if nargin < 7 || isempty(nxt), nxt = struct(); end
+    if ~isfield(nxt, 'rb')    || isempty(nxt.rb),    nxt.rb    = rb;      end
+    if ~isfield(nxt, 'q')     || isempty(nxt.q),     nxt.q     = q;       end
+    if ~isfield(nxt, 'tau')   || isempty(nxt.tau),   nxt.tau   = tau;     end
+    if ~isfield(nxt, 'eGrid') || isempty(nxt.eGrid), nxt.eGrid = p.eGrid; end
 
     nx = numel(p.xGrid); ne = numel(p.eGrid);
     xG = p.xGrid(:); aG = p.aGrid2(:); na = numel(aG);
-    Rb = 1 + rb; Rk = (q + d)/q; sprd = 1 - Rb/Rk;
+    Rb = 1 + nxt.rb; Rk = (nxt.q + d)/q; sprd = 1 - Rb/Rk;
     diag = struct('converged', false, 'iters', 0, 'supnorm', Inf, ...
                   'sprd', sprd, 'neg_spread', sprd <= 0);
     polB = []; polK = []; polC = []; V = [];
@@ -47,7 +71,7 @@ function [polB, polK, polC, C, V, diag] = solve_household_twoasset_egm(rb, q, d,
     sig = p.sigma; zet = p.zeta_b; chi = p.chi_b;
     up    = @(c) c.^(-sig);
     upinv = @(m) m.^(-1/sig);
-    ynet  = p.eGrid(:)' - tau;                        % 1 x ne (next period)
+    ynet  = nxt.eGrid(:)' - nxt.tau;                  % 1 x ne (next period)
 
     % initial consumption guess: consume a fixed fraction of cash-on-hand
     if nargin >= 6 && ~isempty(C0) && isequal(size(C0), [nx ne])
@@ -159,7 +183,7 @@ function [polB, polK, polC, C, V, diag] = solve_household_twoasset_egm(rb, q, d,
         for ie = 1:ne
             cont = zeros(nx, 1);
             for jep = 1:ne
-                xp = ynet(jep) + Rb*polB(:, ie) + (q + d)*polK(:, ie);
+                xp = ynet(jep) + Rb*polB(:, ie) + (nxt.q + d)*polK(:, ie);
                 cont = cont + p.Pi(ie, jep) * ...
                        interp1(xG, V(:, jep), xp, 'linear', 'extrap');
             end
