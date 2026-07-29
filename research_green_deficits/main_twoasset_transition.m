@@ -229,6 +229,12 @@ for ih = 1:numel(homot)
     tee('    ||r||inf = %.2e  (converged %d)  sigma_min = %.2e\n', ...
         TRN.rnorm, TRN.converged, TRN.sigma_min);
     tee('    max cash-on-hand grid-top mass = %.2e (at t=%d)\n', TRN.xsat, TRN.xsat_t);
+    tee('    max resource-accounting gap    = %.2e (at t=%d)\n', TRN.gap_res, TRN.gap_res_t);
+    if TRN.gap_res > 1e-4
+        tee('    WARNING: consumption plus the appropriation does not equal\n');
+        tee('    endowment plus dividend. The fiscal accounting on the path is\n');
+        tee('    inconsistent, so no price path can clear both markets.\n');
+    end
     if TRN.xsat > 1e-3
         tee('    WARNING: mass is pinned on the x-grid boundary. The forward push\n');
         tee('    clamps there, so aggregates stop responding to prices and the\n');

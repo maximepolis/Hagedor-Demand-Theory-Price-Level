@@ -44,20 +44,26 @@ function [resid, aux] = twoasset_transition_residual(x, ctx)
 
     aux = struct('feas', false, 'Ppath', Ppath, 'qpath', qpath, ...
                  'Sb', nan(1,T), 'Sk', nan(1,T), 'rb_t', nan(1,T), ...
-                 'tau_t', nan(1,T), 'tbad', 0, 'xsat', NaN, 'xsat_t', 0);
+                 'tau_t', nan(1,T), 'tbad', 0, 'xsat', NaN, 'xsat_t', 0, ...
+                 'gap_res', NaN, 'gap_res_t', 0);
     resid = zeros(2*n, 1);
 
     % Stationarized real gross bond return, (1+r_b) Phat_{t-1}/Phat_t, with
     % Phat_0 the PRE-announcement price: the announcement-date revaluation
-    % enters through P_0/P_1.
+    % enters through P_0/P_1. This is what HOUSEHOLDS earn.
     Rb_t  = (1 + ctx.r_b) * [ctx.P0, Ppath(1:end-1)] ./ Ppath;
     rb_t  = Rb_t - 1;
-    tau_t = rb_t * Bnom ./ Ppath + ctx.g_real;
+    % What the GOVERNMENT pays is the fixed nominal coupon, so the tax is set
+    % by the constant policy rate r_b, not by the realized return: the
+    % revaluation is a capital gain on the stock, not a budget outlay. Shared
+    % with the steady-state solver so the two can never drift apart --
+    % see twoasset_fiscal_tax for why this distinction is load-bearing.
+    tau_t = twoasset_fiscal_tax(ctx.r_b, Bnom, Ppath, ctx.g_real);
     aux.rb_t = rb_t; aux.tau_t = tau_t;
 
     % ---- backward pass: one EGM step per date, from the terminal policy ----
     Cnext = ctx.Cterm;
-    polB = cell(1,T); polK = cell(1,T);
+    polB = cell(1,T); polK = cell(1,T); polC = cell(1,T);
     szx = [numel(p.xGrid) numel(p.eGrid)];
     for t = T:-1:1
         pet = p; pet.eGrid = (1 - ctx.Dpath(t)) * p.eGrid;
@@ -69,7 +75,7 @@ function [resid, aux] = twoasset_transition_residual(x, ctx)
             resid(:) = 1e3;                          % large but finite
             return;
         end
-        polB{t} = bB; polK{t} = bK; Cnext = Ct;
+        polB{t} = bB; polK{t} = bK; polC{t} = Ct; Cnext = Ct;
     end
 
     % ---- forward pass: roll the distribution, collect the two aggregates ----
@@ -97,12 +103,27 @@ function [resid, aux] = twoasset_transition_residual(x, ctx)
     % aggregates stop responding to prices there. That shows up as a
     % near-singular Jacobian and a residual stuck at the announcement dates,
     % which no amount of solver work can fix -- the grid has to be widened.
-    xsat_max = 0; xsat_arg = 0;
+    % RESOURCE AUDIT. The clearing residuals below say whether the two asset
+    % markets clear; they do NOT say whether the fiscal accounting behind the
+    % tax path is right. The driver's steady-state gate cannot fill that role
+    % because it holds prices constant, and every price-dependent fiscal error
+    % vanishes at a constant path. This does: in the endowment economy with a
+    % fixed tree, aggregate resources are labour income plus the dividend, and
+    % uses are consumption plus the green appropriation, at EVERY date and on
+    % ANY price path. A tax rule inconsistent with the government budget shows
+    % up here immediately, while the market residuals only inherit it
+    % indirectly and look like a solver stall.
+    xsat_max = 0; xsat_arg = 0; gap_max = 0; gap_arg = 0;
     for t = 1:T
         Sb(t) = sum(sum(polB{t} .* Om));
         Sk(t) = sum(sum(polK{t} .* Om));
         stop_mass = sum(Om(end,:)) / max(sum(Om(:)), eps);
         if stop_mass > xsat_max, xsat_max = stop_mass; xsat_arg = t; end
+        pet = p; pet.eGrid = (1 - ctx.Dpath(t)) * p.eGrid;
+        ybar = sum(pet.eGrid(:).' .* sum(Om, 1));          % aggregate endowment
+        Cagg = sum(sum(polC{t} .* Om));
+        gap  = abs(Cagg + ctx.g_real - ybar - ctx.d_div * Kbar);
+        if gap > gap_max, gap_max = gap; gap_arg = t; end
         if t < T
             petp = p; petp.eGrid = (1 - ctx.Dpath(t+1)) * p.eGrid;
             Om = push_forward_twoasset_x(Om, polB{t}, polK{t}, rb_t(t+1), qpath(t+1), ...
@@ -111,6 +132,7 @@ function [resid, aux] = twoasset_transition_residual(x, ctx)
     end
     aux.Sb = Sb; aux.Sk = Sk; aux.feas = true;
     aux.xsat = xsat_max; aux.xsat_t = xsat_arg;
+    aux.gap_res = gap_max; aux.gap_res_t = gap_arg;
 
     % ---- residuals on the free dates ----
     resid(1:n)       = log(max(Sb(1:n), 1e-12) .* Ppath(1:n) / Bnom).';

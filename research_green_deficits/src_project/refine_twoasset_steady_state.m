@@ -64,7 +64,7 @@ function S = refine_twoasset_steady_state(rb, d, g_real, Bnom, Kbar, pe, Pg, qg,
 
     function [r, S] = ss_resid(xv)
         P = exp(xv(1)); q = exp(xv(2));
-        tau = rb*Bnom/P + g_real;
+        tau = twoasset_fiscal_tax(rb, Bnom, P, g_real);   % shared with the transition
         [polB, polK, ~, C] = solve_household_twoasset_egm(rb, q, d, tau, pe, []);
         if isempty(polB)
             r = [1e3; 1e3];
