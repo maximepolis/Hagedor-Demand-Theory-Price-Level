@@ -281,8 +281,20 @@ Also paste into the chat:
 | Matched-parameter ladder (M2) | **DONE — settled**: every ingredient individually necessary at fixed beta, chi, grids |
 | Two-asset transition | **DONE — CONVERGED** at T=120: \|\|r\|\|inf 6.6e-05, terminal gap 2.0e-08, resource identity 4e-14, 640s. Front-loading 89% vs 77% one-asset; impact dlnP +0.0075 vs +0.0084 long run; impact dlnq +1.24%. Written into the paper. |
 
-### Open items on my side
+### Open items
 
-- M3 2D (beta x chi) calibration: code to scaffold, then ~3 runs.
-- M6 restructure (promote two-asset to the body) once zeta=1 is re-checked.
+- **RUN 3b (zeta=1), the LAST outstanding run**: the curvature experiment is
+  now correctly reparameterized (chi rescaled so the marginal value of
+  liquidity at the target position is unchanged). The header must print
+  `curvature reparameterized: chi rescaled to 0.00676`:
+  `clear; FAST = true; ZETA = 1.0; main_twoasset_ownership_kv`  (~10 min)
+- M3: DONE — sign survives at W=2.7x income; liquid share hits its economic
+  floor (chi unidentified below it); written into the body section.
+- M6: DONE — two-asset material promoted to the body ("Portfolio structure,
+  bond ownership, and the sign of revaluation"); determinacy apparatus moved
+  to the self-contained appendix "Climate damages and the nominal anchor"
+  with a motivated one-page summary in the theory section.
+- Next editorial stage: within-section compression of the quantitative
+  analysis (safe-asset channel subsection is the longest) toward a ~60-page
+  main text.
 - Regenerate figures under the new palette (`replot_paper_figures`).
