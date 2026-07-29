@@ -8,35 +8,35 @@ P0=0.908999 -> P_term=0.916696 ; q0=2.341979 -> q_term=2.368109 ; g=0.020002 (re
 
 steady-state consistency check: ||r||inf = 9.56e-08
 finite-difference step set to h = 3.1e-04 (from the measured floor)
-projecting paths onto 7 decaying basis functions per price (unknowns 238 -> 14)
+projecting paths onto 15 basis functions per price (unknowns 238 -> 30)
 
 --- continuation step 1/4: g = 0.005001 (25% of target)
-    ||r||inf = 1.56e-03  (converged 0)  sigma_min = 4.34e-03
-    max cash-on-hand grid-top mass = 1.03e-12 (at t=1)
+    ||r||inf = 1.73e-03  (converged 0)  sigma_min = 2.19e-02
+    max cash-on-hand grid-top mass = 1.30e-12 (at t=1)
 
 --- continuation step 2/4: g = 0.010001 (50% of target)
-    ||r||inf = 2.88e-03  (converged 0)  sigma_min = 5.27e-03
-    max cash-on-hand grid-top mass = 5.90e-12 (at t=1)
+    ||r||inf = 3.37e-03  (converged 0)  sigma_min = 2.20e-02
+    max cash-on-hand grid-top mass = 1.18e-11 (at t=1)
 
 --- continuation step 3/4: g = 0.015002 (75% of target)
-    ||r||inf = 4.83e-03  (converged 0)  sigma_min = 4.36e-03
-    max cash-on-hand grid-top mass = 6.61e-11 (at t=1)
+    ||r||inf = 4.98e-03  (converged 0)  sigma_min = 2.21e-02
+    max cash-on-hand grid-top mass = 7.49e-11 (at t=1)
 
 --- continuation step 4/4: g = 0.020002 (100% of target)
-    ||r||inf = 6.62e-03  (converged 0)  sigma_min = 4.36e-03
-    max cash-on-hand grid-top mass = 3.78e-10 (at t=1)
-solver: sequence-space Newton stopped at 18 iterations
-  ||market residual||inf = 6.62e-03 (target 1.0e-04)
-  GE Jacobian: sigma_min = 4.358e-03, cond = 9.242e+03 (determinacy diagnostic)
+    ||r||inf = 7.22e-03  (converged 0)  sigma_min = 2.23e-02
+    max cash-on-hand grid-top mass = 5.89e-10 (at t=1)
+solver: sequence-space Newton stopped at 20 iterations
+  ||market residual||inf = 7.22e-03 (target 1.0e-04)
+  GE Jacobian: sigma_min = 2.226e-02, cond = 1.403e+03 (determinacy diagnostic)
   damped fallback did not improve on the Newton path; keeping Newton
 ----- results -----
-impact d ln P (announcement year) = +0.0106
+impact d ln P (announcement year) = +0.0114
 long-run d ln P (across steady states) = +0.0084
-front-loading share (impact / total) = 1.262
-impact tree repricing d ln q = +0.1866
-max tree-market residual over IMPOSED dates = 6.60e-03
-terminal-date tree gap |S^k_T - Kbar| = 1.36e-04 (horizon check, not imposed)
-NOT converged: best ||market residual||inf = 6.62e-03 -- provisional
+front-loading share (impact / total) = 1.348
+impact tree repricing d ln q = +0.1992
+max tree-market residual over IMPOSED dates = 7.19e-03
+terminal-date tree gap |S^k_T - Kbar| = 2.83e-05 (horizon check, not imposed)
+NOT converged: best ||market residual||inf = 7.22e-03 -- provisional
 (compare the one-asset front-loading share reported in Section 6.3)
 
 Reading: the impact d ln P is the announcement-date revaluation on the
