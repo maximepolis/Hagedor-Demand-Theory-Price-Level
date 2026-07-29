@@ -358,6 +358,17 @@ else
 end
 if dbest < 1e-4, outconv = true; end
 end
+% Grid-top saturation is a HARD gate, not a warning: with mass clamped on
+% the top cash-on-hand node the forward push and the (extrapolating)
+% backward policies disagree, the date-1/2 aggregates stop responding to
+% prices, and the residual floors in exactly the pattern of a solver stall.
+% No number from such a path is reportable at any residual level.
+if isfield(TRN, 'xsat') && TRN.xsat > 1e-3
+    outconv = false;
+    fprintf(['[transition] grid-top mass %.2e exceeds 1e-3: the cash-on-hand ' ...
+             'grid truncates the announcement revaluation. Widen xmax; ' ...
+             'numbers below are NOT valid.\n'], TRN.xsat);
+end
 if ~outconv
     fprintf(['[transition] did NOT reach the market-clearing tolerance; ' ...
              'best ||r||inf = %.2e -- numbers are provisional.\n'], dbest);
@@ -420,13 +431,10 @@ function [polB, polK, polC, C, V, dg] = solve_household_twoasset_egm_ss(rb, q, d
     [polB, polK, polC, C, V, dg] = solve_household_twoasset_egm(rb, q, d, tau, pe, []);
 end
 
-function [polB, polK, polC, C] = twoasset_egm_step(rb, q, d, tau, pe, Cnext)
-% ONE backward EGM step: given next-period consumption policy Cnext, return
-% this period's policies. Implemented as a 1-iteration EGM solve seeded with
-% Cnext (maxit_pol = 1), so the solver's internal step IS the backward map.
-    pe.maxit_pol = 1; pe.tol_pol = 0;            % force exactly one sweep
-    [polB, polK, polC, C] = solve_household_twoasset_egm(rb, q, d, tau, pe, Cnext);
-end
+% (A one-step EGM wrapper used to live here. It called the household solver
+% without next-period objects -- the exact mis-dating removed from the
+% transition residual -- so it was deleted rather than left as a trap; the
+% residual does its own backward pass with per-date nxt.)
 
 function tee2(fid, varargin)
     fprintf(varargin{:}); fprintf(fid, varargin{:});
