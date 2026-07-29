@@ -102,6 +102,7 @@ function TR = solve_twoasset_transition_ssj(ctx, opts)
     r2_at_last_J = Inf;
     lam0 = 1e-3; lam = lam0; lam_max = 1e8;
     J = []; Jprev = []; tjac = 0; sinceJ = 0; converged = false; it = 0; nstall = 0;
+    n_infeas = 0; tbad_last = 0;   % trial steps rejected on sprd<=0 infeasibility
     for it = 1:nmax
         if rn < tol_eff, converged = true; break; end
         if toc(t0) > tbudget
@@ -150,6 +151,7 @@ function TR = solve_twoasset_transition_ssj(ctx, opts)
             if ~all(isfinite(dx)), lam = 5*lam; continue; end
             if max(abs(dx)) < 1e-11, dead = true; break; end   % step is numerically nil
             [rt, auxt] = twoasset_transition_residual(expand(a + dx), ctx);
+            if ~auxt.feas, n_infeas = n_infeas + 1; tbad_last = auxt.tbad; end
             if auxt.feas && norm(rt) < r2
                 % BROYDEN update: a full rebuild costs 2(T-1) residual solves
                 % (the dominant expense); this rank-1 correction keeps the
@@ -199,6 +201,14 @@ function TR = solve_twoasset_transition_ssj(ctx, opts)
         if verbose
             fprintf('   GE Jacobian: sigma_min = %.3e, cond = %.3e\n', sig, cnd);
         end
+    end
+    % Infeasibility is otherwise silent (a rejected trial looks like a
+    % conditioning stall from the trace); say how often the equity-bond
+    % spread went non-positive and where, so a solve that stalls AGAINST the
+    % feasibility boundary is distinguishable from one at a local minimum.
+    if verbose && n_infeas > 0
+        fprintf('   %d trial step(s) rejected on sprd<=0 (last at t=%d)\n', ...
+                n_infeas, tbad_last);
     end
 
     x = expand(a);
