@@ -224,17 +224,20 @@ Who bears the burden of public investment when the price level clears the
 market for nominal government debt? In an incomplete-markets economy with a
 climate sector, the taxes that finance a permanent green program change
 household demand for nominal liabilities, so the financing instrument sets
-both the sign of debt revaluation and its incidence. A uniform lump-sum tax
+both the sign of debt revaluation and its incidence. The robust result is
+an ordering: a proportional levy is more inflationary than a lump-sum tax
+financing the same appropriation, in every portfolio structure we solve.
+In the benchmark economy the ordering straddles zero --- the lump-sum tax
 strengthens precautionary saving and lowers the price level, handing
-bondholders a windfall; a proportional levy with rebates reverses the
-revaluation and shifts the burden toward wealthy asset holders --- the same
-appropriation, opposite signs. A sufficient-statistic formula ties the
-price response to the tax response of nominal-liability demand, a response
-carried almost entirely by the endogenous wealth distribution rather than by
-direct saving behavior. The instrument ordering --- the levy more
-inflationary than the lump-sum tax --- survives every portfolio structure we
-solve; the sign of the lump-sum response itself depends on who holds the
-debt and how easily they can rebalance. The price-level and distributional
+bondholders a windfall, while the levy with rebates reverses the
+revaluation and shifts the burden toward wealthy asset holders --- but the
+level sign of the lump-sum response is not a primitive: it depends on who
+holds the debt and how easily they can rebalance, overturning under
+uniform ownership with frictionless rebalancing and reappearing once bond
+ownership and portfolio illiquidity are calibrated to the data. A
+sufficient-statistic formula ties the price response to the tax response
+of nominal-liability demand, a response carried almost entirely by the
+endogenous wealth distribution rather than by direct saving behavior. The price-level and distributional
 effects of public investment cannot be evaluated separately from its
 financing.
 \end{abstract}
@@ -458,9 +461,11 @@ contribution is to show that each of their central mechanisms changes ---
 sometimes reverses --- once a nominal spending line meets an endogenous
 physical state. Relative to \citet{hagedorn2026dtpl} we add a climate sector
 and, with it, three findings that have no counterpart in an economy without a
-physical state: a green appropriation is disinflationary under lump-sum
-finance and inflationary under a proportional levy --- the price-level sign is
-an incidence choice, not a property of the program; nominal-rule uniqueness can
+physical state: the financing instrument orders the price response --- a
+levy is more inflationary than a lump-sum tax at the same appropriation, an
+ordering that in the benchmark straddles zero, disinflation against
+inflation --- so the price-level sign is an incidence choice, not a
+property of the program; nominal-rule uniqueness can
 fail and be repaired by \emph{denominating the spending line} in real terms
 (anchor insulation); and the real rate --- not trend inflation, which is
 neutral by Proposition~\ref{prop:muneutral} --- is a genuine green-finance
@@ -2217,11 +2222,26 @@ response $\epsTilt$, the direct term contributes only $\covPolExact$ while
 the endogenous adjustment of the wealth distribution contributes
 $\covDistExact$, roughly nine-tenths of the total. The reform relocates
 households across wealth states until aggregate liquid-asset demand settles
-higher. (The linear covariance of Proposition~\ref{prop:covincidence}
-approximates the direct term; because the marginal propensity to hold the
-liquid claim is nonlinear across the distribution, that linearization
-mis-signs the already-small direct term, but both are an order of magnitude
-below the distributional term, so the conclusion is unchanged.) Direct
+higher. Two versions of this split appear in the paper and should be read
+under a common normalization, which we state once. Both are expressed per
+unit of tax revenue over the stationary comparison. The covariance of
+Proposition~\ref{prop:covincidence} is the \emph{linearized} direct term
+--- a marginal perturbation evaluated at the baseline distribution and
+prices ($\covTiltDirect$ per unit of revenue) --- while the exact
+finite-change split evaluates the program-size tax change ($\covPolExact$
+direct against $\covDistExact$ distributional). The two direct terms
+differ, and the linearization mis-signs the small one, because the
+marginal propensity to hold the liquid claim is nonlinear across the
+distribution and the program step is finite; but under either
+perturbation the direct term is an order of magnitude below the
+distributional term, which is the object the argument uses. The honest
+statement of what disciplines what: constrained-share and MPC evidence
+bears on the (small) direct term, while the dominant distributional term
+is a stationary-equilibrium prediction whose external counterparts ---
+wealth-mobility and liquid-asset transition moments --- we do not
+confront here; that validation, and the finite horizon at which the
+instrument ordering becomes operative, are stated as open in the
+conclusion. Direct
 incidence and long-run distributional adjustment are therefore distinct
 forces of very different magnitude, which cautions against reading the
 stationary semi-elasticity as an impact response of \emph{demand}: iterating
@@ -2371,7 +2391,22 @@ aggregate-risk economy reproduces them in ergodic mean.
 \subsection{Welfare incidence by wealth group}
 \label{subsec:welfaregroups}
 
-Who pays for the program and who benefits? For each state $(a,e)$ we compute
+Who pays for the program and who benefits? Two incidence objects answer
+the question, and they answer different versions of it. The
+\emph{stationary} comparison in this subsection evaluates a household at
+the same real asset position in the no-program and program invariant
+environments: an ex-ante comparison of steady states that, by
+construction, excludes the revaluation of the nominal claims households
+actually hold when the program is announced. The
+\emph{transition-inclusive} comparison of
+Section~\ref{sec:transitions} values entry into date one of the announced
+path, predetermined portfolios and announcement revaluation included; it
+is the object that answers the paper's title, and it is computed there
+for the one-asset economy (its two-asset counterpart remains open,
+Section~\ref{subsec:twoassetnl}). We present the stationary tables first
+because they isolate the permanent incidence of the financing design from
+the one-time revaluation the transition adds on top. For each state
+$(a,e)$ we compute
 the permanent consumption transfer $\lambda(a,e)$ that makes a household at
 that state indifferent between the no-program and program steady states,
 aggregated over baseline-distribution wealth quintiles
@@ -3144,7 +3179,10 @@ so that \eqref{eq:nombudget} issues above trend) is a distinct financing
 choice, the low-$\phi_b$ debt-stabilization lever of the Phillips-curve
 exercises (Appendix~\ref{app:nkmodel}), not the benchmark here. This is what
 licenses reading the announcement-year result as revaluation rather than as
-a tax-timing deficit.
+a tax-timing deficit. We do not compute a deficit-financed demand-theory
+path: whether the announcement disinflation survives above-trend nominal
+issuance is an open computation, and the matched comparison below holds
+financing at the service rule on both sides for exactly that reason.
 
 The computational problem is a fixed point on the log
 price path: excess asset demand at date $t$ lowers $\hat P_t$, raising the
@@ -3393,9 +3431,13 @@ green program is the top of the wealth distribution, so opposition motivated
 by ``green inflation'' targets a program that raises the real value of the
 asset-owning class's nominal wealth. And the mechanism yields a sharp
 untested prediction --- a credible green announcement is disinflationary on
-impact under lump-sum finance, where a Phillips-curve economy predicts
-inflation. Our matched experiment keeps the signs opposite
-(\matchedNKimpact\% against \matchedDTPLimpact\% annualized), but the clean
+impact under lump-sum finance. The matched heterogeneous-agent New
+Keynesian economy prices the same announcement with the opposite sign
+(\matchedNKimpact\% against \matchedDTPLimpact\% annualized), though the
+Phillips-curve sign is itself specification-dependent --- the
+representative-agent variants under active rules price the announcement
+negative (Appendix~\ref{app:nkmodel}) --- so the contrast is a property of
+the matched design, not of price stickiness as such. The clean
 discriminating test is the $2\times2$ of price-determination against tax
 instrument with matched incidence on both sides, because
 Proposition~\ref{prop:financingdesign} shows the instrument alone can flip
@@ -3408,8 +3450,14 @@ bounds the tax-base response rather than modeling it, and closing it
 properly requires public capital that both hardens the economy against
 damages and enters production --- the adaptation reading of $K_g$, which is
 also the reading under which a closed economy maps own spending to own
-damages. That, an endogenous convenience yield on the nominal liability, and
-a fully stochastic transition are the natural next steps.
+damages. Equally open are the external validation of the dominant
+distributional term in the tax response --- against wealth-mobility and
+liquid-asset transition moments --- and the finite horizon at which the
+instrument ordering becomes operative along the announced path; the
+transition-inclusive incidence of the ownership-and-illiquidity economy is
+the computation that would join the two. That, an endogenous convenience
+yield on the nominal liability, and a fully stochastic transition are the
+natural next steps.
 
 % ==========================================================================
 \appendix
@@ -3479,8 +3527,14 @@ $\Sfun\to\Sfun(1+r^{ss};0,D)>0$, $B/P\to0$, and $\Phi>0$. \emph{Indexed real
 mandate} ($g_g=\bar g_g$ fixed, so $\tau(P)=r^{ss}B/P+\bar g_g$). High-$P$
 boundary: $\tau(P)\to\bar g_g$ (not $0$), so by (R1)
 $\Sfun\to\Sfun(1+r^{ss};\bar g_g,D)>0$, while $B/P\to0$, so $\Phi>0$ again ---
-requiring (R2) at the constant tax $\bar g_g$, i.e.\ $\bar g_g<\min_e y(e;D)$,
-which holds since $\bar g_g$ is a small fraction of income. On the
+requiring (R2) at the constant tax $\bar g_g$, i.e.\
+$\bar g_g<\min_e y(e;D) - r^{ss}\bar a$ (the borrowing-limit service
+term does not vanish for $\bar a>0$). At the benchmark $\bar a=0$ this
+reduces to $\bar g_g<\min_e y(e;D)$, which holds since $\bar g_g$ is a
+small fraction of income; for $r^{ss}>0$ and general $\bar a$ the
+condition is exactly the feasibility requirement of
+Assumption~\ref{ass:feasible} evaluated at the mandate tax, so it is
+maintained rather than additional. On the
 \emph{negative-real-rate} case ($r^{ss}<0$, relevant to the
 optimal-accommodation region of Appendix~\ref{subsec:optmu}): the
 interest-service term $r^{ss}B/P$ is then negative and helps
@@ -3504,9 +3558,27 @@ coefficient} (strong accommodation with $r^{ss}<0$ large enough that
 $r^{ss}B+G_g\le0$, or the mandate with $r^{ss}<0$): now $\tau(P)$
 \emph{falls} as $P\downarrow0$ --- the transfer-like $1/P$ term aids
 feasibility rather than exhausting it, so (R2) binds nowhere near the low
-edge, $\Sfun$ stays bounded while $B/P\to\infty$, and $\Phi=\Sfun-B/P\to
--\infty$: the crossing condition holds automatically and existence is
-\emph{guaranteed} at the low-$P$ edge. In either case, under the crossing
+edge. Boundedness of $\Sfun$ can no longer be invoked: asset demand out of
+an unbounded uniform transfer may itself grow like $1/P$, so
+$\Phi\to-\infty$ requires an argument, not the observation that $B/P$
+diverges. The aggregated budget identity of the stationary household
+problem supplies it. Integrating the budget constraint over the invariant
+distribution gives $C(P) = r^{ss}\,\Sfun(P) + \E[y] - \tau(P)$ at
+\emph{any} price, market-clearing or not, so with $r^{ss}<0$,
+\[
+\Phi(P) \;=\; \Sfun(P) - \frac{B}{P}
+\;=\; \frac{\E[y] - \bar g_g - C(P)}{|r^{ss}|}
+\]
+under the mandate (the appropriation case adds a term
+$-G_g/(|r^{ss}|P)\to-\infty$ and only strengthens the conclusion). With
+$\beta(1+r^{ss})<1$ and CRRA utility, consumption out of cash-on-hand is
+bounded below by a positive fraction of cash-on-hand at large balances
+(the standard buffer-stock marginal-propensity bound), and every
+household's cash-on-hand diverges with the transfer $-\tau(P)$, so
+$C(P)\to\infty$ and $\Phi(P)\to-\infty$: the crossing condition holds
+at the low-$P$ edge, now proved rather than asserted. (In the knife-edge
+appropriation case $r^{ss}B+G_g=0$ exactly, $\tau\equiv0$, $\Sfun$ is
+bounded, and the conclusion is immediate.) In either case, under the crossing
 condition the intermediate value theorem yields a zero between the two
 boundaries. (ii) Where $\varepsilon_S>-1$,
 $d\Phi/dP=(\Sfun/P)(\varepsilon_S+1)>0$ at any zero: all crossings are upward,
@@ -3619,10 +3691,20 @@ move could in principle offset it. We therefore read the condition
 $\partial\Sfun/\partial\tau\ge0$ together with $\tau_1\ge\tau_0$, which
 holds whenever the direct spending term $g_{g,1}$ dominates the
 revaluation-induced change in the interest bill $r^{ss}(b_1-b_0)$, the case
-at the benchmark, or, equivalently, as the local statement at the
-no-program point ($g_g=0$, $b_1=b_0$), where $d\tau=dg_g>0$ and the sign is
-unambiguous. The calibrated comparison confirms $\tau_1>\tau_0$ directly
-(Table~\ref{tab:calibrated}). \qed
+at the benchmark. The corresponding local statement must retain the price
+feedback: since $\tau = r^{ss}B/P + g_g$, the equilibrium differential at
+the no-program point is $d\tau = dg_g - r^{ss} b\, d\ln P$, not
+$dg_g$ alone --- equality of the baseline debt levels does not make $db$
+vanish. Two observations close the argument. If the equilibrium response is
+disinflationary ($d\ln P\le0$), the feedback term is nonnegative for
+$r^{ss}>0$, so $d\tau \ge dg_g > 0$ and the tax channel reinforces itself
+--- the disinflationary candidate is self-consistent. If instead the
+response were inflationary, the sign of $d\tau$ would require
+$dg_g > r^{ss} b\, d\ln P$, a quantitative condition rather than an
+identity; it is this case the finite condition $\tau_1\ge\tau_0$
+disciplines. The calibrated comparison confirms $\tau_1>\tau_0$ directly
+(Table~\ref{tab:calibrated}), so the sufficient conditions hold at the
+benchmark with the feedback term included. \qed
 
 \subsection{Proof of Proposition \ref{prop:sunspots}}
 At a zero of $\Phi$, $d\Phi/dP=(\Sfun/P)(\varepsilon_S+1)$ (the identity is
@@ -3636,11 +3718,17 @@ alternating upward--downward--upward, with the outer two stable under the
 natural tatonnement and the middle one unstable. (The hypothesis is the
 existence of the downward crossing itself: $\varepsilon_S<-1$ merely on an
 interval need not place a zero of $\Phi$ there.) Welfare ranking with
-$\psi>0$ or $\phi_D>0$: at $P_L^{*}$ the
-level and risk components of effective income improve \emph{weakly} for every
-household with $\chi(e)>0$, strictly except where the damage floor
-$y(e;D)\ge\underline{s}\,e$ binds in both equilibria, at which states lower
-damages leave effective income unchanged, but the lower price level also raises real green spending
+$\psi>0$ or $\phi_D>0$: at $P_L^{*}$ the damage and risk changes are
+improvements of the income \emph{process}, not of income state by state.
+Lower $D$ raises effective income at a fixed endowment draw wherever the
+damage floor $y(e;D)\ge\underline{s}\,e$ is slack, but with $\phi_D>0$
+lower damages also \emph{compress} the unit-mean endowment process (a
+lower $\sigma_\epsilon$ reduces high-state draws while raising low-state
+draws), and with $\psi>0$ the normalized incidence weights $\chi(e)$
+themselves shift, so some states can see lower effective income even as
+the process improves in mean and risk. The welfare comparison therefore
+runs through preferences over processes, not statewise dominance.
+Moreover the lower price level raises real green spending
 $g_g=G_g/P$, real debt $b=B/P$, and real taxes $\tau=r^{ss}b+g_g$, which cut
 the other way for constrained households; the sign of the net utilitarian
 comparison $W(P_L^{*})-W(P_H^{*})$ is therefore not implied by lower damages

@@ -153,3 +153,53 @@ Recommend doing this after M1/M3 lock the number.
 3. M3 2D calibration + M2 matched ladder — code from my side, then ~6 runs.
 4. RUN 1b (KMV), RUN 2 (welfare), M4 cutoff robustness.
 5. M6 restructure once the number is locked; then RUN 4 scaffolds, RUN 5.
+
+---
+
+## Round 6 (external referee report, 2026-07-29) — disposition
+
+Four technical items, ALL CONFIRMED as proof errors and FIXED in the text:
+
+1. **Prop 1, low-P edge under strong accommodation**: uniform boundedness of
+   S was asserted, not proved. Fixed with a better argument than the report
+   asked for: the aggregated stationary budget identity gives
+   Phi = (E[y] - g - C(P))/|r^ss| at ANY price, and C -> infinity with the
+   transfer (buffer-stock MPC bound), so Phi -> -infinity is now proved.
+2. **A.6 local argument**: d tau = dg - r^ss b dlnP; the feedback term was
+   dropped. Fixed: disinflationary candidate is self-consistent (feedback
+   reinforces); the inflationary case is disciplined by the finite condition
+   tau1 >= tau0, confirmed at the calibration.
+3. **A.4 mandate high-P (R2)**: condition corrected to
+   g < min y - r^ss*abar; reduces to the stated one at abar=0 (benchmark);
+   maintained by Assumption 1 for r^ss>0.
+4. **A.7 statewise improvement**: with phi_D>0 lower damages COMPRESS the
+   unit-mean process (high states fall), and psi>0 shifts the incidence
+   weights; claim recast as process-level improvement, ranking numerical.
+
+Four major comments, integrated textually; the computational asks are the
+next-round run list:
+
+- **MC1 (sign-contrast scope)**: DONE textually. Abstract, contributions,
+  and conclusion now lead with the ordering as the robust result; the
+  benchmark sign contrast is explicitly scoped ("straddles zero in the
+  benchmark"; restoration conditional on ownership + illiquidity).
+- **MC2 (tax-demand validation)**: reconciliation of the Prop-7 covariance
+  (-0.07, marginal, linearized) and the finite-change split (+0.34/+3.44,
+  program-size) written under a common per-revenue normalization; the
+  unvalidated status of the dominant distributional term is now stated in
+  the text and in the conclusion's open items.
+  RUNS NEEDED: (i) wealth-mobility / liquid-asset transition moments vs
+  model; (ii) finite-horizon financing comparison (at what horizon does the
+  levy-vs-lump-sum ordering become operative along the path?).
+- **MC3 (transition-inclusive welfare as principal object)**: the welfare
+  section now names the two incidence objects and declares the
+  transition-inclusive one (computed for one asset) the object answering
+  the title. RUN NEEDED: transition-inclusive incidence on initial nominal
+  portfolios in the ownership+illiquidity economy (blocked on the KV
+  two-asset transition, which carries a second endogenous state).
+- **MC4 (announcement 2x2)**: conclusion no longer claims "a Phillips-curve
+  economy predicts inflation" unconditionally (RANK active-rule variants
+  price it negative); the deficit-path caveat is stated where the service
+  rule is imposed (no deficit-financed DTPL path is computed).
+  RUNS NEEDED: the full 2x2 {price determination} x {lump-sum, levy} with
+  matched incidence, plus a deficit-financed DTPL announcement path.
