@@ -278,8 +278,8 @@ Also paste into the chat:
 | Non-separable (R3 fork) | done — both xi give positive dlnP(ls), integrated |
 | KMV friction-only | done — HtM 54% but WHtM still 0 (top10 = 98%); written up as a model-class bound |
 | zeta=1 rerun (z10) | INVALID — experiment q halved vs baseline (branch jump); rerun after the bracket fix (RUN 3b) |
-| Matched-parameter ladder (M2) | code done, **never run** — RUN 4c, the highest-value 35 minutes left in the project |
-| Two-asset transition | horizon and conditioning solved; residual floor at 6.6e-03 traced to the basis, basis rewritten — RUN 4d |
+| Matched-parameter ladder (M2) | **DONE — settled**: every ingredient individually necessary at fixed beta, chi, grids |
+| Two-asset transition | **DONE — CONVERGED** at T=120: \|\|r\|\|inf 6.6e-05, terminal gap 2.0e-08, resource identity 4e-14, 640s. Front-loading 89% vs 77% one-asset; impact dlnP +0.0075 vs +0.0084 long run; impact dlnq +1.24%. Written into the paper. |
 
 ### Open items on my side
 
