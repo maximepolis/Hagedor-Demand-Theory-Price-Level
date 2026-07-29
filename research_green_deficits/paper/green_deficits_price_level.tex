@@ -123,6 +123,10 @@
 \providecommand{\TwoTrImpP}{\pendingnum}\providecommand{\TwoTrLongP}{\pendingnum}
 \providecommand{\TwoTrShare}{\pendingnum}\providecommand{\TwoTrImpQ}{\pendingnum}
 \providecommand{\TwoTrLongQ}{\pendingnum}\providecommand{\OneTrShare}{\pendingnum}
+\providecommand{\MThrWt}{\pendingnum}\providecommand{\MThrOmT}{\pendingnum}
+\providecommand{\MThrW}{\pendingnum}\providecommand{\MThrLS}{\pendingnum}
+\providecommand{\MThrLevy}{\pendingnum}\providecommand{\MThrChiFall}{\pendingnum}
+\providecommand{\MThrOmA}{\pendingnum}\providecommand{\MThrOmB}{\pendingnum}
 % Decile-resolution welfare incidence, populated by welfare_incidence_deciles.
 \providecommand{\WDecBotMed}{\pendingnum}\providecommand{\WDecTopMed}{\pendingnum}
 \providecommand{\WTopFiveMed}{\pendingnum}\providecommand{\WTopOneMed}{\pendingnum}
@@ -4691,6 +4695,40 @@ whatever the sign of the repricing and whatever the asset menu. The terminal
 prices of the path reproduce the independently solved steady-state financing
 experiment to four decimals, which is a cross-validation of the transition
 operators against the stationary ones rather than a calibration.
+
+\paragraph{Is the restoration an artifact of a poor economy?} The benchmark
+hits its direct-holding target at total household wealth of $\OwnKVW$ times
+income, against roughly three to five in United States data, and a natural
+objection is that the restored disinflation is a property of an economy with
+too little wealth rather than of the ingredients. We answer it with a
+two-instrument calibration in which the discount factor targets total wealth
+and the liquidity weight targets the liquid share, $W = \MThrWt$ and
+$\omega = \MThrOmT$ (so that the direct-holding target $S_b = \omega W$ is
+implied).
+
+The answer to the objection is no, and the way the calibration fails is
+itself informative. Raising wealth to $\MThrW$ times income --- half again
+the benchmark, and inside the lower end of the data range --- \emph{preserves
+the sign contrast}: the same program moves the price level by $\MThrLS$ log
+points under lump-sum financing against $\MThrLevy$ under the levy. The
+restoration is therefore not a poor-economy artifact.
+
+What the exercise cannot do is hit the liquid share. Driving the liquidity
+weight down by a factor of $\MThrChiFall$ moves $\omega$ from $\MThrOmA$ to
+$\MThrOmB$ against a target of $\MThrOmT$: the share is at a floor that the
+convenience weight cannot penetrate. The floor is economic, not numerical.
+With infrequent rebalancing the illiquid asset is a poor buffer, so
+self-insurance holds a minimum liquid position whatever the convenience
+motive, and $\chi_b$ can move the share only from above. Pushing it below
+the floor removes the convenience yield that the \citet{krishnamurthy2012}
+evidence disciplines and drives the tree market toward the flat-demand
+boundary of Proposition~\ref{prop:determinacy}, where price responses
+diverge; we therefore report the sign at the wealth-matched point and not
+its magnitude. Matching wealth and the liquid share jointly needs a third
+margin the present model does not have --- most naturally an explicitly
+calibrated adjustment technology in the spirit of \citet{kaplan2018}, which
+would let the friction and the convenience yield be disciplined separately
+rather than through one weight.
 
 \paragraph{Numerical accuracy and scope.} All three economies solve with
 the two markets clearing separately: the tree-market residual is below

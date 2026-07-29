@@ -36,6 +36,21 @@
 \newcommand{\KmvHtM}{54}
 \newcommand{\KmvTopTen}{98}
 
+% ---- Two-instrument wealth calibration, M3 (table: ..._kv_w30) ----
+% beta -> W, chi_b -> omega. Converged to the liquid-share FLOOR, not to the
+% target: chi fell 0.00223 -> 0.00012 (factor 19) while omega moved only
+% 0.133 -> 0.135. Sign contrast survives at W = 2.68; magnitudes not
+% reported (chi ~ 0 removes the convenience yield and approaches the
+% flat-demand boundary).
+\newcommand{\MThrWt}{3.0}
+\newcommand{\MThrOmT}{0.10}
+\newcommand{\MThrW}{2.7}
+\newcommand{\MThrLS}{-0.30}
+\newcommand{\MThrLevy}{+0.03}
+\newcommand{\MThrChiFall}{19}
+\newcommand{\MThrOmA}{0.133}
+\newcommand{\MThrOmB}{0.135}
+
 % ---- Two-asset announcement transition (table: twoasset_transition) ----
 % Frictionless two-asset economy, T=120, nx=220, ne=7. Sequence-space Newton
 % with two clearing conditions per date; converged (3 Newton steps per
