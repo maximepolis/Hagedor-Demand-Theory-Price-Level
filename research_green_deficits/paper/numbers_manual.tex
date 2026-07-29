@@ -36,6 +36,24 @@
 \newcommand{\KmvHtM}{54}
 \newcommand{\KmvTopTen}{98}
 
+% ---- Two-asset announcement transition (table: twoasset_transition) ----
+% Frictionless two-asset economy, T=120, nx=220, ne=7. Sequence-space Newton
+% with two clearing conditions per date; converged (3 Newton steps per
+% continuation stage). The terminal prices reproduce the independently
+% solved steady-state financing experiment of twoasset_step0 (dlnP +0.0085,
+% q 2.3679) to four decimals.
+\newcommand{\TwoTrT}{120}
+\newcommand{\TwoTrResid}{6.6\times10^{-5}}
+\newcommand{\TwoTrTermGap}{2.0\times10^{-8}}
+\newcommand{\TwoTrIdent}{4\times10^{-14}}
+\newcommand{\TwoTrImpP}{+0.75}
+\newcommand{\TwoTrLongP}{+0.84}
+\newcommand{\TwoTrShare}{89\%}
+\newcommand{\TwoTrImpQ}{+1.24\%}
+\newcommand{\TwoTrLongQ}{+1.10\%}
+% One-asset front-loading share, for the comparison sentence.
+\newcommand{\OneTrShare}{77\%}
+
 % ---- Matched-parameter ladder (table: twoasset_ownership_kv_ladder) ----
 % Coarse grid. beta = 0.874 and chi_b = 0.00223 held at the benchmark values
 % in every row; grids identical; one ingredient switched off per row.

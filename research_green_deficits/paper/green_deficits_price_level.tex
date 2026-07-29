@@ -118,6 +118,11 @@
 \providecommand{\LadNoSupTopOne}{\pendingnum}
 \providecommand{\LadNoFricLS}{\pendingnum}\providecommand{\LadNoFricLevy}{\pendingnum}
 \providecommand{\LadNoFricTopOne}{\pendingnum}
+\providecommand{\TwoTrT}{\pendingnum}\providecommand{\TwoTrResid}{\pendingnum}
+\providecommand{\TwoTrTermGap}{\pendingnum}\providecommand{\TwoTrIdent}{\pendingnum}
+\providecommand{\TwoTrImpP}{\pendingnum}\providecommand{\TwoTrLongP}{\pendingnum}
+\providecommand{\TwoTrShare}{\pendingnum}\providecommand{\TwoTrImpQ}{\pendingnum}
+\providecommand{\TwoTrLongQ}{\pendingnum}\providecommand{\OneTrShare}{\pendingnum}
 % Decile-resolution welfare incidence, populated by welfare_incidence_deciles.
 \providecommand{\WDecBotMed}{\pendingnum}\providecommand{\WDecTopMed}{\pendingnum}
 \providecommand{\WTopFiveMed}{\pendingnum}\providecommand{\WTopOneMed}{\pendingnum}
@@ -2514,13 +2519,17 @@ report the one-asset magnitude as conditional on the one-asset structure,
 and rest the paper's quantitative content on the signs, shares and
 orderings, which are robust across every portfolio structure we solve.
 
-\paragraph{Reading the one-asset magnitudes.} The headline revaluations of
-this paper --- the $\approx5\%$ steady-state price-level decline, the
-year-one capitalization of $77\%$ of the long-run move
-(Section~\ref{subsec:tier2}), and the announcement capital levy --- are
+\paragraph{Reading the one-asset magnitudes.} The headline revaluation
+\emph{levels} of this paper --- the $\approx5\%$ steady-state price-level
+decline and the announcement capital levy --- are
 therefore \emph{conditional on the one-asset structure}; the computed
 two-asset economies bound the portfolio correction rather than delivering a
-single scaling. A reader who believes
+single scaling. The \emph{timing} is not conditional in the same way: the
+two-asset announcement path, solved with both markets clearing at every
+date, front-loads $\TwoTrShare$ of its long-run price move into the
+announcement year against $\OneTrShare$ here
+(Appendix~\ref{subsec:twoassetnl}), so the capitalization result survives
+the portfolio structure that overturns the sign. A reader who believes
 portfolio shares are roughly stable (case i) should read the magnitudes
 as-is; one who believes the outside return is pinned (case ii) should read
 them as understatements. The correction is governed by an elasticity
@@ -3132,13 +3141,16 @@ $\beta$ calibrated on this same grid so that pre-announcement real debt
 matches the $1.10$ target; market-clearing residuals below $5\times10^{-4}$
 at every date) delivers the paper's dynamics in three statements. Like every repricing in the paper, the
 \emph{levels} here are conditional on the one-asset structure and carry the
-unsigned portfolio correction of Section~\ref{subsec:safeasset}; the
-\emph{sign} and the \emph{timing pattern} (that the repricing is
-front-loaded rather than delayed) are the robust content, while the
-front-loading \emph{fraction} itself is a one-asset benchmark that a richer
-portfolio, credibility, or maturity structure could move --- the statements
-below rely on the sign and the front-loading direction, not on the exact
-share. \emph{First, green disinflation is
+portfolio correction of Section~\ref{subsec:safeasset}; the
+\emph{timing pattern} --- that the repricing is
+front-loaded rather than delayed --- is the robust content, and it is robust
+in a checkable sense: solving the two-asset economy's announcement path with
+both markets clearing at every date front-loads $\TwoTrShare$ of the
+long-run move against $\OneTrShare$ here
+(Appendix~\ref{subsec:twoassetnl}), even though the two economies disagree
+on the \emph{sign} of that move. Credibility and maturity structure could
+still move the share; the statements below rely on the front-loading
+direction, not on its exact size. \emph{First, green disinflation is
 front-loaded:} the announcement moves the stationarized price level down
 $3.9\%$ on impact --- year-one inflation of $-2.0\%$ against the $+2\%$
 nominal trend, which is $77\%$ of the entire long-run green
@@ -4654,6 +4666,32 @@ liquidity-constrained wealthy households, which it cannot. Transition-inclusive
 two-asset incidence, which would add the announcement-date revaluation of
 the initial portfolio, remains open.
 
+\paragraph{The announcement path with two markets clearing.} The
+steady-state comparisons above hold across equilibria. Solving the
+frictionless two-asset economy's \emph{announcement path} asks a sharper
+question, and one the one-asset transition cannot: when a permanent program
+is announced, does the repricing still land at the announcement date once a
+second asset can absorb part of the portfolio shift, or does the tree margin
+spread it over time? We solve the joint path $\{P_t, q_t\}_{t=1}^{T}$ by the
+same sequence-space Newton used in Section~\ref{subsec:tier2}, now with two
+market-clearing conditions at every date ($T = \TwoTrT$ years; market
+residual $\TwoTrResid$, terminal-date tree gap $\TwoTrTermGap$, and the
+aggregate resource identity holding to $\TwoTrIdent$).
+
+The timing result is portfolio-robust, and if anything sharper. The price
+level moves $\TwoTrImpP$ log points in the announcement year against
+$\TwoTrLongP$ across steady states, a front-loading share of
+$\TwoTrShare$, against $\OneTrShare$ in the one-asset economy. The tree
+reprices in full on impact ($\TwoTrImpQ$ against $\TwoTrLongQ$ in the long
+run), so the equity margin does not smooth the adjustment: it capitalizes
+faster than the nominal market, and the price level follows. This is the
+paper's timing claim surviving the portfolio structure that overturns its
+\emph{sign}: the announcement, not the spending, is what the market prices,
+whatever the sign of the repricing and whatever the asset menu. The terminal
+prices of the path reproduce the independently solved steady-state financing
+experiment to four decimals, which is a cross-validation of the transition
+operators against the stationary ones rather than a calibration.
+
 \paragraph{Numerical accuracy and scope.} All three economies solve with
 the two markets clearing separately: the tree-market residual is below
 $10^{-4}$, two independent household solution methods agree to
@@ -4667,16 +4705,17 @@ admissible curvature range
 ($\zeta \approx 1$) the financing experiment does not admit a clean local
 comparative static --- the tree market re-solves at a distant price ---
 so the restoration is established at $\zeta = 2$ and its curvature
-sensitivity is left open. Second, the joint announcement path
-$\{P_t, q_t\}$ is not solved to the accuracy of the steady-state
-comparisons, so no two-asset transition number is quoted. The body draws
-three conclusions from this appendix: the instrument ordering is robust
-across every portfolio structure solved; the level sign of the lump-sum
-response is specification-dependent in the frictionless variants; and
+sensitivity is left open. Second, the announcement path is solved for the
+frictionless economy; the infrequent-adjustment variant carries a second
+endogenous state along the path and its transition is not attempted here.
+The body draws four conclusions from this appendix: the instrument ordering
+is robust across every portfolio structure solved; the level sign of the
+lump-sum response is specification-dependent in the frictionless variants;
 with bond ownership and portfolio illiquidity jointly disciplined the
 one-asset lump-sum disinflation reappears, with each ingredient
 individually necessary at fixed preferences (the matched-parameter
-decomposition above).
+decomposition above); and the announcement-date front-loading of the
+repricing survives the second asset.
 
 \subsection{The worked example in full}\label{subsec:workedexample}
 
