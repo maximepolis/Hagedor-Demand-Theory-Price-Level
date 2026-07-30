@@ -84,6 +84,29 @@
 % One-asset front-loading share, for the comparison sentence.
 \newcommand{\OneTrShare}{77\%}
 
+% ---- Deficit-financed announcement path (table: transition_deficit) ----
+% Indexed real program held identical to the balanced benchmark, so only tax
+% TIMING differs: tau_t = rbar*b_t + (1-rho_d^t)*g. Real debt is the residual;
+% the terminal price floats at kappa_inf times the balanced terminal by
+% nominal neutrality. na=500, T=80, 61 iterations; interior residual 4.3e-4,
+% terminal (horizon) residual 1.1e-4; converged AND horizon-adequate.
+\newcommand{\DefRho}{0.90}
+\newcommand{\DefHalfLife}{6.6}
+\newcommand{\DefKappa}{1.19}
+\newcommand{\DefLnKappa}{+0.177}
+\newcommand{\DefBal}{-0.040}
+\newcommand{\DefImp}{+0.142}
+\newcommand{\DefWedge}{+0.182}
+\newcommand{\DefCap}{1.03}
+\newcommand{\DefFrontBal}{0.77}
+\newcommand{\DefFrontDef}{1.15}
+\newcommand{\DefCumGap}{0.19}
+\newcommand{\DefRevalBal}{-5.3}
+\newcommand{\DefRevalDef}{+17.2}
+% Critical dilution implied by the measured capitalization ratio: the
+% disinflation survives iff ln kappa_inf < |dlnP_1(balanced)|/c.
+\newcommand{\DefKapStar}{3.9}
+
 % ---- Matched-parameter ladder (table: twoasset_ownership_kv_ladder) ----
 % Coarse grid. beta = 0.874 and chi_b = 0.00223 held at the benchmark values
 % in every row; grids identical; one ingredient switched off per row.

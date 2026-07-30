@@ -203,3 +203,59 @@ next-round run list:
   rule is imposed (no deficit-financed DTPL path is computed).
   RUNS NEEDED: the full 2x2 {price determination} x {lump-sum, levy} with
   matched incidence, plus a deficit-financed DTPL announcement path.
+
+## Round 7 (2026-07-30) — MC4 deficit path: SETTLED, with a scope revision
+
+The deficit-financed DTPL announcement path is computed
+(`main_transition_deficit`, solver branch `financing='deficit'`). Indexed
+real program held identical to the balanced benchmark so only tax TIMING
+differs; taxes phase in as tau_t = rbar*b_t + (1-rho_d^t)*g; real debt is
+the residual; the terminal price floats at kappa_inf * (balanced terminal)
+by nominal neutrality, solved as an output rather than imposed.
+
+Result at rho_d = 0.90, na=500, T=80, 61 iterations, interior residual
+4.3e-4, terminal 1.1e-4 (converged AND horizon-adequate):
+
+| object | value |
+|---|---|
+| impact dlnP, balanced timing | -0.0398 |
+| impact dlnP, deficit timing | +0.1423 |
+| impact wedge (timing) | +0.1821 |
+| terminal dilution ln kappa_inf | +0.1766 |
+| **capitalization ratio** | **1.031** |
+| front-loading (own terminal) | 1.154 (overshoot) vs 0.767 balanced |
+| bondholder reval, share of program PV | +17.2% vs -5.3% balanced |
+
+Two findings. (1) The capitalization ratio is 1: the announcement prices
+the ENTIRE future issuance path at once, not as issued. Tax timing enters
+the announcement price level through a single number, the terminal
+dilution. (2) The disinflation is therefore OVERTURNED whenever
+ln kappa_inf exceeds |dlnP_1(balanced)| ~ 0.04, i.e. whenever the
+cumulative debt-financed share exceeds ~4% of the outstanding nominal
+stock. This is the mechanism operating, not failing, and it converts the
+paper's central untested prediction into a conditional one whose
+conditioning variable (the announced financing schedule) is observable.
+The price also OVERSHOOTS its own terminal level on impact, because at t=1
+the stock is still undiluted while its whole future dilution is priced --
+an observable signature distinguishing deficit from balanced timing.
+
+Scope revision this forces, now stated in the text: the DTPL-vs-NK sign
+contrast is matched at BALANCED financing (which is what isolates price
+determination). At slow enough phase-in the DTPL side prices the
+announcement positive too, so the contrast is a claim about the two
+price-determination blocks at a common financing schedule, not at every
+schedule. The complete object is the 2x2 {price determination} x
+{financing timing}; the paper now delivers its balanced column and its
+DTPL row. The NK block's low-phi_b benchmark is itself deficit-financed
+on impact, which is exactly why the matched comparison re-imposes balanced
+financing on both sides -- that is now said where phi_b is defined.
+
+STILL OPEN on MC4: the flatness of the capitalization ratio across rho_d
+(one point does not establish a sufficient statistic) and the exact
+critical rho_d*. `main_transition_deficit_ladder` runs the ladder
+{0, 0.5, 0.7, 0.8, 0.9} plus a bisection on the solved impact sign, and
+carries a rho_d = 0 regression row that must reproduce the balanced
+benchmark exactly (phi == 1 collapses the deficit branch to the service
+rule analytically). Until it lands, the paper states the threshold
+structurally -- via the inequality ln kappa_inf < |dlnP_1(balanced)| and
+the ~4% figure implied by the measured ratio -- and quotes no rho_d*.
