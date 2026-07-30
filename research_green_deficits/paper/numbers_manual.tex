@@ -149,13 +149,16 @@
 % n_b=60, n_k=34, n_e=8, T=60. Value-function backward induction (one Bellman
 % application per date on the (b,k,e) grid) + per-date sparse distribution
 % push; Anderson-accelerated fixed point on the stacked [log P; log q] paths.
-% Refinement stage chases 4e-4 below the 2e-3 reportable gate; the run used
-% its full 140-iteration budget and the best iterate reached interior 7.9e-4
-% (margin 2.5x), terminal (horizon) 2.2e-4, zero healed nodes, k-grid top
-% mass 0.0014. NOTE: front-loading moved 80% -> 76% when the residual
-% tightened from 1.9e-3 to 7.9e-4, so this statistic is sensitive at the
-% several-percentage-point level to the solve tolerance -- do not quote it
-% from a looser run.
+% MEASURED SOLVER FLOOR, from three runs at different budgets and damping
+% settings (140 it; 300 it; 300 it with adaptive damping). Best interior
+% residual ranged 7.9e-4 to 9.5e-4 with the BOND block binding throughout,
+% and the impact price ranged -0.0181 to -0.0172 -- a spread of 9e-4, the
+% same order as the residual. So d ln P_1 is pinned to about +-5e-4 and the
+% front-loading share to about +-0.02. QUOTE NOTHING FINER. The three runs
+% gave front-loading 0.802, 0.758, 0.787; the paper reports 0.78 with the
+% band, not a third digit. Reaching 1e-6 needs a sequence-space Newton with
+% the two-market Jacobian; more Anderson iterations do not help, and
+% over-damping (xi down to 0.016) produced a WORSE residual.
 %
 % SCOPE. Like the steady-state financing experiment it is anchored to, this
 % path holds damages at D_0 and varies only the tax: it is the announcement
@@ -172,18 +175,20 @@
 \newcommand{\KVTrT}{60}
 \newcommand{\KVTrLam}{0.15}
 \newcommand{\KVTrIota}{0.27}
-\newcommand{\KVTrResid}{7.9\times10^{-4}}
-\newcommand{\KVTrTerm}{2.2\times10^{-4}}
-\newcommand{\KVTrMargin}{2.5}
+\newcommand{\KVTrResid}{9.5\times10^{-4}}
+\newcommand{\KVTrTerm}{3.3\times10^{-4}}
+\newcommand{\KVTrMargin}{2.1}
 \newcommand{\KVTrGateB}{8.1\times10^{-7}}
 \newcommand{\KVTrGateK}{9.7\times10^{-12}}
-\newcommand{\KVTrImpP}{-1.72}
+\newcommand{\KVTrImpP}{-1.8}
 \newcommand{\KVTrLongP}{-2.26}
-\newcommand{\KVTrShare}{76\%}
+\newcommand{\KVTrShare}{0.78}
 % tree: impact +0.0067 with a solve-implied bound |dln q| < 2.7e-3, so the
 % impact/long-run share (52%) carries about +-21pp. Direction only.
-\newcommand{\KVTrQBound}{2.7\times10^{-3}}
+\newcommand{\KVTrQBound}{4.0\times10^{-3}}
 \newcommand{\KVTrElas}{-0.17}
+\newcommand{\KVTrImpBand}{5\times10^{-4}}
+\newcommand{\KVTrShareBand}{0.02}
 
 % ---- KV transition-inclusive incidence (MC3 deliverable) ----
 % Consumption-equivalent transfer, baseline-wealth groups, exact

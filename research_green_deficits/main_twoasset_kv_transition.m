@@ -218,8 +218,19 @@ x = [log(Pterm) * ones(n,1); log(qterm) * ones(n,1)];  % flat-at-terminal seed
 % whatever value happened to first dip under, not a converged floor.
 tol = 2e-3; ttgt = 4e-4; maxit = 140; if FAST, maxit = 90; end
 if exist('MAXIT','var') && ~isempty(MAXIT), maxit = MAXIT; end
+% MEASURED SOLVER FLOOR. Three runs at different budgets (140 and 300
+% iterations, with and without adaptive damping) put the best interior
+% residual between 7.9e-4 and 9.5e-4, with the BOND block binding
+% throughout. The impact price varied over [-0.0181, -0.0172] across them:
+% a spread of 9e-4, the same order as the residual. So this Anderson
+% iteration pins d ln P_1 to about +-5e-4 and the front-loading share to
+% about +-0.02, and no statistic derived from the path should be quoted
+% finer than that. Reaching 1e-6 here needs a sequence-space Newton with
+% the two-market Jacobian, not more iterations of this map: damping alone
+% cannot fix it, and over-damping makes it worse (halving xi to 0.016
+% produced a WORSE final residual than leaving it at 0.5).
 xi0 = 0.5; mAnd = 5;
-stall = 0; stall_cap = 12;
+stall = 0; stall_cap = 20;
 Xh = {}; Fh = {};
 best = struct('resnorm', Inf);
 tee('\nsolving the path (tol %.0e, maxit %d)...\n', tol, maxit);
@@ -253,7 +264,7 @@ for it = 1:maxit
     % residual -- the front-loading share moved 4pp between 1.9e-3 and
     % 7.9e-4 -- are reported from wherever the cycle happened to be.
     if resnorm < best.resnorm - 1e-12, stall = 0; else, stall = stall + 1; end
-    if stall >= stall_cap && xi0 > 0.03
+    if stall >= stall_cap && xi0 > 0.12
         xi0 = 0.5 * xi0; stall = 0;
         x = best.x; Xh = {}; Fh = {};
         tee('    [adaptive] stalled: xi -> %.3f, restarting from the best iterate\n', xi0);
