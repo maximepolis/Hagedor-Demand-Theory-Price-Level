@@ -2882,10 +2882,15 @@ run), so the equity margin does not smooth the adjustment: it capitalizes
 faster than the nominal market, and the price level follows. This is the
 paper's timing claim surviving the portfolio structure that overturns its
 \emph{sign}: the announcement, not the spending, is what the market prices,
-whatever the sign of the repricing and whatever the asset menu. The terminal
-prices of the path reproduce the independently solved steady-state financing
-experiment to four decimals, which is a cross-validation of the transition
-operators against the stationary ones rather than a calibration.
+whatever the sign of the repricing and whatever the asset menu. The
+transition operators are validated against the stationary ones by a
+consistency test rather than by the terminal prices, which are pinned at
+the program steady state and so agree with it by construction: with no
+program and prices held constant, the full recursion must reproduce the
+initial steady state, and the market residual must vanish. Getting the
+forward-pass timing wrong leaves the system with no solution at all, which
+a solver trace cannot distinguish from slow convergence but this test
+detects immediately.
 
 \paragraph{The announcement path in the disciplined economy.} The path
 above is frictionless, and it is the economy whose \emph{sign} the
@@ -2901,11 +2906,16 @@ $T=\KVTrT$ years, converged in $\KVTrIters$ iterations; interior residual
 $\KVTrResid$, terminal $\KVTrTerm$). Backward induction along a path needs
 only one Bellman application per date --- the expensive fixed-point
 iteration of the stationary solver is a property of stationarity, not of
-backward induction --- which is what makes the exercise feasible. Two gates
-discipline it: at the terminal date the operator reproduces the stationary
-solution, so both markets clear there to $\KVTrGateB$ and $\KVTrGateK$; and
-the terminal prices again reproduce the independently solved steady-state
-financing experiment.
+backward induction --- which is what makes the exercise feasible. Because
+the per-date operators are new, they are gated rather than trusted: the
+one-step Bellman operator and the one-step distribution push must each
+return the stationary object as a fixed point at the terminal prices; the
+kernels' aggregates must match the independent stationary construction
+($\KVTrGateB$ and $\KVTrGateK$ at the terminal date); and, end to end, with
+no program and prices held constant the whole recursion must reproduce the
+baseline steady state. The terminal prices are \emph{not} a check: they are
+pinned at the program steady state, so they agree with it by construction.
+Nothing is reported unless all four gates pass.
 
 Like the steady-state experiment it is anchored to, this path holds damages
 fixed and varies only the tax, so it prices the announcement of the
@@ -2914,19 +2924,26 @@ result concerns --- rather than the damage dividend the one-asset path of
 Section~\ref{subsec:tier2} also carries. Within that scope the restored
 sign survives the transition: the announcement is disinflationary on
 impact, $\KVTrImpP$ log points against $\KVTrLongP$ across steady states, a
-front-loading share of $\KVTrShare$. The illiquidity shows up exactly where
-it should. In the frictionless economy the tree capitalized \emph{faster}
-than the nominal market ($\TwoTrShare$ bond front-loading, with the tree
-overshooting its long-run move); here the tree capitalizes \emph{more
-slowly} ($\KVTrImpQ$ on impact against $\KVTrLongQ$ in the long run, a
-share of $\KVTrQShare$), and the bond market's front-loading falls to
-$\KVTrShare$ from $\TwoTrShare$. Infrequent rebalancing is a friction on
-the portfolio shift that transmits news into prices, so it slows
-capitalization --- and it slows the illiquid margin more than the liquid
-one, which is the ordering the friction is meant to produce. That the
-announcement still prices four-fifths of the long-run move in its first
-year, in the economy with the most realistic portfolio structure we solve,
-is the timing claim's strongest form.
+front-loading share of $\KVTrShare$, against $\TwoTrShare$ in the
+frictionless economy and $\OneTrShare$ with one asset. The illiquidity
+shows up as a reversal in \emph{which} market capitalizes faster. In the
+frictionless economy the tree ran ahead of the nominal market, overshooting
+its own long-run move on impact; under infrequent adjustment the tree
+instead lags, moving less on impact than in the long run. Infrequent
+rebalancing is a friction on precisely the portfolio shift that transmits
+news into prices, so it should slow capitalization, and it should slow the
+\emph{illiquid} margin more than the liquid one. Both orderings come out
+that way, and neither was targeted by the calibration.\footnote{We report
+the tree comparison as a direction rather than a magnitude. Only the
+adjusting fraction $\lambda$ of tree demand responds to $q_t$ in any
+period, so the same market-clearing tolerance pins the tree price roughly
+$1/\lambda$ less tightly than the nominal one; the driver measures the
+local semi-elasticity $d\ln \Sfun^{k}/d\ln q$ and reports the implied bound
+on $|d\ln q|$, and we quote no tree magnitude finer than it. The bond-side
+numbers are not affected.} That the announcement still prices four-fifths
+of the long-run move in its first year, in the economy with the most
+realistic portfolio structure we solve, is the timing claim's strongest
+form.
 
 \subsection{Is the restoration an artifact of a poor economy?}
 \noindent The benchmark

@@ -28,12 +28,25 @@
 % state. Nothing is reportable unless the fixed point converges AND the
 % horizon is adequate (both terminal residuals small).
 %
-% VALIDATION BUILT IN. (i) At the terminal date the one-step Bellman
-% operator agrees with the steady-state VFI by construction; the driver
-% checks the terminal market clearing it implies. (ii) At constant prices
-% the forward push reproduces the stationary distribution. (iii) The
-% welfare block's steady-state column reproduces the steady-state incidence
-% comparison independently of the path.
+% VALIDATION. Four gates, all EXECUTED (an earlier version of this header
+% advertised gates that no code performed, and reported the terminal price
+% as "reproducing the independent steady-state experiment" -- which is an
+% identity, since the terminal price is read from that experiment and
+% pinned, so it agrees for any path whatsoever and cannot fail):
+%   GATE 1  one Bellman step at the terminal prices returns V_term (the
+%           stationary V must be a fixed point of the per-date operator)
+%   GATE 2  one forward push at the terminal prices returns the stationary
+%           distribution
+%   GATE 3  the kernel's own aggregates match agg_kv's independent
+%           construction from the steady-state policies
+%   GATE 4  end-to-end: with NO program and prices constant at the
+%           baseline, the whole recursion reproduces the baseline steady
+%           state, so the residual vanishes at every date. This is the test
+%           that catches a transposed lottery weight or a mis-dated flow --
+%           failures that leave the system with no solution at all, which
+%           looks like slow convergence in a solver trace but is immediate
+%           here. It is the analogue of the frictionless driver's check.
+% All four feed `reportable`; the path is not quotable unless they pass.
 %
 % COST. One residual evaluation = T Bellman sweeps + T sparse pushes on the
 % (b,k,e) tensor: roughly 10-20 s at the full grid, T = 60. Expect
@@ -103,6 +116,47 @@ assert(ddT.converged, 'terminal distribution failed');
 [SbT, SkT] = agg_kv(solT, dsT, r_b, qterm, div_term, tau_term, pe0);
 tee('  terminal clearing check: Sb*P/(iota B) = %.4f, Sk/Kbar = %.4f (both ~1)\n', ...
     SbT * Pterm / (iota * Bnom), SkT / Kbar);
+tee('  (this uses only the STEADY-STATE routines: it checks the boundary flow\n');
+tee('   formulas tau_term/div_term/iota, NOT the new per-date kernels.)\n');
+
+% ---- GATES ON THE NEW KERNELS ------------------------------------------
+% An earlier version of this driver advertised a terminal consistency gate
+% that no code performed, and reported "terminal dlnP reproduces the
+% steady-state experiment" as a validation. That comparison is an IDENTITY:
+% Pterm is read from the saved experiment and pinned into the path, so the
+% two printed numbers are the same quantity and agree for ANY path,
+% converged or not, and for any residual function. It is not reported as a
+% check any more. These three gates are the real ones -- each can fail, and
+% each exercises code that the steady-state routines do not.
+%
+% At the terminal steady state prices are constant, so the one-step
+% operators must have the stationary objects as fixed points.
+[Vchk, polchk] = twoasset_kv_bellman_step(Vterm, r_b, qterm, div_term, tau_term, pe0);
+dV_step = max(abs(Vchk(:) - Vterm(:))) / max(1, max(abs(Vterm(:))));
+Omchk   = push_forward_twoasset_kv(dsT, polchk, r_b, qterm, div_term, tau_term, pe0);
+dOm     = max(abs(Omchk(:) - dsT(:)));
+SbC     = sum(polchk.bch(:) .* dsT(:));
+SkC     = sum(polchk.kch(:) .* dsT(:));
+tolV = max(10 * dgT.supnorm, 1e-6);
+g1 = dV_step < tolV;  g2 = dOm < 1e-6;  g3 = max(abs(SbC-SbT), abs(SkC-SkT)) < 1e-8;
+tee('  GATE 1 Bellman step is a fixed point of V_term: rel %.2e (tol %.1e) %s\n', ...
+    dV_step, tolV, ternstr(g1, 'PASS', 'FAIL'));
+tee('  GATE 2 forward push is a fixed point of the stationary dist: %.2e %s\n', ...
+    dOm, ternstr(g2, 'PASS', 'FAIL'));
+tee('  GATE 3 kernel aggregates match agg_kv: |dSb| %.2e |dSk| %.2e %s\n', ...
+    abs(SbC-SbT), abs(SkC-SkT), ternstr(g3, 'PASS', 'FAIL'));
+
+% TREE-PRICE PRECISION. Only a fraction lambda of tree demand is
+% q-responsive in any period (non-adjusters hold k fixed), so a given
+% tree-market residual maps into a LARGER price error than in a
+% frictionless economy. Measure the local semi-elasticity numerically and
+% report the implied bound, so tree magnitudes are never quoted to more
+% precision than the solve supports.
+dlq = 0.01;
+[~, polE] = twoasset_kv_bellman_step(Vterm, r_b, qterm*exp(dlq), div_term, tau_term, pe0);
+SkE  = sum(polE.kch(:) .* dsT(:));
+elas = (log(max(SkE,1e-12)) - log(max(SkC,1e-12))) / dlq;
+tee('  tree demand semi-elasticity dlnSk/dlnq = %+.3f (lambda = %.2f)\n', elas, p.lambda_adj);
 
 % ---- baseline stay-put objects: V0 and the consumption-utility part Uc0 ----
 tau0 = r_b * (Bnom / eq0.P);
@@ -111,6 +165,18 @@ tee('baseline household solve (stay-put values)...\n');
 [sol0, dg0] = solve_household_twoasset_kv(r_b, eq0.q, div0, tau0, pe0, []);
 assert(dg0.converged, 'baseline VFI failed');
 V0 = sol0.V;
+% The KV VFI SOFT-accepts a grid-limited fixed point at a relative tolerance
+% of 3e-3. The CE table differences V1 against V0, so a soft-accepted value
+% LEVEL propagates straight into the welfare numbers; report it rather than
+% letting it pass silently.
+soft0 = isfield(dg0,'soft') && dg0.soft;  softT = isfield(dgT,'soft') && dgT.soft;
+tee('  VFI acceptance: terminal supnorm %.2e%s, baseline %.2e%s\n', ...
+    dgT.supnorm, ternstr(softT, ' (SOFT)', ''), ...
+    dg0.supnorm, ternstr(soft0, ' (SOFT)', ''));
+if soft0 || softT
+    tee('  NOTE: a soft-accepted value level feeds the CE table; treat welfare\n');
+    tee('  magnitudes as accurate to about the VFI tolerance, not to 0.01%%.\n');
+end
 tee('  policy-evaluating the consumption-utility component Uc0...\n');
 Uc0 = uc_policy_eval(sol0, r_b, eq0.q, div0, tau0, pe0, 600, 1e-8);
 
@@ -120,9 +186,37 @@ ctx = struct('T', T, 'p', p, 'r_b', r_b, 'd_base', d_base, 'iota', iota, ...
     'P0', eq0.P, 'Pterm', Pterm, 'qterm', qterm, 'Vterm', Vterm, ...
     'dist0', eq0.dist, 'want_V1', false);
 n = T - 1;
+
+% GATE 4 (end-to-end, the analogue of the frictionless driver's check).
+% With NO program and prices constant at the baseline, the whole pipeline --
+% backward Bellman recursion, forward push, aggregation, clearing -- must
+% reproduce the baseline steady state, so the residual must vanish at every
+% date. This is the one test that exercises both new kernels together
+% against an object neither of them produced, and it is the test that would
+% catch a transposed lottery weight or a mis-dated flow: those leave the
+% system with no solution at all, which is invisible in a solver trace (it
+% looks like slow convergence) but immediate here.
+ctx0 = ctx; ctx0.g_real = 0; ctx0.Pterm = eq0.P; ctx0.qterm = eq0.q;
+ctx0.Vterm = V0; ctx0.want_V1 = false;
+x_ss = [log(eq0.P)*ones(n,1); log(eq0.q)*ones(n,1)];
+[f_ss, aux_ss] = twoasset_kv_transition_residual(x_ss, ctx0);
+g4 = aux_ss.feas && max(abs(f_ss)) < 5e-3;
+tee('  GATE 4 no-program constant-price recursion reproduces the baseline:\n');
+tee('         ||r||inf = %.2e (bond %.2e, tree %.2e) %s\n', max(abs(f_ss)), ...
+    max(abs(f_ss(1:n))), max(abs(f_ss(n+1:end))), ternstr(g4, 'PASS', 'FAIL'));
+gates_ok = g1 && g2 && g3 && g4;
+if ~gates_ok
+    tee('\n  *** ONE OR MORE KERNEL GATES FAILED -- the path below is NOT reportable\n');
+    tee('  *** regardless of its residual. Fix the kernels first.\n\n');
+end
+
 x = [log(Pterm) * ones(n,1); log(qterm) * ones(n,1)];  % flat-at-terminal seed
 
-tol = 2e-3; maxit = 80; if FAST, maxit = 60; end
+% tol is the REPORTABLE gate; ttgt is the refinement target the loop
+% actually chases. Breaking at the first crossing of tol (as an earlier
+% version did) makes the achieved margin uninformative -- it reports
+% whatever value happened to first dip under, not a converged floor.
+tol = 2e-3; ttgt = 4e-4; maxit = 140; if FAST, maxit = 90; end
 xi0 = 0.5; mAnd = 5;
 Xh = {}; Fh = {};
 best = struct('resnorm', Inf);
@@ -146,7 +240,7 @@ for it = 1:maxit
     tee('  iter %2d: interior max|f| = %.5f (bond %.5f tree %.5f), terminal = %.5f (mem=%d)\n', ...
         it, resnorm, max(abs(fv(1:n))), max(abs(fv(n+1:end))), res_term, ...
         min(numel(Fh), mAnd));
-    if resnorm < tol, break; end
+    if resnorm < ttgt, break; end     % refinement target, not the gate
     if it == maxit, break; end
     Xh{end+1} = x; Fh{end+1} = fv; %#ok<AGROW>
     if numel(Fh) > mAnd + 1, Fh = Fh(end-mAnd:end); Xh = Xh(end-mAnd:end); end
@@ -168,12 +262,24 @@ for it = 1:maxit
     x = x + step;
 end
 
+assert(isfinite(best.resnorm) && isfield(best, 'aux'), ...
+    ['no feasible iterate was ever found: every trial path was infeasible, ' ...
+     'so there is nothing to report. Check the grids and the terminal pin.']);
 converged  = best.resnorm < tol;
 horizon_ok = best.res_term < max(tol, 5e-3);
-reportable = converged && horizon_ok;
-tee('\nfixed point %s (interior %.5f), horizon %s (terminal %.5f), REPORTABLE = %d\n', ...
-    ternstr(converged, 'CONVERGED', 'NOT CONVERGED'), best.resnorm, ...
-    ternstr(horizon_ok, 'OK', 'INADEQUATE'), best.res_term, reportable);
+reportable = converged && horizon_ok && gates_ok;
+tee('\nfixed point %s (interior %.2e, gate %.0e, margin %.1fx), horizon %s (terminal %.2e)\n', ...
+    ternstr(converged, 'CONVERGED', 'NOT CONVERGED'), best.resnorm, tol, ...
+    tol / max(best.resnorm, eps), ternstr(horizon_ok, 'OK', 'INADEQUATE'), best.res_term);
+tee('kernel gates %s; REPORTABLE = %d\n', ternstr(gates_ok, 'PASS', 'FAIL'), reportable);
+% tree-price precision implied by the achieved tree residual and the
+% measured semi-elasticity (only lambda of demand is q-responsive)
+if isfinite(elas) && abs(elas) > 1e-6
+    rk = max(abs(best.aux.resid_k(1:T-1)));
+    tee('tree-price precision: |resid_k| %.2e / |dlnSk/dlnq| %.3f => |dln q| < %.2e\n', ...
+        rk, abs(elas), rk / abs(elas));
+    tee('  (quote tree magnitudes only to this precision)\n');
+end
 
 % ---- path statistics + the welfare block, at the best iterate ----
 ctx.want_V1 = true;
@@ -181,8 +287,12 @@ ctx.want_V1 = true;
 Pp = auxb.Ppath; qp = auxb.qpath;
 tee('\nimpact:   dlnP_1 = %+0.4f, dln q_1 = %+0.4f\n', ...
     log(Pp(1)/eq0.P), log(qp(1)/eq0.q));
-tee('terminal: dlnP   = %+0.4f (steady-state experiment %+0.4f)\n', ...
-    log(Pp(T)/eq0.P), S.EXK(ils).dlnP);
+% NOT a validation: Pterm is read from the saved steady-state experiment and
+% PINNED, so this equals that experiment's dlnP by construction. Printed as
+% the boundary condition it is.
+tee('terminal: dlnP   = %+0.4f (PINNED boundary = the steady-state experiment\n', ...
+    log(Pp(T)/eq0.P));
+tee('                    by construction; the real checks are GATES 1-4 above)\n');
 denomP = log(Pp(T)/eq0.P);
 if abs(denomP) > 1e-6
     tee('front-loading share of the long-run price move: %.3f\n', ...
@@ -222,28 +332,43 @@ w  = eq0.dist(:) / sum(eq0.dist(:));
 bv = repmat(BB(:), numel(p.eGrid), 1);
 kv = repmat(KK(:), numel(p.eGrid), 1);
 wealth = bv + eq0.q * kv;
-tee('%-22s %14s %14s\n', 'group (baseline)', 'CE transition', 'CE steady-state');
+% CE is undefined where the guards fail; report the mass that carries so a
+% large silent drop cannot hide behind plausible-looking group averages
+drop_tr = sum(w(~isfinite(CEtrv)));  drop_ss = sum(w(~isfinite(CEssv)));
+tee('CE defined on %.4f of mass (transition) and %.4f (steady state)\n', ...
+    1 - drop_tr, 1 - drop_ss);
+if max(drop_tr, drop_ss) > 1e-3
+    tee('  WARNING: %.2f%% of mass dropped by the CE guards -- group means are\n', ...
+        100 * max(drop_tr, drop_ss));
+    tee('  conditional on the defined set and may not be comparable across groups.\n');
+end
+tee('%-22s %8s %14s %14s\n', 'group (baseline)', 'mass', 'CE transition', 'CE steady-state');
 grp = {
-    'bottom quintile',  in_wealth_band(wealth, w, 0.00, 0.20)
-    'bottom half',      in_wealth_band(wealth, w, 0.00, 0.50)
-    'middle 50-90',     in_wealth_band(wealth, w, 0.50, 0.90)
-    'top decile',       in_wealth_band(wealth, w, 0.90, 1.00)
-    'top 1 percent',    in_wealth_band(wealth, w, 0.99, 1.00)
-    'constrained b<=0.02', bv <= 0.02
-    'wealthy HtM',      (bv <= 0.02) & (eq0.q * kv >= 0.50)
-    'ALL',              true(size(bv))
+    'bottom quintile',     in_wealth_band(wealth, w, 0.00, 0.20)
+    'bottom half',         in_wealth_band(wealth, w, 0.00, 0.50)
+    'middle 50-90',        in_wealth_band(wealth, w, 0.50, 0.90)
+    'top decile',          in_wealth_band(wealth, w, 0.90, 1.00)
+    'top 1 percent',       in_wealth_band(wealth, w, 0.99, 1.00)
+    'constrained b<=0.02', w .* (bv <= 0.02)
+    'wealthy HtM',         w .* ((bv <= 0.02) & (eq0.q * kv >= 0.50))
+    'ALL',                 w
 };
 for i = 1:size(grp, 1)
-    msk = grp{i,2};
-    tee('%-22s %+13.2f%% %+13.2f%%\n', grp{i,1}, ...
-        100 * wmean(CEtrv, w, msk), 100 * wmean(CEssv, w, msk));
+    wb = grp{i,2};
+    tee('%-22s %8.4f %+13.2f%% %+13.2f%%\n', grp{i,1}, sum(wb), ...
+        100 * wmean(CEtrv, wb), 100 * wmean(CEssv, wb));
 end
 tee(['\nreading: the one-asset transition DEEPENED the regressivity of\n' ...
      'lump-sum finance (windfall at the top, front-loaded taxes at the\n' ...
      'constrained bottom). Whether that survives realistic ownership and\n' ...
      'illiquidity -- where the top holds most of the revaluation base but\n' ...
      'cannot instantly rebalance -- is exactly what the two columns above\n' ...
-     'decide. The CE columns answer the title question in this economy.\n']);
+     'decide. SCOPE: this path holds damages at D0 and varies only the tax\n' ...
+     '(matching the steady-state experiment it is anchored to), so it is the\n' ...
+     'incidence of the FINANCING announcement. The one-asset transition also\n' ...
+     'carries the damage dividend, so the two are not the same experiment and\n' ...
+     'their levels are not directly comparable -- the comparable object is the\n' ...
+     'within-economy transition-vs-steady-state CONTRAST in the two columns.\n']);
 
 KVTR.CEtr = CEtr; KVTR.CEss = CEss;    % append welfare to the saved results
 save(fullfile(projdir, 'output', 'twoasset_kv_transition.mat'), ...
@@ -335,23 +460,34 @@ function u = ucrra(c, sig)
     if sig == 1, u = log(c); else, u = (c.^(1-sig))/(1-sig); end
 end
 
-function msk = in_wealth_band(wealth, w, qlo, qhi)
-% mask of households whose baseline-wealth RANK lies in (qlo, qhi]
-    [ws, io] = sort(wealth); cw = cumsum(w(io));
-    lo_val = ws(find(cw >= qlo, 1, 'first'));
-    hi_val = ws(find(cw >= qhi - 1e-12, 1, 'first'));
-    if isempty(hi_val), hi_val = ws(end); end
-    if qlo <= 0
-        msk = wealth <= hi_val;
-    else
-        msk = wealth > lo_val & wealth <= hi_val;
-    end
+function wb = in_wealth_band(wealth, w, qlo, qhi)
+% WEIGHT VECTOR (not a boolean mask) for the baseline-wealth rank band
+% (qlo, qhi]. Returns each state's mass lying inside the band.
+%
+% Why not a value cutoff. Wealth here is b + q*k, which does NOT depend on
+% the income state, so every (b,k) node is repeated ne times at EXACTLY the
+% same wealth. A threshold rule (wealth > lo & wealth <= hi) therefore
+% includes or excludes whole ne-fold ties together, and a tie straddling a
+% band edge throws the band's mass off by up to ne times a node's weight --
+% silently, while still printing plausible numbers. Splitting each atom by
+% the fraction of its mass inside [qlo,qhi] is exact and tie-safe, and it
+% makes the bands sum to the whole distribution by construction.
+    [~, io] = sort(wealth);
+    ws = w(io);
+    cw_hi = cumsum(ws);            % cumulative mass at the TOP of each atom
+    cw_lo = cw_hi - ws;            % ... and at the bottom
+    inside = min(cw_hi, qhi) - max(cw_lo, qlo);
+    inside = max(inside, 0);       % mass of this atom inside the band
+    wb = zeros(size(w));
+    wb(io) = inside;
 end
 
-function m = wmean(x, w, msk)
-    v = msk & isfinite(x);
+function m = wmean(x, wb)
+% weighted mean over a WEIGHT VECTOR (mass per state), restricted to states
+% where x is defined
+    v = isfinite(x) & wb > 0;
     if ~any(v), m = NaN; return; end
-    m = sum(x(v) .* w(v)) / sum(w(v));
+    m = sum(x(v) .* wb(v)) / sum(wb(v));
 end
 
 function tee2(fid, varargin)
