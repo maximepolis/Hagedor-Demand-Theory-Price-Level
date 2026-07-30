@@ -144,6 +144,35 @@
 \newcommand{\DefCumStar}{1.5}
 \newcommand{\DefKapStar}{3.2}
 
+% ---- KV two-asset announcement path (table: twoasset_kv_transition) ----
+% Ownership + illiquidity economy (lambda = 0.15, iota_H = 0.273), full grid
+% n_b=60, n_k=34, n_e=8, T=60. Value-function backward induction (one Bellman
+% application per date on the (b,k,e) grid) + per-date sparse distribution
+% push; Anderson-accelerated fixed point on the stacked [log P; log q] paths.
+% Converged in 23 iterations: interior residual 1.9e-3 (tol 2e-3), terminal
+% (horizon) residual 7.2e-4, zero healed nodes, k-grid top mass 0.0014.
+% Terminal clearing gates: bond 0.9999, tree 1.0010.
+%
+% SCOPE. Like the steady-state financing experiment it is anchored to, this
+% path holds damages at D_0 and varies only the tax: it is the announcement
+% of the FINANCING PROGRAM, isolating the portfolio/incidence channel that
+% the restoration result is about. The one-asset tier-2 path, by contrast,
+% carries the damage dividend as well.
+\newcommand{\KVTrT}{60}
+\newcommand{\KVTrLam}{0.15}
+\newcommand{\KVTrIota}{0.27}
+\newcommand{\KVTrIters}{23}
+\newcommand{\KVTrResid}{1.9\times10^{-3}}
+\newcommand{\KVTrTerm}{7.2\times10^{-4}}
+\newcommand{\KVTrGateB}{0.9999}
+\newcommand{\KVTrGateK}{1.0010}
+\newcommand{\KVTrImpP}{-1.81}
+\newcommand{\KVTrLongP}{-2.26}
+\newcommand{\KVTrShare}{80\%}
+\newcommand{\KVTrImpQ}{+0.95\%}
+\newcommand{\KVTrLongQ}{+1.28\%}
+\newcommand{\KVTrQShare}{74\%}
+
 % ---- Matched-parameter ladder (table: twoasset_ownership_kv_ladder) ----
 % Coarse grid. beta = 0.874 and chi_b = 0.00223 held at the benchmark values
 % in every row; grids identical; one ingredient switched off per row.

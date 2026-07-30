@@ -126,6 +126,18 @@
 \providecommand{\DefCumGap}{\pendingnum}\providecommand{\DefRevalBal}{\pendingnum}
 \providecommand{\DefRevalDef}{\pendingnum}\providecommand{\DefKapStar}{\pendingnum}
 \providecommand{\DefValidGap}{\pendingnum}
+\providecommand{\KVTrT}{\pendingnum}\providecommand{\KVTrLam}{\pendingnum}
+\providecommand{\KVTrIota}{\pendingnum}\providecommand{\KVTrIters}{\pendingnum}
+\providecommand{\KVTrResid}{\pendingnum}\providecommand{\KVTrTerm}{\pendingnum}
+\providecommand{\KVTrGateB}{\pendingnum}\providecommand{\KVTrGateK}{\pendingnum}
+\providecommand{\KVTrImpP}{\pendingnum}\providecommand{\KVTrLongP}{\pendingnum}
+\providecommand{\KVTrShare}{\pendingnum}\providecommand{\KVTrImpQ}{\pendingnum}
+\providecommand{\KVTrLongQ}{\pendingnum}\providecommand{\KVTrQShare}{\pendingnum}
+% transition-inclusive incidence in the ownership+illiquidity economy (MC3):
+% pending the welfare block's first complete run
+\providecommand{\KVWelBot}{\pendingnum}\providecommand{\KVWelTop}{\pendingnum}
+\providecommand{\KVWelCon}{\pendingnum}\providecommand{\KVWelAll}{\pendingnum}
+\providecommand{\KVWelBotSS}{\pendingnum}\providecommand{\KVWelTopSS}{\pendingnum}
 \providecommand{\OrdImp}{\pendingnum}\providecommand{\OrdInf}{\pendingnum}
 \providecommand{\OrdOne}{\pendingnum}\providecommand{\OrdTwo}{\pendingnum}
 \providecommand{\OrdFive}{\pendingnum}\providecommand{\OrdTen}{\pendingnum}
@@ -1633,229 +1645,6 @@ and monetary accommodation can. Anchor insulation is design insurance
 against a tail the data do not currently reach; none of the paper's
 incidence results relies on it.
 
-\subsection{Robustness: what one must believe for a green appropriation to
-pay for itself}
-\label{subsec:robustness}
-
-The climate side of the calibration deserves to be interrogated rather than
-defended, and this subsection organizes that interrogation around a simple
-principle: parameters that published damage estimates discipline are
-\emph{anchored} to those estimates and swept across them; the one parameter
-no study pins down is not given a point value at all, but reported as an
-axis of the answer. Table~\ref{tab:sources} states where each climate
-parameter comes from.
-
-\begin{table}[!htb]
-\centering\small
-\caption{Climate-block parameters: values, status, and sources. ``Anchored''
-parameters take their range from published estimates; ``swept'' parameters
-are reported as axes of the results rather than point choices.}
-\label{tab:sources}
-\footnotesize
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lll p{0.36\textwidth}}
-\toprule
-parameter & benchmark & status & source / discipline \\
-\midrule
-$D_0$ (no-abatement damages) & $0.06$ & anchored, 3 cols &
-  $0.02$ DICE \citep{nordhaus2017}; $0.06$ Dell--Jones--Olken /
-  Burke--Hsiang--Miguel range \citep{hsiang2017,carleton2022};
-  $0.20$ \citet{bilalkanzig2024} \\
-$\theta_g$ (abatement effectiveness) & $1.2$ & swept ($0$--$3$) &
-  no direct estimate; reported as a frontier (below) \\
-$\psi$ (damage incidence) & $0$ & swept ($0$--$2$) &
-  regressive incidence: \citet{kanzig2023carbon}, \citet{fried2018} \\
-$\phi_D$ (damage--risk link) & $0.5$ & swept ($0$--$1$) &
-  reduced form of \citet{acharya2023optimal} risk channel \\
-$\delta_g$ (green depreciation) & $0.10$ & swept ($0.05$--$0.10$) &
-  public-infrastructure depreciation range \\
-program scale & $2\%$ of income & swept ($1$--$4\%$) &
-  public green-investment shares in net-zero scenarios \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Two exercises then close the gap between ``illustrative'' and ``robust,''
-both on the calibrated economy ($\beta^{*}$ holding debt at $1.1$ times
-income; the $2\%$ program). \emph{First, the $(D_0,\theta_g)$ surface.}
-The two parameters the headline number is most sensitive to are the
-no-abatement damage level and the abatement effectiveness. Rather than
-defend point values, we compute the self-financing share on the whole
-$(D_0,\theta_g)$ plane and report the $\nu=1$ \emph{frontier} --- for each
-damage level, the abatement effectiveness required for full self-financing
-(Figure~\ref{fig:pfig20}a). The paper's answer is thus a correspondence,
-not a point estimate: a reader who holds DICE-level damage beliefs and a
-reader who accepts the \citet{bilalkanzig2024} estimates can each locate
-their own $\nu$ on the same map, and the map records at every node whether
-the revaluation component stays negative, so the disinflation result is
-checked across the entire plane rather than asserted at the benchmark.
-\emph{Second, one-at-a-time sensitivity under a held fiscal target.} Each
-household-side variant (risk aversion $\sigma\in\{1,3\}$; the risk channel
-$\phi_D\in\{0,1\}$; the incidence gradient $\psi\in\{1,2\}$) re-calibrates
-$\beta$ so that debt remains $1.1$ times income before comparing programs
---- differences in $\nu$ along \emph{this} sweep are then pure parameter
-effects, not artifacts of a drifting debt ratio, while variants that
-leave the no-program economy untouched (green depreciation $\delta_g$; the
-program scale at $1\%$ and $4\%$) hold $\beta^{*}$ fixed
-(Figure~\ref{fig:pfig20}b). One caveat applies to the \emph{across-column}
-comparison of Table~\ref{tab:calibrated} rather than to this sweep: the
-$1.10$ target is set in pre-damage income, so post-damage leverage
-$b/[(1-D_0)y]$ drifts up with the damage level across the low, medium, and
-high columns, which amplifies the
-revaluation and interest-burden terms mechanically; the column-to-column
-$\nu$ differences therefore mix the damage effect with a rising leverage
-ratio, and only the held-target sweep isolates a pure parameter effect.
-
-Three findings survive the exercise. \emph{First, the required
-effectiveness falls sharply in the damage level.} The $\nu=1$ frontier reads
-$\theta_g^{*}=\thetaStarMed$ at the medium column, $\thetaStarHigh$ at the
-\citet{bilalkanzig2024} high column, and lies above the swept range
-($>3$) at the conservative DICE column, so what one must believe for full
-self-financing is monotone and transparent: under high damages even a
-modestly effective program pays for itself, while under DICE damages no
-effectiveness in the plausible range does, and the answer there is
-partial financing ($\nu=0.04$--$0.39$ over $\theta_g\in[0.5,3]$) carried by
-the damage dividend net of the revaluation loss. The benchmark $\theta_g=1.2$
-sits comfortably below the medium-column frontier, consistent with the
-partial self-financing ($\nu=\nuMedShort$) reported above. We read these
-thresholds strictly as \emph{internal technology frontiers}, not as
-physically-calibrated policy numbers: $\theta_g$ has no clean empirical
-counterpart under either the mitigation reading (where $K_g$ acts on the global
-carbon stock, so the closed-economy mapping is a coordinated-program stand-in)
-or the adaptation reading (where $K_g$ hardens the domestic economy at an
-exogenous carbon stock), and the results apply under either reading. So
-$\theta_g^{*}=\thetaStarMed$ (medium) and $\thetaStarHigh$ (high) answer
-``what abatement or hardening effectiveness would a $2\%$-of-income program
-need to break even?'', not ``a $2\%$ program delivers this damage
-reduction''. No external estimate yet converts the frontier into physical
-units --- engineering marginal-abatement-cost curves for the mitigation
-reading, damage-avoided-per-dollar estimates for the hardening reading ---
-so the statements here are contour results in $(D_0,\theta_g)$ space, and
-we present them as such. \emph{Second, the
-disinflation is not a calibration artifact:} the revaluation component is
-negative at all $\nodesNeg$
-nodes of the $(D_0,\theta_g)$ plane, so productive green programs raise
-safe-asset demand and lower the price level regardless of the damage or
-effectiveness assumption. \emph{Third, the self-financing share is stable to
-the household side but genuinely governed by incidence.} Holding the debt
-target fixed, $\nu$ moves little with risk aversion ($0.57$ at $\sigma=3$)
-or the damage--risk link ($0.56$--$0.61$ as $\phi_D$ runs $0$ to $1$), rises
-mechanically when green capital is longer-lived ($\nu=1.09$ at
-$\delta_g=0.05$, which doubles the capital stock per unit of spending) or
-the program is smaller ($0.62$ at $1\%$ versus $0.50$ at $4\%$, the
-concavity of abatement), and --- the one economically important
-non-monotonicity --- the revaluation channel \emph{flips sign} under strong
-regressive incidence: at $\psi=2$ the program becomes mildly inflationary
-($\nu_{\mathrm{reval}}=+0.07$, $\Delta\ln P=+5.9\%$): with damages
-concentrated on the poor, the program's damage relief unwinds
-precautionary saving faster than the tax channel builds it. The
-disinflation result is thus robust
-across damage calibrations and effectiveness levels; its dependence on
-the incidence gradient is not a fragility but the paper's point --- the
-sign of the revaluation channel is an incidence object.
-One variant is informative by its absence. At $\sigma=1$ the debt target is
-still attainable in principle --- in a Bewley economy aggregate asset demand
-rises without bound as $\beta\uparrow 1/(1+r^{ss})$, so \emph{some} $\beta$
-close enough to the $\beta(1+r^{ss})<1$ boundary hits any finite target ---
-but the required $\beta$ is implausibly close to that boundary, where asset
-demand is extremely $\beta$-elastic and the calibration is numerically
-delicate rather than economically disciplined. We therefore report the
-benchmark at $\sigma=2$, where the same target is met at an interior,
-well-identified $\beta$, and read the $\sigma=1$ difficulty as a statement
-about identification, not about feasibility.
-
-A final exercise probes the endowment structure itself. The natural
-objection is that an endowment economy has no output margin: there is no tax
-base for the program to expand, so the \citet{angeletos2024deficits} boom
-channel is absent by construction. We quantify one
-piece of what this omits with a \emph{hypothetical} production layer
-$Y = (1-D(K_g))\,A(K_g)$, $A = 1 + a_Y(1 - e^{-\theta_A K_g})$, run on the
-same calibrated program: the productivity margin adds output
-$dY_{\mathrm{prod}} = (1-D_0)(A-1)$ whose fiscal take at an average
-effective tax rate $t$ is an \emph{additive} revenue term
-$\nu_{\mathrm{taxbase}} = t\, dY_{\mathrm{prod}}/g_{g,1}$ (the damage
-component of the output gain is already the damage dividend, recomposed not
-double-counted). The implied output elasticities $\eta_Y\in[0.026,0.053]$
-are reported for scale only; they are not disciplined by the
-\citet{bomligthart2014} $0.08$--$0.12$ range, which estimates \emph{core
-productive infrastructure} (roads, utilities) entering output directly.
-Abatement capital has no such margin in the model (it
-reduces damages, not marginal cost) and plausibly little of one in
-practice, so its true output elasticity is
-plausibly near zero, and reading it as ``below core public capital'' offers
-no conservatism guarantee. The defensible reading is directional: \emph{within this
-revenue-only accounting} (labor fixed, no output fed back), the added
-tax-base term raises $\nu$, so $\nu^{+}$ rises from $0.58$ toward and past
-unity as $\eta_Y$ grows; but this does not sign the full production economy.
-One first-order margin the endowment economy omits pushes $\nu$
-down --- public capital crowds out private investment (a smaller
-private stock, smaller base). The labor-supply margin, by contrast, is
-sign-dependent on the instrument, and we are careful about it: under a
-\emph{distortionary} tax the substitution effect shrinks hours as rates
-rise, but under the paper's baseline \emph{lump-sum} instrument there is no
-substitution effect, and the negative wealth effect of the tax \emph{raises}
-desired labor supply, enlarging the base and pushing $\nu$ \emph{up}. So the
-labor channel does not sign against self-financing under lump-sum finance;
-it would do so only under a proportional wage tax. The general-equilibrium
-asset-demand response is unsigned either way. The exercise therefore bounds
-the omitted \emph{revenue} margin in one direction, not the net
-general-equilibrium effect. (Under an
-adaptation-capital reinterpretation, in which public capital hardens the
-economy against damages and plausibly does carry a productive margin ---
-the public-adaptation-capital view of \citet{fried2022seawalls} and
-\citet{konradtweder2023} --- the
-Bom--Ligthart comparison becomes defensible; we return to this in the
-conclusion.) Two further pieces of discipline bound the reduced form from
-the climate side:
-the extended sector of Section~\ref{subsec:extended} replaces the
-exponential damage shortcut with the full emissions--carbon-stock
-structure and lowers the full-financing threshold (to
-$\theta_g \approx 1.9$ from $\approx 2.4$ at the illustrative scale), so
-the shortcut is the conservative choice; and the implementation-efficiency
-sweep $q_g$ of Appendix~\ref{subsec:maturity} scales the dividend for
-procurement and planning frictions. What no existing study pins down is
-$\theta_g$ itself, which is why
-the paper reports frontiers in $\theta_g$ rather than point claims.
-
-% Figure PFig20 (calibration robustness) relocated to
-% Appendix~\ref{app:figures} (supplementary figures).
-
-% --------------------------------------------------------------------------
-
-\subsection{The financing regimes at fixed real scale}
-\label{subsec:regimesreal}
-
-To isolate the incidence channel from the (second-order) real-scale drift that
-holding the \emph{nominal} appropriation fixed induces, Table~\ref{tab:regimesreal}
-recomputes the same four regimes holding the \emph{real} program $g_g$ fixed at
-its baseline value (letting $G_g$ adjust per regime), the convention of
-Proposition~\ref{prop:financingdesign}. By construction the damage dividend is
-then identical across regimes, so only the revaluation share and the
-welfare incidence can move, and the cross-regime differences are pure tax
-incidence plus the price-level response they induce, with no change in the real
-green scale. The revaluation swing and the welfare reversal survive the change
-of convention; the fixed-nominal and fixed-real revaluation shares differ only
-in the third decimal.
-
-\begin{table}[!htb]
-\centering
-\caption{Financing regimes holding the \emph{real} program fixed (pure
-incidence; companion to Table~\ref{tab:regimes}). $g_g$ is common across
-regimes, so the damage dividend is identical and only $\nu_{\mathrm{reval}}$ and
-welfare move.}
-\label{tab:regimesreal}
-\begin{tabular}{lcccc}
-\toprule
-regime & $P^{*}$ & $\nu$ & $\nu_{\mathrm{reval}}$ & bottom-50\%\,/\,top-10\% \\
-\midrule
-lump-sum         & $\RDefRealP$ & $\RDefRealNu$ & $\RDefRealRev$ & $\RDefRealBfifty\%$\,/\,$\RDefRealTten\%$ \\
-levy       & $\RLevRealP$ & $\RLevRealNu$ & $\RLevRealRev$ & $\RLevRealBfifty\%$\,/\,$\RLevRealTten\%$ \\
-levy-plus-rebate& $\RRebRealP$ & $\RRebRealNu$ & $\RRebRealRev$ & $\RRebRealBfifty\%$\,/\,$\RRebRealTten\%$ \\
-mixed           & $\RMixRealP$ & $\RMixRealNu$ & $\RMixRealRev$ & $\RMixRealBfifty\%$\,/\,$\RMixRealTten\%$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
 \subsection{Optimal accommodation}
 
 The preceding subsection left accommodation (a higher $\mu$, hence a
@@ -3097,6 +2886,47 @@ whatever the sign of the repricing and whatever the asset menu. The terminal
 prices of the path reproduce the independently solved steady-state financing
 experiment to four decimals, which is a cross-validation of the transition
 operators against the stationary ones rather than a calibration.
+
+\paragraph{The announcement path in the disciplined economy.} The path
+above is frictionless, and it is the economy whose \emph{sign} the
+ownership-and-illiquidity calibration overturns. The result that answers
+the paper's question is therefore the announcement path of that calibrated
+economy, and we solve it. Infrequent adjustment carries a second endogenous
+state, so the sequence-space method of Section~\ref{subsec:tier2} does not
+transfer; we use a value-function formulation instead, one application of
+the Bellman operator per date on the $(b,k,e)$ grid together with a per-date
+distribution push, and solve the joint path $\{\hat P_t, q_t\}$ by the same
+accelerated fixed point ($\lambda=\KVTrLam$, $\iota_H=\KVTrIota$,
+$T=\KVTrT$ years, converged in $\KVTrIters$ iterations; interior residual
+$\KVTrResid$, terminal $\KVTrTerm$). Backward induction along a path needs
+only one Bellman application per date --- the expensive fixed-point
+iteration of the stationary solver is a property of stationarity, not of
+backward induction --- which is what makes the exercise feasible. Two gates
+discipline it: at the terminal date the operator reproduces the stationary
+solution, so both markets clear there to $\KVTrGateB$ and $\KVTrGateK$; and
+the terminal prices again reproduce the independently solved steady-state
+financing experiment.
+
+Like the steady-state experiment it is anchored to, this path holds damages
+fixed and varies only the tax, so it prices the announcement of the
+\emph{financing program} --- which is precisely the channel the restoration
+result concerns --- rather than the damage dividend the one-asset path of
+Section~\ref{subsec:tier2} also carries. Within that scope the restored
+sign survives the transition: the announcement is disinflationary on
+impact, $\KVTrImpP$ log points against $\KVTrLongP$ across steady states, a
+front-loading share of $\KVTrShare$. The illiquidity shows up exactly where
+it should. In the frictionless economy the tree capitalized \emph{faster}
+than the nominal market ($\TwoTrShare$ bond front-loading, with the tree
+overshooting its long-run move); here the tree capitalizes \emph{more
+slowly} ($\KVTrImpQ$ on impact against $\KVTrLongQ$ in the long run, a
+share of $\KVTrQShare$), and the bond market's front-loading falls to
+$\KVTrShare$ from $\TwoTrShare$. Infrequent rebalancing is a friction on
+the portfolio shift that transmits news into prices, so it slows
+capitalization --- and it slows the illiquid margin more than the liquid
+one, which is the ordering the friction is meant to produce. That the
+announcement still prices four-fifths of the long-run move in its first
+year, in the economy with the most realistic portfolio structure we solve,
+is the timing claim's strongest form.
 
 \subsection{Is the restoration an artifact of a poor economy?}
 \noindent The benchmark
@@ -5265,6 +5095,229 @@ $\nu_{\mathrm{reval}}=-0.241$, $\nu_{\mathrm{dam}}=0.841$, $\nu=0.600$.
 \end{figure}}
 
 % --------------------------------------------------------------------------
+\subsection{Robustness: what one must believe for a green appropriation to
+pay for itself}
+\label{subsec:robustness}
+
+The climate side of the calibration deserves to be interrogated rather than
+defended, and this subsection organizes that interrogation around a simple
+principle: parameters that published damage estimates discipline are
+\emph{anchored} to those estimates and swept across them; the one parameter
+no study pins down is not given a point value at all, but reported as an
+axis of the answer. Table~\ref{tab:sources} states where each climate
+parameter comes from.
+
+\begin{table}[!htb]
+\centering\small
+\caption{Climate-block parameters: values, status, and sources. ``Anchored''
+parameters take their range from published estimates; ``swept'' parameters
+are reported as axes of the results rather than point choices.}
+\label{tab:sources}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lll p{0.36\textwidth}}
+\toprule
+parameter & benchmark & status & source / discipline \\
+\midrule
+$D_0$ (no-abatement damages) & $0.06$ & anchored, 3 cols &
+  $0.02$ DICE \citep{nordhaus2017}; $0.06$ Dell--Jones--Olken /
+  Burke--Hsiang--Miguel range \citep{hsiang2017,carleton2022};
+  $0.20$ \citet{bilalkanzig2024} \\
+$\theta_g$ (abatement effectiveness) & $1.2$ & swept ($0$--$3$) &
+  no direct estimate; reported as a frontier (below) \\
+$\psi$ (damage incidence) & $0$ & swept ($0$--$2$) &
+  regressive incidence: \citet{kanzig2023carbon}, \citet{fried2018} \\
+$\phi_D$ (damage--risk link) & $0.5$ & swept ($0$--$1$) &
+  reduced form of \citet{acharya2023optimal} risk channel \\
+$\delta_g$ (green depreciation) & $0.10$ & swept ($0.05$--$0.10$) &
+  public-infrastructure depreciation range \\
+program scale & $2\%$ of income & swept ($1$--$4\%$) &
+  public green-investment shares in net-zero scenarios \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Two exercises then close the gap between ``illustrative'' and ``robust,''
+both on the calibrated economy ($\beta^{*}$ holding debt at $1.1$ times
+income; the $2\%$ program). \emph{First, the $(D_0,\theta_g)$ surface.}
+The two parameters the headline number is most sensitive to are the
+no-abatement damage level and the abatement effectiveness. Rather than
+defend point values, we compute the self-financing share on the whole
+$(D_0,\theta_g)$ plane and report the $\nu=1$ \emph{frontier} --- for each
+damage level, the abatement effectiveness required for full self-financing
+(Figure~\ref{fig:pfig20}a). The paper's answer is thus a correspondence,
+not a point estimate: a reader who holds DICE-level damage beliefs and a
+reader who accepts the \citet{bilalkanzig2024} estimates can each locate
+their own $\nu$ on the same map, and the map records at every node whether
+the revaluation component stays negative, so the disinflation result is
+checked across the entire plane rather than asserted at the benchmark.
+\emph{Second, one-at-a-time sensitivity under a held fiscal target.} Each
+household-side variant (risk aversion $\sigma\in\{1,3\}$; the risk channel
+$\phi_D\in\{0,1\}$; the incidence gradient $\psi\in\{1,2\}$) re-calibrates
+$\beta$ so that debt remains $1.1$ times income before comparing programs
+--- differences in $\nu$ along \emph{this} sweep are then pure parameter
+effects, not artifacts of a drifting debt ratio, while variants that
+leave the no-program economy untouched (green depreciation $\delta_g$; the
+program scale at $1\%$ and $4\%$) hold $\beta^{*}$ fixed
+(Figure~\ref{fig:pfig20}b). One caveat applies to the \emph{across-column}
+comparison of Table~\ref{tab:calibrated} rather than to this sweep: the
+$1.10$ target is set in pre-damage income, so post-damage leverage
+$b/[(1-D_0)y]$ drifts up with the damage level across the low, medium, and
+high columns, which amplifies the
+revaluation and interest-burden terms mechanically; the column-to-column
+$\nu$ differences therefore mix the damage effect with a rising leverage
+ratio, and only the held-target sweep isolates a pure parameter effect.
+
+Three findings survive the exercise. \emph{First, the required
+effectiveness falls sharply in the damage level.} The $\nu=1$ frontier reads
+$\theta_g^{*}=\thetaStarMed$ at the medium column, $\thetaStarHigh$ at the
+\citet{bilalkanzig2024} high column, and lies above the swept range
+($>3$) at the conservative DICE column, so what one must believe for full
+self-financing is monotone and transparent: under high damages even a
+modestly effective program pays for itself, while under DICE damages no
+effectiveness in the plausible range does, and the answer there is
+partial financing ($\nu=0.04$--$0.39$ over $\theta_g\in[0.5,3]$) carried by
+the damage dividend net of the revaluation loss. The benchmark $\theta_g=1.2$
+sits comfortably below the medium-column frontier, consistent with the
+partial self-financing ($\nu=\nuMedShort$) reported above. We read these
+thresholds strictly as \emph{internal technology frontiers}, not as
+physically-calibrated policy numbers: $\theta_g$ has no clean empirical
+counterpart under either the mitigation reading (where $K_g$ acts on the global
+carbon stock, so the closed-economy mapping is a coordinated-program stand-in)
+or the adaptation reading (where $K_g$ hardens the domestic economy at an
+exogenous carbon stock), and the results apply under either reading. So
+$\theta_g^{*}=\thetaStarMed$ (medium) and $\thetaStarHigh$ (high) answer
+``what abatement or hardening effectiveness would a $2\%$-of-income program
+need to break even?'', not ``a $2\%$ program delivers this damage
+reduction''. No external estimate yet converts the frontier into physical
+units --- engineering marginal-abatement-cost curves for the mitigation
+reading, damage-avoided-per-dollar estimates for the hardening reading ---
+so the statements here are contour results in $(D_0,\theta_g)$ space, and
+we present them as such. \emph{Second, the
+disinflation is not a calibration artifact:} the revaluation component is
+negative at all $\nodesNeg$
+nodes of the $(D_0,\theta_g)$ plane, so productive green programs raise
+safe-asset demand and lower the price level regardless of the damage or
+effectiveness assumption. \emph{Third, the self-financing share is stable to
+the household side but genuinely governed by incidence.} Holding the debt
+target fixed, $\nu$ moves little with risk aversion ($0.57$ at $\sigma=3$)
+or the damage--risk link ($0.56$--$0.61$ as $\phi_D$ runs $0$ to $1$), rises
+mechanically when green capital is longer-lived ($\nu=1.09$ at
+$\delta_g=0.05$, which doubles the capital stock per unit of spending) or
+the program is smaller ($0.62$ at $1\%$ versus $0.50$ at $4\%$, the
+concavity of abatement), and --- the one economically important
+non-monotonicity --- the revaluation channel \emph{flips sign} under strong
+regressive incidence: at $\psi=2$ the program becomes mildly inflationary
+($\nu_{\mathrm{reval}}=+0.07$, $\Delta\ln P=+5.9\%$): with damages
+concentrated on the poor, the program's damage relief unwinds
+precautionary saving faster than the tax channel builds it. The
+disinflation result is thus robust
+across damage calibrations and effectiveness levels; its dependence on
+the incidence gradient is not a fragility but the paper's point --- the
+sign of the revaluation channel is an incidence object.
+One variant is informative by its absence. At $\sigma=1$ the debt target is
+still attainable in principle --- in a Bewley economy aggregate asset demand
+rises without bound as $\beta\uparrow 1/(1+r^{ss})$, so \emph{some} $\beta$
+close enough to the $\beta(1+r^{ss})<1$ boundary hits any finite target ---
+but the required $\beta$ is implausibly close to that boundary, where asset
+demand is extremely $\beta$-elastic and the calibration is numerically
+delicate rather than economically disciplined. We therefore report the
+benchmark at $\sigma=2$, where the same target is met at an interior,
+well-identified $\beta$, and read the $\sigma=1$ difficulty as a statement
+about identification, not about feasibility.
+
+A final exercise probes the endowment structure itself. The natural
+objection is that an endowment economy has no output margin: there is no tax
+base for the program to expand, so the \citet{angeletos2024deficits} boom
+channel is absent by construction. We quantify one
+piece of what this omits with a \emph{hypothetical} production layer
+$Y = (1-D(K_g))\,A(K_g)$, $A = 1 + a_Y(1 - e^{-\theta_A K_g})$, run on the
+same calibrated program: the productivity margin adds output
+$dY_{\mathrm{prod}} = (1-D_0)(A-1)$ whose fiscal take at an average
+effective tax rate $t$ is an \emph{additive} revenue term
+$\nu_{\mathrm{taxbase}} = t\, dY_{\mathrm{prod}}/g_{g,1}$ (the damage
+component of the output gain is already the damage dividend, recomposed not
+double-counted). The implied output elasticities $\eta_Y\in[0.026,0.053]$
+are reported for scale only; they are not disciplined by the
+\citet{bomligthart2014} $0.08$--$0.12$ range, which estimates \emph{core
+productive infrastructure} (roads, utilities) entering output directly.
+Abatement capital has no such margin in the model (it
+reduces damages, not marginal cost) and plausibly little of one in
+practice, so its true output elasticity is
+plausibly near zero, and reading it as ``below core public capital'' offers
+no conservatism guarantee. The defensible reading is directional: \emph{within this
+revenue-only accounting} (labor fixed, no output fed back), the added
+tax-base term raises $\nu$, so $\nu^{+}$ rises from $0.58$ toward and past
+unity as $\eta_Y$ grows; but this does not sign the full production economy.
+One first-order margin the endowment economy omits pushes $\nu$
+down --- public capital crowds out private investment (a smaller
+private stock, smaller base). The labor-supply margin, by contrast, is
+sign-dependent on the instrument, and we are careful about it: under a
+\emph{distortionary} tax the substitution effect shrinks hours as rates
+rise, but under the paper's baseline \emph{lump-sum} instrument there is no
+substitution effect, and the negative wealth effect of the tax \emph{raises}
+desired labor supply, enlarging the base and pushing $\nu$ \emph{up}. So the
+labor channel does not sign against self-financing under lump-sum finance;
+it would do so only under a proportional wage tax. The general-equilibrium
+asset-demand response is unsigned either way. The exercise therefore bounds
+the omitted \emph{revenue} margin in one direction, not the net
+general-equilibrium effect. (Under an
+adaptation-capital reinterpretation, in which public capital hardens the
+economy against damages and plausibly does carry a productive margin ---
+the public-adaptation-capital view of \citet{fried2022seawalls} and
+\citet{konradtweder2023} --- the
+Bom--Ligthart comparison becomes defensible; we return to this in the
+conclusion.) Two further pieces of discipline bound the reduced form from
+the climate side:
+the extended sector of Section~\ref{subsec:extended} replaces the
+exponential damage shortcut with the full emissions--carbon-stock
+structure and lowers the full-financing threshold (to
+$\theta_g \approx 1.9$ from $\approx 2.4$ at the illustrative scale), so
+the shortcut is the conservative choice; and the implementation-efficiency
+sweep $q_g$ of Appendix~\ref{subsec:maturity} scales the dividend for
+procurement and planning frictions. What no existing study pins down is
+$\theta_g$ itself, which is why
+the paper reports frontiers in $\theta_g$ rather than point claims.
+
+% Figure PFig20 (calibration robustness) relocated to
+% Appendix~\ref{app:figures} (supplementary figures).
+
+% --------------------------------------------------------------------------
+
+\subsection{The financing regimes at fixed real scale}
+\label{subsec:regimesreal}
+
+To isolate the incidence channel from the (second-order) real-scale drift that
+holding the \emph{nominal} appropriation fixed induces, Table~\ref{tab:regimesreal}
+recomputes the same four regimes holding the \emph{real} program $g_g$ fixed at
+its baseline value (letting $G_g$ adjust per regime), the convention of
+Proposition~\ref{prop:financingdesign}. By construction the damage dividend is
+then identical across regimes, so only the revaluation share and the
+welfare incidence can move, and the cross-regime differences are pure tax
+incidence plus the price-level response they induce, with no change in the real
+green scale. The revaluation swing and the welfare reversal survive the change
+of convention; the fixed-nominal and fixed-real revaluation shares differ only
+in the third decimal.
+
+\begin{table}[!htb]
+\centering
+\caption{Financing regimes holding the \emph{real} program fixed (pure
+incidence; companion to Table~\ref{tab:regimes}). $g_g$ is common across
+regimes, so the damage dividend is identical and only $\nu_{\mathrm{reval}}$ and
+welfare move.}
+\label{tab:regimesreal}
+\begin{tabular}{lcccc}
+\toprule
+regime & $P^{*}$ & $\nu$ & $\nu_{\mathrm{reval}}$ & bottom-50\%\,/\,top-10\% \\
+\midrule
+lump-sum         & $\RDefRealP$ & $\RDefRealNu$ & $\RDefRealRev$ & $\RDefRealBfifty\%$\,/\,$\RDefRealTten\%$ \\
+levy       & $\RLevRealP$ & $\RLevRealNu$ & $\RLevRealRev$ & $\RLevRealBfifty\%$\,/\,$\RLevRealTten\%$ \\
+levy-plus-rebate& $\RRebRealP$ & $\RRebRealNu$ & $\RRebRealRev$ & $\RRebRealBfifty\%$\,/\,$\RRebRealTten\%$ \\
+mixed           & $\RMixRealP$ & $\RMixRealNu$ & $\RMixRealRev$ & $\RMixRealBfifty\%$\,/\,$\RMixRealTten\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \subsection{Optimal accommodation}\label{subsec:optmu}
 
 Figure~\ref{fig:pfig4} traces $W(\mu)$. Welfare is hump-shaped with an
