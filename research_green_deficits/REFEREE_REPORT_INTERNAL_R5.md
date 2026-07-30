@@ -413,6 +413,69 @@ Kaplan-Violante-Weidner (2014) HtM persistence -- with a 10pp flag band.
 Transcribe, re-run, and the comparison table activates. Until then the
 paper correctly keeps stating the term as externally unvalidated.
 
+### MC3 FIRST RESULT (2026-07-30): the KV announcement path converged
+
+The path solved and is reportable. Full grid (n_b=60, n_k=34, n_e=8),
+T=60, lambda=0.15, iota_H=0.273; 23 Anderson iterations; interior
+residual 1.9e-3 (tol 2e-3), terminal (horizon) 7.2e-4; zero healed nodes;
+k-grid top mass 0.0014.
+
+TWO GATES PASSED, and they are independent of each other:
+1. The terminal Bellman application reproduces the stationary solution,
+   so both markets clear at the terminal date (bond 0.9999, tree 1.0010).
+2. The terminal PRICES reproduce the independently solved steady-state
+   financing experiment to four decimals (-0.0226 vs -0.0226). Different
+   code path entirely -- VFI backward induction + sparse pushes against a
+   q-bracket bisection.
+
+RESULT: the restored disinflation SURVIVES the transition.
+  impact dlnP_1 = -0.0181 against terminal -0.0226; front-loading 80%
+  impact dln q_1 = +0.0095 against terminal +0.0128 (tree share 74%)
+
+THE ILLIQUIDITY SIGNATURE, which is an internal consistency check nobody
+imposed: in the FRICTIONLESS two-asset economy the tree capitalized
+FASTER than the nominal market (+1.24% impact against +1.10% long run --
+it overshot) and bond front-loading was 89%. Here the tree capitalizes
+SLOWER (74% of its long-run move on impact) and bond front-loading falls
+to 80%. Infrequent rebalancing is a friction on exactly the portfolio
+shift that transmits news into prices, so it should slow capitalization,
+and it should slow the ILLIQUID margin more than the liquid one. Both
+orderings come out right. That is evidence the friction is doing what it
+is supposed to, obtained without targeting it.
+
+SCOPE, stated in the paper rather than left implicit: like the
+steady-state experiment it is anchored to (see solve_own_kv's handling of
+D), this path holds damages at D_0 and varies only the tax. It prices the
+announcement of the FINANCING program -- precisely the channel the
+restoration result concerns -- not the damage dividend the one-asset
+tier-2 path also carries. The two front-loading shares (80% vs 77%) are
+therefore each "share of own long-run move realized at announcement", not
+the same experiment; the paper says so.
+
+STILL PENDING: the welfare block (transition-inclusive incidence on
+initial portfolios) crashed on an array-shape bug in its first run and
+has never completed. Macros are declared with pending guards; no welfare
+number is in the paper.
+
+### CORRECTION to the previous round's appendix moves
+
+The two demotions did NOT reach the appendix. Both inserts targeted the
+first line matching "\subsection{Optimal accommodation}", and that string
+matches a subsection in the THEORETICAL RESULTS section before the
+identically named one in app:supp. So the robustness program and the
+fixed-real regimes table were relocated into the middle of the theory
+section. Three consequences: the body never shrank (the appendix start
+page did not move -- a discrepancy that was reported as a 1pp gain and
+should have been caught); the "Appendix~\ref{subsec:robustness}" pointers
+resolved to a body page appearing BEFORE the text citing them; and
+climate-calibration robustness sat interleaved with the propositions.
+Fixed: the 223-line block now sits in app:supp as F.5 and F.6, and the
+body ends on page 74 (down from 78).
+
+LESSON for future demotions: verify the insert landed by checking that
+the appendix START PAGE moved by roughly the size of the moved block.
+A move that does not change the body length did not happen.
+
 ### Paper-length actions this round
 
 Robustness subsection (~4pp incl. the sources table and the production
