@@ -269,25 +269,23 @@ Appendix~\ref{app:numerics}.}}
 \begin{abstract}
 \noindent
 Who bears the burden of public investment when the price level clears the
-market for nominal government debt? In an incomplete-markets economy with a
-climate sector, the taxes that finance a permanent green program change
+market for nominal government debt? We study an incomplete-markets economy
+in which the taxes financing a permanent public adaptation program change
 household demand for nominal liabilities, so the financing instrument sets
-both the sign of debt revaluation and its incidence. The robust result is
-an ordering: a proportional levy is more inflationary than a lump-sum tax
-financing the same appropriation, in every portfolio structure we solve.
-In the benchmark economy the ordering straddles zero --- the lump-sum tax
-strengthens precautionary saving and lowers the price level, handing
-bondholders a windfall, while the levy with rebates reverses the
-revaluation and shifts the burden toward wealthy asset holders --- but the
-level sign of the lump-sum response is not a primitive: it depends on who
-holds the debt and how easily they can rebalance, overturning under
-uniform ownership with frictionless rebalancing and reappearing once bond
-ownership and portfolio illiquidity are calibrated to the data. A
-sufficient-statistic formula ties the price response to the tax response
-of nominal-liability demand, a response carried almost entirely by the
-endogenous wealth distribution rather than by direct saving behavior. The price-level and distributional
-effects of public investment cannot be evaluated separately from its
-financing.
+both the sign of debt revaluation and its incidence. Across the portfolio
+structures we solve, a proportional levy is more inflationary than a
+lump-sum tax financing the same appropriation. In the preferred
+calibration, with concentrated bond ownership and infrequent portfolio
+adjustment, the lump-sum instrument raises the real value of nominal debt
+while the levy erodes it; that level sign is not a primitive, and it
+reverses under uniform ownership with frictionless rebalancing. The
+price response is governed by the tax response of nominal-liability
+demand, which is carried almost entirely by the endogenous movement of the
+wealth distribution rather than by households' direct saving response at
+the initial distribution. Announced programs capitalize most of the
+long-run financing difference immediately. The inflationary and
+distributional effects of public investment cannot be evaluated
+separately from its financing.
 \end{abstract}
 
 \bigskip
@@ -1510,9 +1508,9 @@ for nominal public liabilities; the climate application supplies its
 quantitative discipline.
 
 % --------------------------------------------------------------------------
-\subsection{Self-financing and the sign of the revaluation channel}
+\subsection{Resource, fiscal, and revaluation accounting}
 
-\begin{proposition}[Self-financing decomposition]\label{prop:selffinancing}
+\begin{proposition}[Resource, fiscal, and revaluation accounting]\label{prop:selffinancing}
 (i) $\nu=\nu_{\mathrm{reval}}+\nu_{\mathrm{dam}}$ exactly, with
 $\nu_{\mathrm{reval}} = r^{ss}B(1/P_0-1/P_1)/g_{g,1}$ and
 $\nu_{\mathrm{dam}}=(D_0-D_1)/g_{g,1}$.
@@ -1896,7 +1894,7 @@ Table~\ref{tab:calibrated} reports the calibrated economy.
 
 \begin{table}[!htb]
 \centering
-\caption{Calibrated self-financing by damage column
+\caption{Calibrated resource and revaluation accounting by damage column
 ($\beta^{*}=\betaStar$, debt/income $=1.10$, real program
 $g_{g,1}=\RDefGg$, i.e.\ $2.1\%$ of mean income at the program price level
 ($2.0\%$ at the no-program price), $\mu=0.02$, $n_a=500$,
@@ -1958,8 +1956,11 @@ Section~\ref{subsec:regimes}, not on transition gains.
 \pfigguard{PFig7_calibrated_nu.pdf}{%
 \begin{figure}[!htb]\centering
 \includegraphics[width=0.6\textwidth]{PFig7_calibrated_nu.pdf}
-\caption{Calibrated self-financing by damage column: stacked revaluation
-(negative), and damage-dividend components against the full-financing line.}
+\caption{Resource and revaluation components by damage column. The
+revaluation share $\nu_{\mathrm{reval}}$ is a fiscal object and the damage
+dividend $\nu_{\mathrm{dam}}$ a resource benefit-cost ratio; they are shown
+together only because they sum to the household net-burden offset $\nu$,
+and should not be read as components of a single fiscal quantity.}
 \label{fig:pfig7}
 \end{figure}}
 
@@ -2956,14 +2957,20 @@ three-quarters of the long-run move in its first year, in the economy with
 the most realistic portfolio structure we solve, is the timing claim's
 strongest form.
 
-\paragraph{Who pays, along the announced path.} This economy also delivers
-the paper's principal welfare object in its disciplined form: the
-consumption-equivalent transfer that makes a household indifferent between
-remaining in the no-program steady state and \emph{entering date one of the
-announced path}, announcement-date revaluation included, computed on the
-predetermined portfolios of the baseline distribution. Table~\ref{tab:kvwel}
-puts it beside the transfer for entering the program steady state directly,
-so the two columns isolate what the transition itself adds.
+\paragraph{Financing incidence along the announced path, climate benefits
+held fixed.} This economy also delivers the incidence of the
+\emph{financing announcement}: the consumption-equivalent transfer that
+makes a household indifferent between remaining in the no-program steady
+state and \emph{entering date one of the announced path}, announcement-date
+revaluation included, computed on the predetermined portfolios of the
+baseline distribution. Because damages are held at $D_0$ throughout, this
+is not the incidence of the green program as a whole --- the avoided
+damages that constitute the program's benefit are absent by construction,
+which is why every group bears a cost. It is the incidence of the tax and
+revaluation side, which is the side the financing instrument governs.
+Table~\ref{tab:kvwel} puts it beside the transfer for entering the program
+steady state directly, so the two columns isolate what the \emph{transition}
+adds to a stationary comparison of the same financing.
 
 \begin{table}[htbp]\centering
 \caption{Transition-inclusive incidence in the ownership-and-illiquidity
@@ -3073,11 +3080,13 @@ position, so curvature experiments rescale the weight to rotate the
 liquidity demand curve through that point
 (Appendix~\ref{subsec:zten}); the restoration holds at both ends of the
 admissible range, with magnitudes that differ by a factor of five between
-them. Second, the announcement path is solved for the
-frictionless economy; the infrequent-adjustment variant carries a second
-endogenous state along the path and its transition is not attempted here.
+them. Second, the announcement path is solved in both portfolio
+environments --- the frictionless economy and, by the value-function
+recursion described above, the ownership-and-illiquidity economy --- but
+the latter holds damages fixed, so it prices the financing announcement
+rather than the full program.
 The rest of the paper relies on four conclusions from this section: the instrument ordering
-is robust across every portfolio structure solved; the level sign of the
+is robust across the portfolio specifications reported; the level sign of the
 lump-sum response is specification-dependent in the frictionless variants;
 with bond ownership and portfolio illiquidity jointly disciplined the
 one-asset lump-sum disinflation reappears, with each ingredient
