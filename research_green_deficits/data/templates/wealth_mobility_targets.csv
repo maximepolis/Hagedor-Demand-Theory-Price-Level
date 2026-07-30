@@ -1,0 +1,25 @@
+# WEALTH-MOBILITY TARGETS  --  TEMPLATE, VALUES DELIBERATELY EMPTY
+#
+# Purpose: the paper's dominant mechanism is the slow endogenous movement of
+# the wealth distribution. MPC and constrained-share evidence disciplines
+# only the small DIRECT term. These moments discipline the TRANSITION
+# OPERATOR, which is what actually carries the result.
+#
+# Definitional caveat that must be recorded per row: the model's liquid
+# asset maps to FINANCIAL wealth net of housing and pensions, not to survey
+# net worth. Prefer a financial-wealth definition where the source offers
+# one, and say which was used in the notes column.
+#
+# Do not fill from memory. Each row needs a citable table.
+#
+moment,horizon_years,definition,value_data,value_model,source,wealth_definition,notes
+remain_near_zero_liquid,1,"P(liquid wealth stays at or near the borrowing limit)",,,,,
+exit_zero_liquid,2,"P(leaves the zero/near-zero liquid state)",,,,,
+q1_persistence,5,"P(bottom liquid-wealth quintile -> bottom)",,,,,
+q5_persistence,5,"P(top liquid-wealth quintile -> top)",,,,,
+q1_persistence,2,"P(bottom -> bottom)",,,,,
+q5_persistence,2,"P(top -> top)",,,,,
+rank_autocorrelation,5,"correlation of liquid-wealth percentile ranks",,,,,
+liquid_growth_constrained,2,"mean liquid-balance growth, initially constrained",,,,,
+htm_persistence,2,"P(hand-to-mouth -> hand-to-mouth), poor-HtM",,,,,
+shorrocks_index,5,"(n - trace)/(n-1) of the quintile transition matrix",,,,,

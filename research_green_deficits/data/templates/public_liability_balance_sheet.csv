@@ -1,0 +1,31 @@
+# PUBLIC-LIABILITY BALANCE SHEET  --  TEMPLATE, VALUES DELIBERATELY EMPTY
+#
+# Purpose: reconcile the one-asset calibration target (gross general
+# government debt ~1.10 x income) with the preferred model's objects (a
+# DIRECTLY HELD household liquid position ~0.30 x income plus an
+# intermediated share). Only NOMINAL DOMESTIC exposure may enter the
+# revaluation and household-incidence calculations; the current calibration
+# does not make that distinction and this table is what fixes it.
+#
+# Identity that must hold after filling:
+#   B_total = B_direct_household + B_intermediary + B_foreign
+#             + B_central_bank + B_indexed
+#
+# Units: ratio to annual household disposable income, same jurisdiction and
+# same year throughout. Do NOT mix vintages. Record the source line by line.
+#
+# model_role legend:
+#   total_liability   the government's whole obligation (NOT the model's B)
+#   liquid_household  the model's directly held nominal bond b
+#   intermediary      held by the fund; reaches households via the tree
+#   excluded          not revalued against domestic household wealth
+#
+jurisdiction,year,component,value_ratio_to_income,model_role,source,notes
+,,B_total,,total_liability,,
+,,B_direct_household,,liquid_household,,
+,,B_intermediary,,intermediary,,
+,,B_foreign,,excluded,,
+,,B_central_bank,,excluded,,
+,,B_indexed,,excluded,,
+,,memo_household_disposable_income,,scale,,
+,,memo_nominal_share_of_total,,diagnostic,,

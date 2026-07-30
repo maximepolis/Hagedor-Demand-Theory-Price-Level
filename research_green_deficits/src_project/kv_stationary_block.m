@@ -1,0 +1,72 @@
+function out = kv_stationary_block(rb, q, dvd, tau, pe, V0, distIn)
+% KV_STATIONARY_BLOCK  One evaluation of the preferred (ownership +
+% illiquidity) household block: policies, distribution, and the two
+% aggregates, at GIVEN prices and taxes.
+%
+% This is the single place where the preferred economy's household problem
+% is turned into (S_b, S_k). The decomposition driver needs to evaluate
+% policies and distributions at MISMATCHED arguments -- policies from one
+% configuration aggregated against a distribution from another -- which is
+% exactly what an exact policy/distribution decomposition requires, so the
+% two steps are exposed separately here rather than fused.
+%
+% INPUT   rb, q, dvd, tau : scalars (bond return, tree price, dividend, tax)
+%         pe              : params with eGrid ALREADY damage- and levy-scaled
+%         V0              : optional warm start for the VFI
+%         distIn          : optional. If supplied, the aggregates are formed
+%                           against THIS distribution instead of the
+%                           stationary one implied by the solved policies.
+%                           This is the mismatched evaluation the
+%                           decomposition needs.
+% OUTPUT  out.sol .dist .Sb .Sk .bch .kch .ok .msg .dV .ddist
+%
+% The choice arrays bch/kch are the lambda-mixed adjuster/non-adjuster
+% policies, identical in construction to the transition kernel's, so a
+% stationary evaluation and a date of the path aggregate the same way.
+
+    out = struct('ok', false, 'msg', '', 'Sb', NaN, 'Sk', NaN, ...
+                 'sol', [], 'dist', [], 'bch', [], 'kch', [], ...
+                 'dV', NaN, 'ddist', NaN);
+    if nargin < 6, V0 = []; end
+    if nargin < 7, distIn = []; end
+
+    [sol, dg] = solve_household_twoasset_kv(rb, q, dvd, tau, pe, V0);
+    if ~dg.converged
+        out.msg = sprintf('VFI failed (dV=%.2e after %d)', dg.supnorm, dg.iters);
+        return;
+    end
+    out.sol = sol; out.dV = dg.supnorm;
+
+    if isempty(distIn)
+        [dist, dd] = stationary_distribution_twoasset_kv(sol, rb, q, dvd, tau, pe);
+        if ~dd.converged
+            out.msg = sprintf('distribution failed (dv=%.2e)', dd.supnorm);
+            return;
+        end
+        out.ddist = dd.supnorm;
+    else
+        dist = distIn;                       % mismatched evaluation
+        out.ddist = 0;
+    end
+    out.dist = dist;
+
+    [out.Sb, out.Sk, out.bch, out.kch] = kv_agg_local(sol, dist, rb, q, dvd, tau, pe);
+    out.ok = true;
+end
+
+function [Sb, Sk, bch, kch] = kv_agg_local(sol, dist, rb, q, d, tau, pe)
+    bG = pe.bGrid(:); kG = pe.kGrid(:);
+    nb = numel(bG); nk = numel(kG); ne = numel(pe.eGrid);
+    lam = pe.lambda_adj; Rb = 1 + rb; ynet = pe.eGrid(:)' - tau;
+    bch = zeros(nb, nk, ne); kch = zeros(nb, nk, ne);
+    for ie = 1:ne
+        xbk = min(max(ynet(ie) + Rb*bG + (q+d)*kG', pe.xGridA(1)), pe.xGridA(end));
+        bpa = interp1(pe.xGridA, sol.polBa(:,ie), xbk, 'linear');
+        kpa = interp1(pe.xGridA, sol.polKa(:,ie), xbk, 'linear');
+        knon = kG'; if isfield(sol,'kNon'), knon = sol.kNon(:)'; end
+        bch(:,:,ie) = lam*bpa + (1-lam)*squeeze(sol.polBn(:,:,ie));
+        kch(:,:,ie) = lam*kpa + (1-lam)*repmat(knon, nb, 1);
+    end
+    Sb = sum(bch(:).*dist(:));
+    Sk = sum(kch(:).*dist(:));
+end
