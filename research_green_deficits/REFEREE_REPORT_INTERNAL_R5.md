@@ -191,6 +191,7 @@ next-round run list:
   RUNS NEEDED: (i) wealth-mobility / liquid-asset transition moments vs
   model; (ii) finite-horizon financing comparison (at what horizon does the
   levy-vs-lump-sum ordering become operative along the path?).
+  ITEM (ii) SETTLED 2026-07-30, see Round 7 below. Item (i) still open.
 - **MC3 (transition-inclusive welfare as principal object)**: the welfare
   section now names the two incidence objects and declares the
   transition-inclusive one (computed for one asset) the object answering
@@ -307,3 +308,117 @@ robust headline), which is a within-schedule comparison across instruments.
 STILL OPEN on MC4: the remaining cell of the 2x2 is the NK side under
 matched deficit timing; the paper delivers the balanced column and the
 DTPL row.
+
+## MC2 item (ii) — finite-horizon operativeness: SETTLED 2026-07-30
+
+`main_transition_ordering`, pure post-processing of the two converged
+reportable paths (no new solve, 1.2 s). Delta_t = ln phat_rebate(t) -
+ln phat_lumpsum(t).
+
+- Delta_1 = +0.1605 against Delta_inf = +0.1506: **106.6% of the long-run
+  gap priced in the announcement year.**
+- Operative from year 1 and never reverses. Overshoots (107% at the peak,
+  which is year 1) then settles back monotonically: 105.9% (y2), 103.2%
+  (y5), 100.7% (y10), 100.1% (y20), 100.0% (y80).
+- Deficit addendum reproduced the ladder's rho_d = 0.9 point from the
+  independent .mat: 103.1% of the dilution priced at impact, matching
+  c = 1.031. Two code paths, same number.
+
+Consequence: the steady-state instrument ranking is an announcement-date
+fact, not an asymptotic one, which is what licenses reading the regimes
+section as a statement about the policy choice. Written into the
+transition section, the conclusion's ordering paragraph, and the
+conclusion's open-items list (this item removed).
+
+METHOD NOTE, self-inflicted and now fixed. The driver's original FLOW-clock
+statistic ("36 of 80 years with pi_reb > pi_ls, first 1, last 80") is NOT
+interpretable: the post-impact annual gap is a first difference of Delta,
+so it is ~1e-4/yr against a solved price-path residual of ~4e-4. The sign
+count was reporting solver noise as economics. The driver now compares the
+typical annual gap to the residual scale and prints NOT RESOLVED unless it
+clears 5x; the paper reports only the impact flow value (+17.1%/yr, far
+above the noise floor) and the cumulative gap, with a footnote saying why
+the year-by-year flow ordering is not reported. Generalizable lesson: any
+statistic that is a first difference of a converged path needs an explicit
+noise-floor gate before its sign is quoted.
+
+THE UNIFYING FACT worth defending in a seminar: three distinct objects in
+the transition section are each capitalized at the announcement date and
+each slightly OVERSHOOT before settling back -- the program's own
+disinflation (77%), the instrument ordering (107%), the financing-timing
+dilution (103%). That is the price level behaving as an asset price, and
+it is the sharpest available contrast with a Phillips-curve economy, where
+the price responds as spending and the output gap materialize. The
+announcement window, not the accumulation decades, is where the two views
+separate.
+
+## Round 8 (2026-07-30) — the two "blocked" items are now scaffolded
+
+Both remaining computational asks turned out to be blocked only in part,
+and the tractable parts are now implemented. No paper claim changes until
+the runs land; the conclusion keeps both items stated as open.
+
+### MC3: KV two-asset announcement transition (transition-inclusive
+### incidence in the ownership + illiquidity economy)
+
+The blocker was the second endogenous state (illiquid k) under infrequent
+adjustment, which rules out the cash-on-hand EGM transition. The unlock is
+the VALUE-FUNCTION formulation: backward induction needs only ONE Bellman
+application per date on the (b,k,e) grid -- the steady-state VFI's
+expensive fixed point is a property of stationarity, not of backward
+induction -- and the asset-state timing is immune by construction to the
+backward-dating bug that bit the EGM version (V_{t+1} is a self-contained
+function of holdings; no next-date price enters the date-t step).
+
+New stack (all block-balance checked):
+- src_project/twoasset_kv_bellman_step.m  one backward step, date-t flows,
+  V_{t+1} continuation; identical maximization logic to one sweep of
+  solve_household_twoasset_kv, so the terminal date agrees with the
+  steady-state VFI by construction (checked at runtime).
+- src_project/push_forward_twoasset_kv.m  per-date distribution push,
+  same sparse assembly as the stationary routine, applied once.
+- src_project/twoasset_kv_transition_residual.m  two-market residuals on
+  the stacked [log P; log q] paths; the fund's dividend pass-through
+  div_t = d + r(1-iota)(B/P_t)/K is EXACT along the path (the fund rolling
+  its position absorbs the revaluation one-for-one), not an approximation.
+- main_twoasset_kv_transition.m  Anderson-accelerated driver; terminal
+  pinned at the saved lump-sum program equilibrium; flat-at-terminal seed
+  (front-loading says the truth is near it); convergence AND horizon
+  gates; then the deliverable: consumption-equivalent transition-inclusive
+  incidence on initial portfolios by baseline wealth group, next to the
+  steady-state-entry column. CE handles the mixed curvature correctly: a
+  consumption transfer scales u(c) but not chi v(b), so the driver
+  policy-evaluates the consumption-utility component Uc0 separately and
+  solves (1+Delta)^(1-sigma) Uc0 + (V0-Uc0) = V1 exactly.
+
+The economics at stake: in the one-asset economy the transition DEEPENS
+lump-sum regressivity (top-decile loss shrinks -1.0 -> -0.5, bottom
+quintile deepens -2.61 -> -3.39). In the ownership economy the top holds
+most of the revaluation base but cannot instantly rebalance -- whether the
+announcement windfall still accrues at the top decides whether the
+one-asset welfare table survives as the paper's answer to its title.
+
+### MC2(i): wealth-mobility validation of the distributional term
+
+The blocker was external data, and that part remains: no number enters
+the paper untraced. But the MODEL side is a solver output, and
+main_validation_mobility.m now computes it on the calibrated benchmark:
+2- and 5-year wealth-quintile transition matrices (stationary-weighted,
+via the Young-lottery x income-mixing sparse transition), Shorrocks trace
+indices, and constrained-status persistence (the moment carrying the
+distributional term's action). The DATA block at the top of the file has
+documented NaN slots keyed to sources -- Hurst-Luoh-Stafford (1998, BPEA)
+PSID five-year matrices; the SCF 2007-09 panel two-year transitions;
+Kaplan-Violante-Weidner (2014) HtM persistence -- with a 10pp flag band.
+Transcribe, re-run, and the comparison table activates. Until then the
+paper correctly keeps stating the term as externally unvalidated.
+
+### Paper-length actions this round
+
+Robustness subsection (~4pp incl. the sources table and the production
+layer) and the fixed-real regimes companion table (~1.5pp) moved VERBATIM
+to app:supp (labels preserved, so all cross-references survive), each
+replaced by a summary paragraph carrying the portable findings; app:supp
+intro updated (eight analyses). Body now ends on page 77. Remaining
+candidates if further length is needed: intro trim (~1.5pp), TikZ
+mechanism figure (~1pp).

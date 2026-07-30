@@ -118,16 +118,29 @@ end
 tee('\n');
 
 % ---- flow clock: which path has higher inflation, year by year ----
+% GATED. The post-impact annual gap is a first difference of Delta, so it
+% is smaller than Delta by a factor of the horizon and can easily fall
+% below the solved price-path residual. Counting sign flips in that regime
+% reports solver noise as economics, so the count is printed only when the
+% typical annual gap clears the residual scale.
 dpi = TRrb.pi_path - TRls.pi_path;
-flow_hi = find(dpi > 0);
+noise = max(TRls.resid_interior, TRrb.resid_interior);
+typ   = mean(abs(diff(Delta(2:end))));       % post-impact annual gap scale
 tee('FLOW clock (annual inflation ordering, rebate minus lump-sum):\n');
-tee('  pi_reb - pi_ls at impact: %+0.2f%%/yr; years with pi_reb > pi_ls: %d of %d\n', ...
-    100 * dpi(1), numel(flow_hi), T);
-if ~isempty(flow_hi)
-    tee('  first such year %d, last %d\n', flow_hi(1), flow_hi(end));
+tee('  pi_reb - pi_ls at impact: %+0.2f%%/yr (far above the residual scale)\n', ...
+    100 * dpi(1));
+tee('  post-impact annual gap %.2e vs price-path residual %.2e\n', typ, noise);
+if typ > 5 * noise
+    flow_hi = find(dpi(2:end) > 0) + 1;
+    tee('  RESOLVED: years after impact with pi_reb > pi_ls: %d of %d\n', ...
+        numel(flow_hi), T - 1);
+else
+    tee(['  NOT RESOLVED at this tolerance: the post-impact flow ordering is\n' ...
+         '  at or below the solver residual, so its year-by-year sign is not\n' ...
+         '  a result. Only the impact value and the cumulative gap are.\n']);
 end
-tee(['  reading: the flow ordering can reverse after impact while the\n' ...
-     '  cumulative ordering (the incidence-relevant clock) is already set.\n\n']);
+tee(['  reading: the cumulative gap is the incidence-relevant clock, and it\n' ...
+     '  is set at the announcement date.\n\n']);
 
 % ---- optional: deficit-path timing against the balanced-timing anchor ----
 dff = fullfile(projdir, 'output', 'transition_deficit.mat');
