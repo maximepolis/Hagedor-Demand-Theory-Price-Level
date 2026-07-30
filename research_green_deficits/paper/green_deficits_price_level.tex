@@ -118,6 +118,13 @@
 \providecommand{\LadNoSupTopOne}{\pendingnum}
 \providecommand{\LadNoFricLS}{\pendingnum}\providecommand{\LadNoFricLevy}{\pendingnum}
 \providecommand{\LadNoFricTopOne}{\pendingnum}
+\providecommand{\DefRho}{\pendingnum}\providecommand{\DefHalfLife}{\pendingnum}
+\providecommand{\DefKappa}{\pendingnum}\providecommand{\DefLnKappa}{\pendingnum}
+\providecommand{\DefBal}{\pendingnum}\providecommand{\DefImp}{\pendingnum}
+\providecommand{\DefWedge}{\pendingnum}\providecommand{\DefCap}{\pendingnum}
+\providecommand{\DefFrontBal}{\pendingnum}\providecommand{\DefFrontDef}{\pendingnum}
+\providecommand{\DefCumGap}{\pendingnum}\providecommand{\DefRevalBal}{\pendingnum}
+\providecommand{\DefRevalDef}{\pendingnum}\providecommand{\DefKapStar}{\pendingnum}
 \providecommand{\TwoTrT}{\pendingnum}\providecommand{\TwoTrResid}{\pendingnum}
 \providecommand{\TwoTrTermGap}{\pendingnum}\providecommand{\TwoTrIdent}{\pendingnum}
 \providecommand{\TwoTrImpP}{\pendingnum}\providecommand{\TwoTrLongP}{\pendingnum}
@@ -395,7 +402,16 @@ within the announcement year; holders of the outstanding nominal stock
 collect a windfall of about five percent of the program's present value
 before any green capital exists; and inflation is back near trend by year two
 while the capital stock accumulates for decades. The price level prices the
-\emph{news}, not the spending. Household by household, the announced path is
+\emph{news}, not the spending. That immediacy is exactly what makes
+financing \emph{timing} decisive, and we solve for it: when the same
+program is deficit-financed rather than taxed as it is spent, the
+announcement capitalizes the entire future issuance path at once --- the
+impact price wedge equals the terminal dilution of the nominal stock,
+ratio $\DefCap$ --- so the announced disinflation survives only while the
+cumulative debt-financed share stays under about $\DefKapStar\%$ of the
+outstanding stock, and reverses sign beyond it. The paper's central
+prediction is thus conditional on an observable: the announced financing
+schedule. Household by household, the announced path is
 more regressive than the steady-state comparison suggests --- the
 windfall accrues at the top while front-loaded taxes bite at the constrained
 bottom --- whereas the rebate design, solved along the same path, keeps the
@@ -1307,7 +1323,10 @@ Appendix~\ref{app:nkmodel}); the benchmark nonlinear DTPL transition of
 Section~\ref{subsec:tier2} does not take it --- it holds the service rule
 $\tau_t=r^{ss}b_t+g_{g,t}$, so its real-debt dynamics are the revaluation
 of the predetermined nominal stock, not a primary deficit
-(Section~\ref{subsec:tier2} makes the accounting explicit).
+(Section~\ref{subsec:tier2} makes the accounting explicit, and then solves
+the deficit-financed path separately: the announcement capitalizes the
+whole future issuance immediately, so the disinflation survives only below
+an explicit threshold on the debt-financed share).
 
 We recast the
 determinacy conditions in $b$ accordingly: $\varepsilon_S(P)<-1$ is
@@ -3107,7 +3126,16 @@ scale, same balanced financing, labor margin shut, so that only the
 price-determination block differs up to linearization and frequency ---
 keeps the signs opposite (\matchedNKimpact\% versus \matchedDTPLimpact\%
 annualized); its empirical counterpart is described in
-Section~\ref{sec:conclusion}.
+Section~\ref{sec:conclusion}. One scope condition on that contrast follows
+from the deficit-financed path solved below: the matching is done at
+\emph{balanced} financing, which is what isolates price determination,
+and the DTPL side prices the announcement positive too once financing is
+slow enough (Section~\ref{subsec:tier2}). The sign contrast is therefore a
+statement about the two price-determination blocks \emph{at a common
+financing schedule}, not a claim that the classes disagree at every
+schedule; the complete object is the $2\times2$ of price determination
+against financing timing, and the paper delivers the balanced-financing
+column and the DTPL row of it.
 
 \subsection{The nonlinear price-level transition}\label{subsec:tier2}
 
@@ -3179,10 +3207,57 @@ so that \eqref{eq:nombudget} issues above trend) is a distinct financing
 choice, the low-$\phi_b$ debt-stabilization lever of the Phillips-curve
 exercises (Appendix~\ref{app:nkmodel}), not the benchmark here. This is what
 licenses reading the announcement-year result as revaluation rather than as
-a tax-timing deficit. We do not compute a deficit-financed demand-theory
-path: whether the announcement disinflation survives above-trend nominal
-issuance is an open computation, and the matched comparison below holds
-financing at the service rule on both sides for exactly that reason.
+a tax-timing deficit. The matched comparison below accordingly holds
+financing at the service rule on both sides. Whether the disinflation
+\emph{survives} a genuine primary deficit is a separate question, and we
+answer it next.
+
+\paragraph{Deficit financing: the announcement prices the whole issuance
+path at once.} We solve the same transition with taxes phased in rather
+than levied contemporaneously, holding the real program identical so that
+\emph{only timing} differs: $\tau_t = r^{ss}b_t + (1-\rho_d^{\,t})g_{g}$,
+so a share $\rho_d^{\,t}$ of date-$t$ spending is debt-financed and
+\eqref{eq:nombudget} issues above trend. Real debt is then the residual of
+the exact recursion, and by Lemma~\ref{lem:neutrality} the terminal price
+is not the balanced one: the same real terminal economy carries a larger
+nominal stock, so $\hat P_T$ floats at $\kappa_\infty$ times the balanced
+terminal, with $\kappa_\infty$ the cumulative dilution. We let the terminal
+pin float with $\kappa_\infty$ inside the fixed point rather than imposing
+it, so the dilution is an output.
+
+At $\rho_d=\DefRho$ --- a tax-financing half-life of $\DefHalfLife$ years,
+and cumulatively $\DefCumGap$ of annual income debt-financed --- the
+terminal stock is diluted by $\kappa_\infty=\DefKappa$
+($\ln\kappa_\infty=\DefLnKappa$), and the announcement-year price response
+moves from $\DefBal$ under balanced timing to $\DefImp$: the disinflation
+is \emph{overturned}, and the announcement is inflationary. The
+decomposition is what makes this informative. The impact wedge attributable
+to timing is $\DefWedge$, against a terminal dilution of $\DefLnKappa$: a
+ratio of $\DefCap$. The announcement capitalizes the \emph{entire} future
+issuance path immediately, not as it is issued. Two observable signatures
+confirm the same thing. The price now \emph{overshoots} its own terminal
+level on impact (front-loading $\DefFrontDef$ against $\DefFrontBal$ under
+balanced timing), because at $t=1$ the stock is still undiluted while its
+whole future dilution is already in the price; and the bondholder
+revaluation flips from $\DefRevalBal\%$ of program present value to
+$\DefRevalDef\%$ --- deficit financing converts the announcement from a
+bondholder windfall into a bondholder levy.
+
+This is the mechanism operating, not failing, and it sharpens the
+prediction into a testable inequality. Because the impact wedge is the
+terminal dilution, the announced disinflation survives deficit financing if
+and only if
+\begin{equation}
+\ln \kappa_\infty \;<\; \bigl|\,d\ln \hat P_1(\text{balanced})\,\bigr|,
+\label{eq:deficitfrontier}
+\end{equation}
+a condition on the cumulative debt-financed share of the program alone ---
+here about $\DefKapStar\%$ of the outstanding nominal stock. Announced
+green programs are typically deficit-financed at first, so
+\eqref{eq:deficitfrontier} is the form in which the paper's central
+untested prediction should be taken to data: the sign of the
+announcement-year price response is not a property of green investment as
+such, but of how quickly its financing is scheduled to arrive.
 
 The computational problem is a fixed point on the log
 price path: excess asset demand at date $t$ lowers $\hat P_t$, raising the
@@ -3431,7 +3506,14 @@ green program is the top of the wealth distribution, so opposition motivated
 by ``green inflation'' targets a program that raises the real value of the
 asset-owning class's nominal wealth. And the mechanism yields a sharp
 untested prediction --- a credible green announcement is disinflationary on
-impact under lump-sum finance. The matched heterogeneous-agent New
+impact under lump-sum finance, provided the financing is scheduled to
+arrive quickly. When taxes are phased in instead, the announcement
+capitalizes the entire future issuance at once, so the disinflation
+survives only while the cumulative debt-financed share stays below the
+threshold \eqref{eq:deficitfrontier}; past it the sign flips. The
+prediction to take to data is therefore the conditional one, and its
+conditioning variable --- the announced financing schedule --- is
+observable. The matched heterogeneous-agent New
 Keynesian economy prices the same announcement with the opposite sign
 (\matchedNKimpact\% against \matchedDTPLimpact\% annualized), though the
 Phillips-curve sign is itself specification-dependent --- the
@@ -3935,7 +4017,9 @@ $\tau_t=r^{ss}\bar b+\bar g_g$ and $b_t=(1+r^{ss})\bar b+\bar g_g-\tau_t=\bar b$
 The debt-stabilization speed $\phi_b$ indexes
 how fast taxes close the gap between the \emph{pre}-program debt $b_0$ and the
 new target $\bar b$: a low $\phi_b$ lets debt drift up to $\bar b$ slowly ---
-the program is deficit-financed on impact (the benchmark), while a high
+the program is deficit-financed on impact (the New Keynesian benchmark,
+and the reason the matched comparison of Section~\ref{sec:transitions}
+re-imposes balanced financing on both sides), while a high
 $\phi_b$ raises taxes quickly toward $r^{ss}\bar b+\bar g_g$ and approximates
 contemporaneous tax finance. Real green investment approaches its permanent
 level $\bar g_g$ through a quasi-permanent process,
