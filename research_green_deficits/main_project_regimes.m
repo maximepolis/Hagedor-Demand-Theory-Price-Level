@@ -3,7 +3,7 @@
 % calibrated medium-damage column, holding monetary policy and the nominal
 % debt rule fixed:
 %
-%   R1-DEFICIT            lump-sum financing (the paper's baseline):
+%   R1-LUMPSUM            lump-sum financing (the paper's baseline):
 %                         tau_ls = r*b + g,     vartheta = 0
 %   R2-PROP-LEVY          proportional levy funds the program (carbon-tax-
 %                         STYLE incidence; NOT a Pigouvian carbon tax --
@@ -62,7 +62,7 @@ diary off; if exist(logfile,'file'), delete(logfile); end
 diary(logfile); diary on;
 
 fprintf('==============================================================\n');
-fprintf(' FINANCING REGIMES (U4): deficit vs carbon-levy vs rebate vs mixed\n');
+fprintf(' FINANCING REGIMES (U4): lump-sum vs levy vs rebate vs mixed\n');
 fprintf(' medium damage column, calibrated scale, na=%d\n', pg.na);
 fprintf('==============================================================\n');
 
@@ -92,7 +92,7 @@ D_of  = @(P) climate_block(g_of(P), pgc);
 rb_of = @(P) r_cal * B ./ P;
 
 REG = {};
-REG{1} = struct('name','R1-DEFICIT','Bnom',B, 'g',g_of, 'D',D_of, ...
+REG{1} = struct('name','R1-LUMPSUM','Bnom',B, 'g',g_of, 'D',D_of, ...
     'tau_ls',   @(P) rb_of(P) + g_of(P), ...
     'vartheta', @(P) 0);
 REG{2} = struct('name','R2-PROP-LEVY','Bnom',B, 'g',g_of, 'D',D_of, ...

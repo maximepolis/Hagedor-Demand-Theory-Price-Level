@@ -183,7 +183,7 @@ if WX.deficit.ok
                   WX.rebate.lambda_mpc.hi, WX.rebate.lambda_mpc.lo];
         bh2 = bar([vd; vr]', 'grouped');
         set(bh2(1),'FaceColor',[0.85 0.35 0.30]); set(bh2(2),'FaceColor',[0.20 0.55 0.25]);
-        legend({'deficit','levy+rebate'},'Location','best');
+        legend({'lump-sum','levy+rebate'},'Location','best');
     else
         bar(vd, 0.6, 'FaceColor', [0.85 0.35 0.30]);
     end

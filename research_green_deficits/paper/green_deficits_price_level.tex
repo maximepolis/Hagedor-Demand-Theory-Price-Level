@@ -272,18 +272,18 @@ Appendix~\ref{app:numerics}.}}
 Who bears the burden of public investment when the price level clears the
 market for nominal government debt? We study an incomplete-markets economy
 in which the taxes financing a permanent public adaptation program change
-household demand for nominal liabilities, so the financing instrument sets
-both the sign of debt revaluation and its incidence. Across the portfolio
+household demand for nominal liabilities, so the financing instrument orders
+the price response and changes the incidence of debt revaluation. Across the portfolio
 structures we solve, a proportional levy is more inflationary than a
 lump-sum tax financing the same appropriation. In the preferred
 calibration, with concentrated bond ownership and infrequent portfolio
 adjustment, the lump-sum instrument raises the real value of nominal debt
 while the levy erodes it; that level sign is not a primitive, and it
-reverses under uniform ownership with frictionless rebalancing. The
-price response is governed by the tax response of nominal-liability
-demand, which is carried almost entirely by the endogenous movement of the
-wealth distribution rather than by households' direct saving response at
-the initial distribution. Announced programs capitalize most of the
+reverses under uniform ownership with frictionless rebalancing. In the
+one-asset benchmark the stationary response is generated mainly by the
+endogenous movement of the wealth distribution rather than by households'
+direct saving response at the initial distribution, and the preferred
+two-asset calibration preserves the financing ordering. Announced programs capitalize most of the
 long-run financing difference immediately. The inflationary and
 distributional effects of public investment cannot be evaluated
 separately from its financing.
@@ -317,9 +317,11 @@ the real fiscal burden, and the distribution of that burden are therefore
 jointly determined --- and none of them can be read off the deficit
 accounting that frames the policy debate. A first result makes the point
 exactly: in the stationary economy there is \emph{no deficit to account for}.
-Nominal debt issuance is neutral and real debt is demand-determined, so the
+A joint proportional scaling of the nominal debt stock and the nominal
+appropriation is neutral, and real debt is demand-determined, so the
 permanent experiment is a nominal appropriation and the tax mix that services
-it; ``deficit'' is reserved for the transitional tax-timing paths of
+it (raising $B$ alone at a fixed appropriation is \emph{not} neutral: it
+changes the real program the taxes must fund); ``deficit'' is reserved for the transitional tax-timing paths of
 Section~\ref{sec:transitions}.
 
 Our framework assembles four building blocks. From \citet{hagedorn2026dtpl}
@@ -465,7 +467,8 @@ prediction: a Phillips-curve economy prices the same class of announcement
 with the opposite sign ($+0.4\%$ impact inflation), but the two exercises
 differ in rigidity, financing, persistence, scale, and the household block,
 so the contrast is a model-class diagnostic locating a testable prediction
---- adjudicating it requires the matched experiment we compute
+--- adjudicating it requires a design matched on financing as well as on
+price determination, one column of which we compute
 (Section~\ref{subsec:tier2}) or high-frequency
 identification around green-fiscal surprises.
 
@@ -1728,8 +1731,50 @@ $d\tau_{ls}=-(1-D)\,d\vartheta$, which holds the interest burden fixed and
 is therefore not the derivative of the equilibrium budget; proof in
 Appendix~\ref{app:proofs}.
 
-The approximate homogeneity is only the operational route to the sign; the
-exact statement is a covariance, and it is worth writing because it says
+The preferred quantitative economy of Section~\ref{subsec:twoassetnl},
+however, clears \emph{two} markets in \emph{two} prices, so the one-asset
+expression does not characterize the mechanism actually being measured
+there. The extension is a Schur complement.
+
+\begin{proposition}[Financing incidence with two asset markets]
+\label{prop:twomarket}
+Let a stationary equilibrium of the two-asset economy solve
+\[
+F_b(P,q;\alpha)\equiv \Sfun_b(P,q;\alpha)-\frac{B}{P}=0,
+\qquad
+F_k(P,q;\alpha)\equiv \Sfun_k(P,q;\alpha)-\bar K=0,
+\]
+where $\alpha$ indexes the financing mix. At a regular equilibrium, where
+the $2\times2$ Jacobian is nonsingular and $F_{kq}\neq0$,
+\begin{equation}
+\frac{dP}{d\alpha}=-\frac{N_\alpha}{M},
+\qquad
+N_\alpha\equiv F_{b\alpha}-\frac{F_{bq}F_{k\alpha}}{F_{kq}},
+\qquad
+M\equiv F_{bP}-\frac{F_{bq}F_{kP}}{F_{kq}} .
+\label{eq:twomarket}
+\end{equation}
+$N_\alpha$ is the financing shock to the bond market \emph{net of} the
+portfolio substitution induced when the tree price moves to re-clear its own
+market; $M$ is the bond-market slope after that same adjustment, so
+$1+\varepsilon_{\Sfun}^{\mathrm{eff}}\equiv (P/\Sfun_b)\,M$ is the
+two-market determinacy margin. On a determinate branch $M>0$ and the shift
+toward the levy raises the price level if and only if $N_\alpha<0$. When
+portfolio substitution is absent ($F_{bq}=0$), \eqref{eq:twomarket}
+collapses to the one-asset expression, and $M=(\Sfun_b/P)(1+\varepsilon_\Sfun)$.
+\end{proposition}
+\noindent\textsc{Status:} exact local comparative static at a regular
+two-market equilibrium; proof in Appendix~\ref{app:proofs}. It identifies
+what the one-asset theorem cannot: the restored level sign of
+Section~\ref{subsec:twoassetnl} operates through $F_{bq}F_{k\alpha}/F_{kq}$
+--- the cross-market term --- and not only through the direct incidence
+term $F_{b\alpha}$. Quantifying the two Schur components separately in the
+preferred calibration, and checking \eqref{eq:twomarket} against a solved
+central difference, is the natural next step and is not yet done.
+
+The scaling argument is only the operational route to the sign of
+$\Sfun_\vartheta$; the exact statement of \emph{direct} incidence is a
+covariance, and it is worth writing because it says
 precisely which financing reforms are inflationary. Let a reform be indexed
 by $\alpha$ and change household $i$'s net income by
 $dy_i^{\mathrm{net}}(\alpha)$, and let
@@ -2460,8 +2505,8 @@ rebate design suggested by the incidence evidence in
 \citealp{kanzig2023carbon}); and an even lump-sum/levy \emph{mix}. A naming
 caveat, because it bears on the
 comparison: these are labels for the \emph{tax instrument}, not for a
-deficit-versus-tax choice. In the stationary equilibrium nominal debt
-issuance is neutral and real debt is demand-determined
+deficit-versus-tax choice. In the stationary equilibrium a joint proportional scaling of the nominal
+stock and the appropriation is neutral and real debt is demand-determined
 (Lemma~\ref{lem:neutrality}), so \emph{none} of the four is a deficit; each
 runs a balanced flow identity $\tau_{ls} + \vartheta\,(1-D) = r^{ss} b + g_g$
 at its own price level and holds the nominal appropriation fixed. They differ
@@ -2940,8 +2985,9 @@ four pass (the first two to $\KVTrGateB$ and $\KVTrGateK$, the third
 exactly). The terminal prices are \emph{not} a check: they are pinned at
 the program steady state, so they agree with it by construction. Nothing is
 reported unless all four gates pass, and the path itself converges to
-$\KVTrResid$ against a reportable gate of $2\times10^{-3}$ (a margin of
-$\KVTrMargin$) with a horizon residual of $\KVTrTerm$.
+$\KVTrResid$, with a horizon residual of $\KVTrTerm$; residuals,
+conditioning and the implied price precision are reported directly rather
+than against an acceptance threshold.
 
 Like the steady-state experiment it is anchored to, this path holds damages
 fixed and varies only the tax, so it prices the announcement of the
@@ -4014,6 +4060,29 @@ P^{*}_{\text{rebate}}$ and, on the $r^{ss}>0$ region, the associated $\nu_{\math
 verified exactly in Table~\ref{tab:regimes} (all four are balanced stationary
 tax-incidence regimes --- the label ``lump-sum'' is the financing instrument,
 not a deficit). \qed
+
+\subsection{Proof of Proposition \ref{prop:twomarket}}
+Totally differentiate the two clearing conditions at a regular equilibrium:
+\[
+F_{bP}\,dP+F_{bq}\,dq+F_{b\alpha}\,d\alpha=0,
+\qquad
+F_{kP}\,dP+F_{kq}\,dq+F_{k\alpha}\,d\alpha=0 .
+\]
+With $F_{kq}\neq0$ the second gives
+$dq=-(F_{kP}\,dP+F_{k\alpha}\,d\alpha)/F_{kq}$. Substituting into the first
+and collecting terms in $dP$,
+\[
+\Bigl(F_{bP}-\tfrac{F_{bq}F_{kP}}{F_{kq}}\Bigr)dP
+=-\Bigl(F_{b\alpha}-\tfrac{F_{bq}F_{k\alpha}}{F_{kq}}\Bigr)d\alpha ,
+\]
+which is \eqref{eq:twomarket}; both bracketed objects are Schur complements
+of the Jacobian with respect to the tree block, and nonsingularity of the
+Jacobian is exactly $M\neq0$. If $F_{bq}=0$ the tree price does not enter
+bond demand, $N_\alpha=F_{b\alpha}$ and $M=F_{bP}$, recovering the one-asset
+comparative static. For the last claim, $F_{bP}=\partial\Sfun_b/\partial
+P+B/P^{2}$, and at equilibrium $\Sfun_b=B/P$, so $B/P^{2}=\Sfun_b/P$ and
+$F_{bP}=(\Sfun_b/P)\bigl(1+\varepsilon_\Sfun\bigr)$ with
+$\varepsilon_\Sfun=d\ln\Sfun_b/d\ln P$. \qed
 
 \subsection{Proof of Proposition \ref{prop:optimalmu}}
 The proposition is a \emph{reduction} plus a numerical characterization; we are
