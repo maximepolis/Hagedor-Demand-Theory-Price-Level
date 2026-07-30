@@ -230,7 +230,7 @@ if isfinite(rs) && rs > 0 && rs < 1
     tee('  tax-financing half-life = %.1f years (half the program is tax-financed by then)\n', hl);
     tee('  cumulative debt-financed spending = %.2f years of program cost\n', cum);
     tee('  => the announcement disinflation survives deficit financing only if the\n');
-    tee('     debt-financed share is retired on roughly a %.0f-year half-life or faster;\n', hl);
+    tee('     debt-financed share is retired on roughly a %.1f-year half-life or faster;\n', hl);
     tee('     slower phase-in dilutes the terminal stock by more than the program\n');
     tee('     tightens precautionary demand, and the announcement is INFLATIONARY.\n');
 end

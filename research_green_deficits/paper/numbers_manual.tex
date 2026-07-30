@@ -103,9 +103,33 @@
 \newcommand{\DefCumGap}{0.19}
 \newcommand{\DefRevalBal}{-5.3}
 \newcommand{\DefRevalDef}{+17.2}
-% Critical dilution implied by the measured capitalization ratio: the
-% disinflation survives iff ln kappa_inf < |dlnP_1(balanced)|/c.
-\newcommand{\DefKapStar}{3.9}
+
+% ---- Financing-timing ladder (table: transition_deficit_ladder) ----
+% Same economy and program at every row; only the phase-in speed rho_d
+% varies. The rho_d = 0 row is a regression test: phi == 1 collapses the
+% deficit branch to the service rule analytically, and it reproduced the
+% balanced benchmark impact response to five decimals (gap +0.00000).
+\newcommand{\DefValidGap}{0.00000}
+\newcommand{\DefRhoA}{0.50}\newcommand{\DefKapA}{1.019}
+\newcommand{\DefPA}{-0.012}\newcommand{\DefWA}{+0.028}\newcommand{\DefCA}{1.52}
+\newcommand{\DefRhoB}{0.70}\newcommand{\DefKapB}{1.044}
+\newcommand{\DefPB}{+0.018}\newcommand{\DefWB}{+0.058}\newcommand{\DefCB}{1.33}
+\newcommand{\DefRhoC}{0.80}\newcommand{\DefKapC}{1.078}
+\newcommand{\DefPC}{+0.052}\newcommand{\DefWC}{+0.092}\newcommand{\DefCC}{1.22}
+\newcommand{\DefRhoD}{0.90}\newcommand{\DefKapD}{1.193}
+\newcommand{\DefPD}{+0.142}\newcommand{\DefWD}{+0.182}\newcommand{\DefCD}{1.03}
+% Marginal pass-through of dilution into the impact price, first and last
+% ladder interval: d(dlnP_1)/d(ln kappa_inf). Falls through one between
+% rho_d = 0.8 and 0.9 -- the mapping is concave.
+\newcommand{\DefSlopeFirst}{1.52}
+\newcommand{\DefSlopeLast}{0.89}
+% Solved threshold: bisection on the sign of the impact response.
+\newcommand{\DefRhoStarLo}{0.600}
+\newcommand{\DefRhoStarHi}{0.613}
+\newcommand{\DefRhoStar}{0.61}
+\newcommand{\DefHalfStar}{1.4}
+\newcommand{\DefCumStar}{1.5}
+\newcommand{\DefKapStar}{3.2}
 
 % ---- Matched-parameter ladder (table: twoasset_ownership_kv_ladder) ----
 % Coarse grid. beta = 0.874 and chi_b = 0.00223 held at the benchmark values

@@ -125,6 +125,23 @@
 \providecommand{\DefFrontBal}{\pendingnum}\providecommand{\DefFrontDef}{\pendingnum}
 \providecommand{\DefCumGap}{\pendingnum}\providecommand{\DefRevalBal}{\pendingnum}
 \providecommand{\DefRevalDef}{\pendingnum}\providecommand{\DefKapStar}{\pendingnum}
+\providecommand{\DefValidGap}{\pendingnum}
+\providecommand{\DefRhoA}{\pendingnum}\providecommand{\DefKapA}{\pendingnum}
+\providecommand{\DefPA}{\pendingnum}\providecommand{\DefWA}{\pendingnum}
+\providecommand{\DefCA}{\pendingnum}
+\providecommand{\DefRhoB}{\pendingnum}\providecommand{\DefKapB}{\pendingnum}
+\providecommand{\DefPB}{\pendingnum}\providecommand{\DefWB}{\pendingnum}
+\providecommand{\DefCB}{\pendingnum}
+\providecommand{\DefRhoC}{\pendingnum}\providecommand{\DefKapC}{\pendingnum}
+\providecommand{\DefPC}{\pendingnum}\providecommand{\DefWC}{\pendingnum}
+\providecommand{\DefCC}{\pendingnum}
+\providecommand{\DefRhoD}{\pendingnum}\providecommand{\DefKapD}{\pendingnum}
+\providecommand{\DefPD}{\pendingnum}\providecommand{\DefWD}{\pendingnum}
+\providecommand{\DefCD}{\pendingnum}
+\providecommand{\DefSlopeFirst}{\pendingnum}\providecommand{\DefSlopeLast}{\pendingnum}
+\providecommand{\DefRhoStarLo}{\pendingnum}\providecommand{\DefRhoStarHi}{\pendingnum}
+\providecommand{\DefRhoStar}{\pendingnum}\providecommand{\DefHalfStar}{\pendingnum}
+\providecommand{\DefCumStar}{\pendingnum}
 \providecommand{\TwoTrT}{\pendingnum}\providecommand{\TwoTrResid}{\pendingnum}
 \providecommand{\TwoTrTermGap}{\pendingnum}\providecommand{\TwoTrIdent}{\pendingnum}
 \providecommand{\TwoTrImpP}{\pendingnum}\providecommand{\TwoTrLongP}{\pendingnum}
@@ -405,13 +422,16 @@ while the capital stock accumulates for decades. The price level prices the
 \emph{news}, not the spending. That immediacy is exactly what makes
 financing \emph{timing} decisive, and we solve for it: when the same
 program is deficit-financed rather than taxed as it is spent, the
-announcement capitalizes the entire future issuance path at once --- the
-impact price wedge equals the terminal dilution of the nominal stock,
-ratio $\DefCap$ --- so the announced disinflation survives only while the
-cumulative debt-financed share stays under about $\DefKapStar\%$ of the
-outstanding stock, and reverses sign beyond it. The paper's central
-prediction is thus conditional on an observable: the announced financing
-schedule. Household by household, the announced path is
+announcement capitalizes the future issuance immediately and
+\emph{more than one-for-one}, because deferred taxes relieve the
+constrained early and cut precautionary demand on top of the mechanical
+dilution of the nominal stock. Solving across phase-in speeds locates a
+sharp threshold: the announced disinflation survives only if the financing
+arrives on a tax half-life under about $\DefHalfStar$ years, and reverses
+sign beyond it. Since announced programs are rarely financed that quickly,
+the disinflation is the exception rather than the rule, and the paper's
+central prediction is conditional on an observable --- the announced
+financing schedule. Household by household, the announced path is
 more regressive than the steady-state comparison suggests --- the
 windfall accrues at the top while front-loaded taxes bite at the constrained
 bottom --- whereas the rebate design, solved along the same path, keeps the
@@ -1324,9 +1344,10 @@ Section~\ref{subsec:tier2} does not take it --- it holds the service rule
 $\tau_t=r^{ss}b_t+g_{g,t}$, so its real-debt dynamics are the revaluation
 of the predetermined nominal stock, not a primary deficit
 (Section~\ref{subsec:tier2} makes the accounting explicit, and then solves
-the deficit-financed path separately: the announcement capitalizes the
-whole future issuance immediately, so the disinflation survives only below
-an explicit threshold on the debt-financed share).
+the deficit-financed path separately, and finds that the announcement
+prices the future issuance immediately and more than one-for-one, so the
+disinflation survives only below an explicit threshold on the speed of
+tax phase-in).
 
 We recast the
 determinacy conditions in $b$ accordingly: $\varepsilon_S(P)<-1$ is
@@ -3230,34 +3251,76 @@ and cumulatively $\DefCumGap$ of annual income debt-financed --- the
 terminal stock is diluted by $\kappa_\infty=\DefKappa$
 ($\ln\kappa_\infty=\DefLnKappa$), and the announcement-year price response
 moves from $\DefBal$ under balanced timing to $\DefImp$: the disinflation
-is \emph{overturned}, and the announcement is inflationary. The
-decomposition is what makes this informative. The impact wedge attributable
-to timing is $\DefWedge$, against a terminal dilution of $\DefLnKappa$: a
-ratio of $\DefCap$. The announcement capitalizes the \emph{entire} future
-issuance path immediately, not as it is issued. Two observable signatures
-confirm the same thing. The price now \emph{overshoots} its own terminal
+is \emph{overturned}, and the announcement is inflationary. Two observable
+signatures accompany the flip. The price \emph{overshoots} its own terminal
 level on impact (front-loading $\DefFrontDef$ against $\DefFrontBal$ under
 balanced timing), because at $t=1$ the stock is still undiluted while its
-whole future dilution is already in the price; and the bondholder
-revaluation flips from $\DefRevalBal\%$ of program present value to
-$\DefRevalDef\%$ --- deficit financing converts the announcement from a
-bondholder windfall into a bondholder levy.
+future dilution is already in the price; and the bondholder revaluation
+flips from $\DefRevalBal\%$ of program present value to $\DefRevalDef\%$
+--- deficit financing converts the announcement from a bondholder windfall
+into a bondholder levy.
 
-This is the mechanism operating, not failing, and it sharpens the
-prediction into a testable inequality. Because the impact wedge is the
-terminal dilution, the announced disinflation survives deficit financing if
-and only if
+\begin{table}[htbp]\centering
+\caption{The financing-timing frontier. Same economy, same real program;
+only the tax phase-in speed $\rho_d$ varies. The $\rho_d=0$ row is a
+regression test: $\phi_t\equiv1$ collapses the deficit recursion to the
+service rule analytically, and it reproduces the balanced benchmark to
+five decimals. The last column is the chord
+$c=[d\ln\hat P_1(\rho_d)-d\ln\hat P_1(0)]/\ln\kappa_\infty$.}
+\label{tab:deficitladder}
+\begin{tabular}{lcccc}
+\hline\hline
+$\rho_d$ & $\kappa_\infty$ & $d\ln \hat P_1$ & wedge vs balanced & $c$ \\
+\hline
+$0$ (validation) & $1.000$ & $\DefBal$ & $+0.000$ & --- \\
+$\DefRhoA$ & $\DefKapA$ & $\DefPA$ & $\DefWA$ & $\DefCA$ \\
+$\DefRhoB$ & $\DefKapB$ & $\DefPB$ & $\DefWB$ & $\DefCB$ \\
+$\DefRhoC$ & $\DefKapC$ & $\DefPC$ & $\DefWC$ & $\DefCC$ \\
+$\DefRhoD$ & $\DefKapD$ & $\DefPD$ & $\DefWD$ & $\DefCD$ \\
+\hline\hline
+\end{tabular}
+\end{table}
+
+The ladder in Table~\ref{tab:deficitladder} shows the announcement does not
+merely pass the eventual dilution through: at every phase-in speed the
+impact response exceeds it, $c>1$, and $c$ \emph{falls} monotonically as
+financing slows. Reading the same numbers at the margin, the pass-through
+$d(d\ln\hat P_1)/d\ln\kappa_\infty$ declines from $\DefSlopeFirst$ across
+the first interval to $\DefSlopeLast$ across the last: the mapping from
+dilution to announcement price is concave, and marginal pass-through
+crosses one between $\rho_d=\DefRhoC$ and $\DefRhoD$. Both facts are the
+paper's own channel, $\partial\ln\Sfun/\partial\tau>0$, appearing twice
+with opposite signs at different horizons. Deferring taxes relieves the
+constrained \emph{early}, which cuts precautionary demand and raises the
+price on top of the mechanical dilution; but it leaves a permanently larger
+stock to service, so $\tau=r^{ss}b$ is higher \emph{forever}, which raises
+demand and pushes the price back down. Near-term relief dominates when
+phase-in is fast and the permanent service burden dominates when it is
+slow, which is exactly the concavity. A referee who doubts
+$\partial\ln\Sfun/\partial\tau>0$ should note that this sign restriction is
+what generates both limbs, and that neither is imposed anywhere in the
+computation.
+
+The practical content is a threshold, and because $c>1$ throughout it binds
+sooner than pure dilution accounting would suggest. The announced
+disinflation survives deficit financing if and only if
 \begin{equation}
-\ln \kappa_\infty \;<\; \bigl|\,d\ln \hat P_1(\text{balanced})\,\bigr|,
+c(\rho_d)\,\ln \kappa_\infty(\rho_d) \;<\;
+\bigl|\,d\ln \hat P_1(\text{balanced})\,\bigr|,
 \label{eq:deficitfrontier}
 \end{equation}
-a condition on the cumulative debt-financed share of the program alone ---
-here about $\DefKapStar\%$ of the outstanding nominal stock. Announced
-green programs are typically deficit-financed at first, so
-\eqref{eq:deficitfrontier} is the form in which the paper's central
-untested prediction should be taken to data: the sign of the
-announcement-year price response is not a property of green investment as
-such, but of how quickly its financing is scheduled to arrive.
+and bisecting the solved impact sign locates the critical speed at
+$\rho_d^{*}\in[\DefRhoStarLo,\DefRhoStarHi]$: a tax-financing half-life of
+$\DefHalfStar$ years, cumulatively $\DefCumStar$ years of program cost
+debt-financed, a terminal dilution of about $\DefKapStar\%$ of the
+outstanding nominal stock. Announced green programs are typically
+deficit-financed at first and rarely on a one-to-two-year retirement
+schedule, so \eqref{eq:deficitfrontier} is the form in which the paper's
+central untested prediction should be taken to data --- and it says the
+disinflation is the \emph{exception} rather than the rule for realistic
+financing schedules. The sign of the announcement-year price response is
+not a property of green investment as such, but of how quickly its
+financing is scheduled to arrive.
 
 The computational problem is a fixed point on the log
 price path: excess asset demand at date $t$ lowers $\hat P_t$, raising the
@@ -3507,13 +3570,17 @@ by ``green inflation'' targets a program that raises the real value of the
 asset-owning class's nominal wealth. And the mechanism yields a sharp
 untested prediction --- a credible green announcement is disinflationary on
 impact under lump-sum finance, provided the financing is scheduled to
-arrive quickly. When taxes are phased in instead, the announcement
-capitalizes the entire future issuance at once, so the disinflation
-survives only while the cumulative debt-financed share stays below the
-threshold \eqref{eq:deficitfrontier}; past it the sign flips. The
-prediction to take to data is therefore the conditional one, and its
-conditioning variable --- the announced financing schedule --- is
-observable. The matched heterogeneous-agent New
+arrive quickly. When taxes are phased in instead, the announcement prices
+the future issuance immediately and more than one-for-one --- deferred
+taxes cut precautionary demand early, on top of the dilution --- so the
+disinflation survives only below the threshold
+\eqref{eq:deficitfrontier}, a tax half-life of roughly $\DefHalfStar$
+years, and the sign flips past it. Realistic financing schedules sit well
+past it, which makes the disinflation the exception rather than the rule
+and the prediction to take to data the conditional one. Its conditioning
+variable --- the announced financing schedule --- is observable, which is
+what makes the conditionality useful rather than a hedge. The matched
+heterogeneous-agent New
 Keynesian economy prices the same announcement with the opposite sign
 (\matchedNKimpact\% against \matchedDTPLimpact\% annualized), though the
 Phillips-curve sign is itself specification-dependent --- the

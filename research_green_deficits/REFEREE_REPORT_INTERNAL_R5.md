@@ -250,12 +250,60 @@ DTPL row. The NK block's low-phi_b benchmark is itself deficit-financed
 on impact, which is exactly why the matched comparison re-imposes balanced
 financing on both sides -- that is now said where phi_b is defined.
 
-STILL OPEN on MC4: the flatness of the capitalization ratio across rho_d
-(one point does not establish a sufficient statistic) and the exact
-critical rho_d*. `main_transition_deficit_ladder` runs the ladder
-{0, 0.5, 0.7, 0.8, 0.9} plus a bisection on the solved impact sign, and
-carries a rho_d = 0 regression row that must reproduce the balanced
-benchmark exactly (phi == 1 collapses the deficit branch to the service
-rule analytically). Until it lands, the paper states the threshold
-structurally -- via the inequality ln kappa_inf < |dlnP_1(balanced)| and
-the ~4% figure implied by the measured ratio -- and quotes no rho_d*.
+### Ladder (2026-07-30): the sufficient-statistic reading is REFUTED
+
+`main_transition_deficit_ladder` ran the full ladder. The single-point
+reading of the previous entry -- "capitalization ratio 1, tax timing is
+priced through one number" -- does NOT survive and has been corrected in
+the paper. c = 1.03 at rho_d = 0.9 was the endpoint of a trend, not a
+constant.
+
+| rho_d | kappa_inf | dlnP_1 | wedge | c |
+|---|---|---|---|---|
+| 0 (validation) | 1.0000 | -0.0398 | +0.0000 | --- |
+| 0.50 | 1.0185 | -0.0120 | +0.0278 | 1.519 |
+| 0.70 | 1.0443 | +0.0178 | +0.0576 | 1.328 |
+| 0.80 | 1.0784 | +0.0519 | +0.0917 | 1.215 |
+| 0.90 | 1.1932 | +0.1423 | +0.1821 | 1.031 |
+
+Validation row PASSED exactly (gap +0.00000): phi == 1 collapses the
+deficit branch to the service rule, as it must analytically. The branch is
+verified, so the ladder is interpretable.
+
+FLATNESS TEST FAILED (spread 0.488). The correct reading is richer than
+the one it replaces:
+
+1. c > 1 at EVERY speed: the announcement prices MORE than the eventual
+   dilution, never merely it.
+2. c falls monotonically in rho_d. At the margin,
+   d(dlnP_1)/d(ln kappa_inf) = 1.52, 1.19, 1.06, 0.89 across successive
+   intervals -- the mapping is CONCAVE and marginal pass-through crosses
+   one between rho_d = 0.8 and 0.9.
+3. Both limbs are dS/dtau > 0 acting at different horizons. Deferred taxes
+   relieve the constrained EARLY (cuts precautionary demand, raises P, on
+   top of the dilution); the larger terminal stock raises service taxes
+   FOREVER (raises demand, pushes P back down). Near-term relief dominates
+   at fast phase-in, permanent service burden at slow phase-in. Neither
+   sign is imposed anywhere in the computation, which makes the ladder an
+   independent check on the paper's central sign restriction -- a better
+   defense of it than the flat-c story would have been.
+
+THRESHOLD, now solved rather than inferred. Bisection on the sign of the
+impact response gives rho_d* in [0.600, 0.6125]; the interpolated
+sufficient-statistic prediction 0.621 falls inside the bracket. Policy
+translation: tax-financing half-life 1.4 years, cumulatively 1.5 years of
+program cost debt-financed, terminal dilution ~3.2% of the outstanding
+nominal stock. Because c > 1 throughout, the threshold binds SOONER than
+pure dilution accounting implies (3.2%, not the ~4% quoted from the single
+point).
+
+Substantive consequence for the paper's claim hierarchy: realistic
+announced programs are not financed on a one-to-two-year retirement
+schedule, so the announcement disinflation is the EXCEPTION rather than
+the rule for observed financing designs. Intro, transition section and
+conclusion now say so. This does not touch the ordering result (the paper's
+robust headline), which is a within-schedule comparison across instruments.
+
+STILL OPEN on MC4: the remaining cell of the 2x2 is the NK side under
+matched deficit timing; the paper delivers the balanced column and the
+DTPL row.
