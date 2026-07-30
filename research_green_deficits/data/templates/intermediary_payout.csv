@@ -1,0 +1,23 @@
+# INTERMEDIARY PAYOUT CALIBRATION  --  TEMPLATE, VALUES DELIBERATELY EMPTY
+#
+# Purpose: the preferred model's level sign is sensitive to how revaluation
+# gains on intermediary-held government debt reach households. At present
+# the payout ratio is set to the value that reproduces wealth concentration,
+# which is selection on the outcome. It must instead be calibrated from
+# independent institutional or empirical evidence.
+#
+# The balance sheet to specify:
+#   assets      = government bonds + other real assets
+#   liabilities = household fund shares
+#
+# Each row is a moment that disciplines the payout process. Fill value_data
+# and source; leave value_model blank (the driver fills it).
+#
+moment,definition,value_data,value_model,source,targeted,notes
+payout_ratio,"fraction of investment income distributed per year, not retained",,,,,
+retention_reflected_in_price,"1 if retained gains raise the fund share price, 0 if not",,,,,
+payout_lag_years,"mean lag between accrual and distribution",,,,,
+bond_share_of_fund_assets,"government bonds / total fund assets",,,,,
+bond_share_endogenous,"1 if the fund rebalances its bond share, 0 if fixed",,,,,
+household_can_trade_shares,"1 if fund shares are tradable at will, 0 if illiquid",,,,,
+fund_ownership_concentration,"top-10% share of fund-share ownership",,,,,
