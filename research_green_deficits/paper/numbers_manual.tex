@@ -158,20 +158,47 @@
 % of the FINANCING PROGRAM, isolating the portfolio/incidence channel that
 % the restoration result is about. The one-asset tier-2 path, by contrast,
 % carries the damage dividend as well.
+% Gates (all PASS): Bellman step is a fixed point of V_term to 8.1e-07
+% (tol 9.2e-06); forward push is a fixed point of the stationary
+% distribution to 9.7e-12; kernel aggregates match the independent
+% stationary construction to machine precision (|dSb| 1.1e-16, |dSk| 0);
+% end-to-end no-program constant-price recursion reproduces the baseline
+% (bond 4.2e-07; the tree entry 1.2e-03 is inherited from the BASELINE
+% equilibrium's own q-bisection tolerance, not from the path kernels).
 \newcommand{\KVTrT}{60}
 \newcommand{\KVTrLam}{0.15}
 \newcommand{\KVTrIota}{0.27}
-\newcommand{\KVTrIters}{23}
-\newcommand{\KVTrResid}{1.9\times10^{-3}}
-\newcommand{\KVTrTerm}{7.2\times10^{-4}}
-\newcommand{\KVTrGateB}{0.9999}
-\newcommand{\KVTrGateK}{1.0010}
-\newcommand{\KVTrImpP}{-1.81}
+\newcommand{\KVTrResid}{7.9\times10^{-4}}
+\newcommand{\KVTrTerm}{2.2\times10^{-4}}
+\newcommand{\KVTrMargin}{2.5}
+\newcommand{\KVTrGateB}{8.1\times10^{-7}}
+\newcommand{\KVTrGateK}{9.7\times10^{-12}}
+\newcommand{\KVTrImpP}{-1.72}
 \newcommand{\KVTrLongP}{-2.26}
-\newcommand{\KVTrShare}{80\%}
-\newcommand{\KVTrImpQ}{+0.95\%}
-\newcommand{\KVTrLongQ}{+1.28\%}
-\newcommand{\KVTrQShare}{74\%}
+\newcommand{\KVTrShare}{76\%}
+% tree: impact +0.0067 with a solve-implied bound |dln q| < 2.7e-3, so the
+% impact/long-run share (52%) carries about +-21pp. Direction only.
+\newcommand{\KVTrQBound}{2.7\times10^{-3}}
+\newcommand{\KVTrElas}{-0.17}
+
+% ---- KV transition-inclusive incidence (MC3 deliverable) ----
+% Consumption-equivalent transfer, baseline-wealth groups, exact
+% mass-splitting quantile bands (masses hit 0.2000/0.5000/0.1000/0.0100
+% exactly). CE defined on 1.0000 of mass in both columns.
+% NOTE ON LEVELS: damages are held at D_0, so the program delivers NO
+% damage dividend here and every group loses; only the cross-group gradient
+% and the transition-vs-steady-state contrast are comparable to the
+% one-asset numbers.
+\newcommand{\KVWelBot}{-4.38}\newcommand{\KVWelBotSS}{-4.40}
+\newcommand{\KVWelHalf}{-3.73}\newcommand{\KVWelHalfSS}{-3.77}
+\newcommand{\KVWelMid}{-2.48}\newcommand{\KVWelMidSS}{-2.57}
+\newcommand{\KVWelTop}{-1.25}\newcommand{\KVWelTopSS}{-1.35}
+\newcommand{\KVWelTopOne}{-0.03}\newcommand{\KVWelTopOneSS}{-0.12}
+\newcommand{\KVWelCon}{-5.15}\newcommand{\KVWelConSS}{-5.17}
+\newcommand{\KVWelWHtM}{-3.94}
+\newcommand{\KVWelAll}{-2.98}\newcommand{\KVWelAllSS}{-3.05}
+\newcommand{\KVWelMaxGap}{0.10}
+\newcommand{\KVWelOneAssetGap}{0.8}
 
 % ---- Matched-parameter ladder (table: twoasset_ownership_kv_ladder) ----
 % Coarse grid. beta = 0.874 and chi_b = 0.00223 held at the benchmark values

@@ -127,17 +127,21 @@
 \providecommand{\DefRevalDef}{\pendingnum}\providecommand{\DefKapStar}{\pendingnum}
 \providecommand{\DefValidGap}{\pendingnum}
 \providecommand{\KVTrT}{\pendingnum}\providecommand{\KVTrLam}{\pendingnum}
-\providecommand{\KVTrIota}{\pendingnum}\providecommand{\KVTrIters}{\pendingnum}
+\providecommand{\KVTrIota}{\pendingnum}\providecommand{\KVTrMargin}{\pendingnum}
 \providecommand{\KVTrResid}{\pendingnum}\providecommand{\KVTrTerm}{\pendingnum}
 \providecommand{\KVTrGateB}{\pendingnum}\providecommand{\KVTrGateK}{\pendingnum}
 \providecommand{\KVTrImpP}{\pendingnum}\providecommand{\KVTrLongP}{\pendingnum}
-\providecommand{\KVTrShare}{\pendingnum}\providecommand{\KVTrImpQ}{\pendingnum}
-\providecommand{\KVTrLongQ}{\pendingnum}\providecommand{\KVTrQShare}{\pendingnum}
-% transition-inclusive incidence in the ownership+illiquidity economy (MC3):
-% pending the welfare block's first complete run
-\providecommand{\KVWelBot}{\pendingnum}\providecommand{\KVWelTop}{\pendingnum}
-\providecommand{\KVWelCon}{\pendingnum}\providecommand{\KVWelAll}{\pendingnum}
-\providecommand{\KVWelBotSS}{\pendingnum}\providecommand{\KVWelTopSS}{\pendingnum}
+\providecommand{\KVTrShare}{\pendingnum}\providecommand{\KVTrQBound}{\pendingnum}
+\providecommand{\KVTrElas}{\pendingnum}
+\providecommand{\KVWelBot}{\pendingnum}\providecommand{\KVWelBotSS}{\pendingnum}
+\providecommand{\KVWelHalf}{\pendingnum}\providecommand{\KVWelHalfSS}{\pendingnum}
+\providecommand{\KVWelMid}{\pendingnum}\providecommand{\KVWelMidSS}{\pendingnum}
+\providecommand{\KVWelTop}{\pendingnum}\providecommand{\KVWelTopSS}{\pendingnum}
+\providecommand{\KVWelTopOne}{\pendingnum}\providecommand{\KVWelTopOneSS}{\pendingnum}
+\providecommand{\KVWelCon}{\pendingnum}\providecommand{\KVWelConSS}{\pendingnum}
+\providecommand{\KVWelWHtM}{\pendingnum}\providecommand{\KVWelAll}{\pendingnum}
+\providecommand{\KVWelAllSS}{\pendingnum}\providecommand{\KVWelMaxGap}{\pendingnum}
+\providecommand{\KVWelOneAssetGap}{\pendingnum}
 \providecommand{\OrdImp}{\pendingnum}\providecommand{\OrdInf}{\pendingnum}
 \providecommand{\OrdOne}{\pendingnum}\providecommand{\OrdTwo}{\pendingnum}
 \providecommand{\OrdFive}{\pendingnum}\providecommand{\OrdTen}{\pendingnum}
@@ -2902,8 +2906,7 @@ transfer; we use a value-function formulation instead, one application of
 the Bellman operator per date on the $(b,k,e)$ grid together with a per-date
 distribution push, and solve the joint path $\{\hat P_t, q_t\}$ by the same
 accelerated fixed point ($\lambda=\KVTrLam$, $\iota_H=\KVTrIota$,
-$T=\KVTrT$ years, converged in $\KVTrIters$ iterations; interior residual
-$\KVTrResid$, terminal $\KVTrTerm$). Backward induction along a path needs
+$T=\KVTrT$ years). Backward induction along a path needs
 only one Bellman application per date --- the expensive fixed-point
 iteration of the stationary solver is a property of stationarity, not of
 backward induction --- which is what makes the exercise feasible. Because
@@ -2911,11 +2914,14 @@ the per-date operators are new, they are gated rather than trusted: the
 one-step Bellman operator and the one-step distribution push must each
 return the stationary object as a fixed point at the terminal prices; the
 kernels' aggregates must match the independent stationary construction
-($\KVTrGateB$ and $\KVTrGateK$ at the terminal date); and, end to end, with
-no program and prices held constant the whole recursion must reproduce the
-baseline steady state. The terminal prices are \emph{not} a check: they are
-pinned at the program steady state, so they agree with it by construction.
-Nothing is reported unless all four gates pass.
+to machine precision; and, end to end, with no program and prices held
+constant the whole recursion must reproduce the baseline steady state. All
+four pass (the first two to $\KVTrGateB$ and $\KVTrGateK$, the third
+exactly). The terminal prices are \emph{not} a check: they are pinned at
+the program steady state, so they agree with it by construction. Nothing is
+reported unless all four gates pass, and the path itself converges to
+$\KVTrResid$ against a reportable gate of $2\times10^{-3}$ (a margin of
+$\KVTrMargin$) with a horizon residual of $\KVTrTerm$.
 
 Like the steady-state experiment it is anchored to, this path holds damages
 fixed and varies only the tax, so it prices the announcement of the
@@ -2939,11 +2945,80 @@ adjusting fraction $\lambda$ of tree demand responds to $q_t$ in any
 period, so the same market-clearing tolerance pins the tree price roughly
 $1/\lambda$ less tightly than the nominal one; the driver measures the
 local semi-elasticity $d\ln \Sfun^{k}/d\ln q$ and reports the implied bound
-on $|d\ln q|$, and we quote no tree magnitude finer than it. The bond-side
-numbers are not affected.} That the announcement still prices four-fifths
-of the long-run move in its first year, in the economy with the most
-realistic portfolio structure we solve, is the timing claim's strongest
-form.
+on $|d\ln q|$ (here $\KVTrQBound$, against a measured semi-elasticity of
+$\KVTrElas$), and we quote no tree magnitude finer than it. The bond-side
+numbers are not affected.} That the announcement still prices roughly
+three-quarters of the long-run move in its first year, in the economy with
+the most realistic portfolio structure we solve, is the timing claim's
+strongest form.
+
+\paragraph{Who pays, along the announced path.} This economy also delivers
+the paper's principal welfare object in its disciplined form: the
+consumption-equivalent transfer that makes a household indifferent between
+remaining in the no-program steady state and \emph{entering date one of the
+announced path}, announcement-date revaluation included, computed on the
+predetermined portfolios of the baseline distribution. Table~\ref{tab:kvwel}
+puts it beside the transfer for entering the program steady state directly,
+so the two columns isolate what the transition itself adds.
+
+\begin{table}[htbp]\centering
+\caption{Transition-inclusive incidence in the ownership-and-illiquidity
+economy. Consumption-equivalent transfers by baseline wealth group.
+Damages are held fixed, so the program delivers no damage dividend and
+every group bears a cost; the cross-group gradient and the
+transition-versus-stationary contrast are the objects of interest, not the
+levels. Wealth groups are exact mass-splitting quantile bands.}
+\label{tab:kvwel}
+\begin{tabular}{lcc}
+\hline\hline
+group (baseline wealth) & transition-inclusive & entering the new steady state \\
+\hline
+bottom quintile   & $\KVWelBot\%$    & $\KVWelBotSS\%$ \\
+bottom half       & $\KVWelHalf\%$   & $\KVWelHalfSS\%$ \\
+middle 50--90     & $\KVWelMid\%$    & $\KVWelMidSS\%$ \\
+top decile        & $\KVWelTop\%$    & $\KVWelTopSS\%$ \\
+top 1 percent     & $\KVWelTopOne\%$ & $\KVWelTopOneSS\%$ \\
+constrained       & $\KVWelCon\%$    & $\KVWelConSS\%$ \\
+all               & $\KVWelAll\%$    & $\KVWelAllSS\%$ \\
+\hline\hline
+\end{tabular}
+\end{table}
+
+Two things follow, and the second is the more consequential. First, the
+incidence gradient is steep and survives everything: the bottom quintile
+bears $\KVWelBot\%$ and the constrained $\KVWelCon\%$, while the top
+percentile bears $\KVWelTopOne\%$ --- essentially nothing. Lump-sum
+financing of a green program is regressive in the disciplined economy for
+the same reason it is regressive in the one-asset economy, and the
+magnitude of the gap is if anything larger.
+
+Second, and against our prior, \emph{the transition adds almost nothing}.
+Every entry in the first column sits within $\KVWelMaxGap$ percentage
+points of the second, and the ordering across groups is identical. In the
+one-asset economy the transition moved incidence by roughly
+$\KVWelOneAssetGap$ percentage points and in \emph{opposite} directions at
+the two ends --- deepening the bottom quintile's loss while shrinking the
+top decile's, because the announcement windfall accrued to the top while
+front-loaded taxes bit at the bottom. That effect is an order of magnitude
+smaller here, and it no longer tilts: the transition is very slightly
+favourable to everyone, marginally more so at the top. The reason is
+structural rather than numerical. The one-asset economy assigns the entire
+nominal stock to households directly and lets them rebalance costlessly, so
+the announcement revaluation is at its theoretical maximum and lands
+undiluted on household portfolios. Once only $\iota_H=\KVTrIota$ of the
+stock is held directly and the illiquid margin adjusts once every
+$1/\lambda$ periods on average, the revaluation reaching households shrinks
+in proportion and cannot be traded on.
+
+The implication runs the paper's way rather than against it. It says the
+stationary incidence comparisons of Section~\ref{subsec:welfaregroups} are
+not a convenient approximation to the object that answers the title
+question --- in the disciplined economy they \emph{are} that object, to
+within a tenth of a percentage point. It also scopes the one-asset
+transition result of Section~\ref{subsec:tier2} correctly: its
+transition-versus-stationary wedge is an upper bound generated by maximal
+direct ownership and costless rebalancing, not a general feature of
+announced green programs.
 
 \subsection{Is the restoration an artifact of a poor economy?}
 \noindent The benchmark
@@ -3529,11 +3604,10 @@ damages and enters production --- the adaptation reading of $K_g$, which is
 also the reading under which a closed economy maps own spending to own
 damages. Equally open is the external validation of the dominant
 distributional term in the tax response, against wealth-mobility and
-liquid-asset transition moments; the transition-inclusive incidence of the
-ownership-and-illiquidity economy is the computation that would join it to
-the portfolio results. That, an endogenous convenience
-yield on the nominal liability, and a fully stochastic transition are the
-natural next steps.
+liquid-asset transition moments --- the one substantive claim in the paper
+whose discipline is internal rather than external. That, an endogenous
+convenience yield on the nominal liability, and a fully stochastic
+transition are the natural next steps.
 
 % ==========================================================================
 \appendix
