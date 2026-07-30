@@ -68,12 +68,37 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
 %         climate fields set; opts fields (all optional):
 %   .T (80 years) .tol (2e-3) .maxit (60) .xi (0.5) .regime ('nominal')
 %   .Gg_nom (default: pgc.Gg_nom) .verbose (true)
-%   .financing ('lumpsum' default | 'rebate'): 'rebate' runs the R3 design
-%     of the regimes section along the path -- a proportional levy at twice
-%     the program with half rebated lump-sum, vartheta_t = 2 g_t/(1-D_t)
-%     and tau_ls,t = r*b_t - g_t, satisfying the same flow identity
-%     tau_ls,t + vartheta_t (1-D_t) = r*b_t + g_t at every date -- so the
-%     transition-inclusive welfare of the progressive design is computable.
+%   .financing ('lumpsum' default | 'rebate' | 'deficit'):
+%     'rebate' runs the R3 design of the regimes section along the path --
+%     a proportional levy at twice the program with half rebated lump-sum,
+%     vartheta_t = 2 g_t/(1-D_t) and tau_ls,t = r*b_t - g_t, satisfying the
+%     same flow identity tau_ls,t + vartheta_t (1-D_t) = r*b_t + g_t at
+%     every date -- so the transition-inclusive welfare of the progressive
+%     design is computable.
+%     'deficit' runs the DEFICIT-FINANCED announcement (requires
+%     regime='indexed' so the real program is identical to the balanced
+%     benchmark and only the tax TIMING differs). Taxes are phased in
+%     geometrically, tau_t = rbar*b_t + phi_t*g_t with
+%     phi_t = 1 - rho_d^t (opts.rho_d, default 0.8), so the primary gap
+%     (1-phi_t)*g_t is financed by nominal issuance ABOVE trend. Real debt
+%     then follows the exact recursion implied by the nominal budget,
+%       b_t = [(1+r_t) b_{t-1} + (1-phi_t) g_t] / (1+rbar),
+%     which nests the benchmark at phi==1 (b_t = B0/phat_t). The
+%     stationarized nominal stock Bhat_t = b_t*phat_t rises to
+%     kappa_inf*B0; by nominal neutrality (Lemma: joint rescaling of B and
+%     the real program is a price-level rescaling, and here the real
+%     program is indexed) the terminal steady state is the SAME real
+%     economy with phat_T = kappa_inf * eq1.P, so the terminal pin floats
+%     with the accumulated stock (lagged one iteration, which converges
+%     with the fixed point; phi_T is 1 to machine precision at T=80 for
+%     rho_d <= 0.9, so kappa is flat at the tail). The terminal household
+%     objects are UNCHANGED -- neutrality means the diluted terminal has
+%     identical (b, tau, g, D) -- which is what makes the experiment
+%     well-posed without re-solving the boundary. This answers, inside the
+%     nonlinear model, whether the announcement disinflation survives
+%     above-trend issuance: the impact response mixes the (weaker, because
+%     delayed) tax-demand channel with the (inflationary) dilution of the
+%     terminal price level, and neither sign is imposed.
 % OUTPUT TR: .phat (1xT), .P0, .pi_path, .r_path, .tau_path, .D_path,
 %   .Kg_path, .S_path, .b_path, .resid (1xT), .iters,
 %   .eq0, .eq1 (boundary steady states), .reval_stock, .reval_pv_share,
@@ -102,7 +127,14 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
     xi     = getopt(opts, 'xi', 0.5);
     regime = getopt(opts, 'regime', 'nominal');
     financing = getopt(opts, 'financing', 'lumpsum');
-    rebate = strcmpi(financing, 'rebate');
+    rebate  = strcmpi(financing, 'rebate');
+    deficit = strcmpi(financing, 'deficit');
+    rho_d   = getopt(opts, 'rho_d', 0.8);
+    assert(~deficit || strcmpi(regime, 'indexed'), ...
+        ['financing=''deficit'' requires regime=''indexed'': the experiment ' ...
+         'holds the REAL program at the balanced benchmark so only the tax ' ...
+         'timing differs; a nominal appropriation would let the terminal ' ...
+         'dilution shrink the real program and confound the comparison.']);
     verbose= getopt(opts, 'verbose', true);
 
     % SOLVER CONSISTENCY (Round 12): the transition interior is computed by
@@ -165,8 +197,17 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
     dist0 = oI.dist;       % pre-announcement wealth distribution
 
     % ---- initial guess: log-linear bridge between the steady states ----
-    phat = exp(linspace(log(eq0.P), log(eq1.P), T));
-    phat(T) = eq1.P;
+    % Under deficit financing the terminal price is diluted by the
+    % accumulated stock; seed the bridge with the analytic zeroth-order
+    % kappa (undiscounted sum of the primary gaps over the initial stock)
+    % so the floating pin starts near its fixed point.
+    Pterm_guess = eq1.P;
+    if deficit
+        kappa0 = 1 + (rho_d / (1 - rho_d)) * (Gg / B0);
+        Pterm_guess = kappa0 * eq1.P;
+    end
+    phat = exp(linspace(log(eq0.P), log(Pterm_guess), T));
+    phat(T) = Pterm_guess;
 
     % Kg accumulation from zero (announcement); delta_g from pgc
     dg  = pgc.delta_g;
@@ -190,18 +231,44 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
         end
         % version-1 climate map with TRANSITION Kg (not the ss shortcut)
         D_path = pgc.D0 * exp(-pgc.theta_g * Kg);
-        b_path = B0 ./ phat;
-        if rebate
-            % R3 flow identity: tau_ls + vartheta(1-D) = r*b + g at every t
-            vart_path = 2 * g_path ./ (1 - D_path);
-            tau_path  = rbar .* b_path - g_path;
-        else
-            vart_path = zeros(1, T);
-            tau_path  = rbar .* b_path + g_path;
-        end
         % realized real return: surprise jump at t=1 against P0 = eq0.P
         phat_lag = [eq0.P, phat(1:T-1)];
         r_path = (1 + rbar) .* phat_lag ./ phat - 1;
+        if deficit
+            % DEFICIT FINANCING: taxes phase in, debt is the residual.
+            % tau_t = rbar*b_t + phi_t*g_t with the service on
+            % CONTEMPORANEOUS real debt (the benchmark's convention), so
+            % the real recursion b_t = (1+r_t)b_{t-1} + g_t - tau_t
+            % rearranges to the explicit forward form below; phi==1
+            % reproduces b_t = B0/phat_t exactly (the (1+r_t)/(1+rbar)
+            % factor is phat_{t-1}/phat_t).
+            phi_path = 1 - rho_d.^(1:T);
+            b_path = zeros(1, T);
+            bprev  = B0 / eq0.P;               % pre-announcement real debt
+            for tt = 1:T
+                b_path(tt) = ((1 + r_path(tt)) * bprev ...
+                              + (1 - phi_path(tt)) * g_path(tt)) / (1 + rbar);
+                bprev = b_path(tt);
+            end
+            vart_path = zeros(1, T);
+            tau_path  = rbar .* b_path + phi_path .* g_path;
+            kappa_path = b_path .* phat / B0;  % stationarized stock, /B0
+            % terminal pin FLOATS with the accumulated stock (nominal
+            % neutrality: same real terminal economy, price scaled by
+            % kappa). Lagged one iteration; kappa is flat at the tail.
+            phat(T) = kappa_path(T) * eq1.P;
+        else
+            phi_path = ones(1, T); kappa_path = ones(1, T);
+            b_path = B0 ./ phat;
+            if rebate
+                % R3 flow identity: tau_ls + vartheta(1-D) = r*b + g each t
+                vart_path = 2 * g_path ./ (1 - D_path);
+                tau_path  = rbar .* b_path - g_path;
+            else
+                vart_path = zeros(1, T);
+                tau_path  = rbar .* b_path + g_path;
+            end
+        end
 
         % ---- backward: date-t policies from the terminal green ss ----
         [POL, feas] = transition_backward(VT, r_path, tau_path, D_path, pgc, ...
@@ -244,7 +311,8 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
             best = struct('resnorm', resnorm, 'phat', phat, 'resid', resid, ...
                 'S_path', S_path, 'b_path', b_path, 'tau_path', tau_path, ...
                 'r_path', r_path, 'D_path', D_path, 'Kg', Kg, ...
-                'g_path', g_path, 'vart_path', vart_path, 'it', it);
+                'g_path', g_path, 'vart_path', vart_path, ...
+                'phi_path', phi_path, 'kappa_path', kappa_path, 'it', it);
         end
         % ---- Anderson-accelerated fixed point on the log price path ----
         % Fixed point: phat_t = B0/S_t, i.e. the log residual
@@ -298,6 +366,9 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
     TR.r_path = r_path; TR.tau_path = tau_path; TR.D_path = D_path;
     TR.Kg_path = Kg;    TR.S_path = S_path;     TR.b_path = b_path;
     TR.g_path = g_path; TR.vart_path = vart_path; TR.financing = financing;
+    TR.phi_path = best.phi_path;  TR.kappa_path = best.kappa_path;
+    TR.primary_gap = (1 - best.phi_path) .* best.g_path;
+    TR.kappa_inf = best.kappa_path(end);  TR.rho_d = rho_d;
     TR.resid  = resid;  TR.iters = it;  TR.best_iter = best.it;
     % split diagnostics: fixed-point convergence (free unknowns) vs horizon
     % adequacy (pinned terminal date). A reportable result needs BOTH small.
