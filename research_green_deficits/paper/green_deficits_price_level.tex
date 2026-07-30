@@ -126,6 +126,10 @@
 \providecommand{\DefCumGap}{\pendingnum}\providecommand{\DefRevalBal}{\pendingnum}
 \providecommand{\DefRevalDef}{\pendingnum}\providecommand{\DefKapStar}{\pendingnum}
 \providecommand{\DefValidGap}{\pendingnum}
+\providecommand{\MobQoneTwo}{\pendingnum}\providecommand{\MobQfiveTwo}{\pendingnum}
+\providecommand{\MobQoneFive}{\pendingnum}\providecommand{\MobQfiveFive}{\pendingnum}
+\providecommand{\MobShTwo}{\pendingnum}\providecommand{\MobShFive}{\pendingnum}
+\providecommand{\MobConMass}{\pendingnum}\providecommand{\MobConStay}{\pendingnum}
 \providecommand{\KVTrT}{\pendingnum}\providecommand{\KVTrLam}{\pendingnum}
 \providecommand{\KVTrIota}{\pendingnum}\providecommand{\KVTrMargin}{\pendingnum}
 \providecommand{\KVTrResid}{\pendingnum}\providecommand{\KVTrTerm}{\pendingnum}
@@ -4480,6 +4484,28 @@ and $250$ grids. A step-size sweep confirms the lump-sum-equals-levy-plus-tilt
 identity is exact in the small-change limit (the additivity residual falls
 with the perturbation), so its finite-change value is a genuine nonlinear
 interaction, not numerical error.
+
+\emph{(v) Wealth-mobility diagnostics.} Because the distributional term
+operates through the endogenous wealth distribution, the model's mobility
+is a natural target for external discipline, and we report it so a reader
+can judge it. Wealth-quintile transition matrices computed from the
+stationary transition operator give diagonal persistence of
+$\MobQoneTwo$ (bottom) and $\MobQfiveTwo$ (top) at a two-year horizon, and
+$\MobQoneFive$ and $\MobQfiveFive$ at five years, with Shorrocks trace
+indices of $\MobShTwo$ and $\MobShFive$; the constrained set carries
+$\MobConMass$ of the mass and $\MobConStay$ of it is still constrained two
+years later. Four qualitative features of US wealth mobility that hold
+across studies and wealth definitions --- low short-run mobility (every
+two-year diagonal above one half), maximal persistence at the top,
+persistence declining with the horizon, and a U-shaped persistence profile
+in which the constrained bottom and the unconstrained top are both stickier
+than the middle --- are all satisfied. We stop there deliberately: matching
+these moments \emph{quantitatively} to published transition matrices
+requires reconciling wealth definitions (the model's single liquid asset
+against survey net worth inclusive of housing and pensions), and we do not
+claim a quantitative validation the exercise has not delivered. It remains
+the paper's one substantive open item, and is flagged as such in
+Section~\ref{sec:conclusion}.
 
 % ==========================================================================
 % ==========================================================================

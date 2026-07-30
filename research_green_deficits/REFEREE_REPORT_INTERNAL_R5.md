@@ -476,6 +476,85 @@ LESSON for future demotions: verify the insert landed by checking that
 the appendix START PAGE moved by roughly the size of the moved block.
 A move that does not change the body length did not happen.
 
+### MC3 SETTLED (2026-07-30) — and it went against our prior
+
+All four kernel gates PASS, two at machine precision: Bellman step is a
+fixed point of V_term to 8.1e-07 (tol 9.2e-06); forward push is a fixed
+point of the stationary distribution to 9.7e-12; kernel aggregates match
+the independent stationary construction EXACTLY (|dSb| 1.1e-16, |dSk| 0);
+end-to-end no-program constant-price recursion reproduces the baseline
+(bond 4.2e-07; its 1.2e-03 tree entry is inherited from the baseline
+equilibrium's own q-bisection tolerance, not from the path kernels).
+
+Path: interior 7.9e-4 against the 2e-3 gate (margin 2.5x), terminal
+2.2e-4, zero healed nodes. The refinement stage mattered: chasing 4e-4
+below the gate moved the best iterate from 1.9e-3 to 7.9e-4 and moved
+front-loading 80% -> 76%. FRONT-LOADING IS SENSITIVE AT THE
+SEVERAL-PERCENTAGE-POINT LEVEL TO THE SOLVE TOLERANCE; never quote it from
+a run that stopped at the first crossing.
+
+| group | transition-inclusive | entering the new ss |
+|---|---|---|
+| bottom quintile | -4.38% | -4.40% |
+| bottom half | -3.73% | -3.77% |
+| middle 50-90 | -2.48% | -2.57% |
+| top decile | -1.25% | -1.35% |
+| top 1 percent | -0.03% | -0.12% |
+| constrained | -5.15% | -5.17% |
+| all | -2.98% | -3.05% |
+
+Masses land on 0.2000/0.5000/0.1000/0.0100 exactly, confirming the
+tie-safe quantile-band fix (wealth b+q*k is income-state-independent, so
+every node is ne-fold tied and a value cutoff mis-assigns whole ties).
+
+TWO FINDINGS. (1) The incidence gradient is steep and survives: bottom
+quintile -4.38%, constrained -5.15%, top percentile -0.03%. (2) Against
+our prior, THE TRANSITION ADDS ALMOST NOTHING -- every group within 0.10pp
+of the stationary column, ordering unchanged. In the one-asset economy the
+transition moved incidence by ~0.8pp and in OPPOSITE directions at the two
+ends. The reason is structural: the one-asset economy assigns the whole
+nominal stock to households directly and lets them rebalance costlessly,
+so the announcement revaluation is at its theoretical maximum and lands
+undiluted; with iota_H = 0.27 held directly and the illiquid margin
+adjusting once every 1/lambda periods, the revaluation reaching households
+shrinks in proportion and cannot be traded on.
+
+This RUNS THE PAPER'S WAY. The stationary incidence tables are not an
+approximation to the object answering the title question -- in the
+disciplined economy they ARE that object, to within a tenth of a
+percentage point. And it scopes the one-asset transition result: its
+transition-versus-stationary wedge is an upper bound from maximal direct
+ownership and costless rebalancing, not a general feature of announcements.
+
+### MC2(i) — as far as this environment honestly allows
+
+Model side computed (`main_validation_mobility`): 2y quintile diagonals
+0.813/0.651/0.688/0.750/0.908 (Shorrocks 0.298); 5y 0.633/0.402/0.382/
+0.481/0.782 (Shorrocks 0.580); constrained mass 0.203 with 2y persistence
+0.812.
+
+The driver now validates in TWO LAYERS because they have different
+evidentiary status. Layer 1 is automatic and definition-robust: four
+stylized facts that hold across every US wealth-mobility study and every
+wealth definition -- low short-run mobility (all 2y diagonals >= 0.5), top
+quintile most persistent, persistence declining with horizon, U-shaped
+persistence profile. ALL FOUR PASS. A model failing any of them has wealth
+dynamics too wrong to carry the distributional term, so this is a real if
+weak test. Layer 2 is the quantitative comparison, and it remains OPEN:
+the source tables (HLS 1998 BPEA; SCF 2007-09 panel; KVW 2014) are not
+reachable from this sandbox (the proxy refuses CONNECT to those hosts),
+and transcribing decimals from memory into a validation table is worse
+than leaving it empty. The driver documents exactly which table and which
+entries to take, plus the definitional caveat (the model's single liquid
+asset maps to financial wealth, not survey net worth inclusive of housing
+and pensions).
+
+Paper: appendix numerics gains a short (v) subsection reporting the model
+mobility and the four satisfied stylized facts, and stating plainly that
+no quantitative validation is claimed. The conclusion keeps this as the
+paper's one substantive open item. It is NOT in the body -- model moments
+without a data column are not a validation and should not cost a page.
+
 ### Paper-length actions this round
 
 Robustness subsection (~4pp incl. the sources table and the production

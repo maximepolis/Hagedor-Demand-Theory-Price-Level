@@ -149,9 +149,13 @@
 % n_b=60, n_k=34, n_e=8, T=60. Value-function backward induction (one Bellman
 % application per date on the (b,k,e) grid) + per-date sparse distribution
 % push; Anderson-accelerated fixed point on the stacked [log P; log q] paths.
-% Converged in 23 iterations: interior residual 1.9e-3 (tol 2e-3), terminal
-% (horizon) residual 7.2e-4, zero healed nodes, k-grid top mass 0.0014.
-% Terminal clearing gates: bond 0.9999, tree 1.0010.
+% Refinement stage chases 4e-4 below the 2e-3 reportable gate; the run used
+% its full 140-iteration budget and the best iterate reached interior 7.9e-4
+% (margin 2.5x), terminal (horizon) 2.2e-4, zero healed nodes, k-grid top
+% mass 0.0014. NOTE: front-loading moved 80% -> 76% when the residual
+% tightened from 1.9e-3 to 7.9e-4, so this statistic is sensitive at the
+% several-percentage-point level to the solve tolerance -- do not quote it
+% from a looser run.
 %
 % SCOPE. Like the steady-state financing experiment it is anchored to, this
 % path holds damages at D_0 and varies only the tax: it is the announcement
@@ -199,6 +203,23 @@
 \newcommand{\KVWelAll}{-2.98}\newcommand{\KVWelAllSS}{-3.05}
 \newcommand{\KVWelMaxGap}{0.10}
 \newcommand{\KVWelOneAssetGap}{0.8}
+
+% ---- Wealth-mobility diagnostics (table: validation_mobility) ----
+% Stationary transition operator (Young lottery x income mixing) on the
+% calibrated benchmark, na=500, ne=7, beta=0.9267. All four
+% definition-robust stylized facts satisfied (low short-run mobility,
+% top most persistent, persistence declining in the horizon, U-shaped
+% profile). Quantitative comparison to published matrices NOT performed:
+% it requires reconciling the model's single liquid asset with survey net
+% worth, and the data slots in the driver are deliberately left empty.
+\newcommand{\MobQoneTwo}{0.81}
+\newcommand{\MobQfiveTwo}{0.91}
+\newcommand{\MobQoneFive}{0.63}
+\newcommand{\MobQfiveFive}{0.78}
+\newcommand{\MobShTwo}{0.30}
+\newcommand{\MobShFive}{0.58}
+\newcommand{\MobConMass}{20\%}
+\newcommand{\MobConStay}{81\%}
 
 % ---- Matched-parameter ladder (table: twoasset_ownership_kv_ladder) ----
 % Coarse grid. beta = 0.874 and chi_b = 0.00223 held at the benchmark values
