@@ -356,7 +356,7 @@ under high-damage estimates ($\bcrLow$, $\bcrMed$, $\bcrHigh$ across the
 DICE, empirical, and high-damage columns of
 Section~\ref{subsec:calibrated}) --- and even these are conditional on an
 abatement technology whose effectiveness $\theta_g$ we report as a frontier,
-not a point (Section~\ref{subsec:robustness}). The revaluation component
+not a point (Appendix~\ref{subsec:robustness}). The revaluation component
 answers the \emph{fiscal} question, and its sign is a property of the tax
 instrument. A proportional levy plus rebate raises the price level (to
 $\RRebP$ from a no-program $\PzeroRegimes$): the levy weakens precautionary
@@ -488,7 +488,7 @@ public liabilities of which the climate application is the disciplined
 special case.
 Everything else is secondary or conditional: the self-financing
 magnitudes are frontiers conditional on climate damages and an
-illustrative abatement technology (Section~\ref{subsec:robustness}); the
+illustrative abatement technology (Appendix~\ref{subsec:robustness}); the
 \emph{sunspot} and \emph{anchor-insulation} results are design insurance the
 calibrated frontier never activates (Table~\ref{tab:frontier}); ``optimal
 accommodation'' is an optimal-real-rate statement, not an inflation
@@ -901,14 +901,14 @@ the reduced form supports the closed-economy interpretation cleanly. We
 therefore take \emph{public adaptation capital} (the reduced form) as the
 benchmark reading throughout the calibrated analysis: it is
 the internally coherent closed-economy interpretation, it makes the
-productive-capital margin of Section~\ref{subsec:robustness} defensible, and
+productive-capital margin of Appendix~\ref{subsec:robustness} defensible, and
 it is the reading for which the hardening-elasticity evidence of
 \citet{fried2022seawalls} offers discipline. The carbon-stock specification
 then serves as the coordinated-mitigation robustness variant, one country's share
 of a global program. What the mechanism needs is common to both: public
 capital that lowers future damages.
 Crucially, $\theta_g$ has no clean empirical counterpart under either reading
-(Section~\ref{subsec:robustness} reports it as a frontier, not a point), so
+(Appendix~\ref{subsec:robustness} reports it as a frontier, not a point), so
 the quantitative benefit--cost ratios below identify the \emph{internal
 region} of $(\theta_g,\delta_g,D_0)$ space in which the program pays for
 itself; they are not magnitudes trained on a calibrated mitigation or
@@ -1012,7 +1012,7 @@ alone. It is negative in every lump-sum-financed calibration we report
 so raises the required $\tau$ --- and turns positive only once financing
 shifts to a proportional levy (Section~\ref{subsec:regimes}). The damage
 dividend yields the treasury zero revenue absent a tax base; the production
-exercise of Section~\ref{subsec:robustness} supplies exactly that mapping
+exercise of Appendix~\ref{subsec:robustness} supplies exactly that mapping
 (an output-tax take $t$ converts an output gain $dY$ into revenue $t\,dY$).
 
 \emph{What $\nu$ is, then.} The composite $\nu=\nu_{\mathrm{reval}}+\nu_{\mathrm{dam}}$
@@ -1633,317 +1633,6 @@ and monetary accommodation can. Anchor insulation is design insurance
 against a tail the data do not currently reach; none of the paper's
 incidence results relies on it.
 
-\subsection{Optimal accommodation}
-
-The preceding subsection left accommodation (a higher $\mu$, hence a
-lower $r^{ss}$) as the instrument that restores existence where
-indexation cannot. That raises the natural question of how far to push it:
-a lower real rate shrinks the interest bill the taxes must cover, but a
-higher price level erodes the real program under a nominal budget. The
-tradeoff has an interior optimum.
-
-\begin{proposition}[Optimal nominal growth]\label{prop:optimalmu}
-Let $W(\mu)=\int V\,\dd\Omega$ be utilitarian steady-state welfare along the
-nominal growth rate, holding $i^{ss}$ fixed. At the fiscal margin, an increase
-in $\mu$ (i) lowers $r^{ss}$ and the real interest burden $r^{ss}b$ --- a
-transfer from bondholders, whose wealth-weighted marginal utility is low, to
-taxpayers, whose population-weighted marginal utility is high; (ii) raises
-$P$, eroding $g_g=G_g/P$ and hence raising $D$ and risk; (iii) lowers the
-return on the buffer asset. If bond wealth is more concentrated than income,
-the first effect is first-order at small $\mu$ while the climate cost is
-proportional to the program size; the optimum $\mu^{*}$ is then interior and
-strictly positive. Its magnitude is quantitative.
-\end{proposition}
-\noindent\textsc{Status:} analytic \textbf{reduction} to a real-rate problem
-(via Proposition~\ref{prop:muneutral}) plus a \textbf{numerically located}
-interior optimum; proof in Appendix~\ref{app:proofs}. The reduction is
-general; the interior location $\mu^{*}\approx4.5\%$ is computed at the
-illustrative worked-example scale (Appendix~\ref{subsec:optmu}), and should be
-read as an existence-and-direction result --- accommodation is a real-rate
-instrument with an interior optimum, not as a calibrated policy magnitude.
-
-% --------------------------------------------------------------------------
-\subsection{Financing design and the revaluation channel}\label{subsec:financingdesign}
-
-The last result formalizes the channel Figure~\ref{fig:mechanism} flagged:
-the financing instrument touches nothing in the climate block, yet it sets
-the sign of the revaluation term, and with it who ultimately pays. In
-the language of Proposition~\ref{prop:suffstat}, it is a statement about
-the numerator of the incidence formula, holding the denominator fixed.
-
-\begin{proposition}[Financing design controls the revaluation channel]
-\label{prop:financingdesign}
-Fix the real program $g_g$ and consider financing mixes
-$(\tau_{ls}, \vartheta)$ satisfying the aggregate budget identity
-$\tau_{ls} + \vartheta\,(1-D) = r^{ss} b + g_g$, where $\vartheta$ is a
-proportional levy on effective endowments. Suppose (i)
-$\partial \Sfun/\partial \tau_{ls} \ge 0$ (the constraint-floor
-precautionary response to lump-sum taxes, the sign measured at the
-benchmark), and (ii) $\Sfun$ inherits the approximate degree-one scaling of
-Lemma~\ref{lem:S} in the proportional factor $(1-\vartheta)$. Then a
-budget-neutral shift of financing from the lump-sum component toward the
-levy lowers aggregate asset demand, raises the equilibrium price level, and
-raises $\nu_{\mathrm{reval}}$; augmenting the levy with a lump-sum rebate
-(so $\tau_{ls}$ falls below the interest burden) strengthens the shift. In
-particular, the sign of the revaluation channel is an instrument of fiscal
-design, not a structural constant of the green program. The mechanism holds
-under the stated sign conditions; the magnitudes are quantified in
-Section~\ref{subsec:regimes}.
-\end{proposition}
-\noindent\textsc{Status:} sign result under the stated conditions, using the
-\textbf{approximate} degree-one homogeneity of Lemma~\ref{lem:S} (exact in the
-homothetic limit; the residual non-homotheticity is second-order for small
-$\vartheta$); proof in Appendix~\ref{app:proofs}.
-
-The approximate homogeneity is only the operational route to the sign; the
-exact statement is a covariance, and it is worth writing because it says
-precisely which financing reforms are inflationary. Let a reform be indexed
-by $\alpha$ and change household $i$'s net income by
-$dy_i^{\mathrm{net}}(\alpha)$, and let
-$m_i^b\equiv \partial b_i'/\partial y_i^{\mathrm{net}}$ be the household's
-marginal propensity to accumulate the liquid nominal claim.
-
-\begin{proposition}[Covariance form of the direct incidence term]\label{prop:covincidence}
-Hold the real interest rate and the stationary distribution fixed. The
-\emph{direct} (policy) response of aggregate demand for the nominal liability
-to a financing reform indexed by $\alpha$ is
-\begin{equation}
-\left.\frac{\partial S_b}{\partial\alpha}\right|_{\text{direct}}
-=\int m_i^b\,\frac{\partial y_i^{\mathrm{net}}}{\partial\alpha}\,\dd\Omega_i
-=\E[m^b]\,\E[dy^{\mathrm{net}}]+\Cov\!\big(m_i^b,\,dy_i^{\mathrm{net}}\big).
-\label{eq:covincidence}
-\end{equation}
-For a \emph{revenue-neutral} reform $\E[dy^{\mathrm{net}}]=0$, so the direct
-term is exactly $\Cov(m_i^b,dy_i^{\mathrm{net}})$: at unchanged prices and
-distribution, a budget-neutral shift toward a more regressive instrument
-raises direct demand for the nominal liability precisely when it cuts
-disposable income by more for households with higher liquid-saving
-propensities $m_i^b$. The full stationary response adds a
-distribution-shift term $\mathcal D_\alpha$ (and, in a model with an
-endogenous real rate, a price term $\mathcal G_\alpha$):
-\begin{equation}
-\frac{\partial S_b}{\partial\alpha}
-=\Cov\!\big(m_i^b,\,dy_i^{\mathrm{net}}\big)+\mathcal D_\alpha+\mathcal G_\alpha.
-\label{eq:covfull}
-\end{equation}
-\end{proposition}
-\noindent\textsc{Status:} \textbf{exact} decomposition of the direct term
-(adding and subtracting $\E[m^b]\E[dy^{\mathrm{net}}]$). The covariance
-governs the \emph{direct} incidence term, not by itself the sign of the full
-equilibrium response; $\mathcal D_\alpha$ is the stationary-distribution
-response, computed from $(I-\Lambda)\dd\Omega=(\dd\Lambda)\Omega$ with
-$\mathbf 1'\dd\Omega=0$, and $\mathcal G_\alpha$ vanishes in the endowment
-economy, where the experiment fixes the real rate and the price level clears
-the nominal market given this schedule. Whether the covariance term or the
-distributional term carries the stationary response is a quantitative
-question, and the answer is the distributional term. Measured on the
-calibrated distribution, the direct fixed-state covariance term is
-$\covTiltDirect$ per unit of revenue --- essentially zero, and slightly
-\emph{negative} --- against a full stationary tilt response of $\epsTilt$,
-so the entire positive response ($\covTiltShift$) is generated by the
-endogenous adjustment of the wealth distribution $\mathcal D_\alpha$: at the
-initial distribution the mean-zero regressive tilt does not raise desired
-liquid saving, but the reform shifts households across wealth states in a
-way that raises aggregate liquid-asset demand in the new stationary
-equilibrium. The decomposition therefore separates two economically distinct
-forces, \emph{direct incidence}, the covariance of saving propensities
-with the reform's income shifts, and \emph{long-run distributional
-adjustment}, and shows the paper's positive tax response is a property of
-the second, not the first. This sharpens what external evidence can and
-cannot discipline: household-level saving responses bear on the (small)
-direct term, while the dominant distributional term is a
-stationary-equilibrium object that only the model's transition dynamics
-deliver; its horizon profile is verified numerically
-(Appendix~\ref{app:numerics}).
-
-% ==========================================================================
-\FloatBarrier
-\section{Quantitative analysis}\label{sec:quant}
-% ==========================================================================
-
-This section turns the propositions into numbers, and its subsections are
-ordered as an argument rather than a list. A brief worked example
-(Section~\ref{subsec:calibration}) makes the moving parts visible; no
-headline number rests on it. Every quantitative claim is stated on the
-externally disciplined damage columns of Section~\ref{subsec:calibrated}
-(debt-to-income and program scale calibrated, damages anchored to DICE /
-DJO--BHM / Bilal--K\"anzig), and Section~\ref{subsec:robustness} asks what one
-must believe for the answers to change, including the production margin the
-endowment economy omits. Having established \emph{how much}, we ask
-\emph{why} --- the safe-asset channel isolated node by node
-(Section~\ref{subsec:safeasset}), and \emph{what it is worth} when the
-climate risk is aggregate rather than idiosyncratic
-(Section~\ref{subsec:aggrisk}). The final step is \emph{who pays}: welfare
-incidence by wealth group (Section~\ref{subsec:welfaregroups}), and the
-financing designs that reverse it (Section~\ref{subsec:regimes}).
-Section~\ref{sec:transitions} then puts the same economy in motion; the
-worked-example detail, the optimal-accommodation exercise, and the bounding
-sweeps are collected in Appendix~\ref{app:supp}.
-
-% --------------------------------------------------------------------------
-\subsection{A worked example}\label{subsec:calibration}
-
-Before the disciplined calibration, we exhibit the mechanism on a
-deliberately magnified example: the benchmark household block
-($\beta=0.96$, $\sigma=2$, $\bar a=0$), no-abatement damages of
-$10\%$ of endowments, and a program several times a realistic scale, chosen
-so that every channel is visible (the full parameterization, the benchmark
-table, and the $\nu(\theta_g)$ sweep are in
-Appendix~\ref{subsec:workedexample}). The example makes three points that
-survive at the disciplined scale. The program raises precautionary
-asset demand --- avoided damages raise effective incomes, and the taxes that
-service the program tighten constraint-adjacent households, so the price
-level falls (Figure~\ref{fig:pfig1}); the revaluation channel is negative and
-the entire financing contribution comes from the damage dividend ($\nu=0.60$
-with $\nu_{\mathrm{reval}}=-0.24$ and $\nu_{\mathrm{dam}}=0.84$). Bondholders
-collect a one-time windfall concentrated at the top of the wealth
-distribution. And an unproductive nominal program ($\theta_g=0$) is
-worse than its sticker price ($\nu=-0.28$), because the
-disinflationary asset-demand response operates whatever the abatement
-payoff. Nothing in the paper's contribution rests on these magnitudes; the
-disciplined columns are in Section~\ref{subsec:calibrated}.
-
-\pfigguard{PFig1_green_steady_state.pdf}{%
-\begin{figure}[!htb]\centering
-\includegraphics[width=0.6\textwidth]{PFig1_green_steady_state.pdf}
-\caption{Green disinflation as a demand shift. The no-program and program
-asset-demand schedules against the bond-supply hyperbola $B/P$: the
-program raises precautionary asset demand, so the equilibrium
-moves down the supply curve from $P_0^{*}$ to $P_1^{*}$ --- the price
-level falls and outstanding nominal debt revalues in bondholders' favor.}
-\label{fig:pfig1}
-\end{figure}}
-
-% --------------------------------------------------------------------------
-\subsection{The extended sector and accommodation neutrality}\label{subsec:extended}
-
-The worked example used the reduced-form climate block; before moving to
-the calibrated analysis we verify that nothing about the mechanism hinges on
-that shortcut. The extended economy (carbon-stock climate sector, incidence
-$\psi=1$, accommodative stance $\mu_{\mathrm{ext}}=0.03$) delivers a unique interior
-green steady state: $P^{*}=0.2812$, $D=0.0708$ (against no-abatement damages
-$D(0)=0.0991$), $\tau=0.0772$. Its self-financing decomposition sharpens the
-benchmark's message:
-\[
-\nu = 0.659, \qquad \nu_{\mathrm{reval}} = -0.005, \qquad
-\nu_{\mathrm{dam}} = 0.664,
-\]
-with a one-time bondholder revaluation of only $-0.02$ (against $-0.78$ at
-the baseline stance $\mu=0.02$). \emph{Accommodation neutralizes the
-revaluation channel}: near the welfare-preferred stance, the no-program and
-program price levels nearly coincide ($P_0=0.2842$ vs $P_1=0.2812$), the
-program is approximately price-level neutral, and self-financing is almost
-entirely the damage dividend. The disinflationary bondholder windfall of the
-tight-money benchmark is thus not a fixture of the green program but a property
-of the monetary-fiscal stance --- tight stances hand the revaluation to
-bondholders; accommodative stances extinguish it. Under the extended sector
-the full self-financing threshold also falls: $\nu(\theta_g)$ crosses one
-between $\theta_g=1.5$ ($\nu=0.82$), and $\theta_g=2.0$ ($\nu=1.06$), i.e.\
-at $\theta_g\approx1.9$ versus $\approx2.4$ in the reduced-form benchmark,
-while an unproductive program remains worse than its sticker price
-($\nu=-0.11$ at $\theta_g=0$).
-
-% --------------------------------------------------------------------------
-\paragraph{Optimal accommodation is an optimal real rate.} Welfare along the
-nominal growth rate is hump-shaped with an interior optimum $\mu^{*}=0.045$, but by Proposition~\ref{prop:muneutral} this is not an inflation result:
-varying $\mu$ at fixed $i^{ss}$ is varying the real rate, so the
-optimum is the optimal real rate $r^{ss*}\approx-0.5\%$, and the welfare gain
-is the collapse of the real interest bill --- the
-\citet{aiyagarimcgrattan1998} optimal-quantity-of-debt force in a climate
-economy, disciplined by the climate loop (real-spending erosion), which is
-what makes the optimum interior. The full exercise, its existence boundary,
-and its scoping are in Appendix~\ref{subsec:optmu}.
-
-% --------------------------------------------------------------------------
-\subsection{The calibrated economies: low, medium, and high damages}
-\label{subsec:calibrated}
-
-The results above use the illustrative benchmark, whose fiscal scale is
-deliberately large (real debt of roughly five times mean income; a program of
-5--6\% of income). The calibrated analysis re-targets both margins and
-disciplines damages externally: the discount factor is chosen by bisection so
-that no-program real debt equals $1.10$ times mean \emph{pre-damage} income
-(OECD general-government debt/GDP), giving $\beta^{*}=0.9267$; the program is
-scaled to real green spending of $2.0\%$ of mean income at the calibrated
-price level (the public share of net-zero investment paths); and the
-no-abatement damage level takes three externally disciplined values ---
-\textbf{low} $D_0=0.02$ (DICE/\citealp{nordhaus2017}), \textbf{medium}
-$D_0=0.06$ (the \citealp{golosov2014}-era empirical range of
-Dell--Jones--Olken and Burke--Hsiang--Miguel temperature-damage estimates),
-and \textbf{high} $D_0=0.20$ \citep{bilalkanzig2024}. Abatement productivity
-$\theta_g$ remains illustrative and is reported as a sweep.
-Table~\ref{tab:calibrated} reports the calibrated economy.
-
-\begin{table}[!htb]
-\centering
-\caption{Calibrated self-financing by damage column
-($\beta^{*}=\betaStar$, debt/income $=1.10$, real program
-$g_{g,1}=\RDefGg$, i.e.\ $2.1\%$ of mean income at the program price level
-($2.0\%$ at the no-program price), $\mu=0.02$, $n_a=500$,
-calibration-consistent risk channel). The
-$\theta_g$-threshold row is the $\nu=1$ frontier of the robustness sweep
-(Section~\ref{subsec:robustness}, same $\beta^{*}$). All numbers are
-computed at the benchmark resolution.}
-\label{tab:calibrated}
-\footnotesize
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lccc}
-\toprule
- & LOW (DICE) & MEDIUM (DJO--BHM) & HIGH (Bilal--K\"anzig) \\
-\midrule
-no-abatement damages $D_0$    & 0.02   & 0.06   & 0.20 \\
-price level $P_0 \to P_1$     & $\PzeroLow \to \PoneLow$ & $\PzeroMed \to \PoneMed$ & $\PzeroHigh \to \PoneHigh$ \\
-damages $D_0 \to D_1$         & $\DzeroLow \to \DoneLow$ & $\DzeroMed \to \DoneMed$ & $\DzeroHigh \to \DoneHigh$ \\
-real taxes $\tau_1$           & $\tauOneLow$  & $\tauOneMed$  & $\tauOneHigh$ \\
-\midrule
-$\nu$                          & $\mathbf{\nuLow}$ & $\mathbf{\nuMed}$ & $\mathbf{\nuHigh}$ \\
-\quad revaluation              & $\nuRevalLow$ & $\nuRevalMed$ & $\nuRevalHigh$ \\
-\quad damage dividend          & $\nuDamLow$  & $\nuDamMed$  & $\nuDamHigh$ \\
-bondholder windfall $|L|$      & $\levyAbsLow$  & $\levyAbsMed$  & $\levyAbsHigh$ \\
-full financing at $\theta_g$   & none ($\nu\!=\!\nuDiceAtTwoFive$ at $2.5$) & $\thetaStarMed$ & $\thetaStarHigh$ \\
-steady-state welfare $W_0 \to W_1$ & $\WzeroLow \to \WoneLow$ & $\WzeroMed \to \WoneMed$ & $\WzeroHigh \to \mathbf{\WoneHigh}$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Four conclusions. First (the paper's central conditional statement), \emph{whether a green appropriation returns its resource cost is a
-climate-damage question}: at a defensible fiscal scale, the self-financing
-share runs from
-$\nuLowShort$ under conservative DICE damages, through $\nuMedShort$ under
-the empirical temperature-damage range, to $\nuHighShort$ (full
-self-financing twice over) under high-damage estimates. These are
-net-burden numbers (Definition~\ref{def:nu}): the strictly fiscal
-component is the revaluation term, negative in every column, so
-none of the program is fiscally self-financing in the endowment economy
-until the production margin of Section~\ref{subsec:robustness} converts
-the damage-induced income gain into revenue through a tax base. The model does not claim a green appropriation
-returns its cost; it locates the damage regime in which it does. Second,
-under DICE damages \emph{no} abatement productivity in the swept range
-delivers full financing ($\nu = \nuDiceAtTwoFive$ even at $\theta_g = 2.5$): the
-conservative-damage case is a genuine fiscal cost, the sober
-counterpart to the high-damage case. Third, \textbf{green disinflation is
-robust to the calibration}: the revaluation term is $-0.05$ to $-0.06$ in
-every column --- the program lowers the price level by about $5\%$ and hands
-bondholders a windfall of $6$--$7\%$ of annual mean income at every damage
-level. The sign reversal of the deficit-erosion channel is not an artifact
-of the oversized illustrative benchmark. Fourth, in the high-damage column
-the program raises steady-state welfare outright ($W$: $-7.55 \to -7.02$)
---- avoided damages and reduced climate risk dominate the added tax burden, whereas in the low and medium columns steady-state welfare falls, and
-the transition does not rescue it: the transition-inclusive computation of
-Section~\ref{subsec:tier2} shows the announced path is more
-regressive than the steady-state comparison, so the welfare case at
-medium damages rests on the financing design of
-Section~\ref{subsec:regimes}, not on transition gains.
-
-\pfigguard{PFig7_calibrated_nu.pdf}{%
-\begin{figure}[!htb]\centering
-\includegraphics[width=0.6\textwidth]{PFig7_calibrated_nu.pdf}
-\caption{Calibrated self-financing by damage column: stacked revaluation
-(negative), and damage-dividend components against the full-financing line.}
-\label{fig:pfig7}
-\end{figure}}
-
-% --------------------------------------------------------------------------
 \subsection{Robustness: what one must believe for a green appropriation to
 pay for itself}
 \label{subsec:robustness}
@@ -2132,6 +1821,375 @@ the paper reports frontiers in $\theta_g$ rather than point claims.
 % Appendix~\ref{app:figures} (supplementary figures).
 
 % --------------------------------------------------------------------------
+
+\subsection{The financing regimes at fixed real scale}
+\label{subsec:regimesreal}
+
+To isolate the incidence channel from the (second-order) real-scale drift that
+holding the \emph{nominal} appropriation fixed induces, Table~\ref{tab:regimesreal}
+recomputes the same four regimes holding the \emph{real} program $g_g$ fixed at
+its baseline value (letting $G_g$ adjust per regime), the convention of
+Proposition~\ref{prop:financingdesign}. By construction the damage dividend is
+then identical across regimes, so only the revaluation share and the
+welfare incidence can move, and the cross-regime differences are pure tax
+incidence plus the price-level response they induce, with no change in the real
+green scale. The revaluation swing and the welfare reversal survive the change
+of convention; the fixed-nominal and fixed-real revaluation shares differ only
+in the third decimal.
+
+\begin{table}[!htb]
+\centering
+\caption{Financing regimes holding the \emph{real} program fixed (pure
+incidence; companion to Table~\ref{tab:regimes}). $g_g$ is common across
+regimes, so the damage dividend is identical and only $\nu_{\mathrm{reval}}$ and
+welfare move.}
+\label{tab:regimesreal}
+\begin{tabular}{lcccc}
+\toprule
+regime & $P^{*}$ & $\nu$ & $\nu_{\mathrm{reval}}$ & bottom-50\%\,/\,top-10\% \\
+\midrule
+lump-sum         & $\RDefRealP$ & $\RDefRealNu$ & $\RDefRealRev$ & $\RDefRealBfifty\%$\,/\,$\RDefRealTten\%$ \\
+levy       & $\RLevRealP$ & $\RLevRealNu$ & $\RLevRealRev$ & $\RLevRealBfifty\%$\,/\,$\RLevRealTten\%$ \\
+levy-plus-rebate& $\RRebRealP$ & $\RRebRealNu$ & $\RRebRealRev$ & $\RRebRealBfifty\%$\,/\,$\RRebRealTten\%$ \\
+mixed           & $\RMixRealP$ & $\RMixRealNu$ & $\RMixRealRev$ & $\RMixRealBfifty\%$\,/\,$\RMixRealTten\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Optimal accommodation}
+
+The preceding subsection left accommodation (a higher $\mu$, hence a
+lower $r^{ss}$) as the instrument that restores existence where
+indexation cannot. That raises the natural question of how far to push it:
+a lower real rate shrinks the interest bill the taxes must cover, but a
+higher price level erodes the real program under a nominal budget. The
+tradeoff has an interior optimum.
+
+\begin{proposition}[Optimal nominal growth]\label{prop:optimalmu}
+Let $W(\mu)=\int V\,\dd\Omega$ be utilitarian steady-state welfare along the
+nominal growth rate, holding $i^{ss}$ fixed. At the fiscal margin, an increase
+in $\mu$ (i) lowers $r^{ss}$ and the real interest burden $r^{ss}b$ --- a
+transfer from bondholders, whose wealth-weighted marginal utility is low, to
+taxpayers, whose population-weighted marginal utility is high; (ii) raises
+$P$, eroding $g_g=G_g/P$ and hence raising $D$ and risk; (iii) lowers the
+return on the buffer asset. If bond wealth is more concentrated than income,
+the first effect is first-order at small $\mu$ while the climate cost is
+proportional to the program size; the optimum $\mu^{*}$ is then interior and
+strictly positive. Its magnitude is quantitative.
+\end{proposition}
+\noindent\textsc{Status:} analytic \textbf{reduction} to a real-rate problem
+(via Proposition~\ref{prop:muneutral}) plus a \textbf{numerically located}
+interior optimum; proof in Appendix~\ref{app:proofs}. The reduction is
+general; the interior location $\mu^{*}\approx4.5\%$ is computed at the
+illustrative worked-example scale (Appendix~\ref{subsec:optmu}), and should be
+read as an existence-and-direction result --- accommodation is a real-rate
+instrument with an interior optimum, not as a calibrated policy magnitude.
+
+% --------------------------------------------------------------------------
+\subsection{Financing design and the revaluation channel}\label{subsec:financingdesign}
+
+The last result formalizes the channel Figure~\ref{fig:mechanism} flagged:
+the financing instrument touches nothing in the climate block, yet it sets
+the sign of the revaluation term, and with it who ultimately pays. In
+the language of Proposition~\ref{prop:suffstat}, it is a statement about
+the numerator of the incidence formula, holding the denominator fixed.
+
+\begin{proposition}[Financing design controls the revaluation channel]
+\label{prop:financingdesign}
+Fix the real program $g_g$ and consider financing mixes
+$(\tau_{ls}, \vartheta)$ satisfying the aggregate budget identity
+$\tau_{ls} + \vartheta\,(1-D) = r^{ss} b + g_g$, where $\vartheta$ is a
+proportional levy on effective endowments. Suppose (i)
+$\partial \Sfun/\partial \tau_{ls} \ge 0$ (the constraint-floor
+precautionary response to lump-sum taxes, the sign measured at the
+benchmark), and (ii) $\Sfun$ inherits the approximate degree-one scaling of
+Lemma~\ref{lem:S} in the proportional factor $(1-\vartheta)$. Then a
+budget-neutral shift of financing from the lump-sum component toward the
+levy lowers aggregate asset demand, raises the equilibrium price level, and
+raises $\nu_{\mathrm{reval}}$; augmenting the levy with a lump-sum rebate
+(so $\tau_{ls}$ falls below the interest burden) strengthens the shift. In
+particular, the sign of the revaluation channel is an instrument of fiscal
+design, not a structural constant of the green program. The mechanism holds
+under the stated sign conditions; the magnitudes are quantified in
+Section~\ref{subsec:regimes}.
+\end{proposition}
+\noindent\textsc{Status:} sign result under the stated conditions, using the
+\textbf{approximate} degree-one homogeneity of Lemma~\ref{lem:S} (exact in the
+homothetic limit; the residual non-homotheticity is second-order for small
+$\vartheta$); proof in Appendix~\ref{app:proofs}.
+
+The approximate homogeneity is only the operational route to the sign; the
+exact statement is a covariance, and it is worth writing because it says
+precisely which financing reforms are inflationary. Let a reform be indexed
+by $\alpha$ and change household $i$'s net income by
+$dy_i^{\mathrm{net}}(\alpha)$, and let
+$m_i^b\equiv \partial b_i'/\partial y_i^{\mathrm{net}}$ be the household's
+marginal propensity to accumulate the liquid nominal claim.
+
+\begin{proposition}[Covariance form of the direct incidence term]\label{prop:covincidence}
+Hold the real interest rate and the stationary distribution fixed. The
+\emph{direct} (policy) response of aggregate demand for the nominal liability
+to a financing reform indexed by $\alpha$ is
+\begin{equation}
+\left.\frac{\partial S_b}{\partial\alpha}\right|_{\text{direct}}
+=\int m_i^b\,\frac{\partial y_i^{\mathrm{net}}}{\partial\alpha}\,\dd\Omega_i
+=\E[m^b]\,\E[dy^{\mathrm{net}}]+\Cov\!\big(m_i^b,\,dy_i^{\mathrm{net}}\big).
+\label{eq:covincidence}
+\end{equation}
+For a \emph{revenue-neutral} reform $\E[dy^{\mathrm{net}}]=0$, so the direct
+term is exactly $\Cov(m_i^b,dy_i^{\mathrm{net}})$: at unchanged prices and
+distribution, a budget-neutral shift toward a more regressive instrument
+raises direct demand for the nominal liability precisely when it cuts
+disposable income by more for households with higher liquid-saving
+propensities $m_i^b$. The full stationary response adds a
+distribution-shift term $\mathcal D_\alpha$ (and, in a model with an
+endogenous real rate, a price term $\mathcal G_\alpha$):
+\begin{equation}
+\frac{\partial S_b}{\partial\alpha}
+=\Cov\!\big(m_i^b,\,dy_i^{\mathrm{net}}\big)+\mathcal D_\alpha+\mathcal G_\alpha.
+\label{eq:covfull}
+\end{equation}
+\end{proposition}
+\noindent\textsc{Status:} \textbf{exact} decomposition of the direct term
+(adding and subtracting $\E[m^b]\E[dy^{\mathrm{net}}]$). The covariance
+governs the \emph{direct} incidence term, not by itself the sign of the full
+equilibrium response; $\mathcal D_\alpha$ is the stationary-distribution
+response, computed from $(I-\Lambda)\dd\Omega=(\dd\Lambda)\Omega$ with
+$\mathbf 1'\dd\Omega=0$, and $\mathcal G_\alpha$ vanishes in the endowment
+economy, where the experiment fixes the real rate and the price level clears
+the nominal market given this schedule. Whether the covariance term or the
+distributional term carries the stationary response is a quantitative
+question, and the answer is the distributional term. Measured on the
+calibrated distribution, the direct fixed-state covariance term is
+$\covTiltDirect$ per unit of revenue --- essentially zero, and slightly
+\emph{negative} --- against a full stationary tilt response of $\epsTilt$,
+so the entire positive response ($\covTiltShift$) is generated by the
+endogenous adjustment of the wealth distribution $\mathcal D_\alpha$: at the
+initial distribution the mean-zero regressive tilt does not raise desired
+liquid saving, but the reform shifts households across wealth states in a
+way that raises aggregate liquid-asset demand in the new stationary
+equilibrium. The decomposition therefore separates two economically distinct
+forces, \emph{direct incidence}, the covariance of saving propensities
+with the reform's income shifts, and \emph{long-run distributional
+adjustment}, and shows the paper's positive tax response is a property of
+the second, not the first. This sharpens what external evidence can and
+cannot discipline: household-level saving responses bear on the (small)
+direct term, while the dominant distributional term is a
+stationary-equilibrium object that only the model's transition dynamics
+deliver; its horizon profile is verified numerically
+(Appendix~\ref{app:numerics}).
+
+% ==========================================================================
+\FloatBarrier
+\section{Quantitative analysis}\label{sec:quant}
+% ==========================================================================
+
+This section turns the propositions into numbers, and its subsections are
+ordered as an argument rather than a list. A brief worked example
+(Section~\ref{subsec:calibration}) makes the moving parts visible; no
+headline number rests on it. Every quantitative claim is stated on the
+externally disciplined damage columns of Section~\ref{subsec:calibrated}
+(debt-to-income and program scale calibrated, damages anchored to DICE /
+DJO--BHM / Bilal--K\"anzig), and Appendix~\ref{subsec:robustness} asks what one
+must believe for the answers to change, including the production margin the
+endowment economy omits. Having established \emph{how much}, we ask
+\emph{why} --- the safe-asset channel isolated node by node
+(Section~\ref{subsec:safeasset}), and \emph{what it is worth} when the
+climate risk is aggregate rather than idiosyncratic
+(Section~\ref{subsec:aggrisk}). The final step is \emph{who pays}: welfare
+incidence by wealth group (Section~\ref{subsec:welfaregroups}), and the
+financing designs that reverse it (Section~\ref{subsec:regimes}).
+Section~\ref{sec:transitions} then puts the same economy in motion; the
+worked-example detail, the optimal-accommodation exercise, and the bounding
+sweeps are collected in Appendix~\ref{app:supp}.
+
+% --------------------------------------------------------------------------
+\subsection{A worked example}\label{subsec:calibration}
+
+Before the disciplined calibration, we exhibit the mechanism on a
+deliberately magnified example: the benchmark household block
+($\beta=0.96$, $\sigma=2$, $\bar a=0$), no-abatement damages of
+$10\%$ of endowments, and a program several times a realistic scale, chosen
+so that every channel is visible (the full parameterization, the benchmark
+table, and the $\nu(\theta_g)$ sweep are in
+Appendix~\ref{subsec:workedexample}). The example makes three points that
+survive at the disciplined scale. The program raises precautionary
+asset demand --- avoided damages raise effective incomes, and the taxes that
+service the program tighten constraint-adjacent households, so the price
+level falls (Figure~\ref{fig:pfig1}); the revaluation channel is negative and
+the entire financing contribution comes from the damage dividend ($\nu=0.60$
+with $\nu_{\mathrm{reval}}=-0.24$ and $\nu_{\mathrm{dam}}=0.84$). Bondholders
+collect a one-time windfall concentrated at the top of the wealth
+distribution. And an unproductive nominal program ($\theta_g=0$) is
+worse than its sticker price ($\nu=-0.28$), because the
+disinflationary asset-demand response operates whatever the abatement
+payoff. Nothing in the paper's contribution rests on these magnitudes; the
+disciplined columns are in Section~\ref{subsec:calibrated}.
+
+\pfigguard{PFig1_green_steady_state.pdf}{%
+\begin{figure}[!htb]\centering
+\includegraphics[width=0.6\textwidth]{PFig1_green_steady_state.pdf}
+\caption{Green disinflation as a demand shift. The no-program and program
+asset-demand schedules against the bond-supply hyperbola $B/P$: the
+program raises precautionary asset demand, so the equilibrium
+moves down the supply curve from $P_0^{*}$ to $P_1^{*}$ --- the price
+level falls and outstanding nominal debt revalues in bondholders' favor.}
+\label{fig:pfig1}
+\end{figure}}
+
+% --------------------------------------------------------------------------
+\subsection{The extended sector and accommodation neutrality}\label{subsec:extended}
+
+The worked example used the reduced-form climate block; before moving to
+the calibrated analysis we verify that nothing about the mechanism hinges on
+that shortcut. The extended economy (carbon-stock climate sector, incidence
+$\psi=1$, accommodative stance $\mu_{\mathrm{ext}}=0.03$) delivers a unique interior
+green steady state: $P^{*}=0.2812$, $D=0.0708$ (against no-abatement damages
+$D(0)=0.0991$), $\tau=0.0772$. Its self-financing decomposition sharpens the
+benchmark's message:
+\[
+\nu = 0.659, \qquad \nu_{\mathrm{reval}} = -0.005, \qquad
+\nu_{\mathrm{dam}} = 0.664,
+\]
+with a one-time bondholder revaluation of only $-0.02$ (against $-0.78$ at
+the baseline stance $\mu=0.02$). \emph{Accommodation neutralizes the
+revaluation channel}: near the welfare-preferred stance, the no-program and
+program price levels nearly coincide ($P_0=0.2842$ vs $P_1=0.2812$), the
+program is approximately price-level neutral, and self-financing is almost
+entirely the damage dividend. The disinflationary bondholder windfall of the
+tight-money benchmark is thus not a fixture of the green program but a property
+of the monetary-fiscal stance --- tight stances hand the revaluation to
+bondholders; accommodative stances extinguish it. Under the extended sector
+the full self-financing threshold also falls: $\nu(\theta_g)$ crosses one
+between $\theta_g=1.5$ ($\nu=0.82$), and $\theta_g=2.0$ ($\nu=1.06$), i.e.\
+at $\theta_g\approx1.9$ versus $\approx2.4$ in the reduced-form benchmark,
+while an unproductive program remains worse than its sticker price
+($\nu=-0.11$ at $\theta_g=0$).
+
+% --------------------------------------------------------------------------
+\paragraph{Optimal accommodation is an optimal real rate.} Welfare along the
+nominal growth rate is hump-shaped with an interior optimum $\mu^{*}=0.045$, but by Proposition~\ref{prop:muneutral} this is not an inflation result:
+varying $\mu$ at fixed $i^{ss}$ is varying the real rate, so the
+optimum is the optimal real rate $r^{ss*}\approx-0.5\%$, and the welfare gain
+is the collapse of the real interest bill --- the
+\citet{aiyagarimcgrattan1998} optimal-quantity-of-debt force in a climate
+economy, disciplined by the climate loop (real-spending erosion), which is
+what makes the optimum interior. The full exercise, its existence boundary,
+and its scoping are in Appendix~\ref{subsec:optmu}.
+
+% --------------------------------------------------------------------------
+\subsection{The calibrated economies: low, medium, and high damages}
+\label{subsec:calibrated}
+
+The results above use the illustrative benchmark, whose fiscal scale is
+deliberately large (real debt of roughly five times mean income; a program of
+5--6\% of income). The calibrated analysis re-targets both margins and
+disciplines damages externally: the discount factor is chosen by bisection so
+that no-program real debt equals $1.10$ times mean \emph{pre-damage} income
+(OECD general-government debt/GDP), giving $\beta^{*}=0.9267$; the program is
+scaled to real green spending of $2.0\%$ of mean income at the calibrated
+price level (the public share of net-zero investment paths); and the
+no-abatement damage level takes three externally disciplined values ---
+\textbf{low} $D_0=0.02$ (DICE/\citealp{nordhaus2017}), \textbf{medium}
+$D_0=0.06$ (the \citealp{golosov2014}-era empirical range of
+Dell--Jones--Olken and Burke--Hsiang--Miguel temperature-damage estimates),
+and \textbf{high} $D_0=0.20$ \citep{bilalkanzig2024}. Abatement productivity
+$\theta_g$ remains illustrative and is reported as a sweep.
+Table~\ref{tab:calibrated} reports the calibrated economy.
+
+\begin{table}[!htb]
+\centering
+\caption{Calibrated self-financing by damage column
+($\beta^{*}=\betaStar$, debt/income $=1.10$, real program
+$g_{g,1}=\RDefGg$, i.e.\ $2.1\%$ of mean income at the program price level
+($2.0\%$ at the no-program price), $\mu=0.02$, $n_a=500$,
+calibration-consistent risk channel). The
+$\theta_g$-threshold row is the $\nu=1$ frontier of the robustness sweep
+(Appendix~\ref{subsec:robustness}, same $\beta^{*}$). All numbers are
+computed at the benchmark resolution.}
+\label{tab:calibrated}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccc}
+\toprule
+ & LOW (DICE) & MEDIUM (DJO--BHM) & HIGH (Bilal--K\"anzig) \\
+\midrule
+no-abatement damages $D_0$    & 0.02   & 0.06   & 0.20 \\
+price level $P_0 \to P_1$     & $\PzeroLow \to \PoneLow$ & $\PzeroMed \to \PoneMed$ & $\PzeroHigh \to \PoneHigh$ \\
+damages $D_0 \to D_1$         & $\DzeroLow \to \DoneLow$ & $\DzeroMed \to \DoneMed$ & $\DzeroHigh \to \DoneHigh$ \\
+real taxes $\tau_1$           & $\tauOneLow$  & $\tauOneMed$  & $\tauOneHigh$ \\
+\midrule
+$\nu$                          & $\mathbf{\nuLow}$ & $\mathbf{\nuMed}$ & $\mathbf{\nuHigh}$ \\
+\quad revaluation              & $\nuRevalLow$ & $\nuRevalMed$ & $\nuRevalHigh$ \\
+\quad damage dividend          & $\nuDamLow$  & $\nuDamMed$  & $\nuDamHigh$ \\
+bondholder windfall $|L|$      & $\levyAbsLow$  & $\levyAbsMed$  & $\levyAbsHigh$ \\
+full financing at $\theta_g$   & none ($\nu\!=\!\nuDiceAtTwoFive$ at $2.5$) & $\thetaStarMed$ & $\thetaStarHigh$ \\
+steady-state welfare $W_0 \to W_1$ & $\WzeroLow \to \WoneLow$ & $\WzeroMed \to \WoneMed$ & $\WzeroHigh \to \mathbf{\WoneHigh}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Four conclusions. First (the paper's central conditional statement), \emph{whether a green appropriation returns its resource cost is a
+climate-damage question}: at a defensible fiscal scale, the self-financing
+share runs from
+$\nuLowShort$ under conservative DICE damages, through $\nuMedShort$ under
+the empirical temperature-damage range, to $\nuHighShort$ (full
+self-financing twice over) under high-damage estimates. These are
+net-burden numbers (Definition~\ref{def:nu}): the strictly fiscal
+component is the revaluation term, negative in every column, so
+none of the program is fiscally self-financing in the endowment economy
+until the production margin of Appendix~\ref{subsec:robustness} converts
+the damage-induced income gain into revenue through a tax base. The model does not claim a green appropriation
+returns its cost; it locates the damage regime in which it does. Second,
+under DICE damages \emph{no} abatement productivity in the swept range
+delivers full financing ($\nu = \nuDiceAtTwoFive$ even at $\theta_g = 2.5$): the
+conservative-damage case is a genuine fiscal cost, the sober
+counterpart to the high-damage case. Third, \textbf{green disinflation is
+robust to the calibration}: the revaluation term is $-0.05$ to $-0.06$ in
+every column --- the program lowers the price level by about $5\%$ and hands
+bondholders a windfall of $6$--$7\%$ of annual mean income at every damage
+level. The sign reversal of the deficit-erosion channel is not an artifact
+of the oversized illustrative benchmark. Fourth, in the high-damage column
+the program raises steady-state welfare outright ($W$: $-7.55 \to -7.02$)
+--- avoided damages and reduced climate risk dominate the added tax burden, whereas in the low and medium columns steady-state welfare falls, and
+the transition does not rescue it: the transition-inclusive computation of
+Section~\ref{subsec:tier2} shows the announced path is more
+regressive than the steady-state comparison, so the welfare case at
+medium damages rests on the financing design of
+Section~\ref{subsec:regimes}, not on transition gains.
+
+\pfigguard{PFig7_calibrated_nu.pdf}{%
+\begin{figure}[!htb]\centering
+\includegraphics[width=0.6\textwidth]{PFig7_calibrated_nu.pdf}
+\caption{Calibrated self-financing by damage column: stacked revaluation
+(negative), and damage-dividend components against the full-financing line.}
+\label{fig:pfig7}
+\end{figure}}
+
+% --------------------------------------------------------------------------
+\paragraph{Robustness: what one must believe (summary).}
+The climate side of the calibration is interrogated in full in
+Appendix~\ref{subsec:robustness}, which anchors every damage parameter to a
+published range (Table~\ref{tab:sources}), sweeps the one parameter no
+study pins down ($\theta_g$) as an axis of the answer rather than a point
+choice, and probes the endowment structure itself with a hypothetical
+production layer. Three findings carry back to the body. First, the
+self-financing answer is a \emph{correspondence}, not a point: the $\nu=1$
+frontier reads $\theta_g^{*}=\thetaStarMed$ at medium damages,
+$\thetaStarHigh$ at the high column, and lies above the swept range under
+DICE damages, so a reader can locate their own $\nu$ on the
+$(D_0,\theta_g)$ map (Figure~\ref{fig:pfig20}). Second, the disinflation is
+not a calibration artifact: the revaluation component is negative at all
+$\nodesNeg$ nodes of that plane. Third, $\nu$ is stable to the household
+side (risk aversion, the damage--risk link) but genuinely governed by
+incidence: under a strongly regressive damage gradient ($\psi=2$) the
+revaluation channel flips sign ($\Delta\ln P=+5.9\%$) --- not a fragility
+but the paper's point, since the sign of the revaluation channel is an
+incidence object. The production layer bounds the omitted \emph{revenue}
+margin in one direction only (it cannot sign the full production economy),
+and Appendix~\ref{subsec:robustness} is explicit about which margins remain
+unsigned.
+
 \subsection{Why the price level moves: the safe-asset channel isolated}
 \label{subsec:safeasset}
 
@@ -2650,36 +2708,14 @@ mixed      & $\RMixP$ & $\RMixGg$ & $\RMixDone$ & $\RMixNu$ & $\RMixRev$ & $\RMi
 \end{tabular}
 \end{table}
 
-To isolate the incidence channel from the (second-order) real-scale drift that
-holding the \emph{nominal} appropriation fixed induces, Table~\ref{tab:regimesreal}
-recomputes the same four regimes holding the \emph{real} program $g_g$ fixed at
-its baseline value (letting $G_g$ adjust per regime), the convention of
-Proposition~\ref{prop:financingdesign}. By construction the damage dividend is
-then identical across regimes, so only the revaluation share and the
-welfare incidence can move, and the cross-regime differences are pure tax
-incidence plus the price-level response they induce, with no change in the real
-green scale. The revaluation swing and the welfare reversal survive the change
-of convention; the fixed-nominal and fixed-real revaluation shares differ only
-in the third decimal.
+The same four regimes recomputed holding the \emph{real} program fixed
+(the convention of Proposition~\ref{prop:financingdesign}, so the damage
+dividend is identical across regimes and only incidence can move) leave
+every conclusion intact: the revaluation swing and the welfare reversal
+survive the change of convention, with the fixed-nominal and fixed-real
+revaluation shares differing only in the third decimal
+(Appendix~\ref{subsec:regimesreal}, Table~\ref{tab:regimesreal}).
 
-\begin{table}[!htb]
-\centering
-\caption{Financing regimes holding the \emph{real} program fixed (pure
-incidence; companion to Table~\ref{tab:regimes}). $g_g$ is common across
-regimes, so the damage dividend is identical and only $\nu_{\mathrm{reval}}$ and
-welfare move.}
-\label{tab:regimesreal}
-\begin{tabular}{lcccc}
-\toprule
-regime & $P^{*}$ & $\nu$ & $\nu_{\mathrm{reval}}$ & bottom-50\%\,/\,top-10\% \\
-\midrule
-lump-sum         & $\RDefRealP$ & $\RDefRealNu$ & $\RDefRealRev$ & $\RDefRealBfifty\%$\,/\,$\RDefRealTten\%$ \\
-levy       & $\RLevRealP$ & $\RLevRealNu$ & $\RLevRealRev$ & $\RLevRealBfifty\%$\,/\,$\RLevRealTten\%$ \\
-levy-plus-rebate& $\RRebRealP$ & $\RRebRealNu$ & $\RRebRealRev$ & $\RRebRealBfifty\%$\,/\,$\RRebRealTten\%$ \\
-mixed           & $\RMixRealP$ & $\RMixRealNu$ & $\RMixRealRev$ & $\RMixRealBfifty\%$\,/\,$\RMixRealTten\%$ \\
-\bottomrule
-\end{tabular}
-\end{table}
 
 Three results follow.
 First, \emph{the sign of the revaluation channel is a policy choice}
@@ -4910,9 +4946,15 @@ the $-1$ line.}
 % --------------------------------------------------------------------------
 \section{Supplementary results}\label{app:supp}
 % ==========================================================================
-This appendix collects six supporting analyses whose headline conclusions
+This appendix collects eight supporting analyses whose headline conclusions
 are stated (in one paragraph each) in the body; here each is developed
-in full. Section~\ref{subsec:maturity} disciplines the \emph{size} of the
+in full. Section~\ref{subsec:robustness} is the climate-side robustness
+program --- the $(D_0,\theta_g)$ frontier, the held-target household
+sweeps, and the hypothetical production layer --- whose three portable
+findings are summarized in Section~\ref{subsec:calibrated}.
+Section~\ref{subsec:regimesreal} recomputes the financing regimes at fixed
+real scale, the pure-incidence convention of
+Proposition~\ref{prop:financingdesign}. Section~\ref{subsec:maturity} disciplines the \emph{size} of the
 revaluation channel against the inflating-away literature: maturity,
 indexation, holder composition, and implementation efficiency, yielding the
 liquid-share bound that the abstract and Section~\ref{subsec:equilibrium}
@@ -5142,7 +5184,7 @@ $\alpha_A=0.9$; incidence $\psi\in\{0,1,2\}$. Numerical method in
 Appendix~\ref{app:numerics}. Because these parameters are an expository
 device, no headline result rests on them: the self-financing share is
 reported across low-, medium-, and high-damage columns
-(Section~\ref{subsec:calibrated}), Section~\ref{subsec:robustness} states
+(Section~\ref{subsec:calibrated}), Appendix~\ref{subsec:robustness} states
 each parameter's source and reports the headline objects over the full
 swept ranges, and the qualitative findings --- the disinflationary
 revaluation, its sign reversal under financing design, and the compression
@@ -5305,7 +5347,7 @@ hold the nominally-safe, really-risky bond as their only buffer.
 This appendix collects the supporting figures for five results whose headline
 magnitudes are reported in the text: the bounds on the revaluation channel
 (Appendix~\ref{subsec:maturity}), the calibration-robustness frontier
-(Section~\ref{subsec:robustness}), the extended welfare incidence
+(Appendix~\ref{subsec:robustness}), the extended welfare incidence
 (Section~\ref{subsec:regimes}), the aggregate-risk welfare decomposition
 (Section~\ref{subsec:aggrisk}), and the two-asset heterogeneous-agent
 impulse responses (Appendix~\ref{subsec:twoasset}).
