@@ -191,6 +191,7 @@ next-round run list:
   RUNS NEEDED: (i) wealth-mobility / liquid-asset transition moments vs
   model; (ii) finite-horizon financing comparison (at what horizon does the
   levy-vs-lump-sum ordering become operative along the path?).
+  ITEM (ii) SETTLED 2026-07-30, see Round 7 below. Item (i) still open.
 - **MC3 (transition-inclusive welfare as principal object)**: the welfare
   section now names the two incidence objects and declares the
   transition-inclusive one (computed for one asset) the object answering
@@ -307,3 +308,46 @@ robust headline), which is a within-schedule comparison across instruments.
 STILL OPEN on MC4: the remaining cell of the 2x2 is the NK side under
 matched deficit timing; the paper delivers the balanced column and the
 DTPL row.
+
+## MC2 item (ii) — finite-horizon operativeness: SETTLED 2026-07-30
+
+`main_transition_ordering`, pure post-processing of the two converged
+reportable paths (no new solve, 1.2 s). Delta_t = ln phat_rebate(t) -
+ln phat_lumpsum(t).
+
+- Delta_1 = +0.1605 against Delta_inf = +0.1506: **106.6% of the long-run
+  gap priced in the announcement year.**
+- Operative from year 1 and never reverses. Overshoots (107% at the peak,
+  which is year 1) then settles back monotonically: 105.9% (y2), 103.2%
+  (y5), 100.7% (y10), 100.1% (y20), 100.0% (y80).
+- Deficit addendum reproduced the ladder's rho_d = 0.9 point from the
+  independent .mat: 103.1% of the dilution priced at impact, matching
+  c = 1.031. Two code paths, same number.
+
+Consequence: the steady-state instrument ranking is an announcement-date
+fact, not an asymptotic one, which is what licenses reading the regimes
+section as a statement about the policy choice. Written into the
+transition section, the conclusion's ordering paragraph, and the
+conclusion's open-items list (this item removed).
+
+METHOD NOTE, self-inflicted and now fixed. The driver's original FLOW-clock
+statistic ("36 of 80 years with pi_reb > pi_ls, first 1, last 80") is NOT
+interpretable: the post-impact annual gap is a first difference of Delta,
+so it is ~1e-4/yr against a solved price-path residual of ~4e-4. The sign
+count was reporting solver noise as economics. The driver now compares the
+typical annual gap to the residual scale and prints NOT RESOLVED unless it
+clears 5x; the paper reports only the impact flow value (+17.1%/yr, far
+above the noise floor) and the cumulative gap, with a footnote saying why
+the year-by-year flow ordering is not reported. Generalizable lesson: any
+statistic that is a first difference of a converged path needs an explicit
+noise-floor gate before its sign is quoted.
+
+THE UNIFYING FACT worth defending in a seminar: three distinct objects in
+the transition section are each capitalized at the announcement date and
+each slightly OVERSHOOT before settling back -- the program's own
+disinflation (77%), the instrument ordering (107%), the financing-timing
+dilution (103%). That is the price level behaving as an asset price, and
+it is the sharpest available contrast with a Phillips-curve economy, where
+the price responds as spending and the output gap materialize. The
+announcement window, not the accumulation decades, is where the two views
+separate.

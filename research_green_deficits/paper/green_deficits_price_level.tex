@@ -126,6 +126,10 @@
 \providecommand{\DefCumGap}{\pendingnum}\providecommand{\DefRevalBal}{\pendingnum}
 \providecommand{\DefRevalDef}{\pendingnum}\providecommand{\DefKapStar}{\pendingnum}
 \providecommand{\DefValidGap}{\pendingnum}
+\providecommand{\OrdImp}{\pendingnum}\providecommand{\OrdInf}{\pendingnum}
+\providecommand{\OrdOne}{\pendingnum}\providecommand{\OrdTwo}{\pendingnum}
+\providecommand{\OrdFive}{\pendingnum}\providecommand{\OrdTen}{\pendingnum}
+\providecommand{\OrdTwenty}{\pendingnum}\providecommand{\OrdFlowImp}{\pendingnum}
 \providecommand{\DefRhoA}{\pendingnum}\providecommand{\DefKapA}{\pendingnum}
 \providecommand{\DefPA}{\pendingnum}\providecommand{\DefWA}{\pendingnum}
 \providecommand{\DefCA}{\pendingnum}
@@ -3486,6 +3490,43 @@ but modeling that attenuation requires a belief block the flexible-price
 economy does not have, so we state it as the boundary of what the
 transition results claim rather than asserting robustness to it.
 
+\paragraph{When does the instrument ordering become operative?} The
+paper's most robust result is a \emph{ranking} of financing instruments,
+but the ranking is stated across steady states, and a ranking that emerged
+only after decades would be a poor guide to the choice a government
+actually faces. The two converged paths answer this directly, with no
+further computation: let
+$\Delta_t=\ln\hat P_t^{\text{rebate}}-\ln\hat P_t^{\text{lump-sum}}$ be the
+date-$t$ gap between the two designs. Its long-run value is
+$\Delta_\infty=\OrdInf$ (the gap between the terminal steady states), and
+its announcement-year value is $\Delta_1=\OrdImp$ --- $\OrdOne\%$ of the
+long-run gap, priced in the first year. The ordering is operative from the
+announcement date and never reverses: $\OrdTwo\%$ of the long-run gap at
+two years, $\OrdFive\%$ at five, $\OrdTen\%$ at ten, $\OrdTwenty\%$ at
+twenty. The steady-state ranking is not an asymptotic artifact but an
+announcement-date fact, which is what licenses reading
+Section~\ref{subsec:regimes}'s instrument comparison as a statement about
+the policy choice rather than about the distant future.
+
+Three distinct objects in this section share one signature, and it is
+worth naming because it is the mechanism's fingerprint. The program's own
+disinflation is $\OneTrShare$ realized in the announcement year; the
+instrument ordering, $\OrdOne\%$; the financing-timing dilution,
+$\DefCD$ times its terminal value. Each is capitalized immediately and
+each slightly \emph{overshoots} before settling back. This is what it
+means for the price level to be an asset price: it moves on news, by the
+present value of the news, and the subsequent path is the unwinding of an
+overshoot rather than the gradual arrival of an effect. A Phillips-curve
+economy generates the opposite time profile, in which the price level
+responds as the spending and the output gap actually materialize. The
+announcement window, not the accumulation decades, is where the two views
+separate.\footnote{The year-by-year \emph{flow} comparison (which design
+has higher inflation in a given year) is not reported: after the
+announcement date the annual gap $\Delta_t-\Delta_{t-1}$ is of the same
+order as the solved price-path residual, so its sign is not resolved at
+the achieved tolerance. The cumulative gap $\Delta_t$, which is the
+incidence-relevant object and two orders of magnitude larger, is.}
+
 \pfigguard{PFig18_dtpl_transition.pdf}{%
 \begin{figure}[!htb]\centering
 \includegraphics[width=0.95\textwidth]{PFig18_dtpl_transition.pdf}
@@ -3535,7 +3576,11 @@ ownership, two assets with bond ownership and portfolio illiquidity
 calibrated to the data, and at both ends of the disciplined convenience-yield
 curvature --- a levy is more inflationary than a lump-sum tax financing the
 same appropriation, and the incidence ordering that answers the title
-question is unchanged. The level sign of the lump-sum response is not
+question is unchanged. It is also operative immediately rather than
+asymptotically: along the announced path, $\OrdOne\%$ of the long-run gap
+between the two designs is priced in the announcement year, so the
+steady-state ranking is a guide to the choice a government actually faces.
+The level sign of the lump-sum response is not
 similarly robust: it depends on who holds the debt and how easily they can
 rebalance, overturning when bondholders are representative and costless
 rebalancers and reappearing once ownership and illiquidity are disciplined.
@@ -3599,12 +3644,11 @@ bounds the tax-base response rather than modeling it, and closing it
 properly requires public capital that both hardens the economy against
 damages and enters production --- the adaptation reading of $K_g$, which is
 also the reading under which a closed economy maps own spending to own
-damages. Equally open are the external validation of the dominant
-distributional term in the tax response --- against wealth-mobility and
-liquid-asset transition moments --- and the finite horizon at which the
-instrument ordering becomes operative along the announced path; the
-transition-inclusive incidence of the ownership-and-illiquidity economy is
-the computation that would join the two. That, an endogenous convenience
+damages. Equally open is the external validation of the dominant
+distributional term in the tax response, against wealth-mobility and
+liquid-asset transition moments; the transition-inclusive incidence of the
+ownership-and-illiquidity economy is the computation that would join it to
+the portfolio results. That, an endogenous convenience
 yield on the nominal liability, and a fully stochastic transition are the
 natural next steps.
 
