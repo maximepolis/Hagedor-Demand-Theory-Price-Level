@@ -64,7 +64,7 @@
 % OUTPUT  output/tables/twoasset_kv_transition.txt
 %         output/twoasset_kv_transition.mat
 
-clearvars -except FAST TKV; close all; clc;
+clearvars -except FAST TKV MAXIT; close all; clc;
 rng(20260730, 'twister'); t0 = tic;
 
 projdir = fileparts(mfilename('fullpath'));
@@ -217,7 +217,9 @@ x = [log(Pterm) * ones(n,1); log(qterm) * ones(n,1)];  % flat-at-terminal seed
 % version did) makes the achieved margin uninformative -- it reports
 % whatever value happened to first dip under, not a converged floor.
 tol = 2e-3; ttgt = 4e-4; maxit = 140; if FAST, maxit = 90; end
+if exist('MAXIT','var') && ~isempty(MAXIT), maxit = MAXIT; end
 xi0 = 0.5; mAnd = 5;
+stall = 0; stall_cap = 12;
 Xh = {}; Fh = {};
 best = struct('resnorm', Inf);
 tee('\nsolving the path (tol %.0e, maxit %d)...\n', tol, maxit);
@@ -242,6 +244,21 @@ for it = 1:maxit
         min(numel(Fh), mAnd));
     if resnorm < ttgt, break; end     % refinement target, not the gate
     if it == maxit, break; end
+    % ADAPTIVE DAMPING. The bond block oscillates rather than descending
+    % when Anderson over-steps: the residual bounces within a band while
+    % `best` improves only occasionally. Detect that (no improvement in the
+    % best iterate for `stall_cap` steps), then retreat to the best point,
+    % halve the relaxation and clear the memory. Without this the loop
+    % spends its budget cycling, and statistics that depend on the achieved
+    % residual -- the front-loading share moved 4pp between 1.9e-3 and
+    % 7.9e-4 -- are reported from wherever the cycle happened to be.
+    if resnorm < best.resnorm - 1e-12, stall = 0; else, stall = stall + 1; end
+    if stall >= stall_cap && xi0 > 0.03
+        xi0 = 0.5 * xi0; stall = 0;
+        x = best.x; Xh = {}; Fh = {};
+        tee('    [adaptive] stalled: xi -> %.3f, restarting from the best iterate\n', xi0);
+        continue;
+    end
     Xh{end+1} = x; Fh{end+1} = fv; %#ok<AGROW>
     if numel(Fh) > mAnd + 1, Fh = Fh(end-mAnd:end); Xh = Xh(end-mAnd:end); end
     m = numel(Fh) - 1;
