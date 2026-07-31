@@ -16,25 +16,44 @@ function E = kv_solve_alpha(alpha, CTX, q_guess, verbose, tee)
 % solving one grid or one coalition can call it; a parfor body cannot see a
 % script's local functions.
     E = struct('ok',false,'msg','','P',NaN,'q',NaN,'Sb',NaN,'Sk',NaN, ...
-               'sol',[],'dist',[],'alpha',alpha,'tau',NaN,'dvd',NaN);
+               'sol',[],'dist',[],'alpha',alpha,'tau',NaN,'dvd',NaN, ...
+               'bracket',[],'code','');
     if nargin < 4, verbose = false; end
     if nargin < 5, tee = []; end
     pe = kv_prices_to_pe(alpha, CTX);
-    lo = 0.80*q_guess; hi = 1.25*q_guess;
     fq = @(qq) tree_gap(qq, alpha, CTX, pe);
-    [flo, ~] = fq(lo); [fhi, ~] = fq(hi);
-    ex = 0;
-    while ~(isfinite(flo) && isfinite(fhi) && sign(flo)~=sign(fhi)) && ex < 4
-        lo = 0.75*lo; hi = 1.35*hi; [flo,~] = fq(lo); [fhi,~] = fq(hi); ex = ex+1;
+
+    % FINITE-DOMAIN BRACKET. The old search stepped lo down by 0.75 and hi up
+    % by 1.35 until the endpoint signs differed. With a widened k-grid the low
+    % end runs into prices where the household problem no longer solves, and
+    % because sign(NaN) is NaN -- and NaN ~= anything is true -- a NaN
+    % endpoint satisfied "signs differ" and was accepted as a bracket. The
+    % search then bisected an interval one of whose endpoints was a solver
+    % failure. Bracketing now happens only across points that are admissible,
+    % contiguous, and finite.
+    Bk = kv_bracket_finite(@(qq) fq_code(fq, qq), q_guess, ...
+                           struct('span',0.25,'n',13,'maxgrow',3));
+    E.bracket = Bk; E.code = Bk.status;
+    if ~Bk.ok
+        E.msg = sprintf('no admissible tree bracket (%s; feasible q in [%.4f, %.4f])', ...
+                        Bk.status, Bk.qlo, Bk.qhi);
+        return;
     end
-    if ~(isfinite(flo) && isfinite(fhi) && sign(flo)~=sign(fhi))
-        E.msg = 'no tree bracket'; return;
-    end
-    a = lo; b = hi; fa = flo; st = [];
+    % The bisection works inside the STRADDLING pair; the polish below may
+    % roam over the wider ADMISSIBLE run but never outside it, so no stage
+    % can wander back into prices where the model is undefined.
+    lo = Bk.qlo; hi = Bk.qhi;
+    a = Bk.lo; b = Bk.hi; fa = Bk.flo; st = [];
     for it = 1:45
         m = 0.5*(a+b);
         [fm, st] = fq(m);
-        if ~isfinite(fm), b = m; continue; end
+        if ~isfinite(fm)
+            % A failure strictly INSIDE an admissible bracket is not a
+            % bracketing problem -- it is the household solver failing at an
+            % interior price, which no amount of re-bracketing fixes. Shrink
+            % toward the side known to be admissible and record it.
+            E.msg = 'interior solver failure during bisection'; b = m; continue;
+        end
         if abs(fm) < 1e-9 || (b-a) < 1e-7*max(1,q_guess), break; end
         if sign(fm)==sign(fa), a = m; fa = fm; else, b = m; end
     end
@@ -96,26 +115,20 @@ function E = kv_solve_alpha(alpha, CTX, q_guess, verbose, tee)
     end
 end
 
-function [gap, st] = tree_gap(qq, alpha, CTX, pe)
-% inner fixed point on (P, tau, div) at a trial tree price
-    st = struct('ok',false);
-    P = CTX.iota * CTX.Bnom / max(1e-9, 0.30);      % harmless seed
-    if isfield(CTX,'Pseed') && ~isempty(CTX.Pseed), P = CTX.Pseed; end
-    Vc = []; gap = NaN;
-    for it = 1:60
-        tau = kv_tau_of(alpha, P, CTX);
-        dvd = kv_div_of(P, CTX);
-        out = kv_stationary_block(CTX.r_b, qq, dvd, tau, pe, Vc);
-        if ~out.ok, gap = NaN; return; end
-        Vc = out.sol.V;
-        Pn = CTX.iota * CTX.Bnom / max(out.Sb, 1e-12);
-        if abs(Pn - P) < 1e-12 * max(1,abs(P)), P = Pn; break; end
-        P = 0.5*P + 0.5*Pn;                        % damped, monotone here
-    end
-    tau = kv_tau_of(alpha, P, CTX); dvd = kv_div_of(P, CTX);
-    out = kv_stationary_block(CTX.r_b, qq, dvd, tau, pe, Vc);
-    if ~out.ok, gap = NaN; return; end
-    gap = out.Sk - CTX.Kbar;
-    st = struct('ok',true,'P',P,'Sb',out.Sb,'Sk',out.Sk,'sol',out.sol, ...
-                'dist',out.dist,'tau',tau,'dvd',dvd);
+function [gap, st, code] = tree_gap(qq, alpha, CTX, pe) %#ok<INUSD>
+% Inner fixed point on (P, tau, div) at a trial tree price. This used to be a
+% second, independently written copy of the loop in kv_solve_bond_given_q --
+% the same object with a different seed, a different iteration count and no
+% feasibility classification. It now DELEGATES, so the residual the bracket
+% search maps and the residual the root solver refines are the same function
+% and both carry the same status code.
+    Ps = []; if isfield(CTX,'Pseed'), Ps = CTX.Pseed; end
+    Ws = []; if isfield(CTX,'Wseed'), Ws = CTX.Wseed; end
+    st = kv_solve_bond_given_q(qq, alpha, CTX, Ws, [], Ps);
+    code = st.code;
+    if st.ok, gap = st.Sk - CTX.Kbar; else, gap = NaN; end
+end
+
+function [F, code] = fq_code(fq, qq)
+    [F, ~, code] = fq(qq);
 end
