@@ -103,6 +103,60 @@ tee('PREFERRED-CALIBRATION MECHANISM DECOMPOSITION  (DIAGNOSTIC)\n');
 tee('grids nb=%d nk=%d ne=%d; lambda=%.2f iota_H=%.3f; g_real=%.5f\n\n', ...
     numel(p.bGrid), numel(p.kGrid), numel(p.eGrid), p.lambda_adj, iota, g_real);
 
+if ~isfield(p,'acGrid') || ~isfield(p,'sGrid')
+    error('saved calibration lacks the adjuster candidate grids');
+end
+
+% FAST genuinely coarsens the STATE grids so gates can be debugged in about
+% an hour rather than the ten hours the full run takes. It rebuilds them from
+% the curvature the CALIBRATION used, not from a literal 2.4, so a coarse run
+% is a subsample of the benchmark grid rather than a different grid.
+if FAST
+    nbF = max(28, round(numel(p.bGrid)*0.5));
+    nkF = max(16, round(numel(p.kGrid)*0.5));
+    [blo,bhi,gbF] = kv_grid_curv(p.bGrid); p.bGrid = kv_grid_build(blo,bhi,gbF,nbF);
+    [klo,khi,gkF] = kv_grid_curv(p.kGrid); p.kGrid = kv_grid_build(klo,khi,gkF,nkF);
+    tee('*** FAST: state grids coarsened to nb=%d nk=%d (DEBUG ONLY) ***\n\n', nbF, nkF);
+end
+
+% BOUNDARY REPAIR. main_kv_residual_scan found the reduced tree residual to
+% be a genuine function of q (zero hysteresis) with converged households, and
+% located the defect at the grid ceilings: 2.8e-3 of mass in the top two
+% nodes of both the k- and the b-grid, ~29x the 1e-4 tolerance. Mass against
+% a wall does not respond to q, so no widening means no differentiable
+% equilibrium map and no admissible Schur derivative.
+%
+% The factors are NOT re-derived here. They are read from the scan that
+% verified them, so the decomposition and the diagnosis run on the same
+% grids; the hard-coded fallback is only for a decomposition run made before
+% any scan exists, and it is labelled as unverified when it is used.
+WID = struct('changed',false); kfac = 1; bfac = 1;
+scf = fullfile(projdir, 'output', 'kv_residual_scan.mat');
+if exist(scf,'file')==2
+    Sc = load(scf, 'kfac', 'bfac', 'V');
+    kfac = Sc.kfac; bfac = Sc.bfac;
+    vpass = isfield(Sc,'V') && isfield(Sc.V,'boundary_pass') && Sc.V.boundary_pass;
+    tee('boundary factors from kv_residual_scan: kfac=%.1f bfac=%.1f (scan gate: %s)\n', ...
+        kfac, bfac, ternstr(vpass, 'PASSED', 'NOT PASSED'));
+    if ~vpass
+        tee('  WARNING: the scan did not clear the 1e-4 boundary gate at these\n');
+        tee('  factors. Every number below inherits that truncation.\n');
+    end
+else
+    kfac = 6;
+    tee('*** no kv_residual_scan.mat: falling back to kfac=%.1f UNVERIFIED ***\n', kfac);
+end
+if kfac > 1 || bfac > 1
+    [p, WID] = kv_widen_grids(p, kfac, struct('r_b',r_b,'q',eq0.q,'d',d_base, ...
+                                              'kref',5,'bref',3,'bfac',bfac));
+    tee('  kmax %.1f -> %.1f, bmax %.2f -> %.2f, xmax %.1f -> %.1f; k-curvature %.2f -> %.2f\n', ...
+        WID.kmax0, WID.kmax, WID.bmax0, WID.bmax, WID.xmax0, WID.xmax, WID.gk0, WID.gk);
+    tee('  CAVEAT beta and chi_b were calibrated on the pre-widening grids.\n');
+    tee('  These results stay DIAGNOSTIC until main_twoasset_ownership_kv is\n');
+    tee('  recalibrated on the widened grid.\n');
+end
+tee('\n');
+
 % CANDIDATE-GRID REFINEMENT. The adjuster's portfolio choice is an argmax
 % over a discrete candidate set (acGrid x sGrid, 100 x 22 as calibrated).
 % That set is a NUMERICAL discretization of a continuous choice, not an
@@ -110,33 +164,19 @@ tee('grids nb=%d nk=%d ne=%d; lambda=%.2f iota_H=%.3f; g_real=%.5f\n\n', ...
 % moves, the argmax jumps between candidates, so the tree market has no
 % exact zero and bisection lands on a discontinuity (the alpha = 1 failure).
 % Refining it here smooths the market residual without touching the
-% economics. The refinement is reported so the run is reproducible, and the
-% baseline calibration file is NOT modified.
-if ~isfield(p,'acGrid') || ~isfield(p,'sGrid')
-    error('saved calibration lacks the adjuster candidate grids');
-end
+% economics. It runs AFTER the widening so it refines the widened outlay
+% grid, and it inherits that grid's curvature instead of resetting it.
 nac0 = numel(p.acGrid); nsh0 = numel(p.sGrid);
 REF = 3;                       % candidate-grid refinement factor
 if FAST, REF = 1; end
 if REF > 1
-    acmax = p.acGrid(end); acmin = p.acGrid(1);
-    uac = linspace(0,1,REF*nac0)';
-    p.acGrid = acmin + (acmax-acmin)*(uac.^2.8);
+    [aclo, achi, gac] = kv_grid_curv(p.acGrid);
+    p.acGrid = kv_grid_build(aclo, achi, gac, REF*nac0);
     nsh = REF*nsh0;  p.sGrid = linspace(1/nsh, 1, nsh);
-    tee('candidate grid refined %dx: acGrid %d -> %d, sGrid %d -> %d\n', ...
-        REF, nac0, numel(p.acGrid), nsh0, numel(p.sGrid));
+    tee('candidate grid refined %dx: acGrid %d -> %d, sGrid %d -> %d (curvature %.2f)\n', ...
+        REF, nac0, numel(p.acGrid), nsh0, numel(p.sGrid), gac);
     tee('  (a numerical discretization of the portfolio choice; the tree\n');
     tee('   market residual is a step function at the coarse setting)\n\n');
-end
-
-% FAST now genuinely coarsens the STATE grids so gates can be debugged in
-% about an hour rather than the ten hours the full run takes.
-if FAST
-    nb = max(28, round(numel(p.bGrid)*0.5));
-    nk = max(16, round(numel(p.kGrid)*0.5));
-    ub = linspace(0,1,nb)'; p.bGrid = p.bGrid(1)+(p.bGrid(end)-p.bGrid(1))*(ub.^2.4);
-    uk = linspace(0,1,nk)'; p.kGrid = p.kGrid(end)*(uk.^2.4);
-    tee('*** FAST: state grids coarsened to nb=%d nk=%d (DEBUG ONLY) ***\n\n', nb, nk);
 end
 
 CTX = struct('p',p,'iota',iota,'r_b',r_b,'d_base',d_base,'D0',D0, ...
@@ -643,11 +683,16 @@ function v = resid_k(P, q, alpha, CTX, W)
 end
 
 function pc = coarsen(p)
+% The nested-grid check must vary ONLY the node count. Rebuilding with a
+% literal 2.4 would also move the curvature once the grids have been widened
+% (the widening re-solves the exponent), so what looked like a resolution
+% test would be a resolution-and-shape test. Take the curvature from the grid
+% being coarsened.
     pc = p;
     nb = max(30, round(numel(p.bGrid)*0.7));
     nk = max(18, round(numel(p.kGrid)*0.7));
-    ub = linspace(0,1,nb)'; pc.bGrid = p.bGrid(1) + (p.bGrid(end)-p.bGrid(1))*(ub.^2.4);
-    uk = linspace(0,1,nk)'; pc.kGrid = p.kGrid(end)*(uk.^2.4);
+    [blo,bhi,gb] = kv_grid_curv(p.bGrid); pc.bGrid = kv_grid_build(blo,bhi,gb,nb);
+    [klo,khi,gk] = kv_grid_curv(p.kGrid); pc.kGrid = kv_grid_build(klo,khi,gk,nk);
 end
 
 function s = vecstr(v)
