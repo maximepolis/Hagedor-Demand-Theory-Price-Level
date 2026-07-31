@@ -163,6 +163,42 @@
 % ---------------------------------------------------------------------
 %
 % ---------------------------------------------------------------------
+% ROUND 5: THE BOND MARKET IS A STEP FUNCTION TOO.
+%
+% The secant rewrite cut the bond solve from 80 household solves per node to
+% a median of 8 and the run from 46 minutes to 9. It did NOT remove the
+% scattered failures: alpha = 0.5 and alpha = 1 still lost 2 of 13 nodes to
+% BOND_NAN, interleaved. By elimination that could only be the final
+% acceptance test, |g|/P < 1e-8 -- BOND_NOBRACKET and NEG_CONSUMPTION have
+% their own codes and neither appeared.
+%
+% The reason is the same discreteness that afflicts the tree market. S_b(P)
+% is a STEP function: the adjuster's portfolio choice is an argmax over a
+% discrete candidate set, so liquid demand jumps as P moves the household
+% problem across a candidate switch. When the clearing price falls inside
+% such a jump there is no P at which the residual vanishes; the bracket
+% collapses onto the discontinuity with |g| still finite. Calling that
+% BOND_NAN reports "the model is undefined here" for a price at which the
+% model is perfectly well defined and merely has no exact zero on a discrete
+% grid -- and it happens at some q and not their neighbours, which is exactly
+% the alternating pattern observed.
+%
+% The tree market has handled this from the start, by taking the closest
+% approach the discretization admits and gating the achieved residual. The
+% bond market now does the same: BOND_STEP, admissible, with the achieved
+% relative residual reported and capped at 1e-3.
+%
+% THE STAIRCASE TEST WAS ALSO WRONG. It was max|dF_k| / median|dF_k| over the
+% window, and F_k sweeps four orders of magnitude across a +/-25% window, so a
+% smooth but steeply curved residual scores high with no discreteness
+% anywhere. Round 3's "jump ratio 31.5 -> staircase PRESENT" rested on that.
+% The test now compares median |dF_k| on steps where the adjuster's k index
+% CHANGED against steps where it did not: curvature raises both, discreteness
+% raises only the first. The old ratio is still printed, labelled as not
+% separating the two.
+% ---------------------------------------------------------------------
+%
+% ---------------------------------------------------------------------
 % PARALLELISM. The (alpha,q) nodes are the unit of work: independent by
 % construction, one worker each, no state shared. Every node writes ONE
 % result file named by kv_hash of (alpha, q, grids, calibration), and
@@ -765,7 +801,51 @@ function report_dir(tee, qs, up, al, tol)
         tee('  k-policy index flips: mean %.3f per q step = %.3f per 1%% of q\n', ...
             mean(kf), mean(kf)/max(rel, eps));
     end
+    [fr, nf, nn] = flip_ratio(up);
+    if isfinite(fr)
+        tee('  STAIRCASE test      : median |dFk| on steps WITH a policy index change\n');
+        tee('                        vs WITHOUT = %.2f  (%d vs %d steps)  -> %s\n', ...
+            fr, nf, nn, ternstr(fr > 3, 'discrete', 'curvature, not discreteness'));
+    end
+    cs = up.code(~cellfun(@isempty, up.code));
+    if ~isempty(cs)
+        u = unique(cs);
+        cnt = cellfun(@(c) sum(strcmp(cs,c)), u);
+        [~, o2] = sort(cnt, 'descend');
+        parts = arrayfun(@(i) sprintf('%s x%d', u{o2(i)}, cnt(o2(i))), ...
+                         1:numel(u), 'UniformOutput', false);
+        tee('  status codes        : %s\n', strjoin(parts, ', '));
+    end
     tee('\n');
+end
+
+function [r, nf, nn] = flip_ratio(up)
+% THE staircase test. The old one was max|dF_k| / median|dF_k| over the
+% window, and it does not measure what it claims: F_k sweeps four orders of
+% magnitude across a +/-25% q window, so a smooth but steeply curved residual
+% produces a large ratio with no discreteness anywhere. Round 3 reported
+% "jump ratio 31.5 -> staircase PRESENT" on exactly that basis.
+%
+% A staircase has a signature curvature does not: the big steps in F_k are
+% the ones where households actually CHANGE their k grid index. So compare
+% the typical |dF_k| on steps where the adjuster policy moved against those
+% where it did not. Curvature raises both; discreteness raises only the
+% first. r >> 1 is a staircase; r ~ 1 says the jumps are curvature.
+    r = NaN; nf = 0; nn = 0;
+    F = up.Fk; ok = up.ok; kf = up.kflip;
+    n = numel(F); d = nan(1,n-1); f = nan(1,n-1);
+    for j = 1:n-1
+        if ok(j) && ok(j+1) && isfinite(F(j)) && isfinite(F(j+1))
+            d(j) = abs(F(j+1) - F(j));
+            f(j) = kf(j+1);            % flips BETWEEN node j and node j+1
+        end
+    end
+    good = isfinite(d) & isfinite(f);
+    hi = good & f > 0; lo = good & f == 0;
+    nf = sum(hi); nn = sum(lo);
+    if nf >= 3 && nn >= 3
+        r = median(d(hi))/max(median(d(lo)), eps);
+    end
 end
 
 function [ks, bs, ko, bo, qr] = at_root(up, qs)
@@ -782,7 +862,7 @@ end
 
 function V = classify(R, tee, tol, HY)
     V = struct();
-    kflip = 0; ksat = 0; bsat = 0; dV = 0; ratio = 0; nsign = 0;
+    kflip = 0; ksat = 0; bsat = 0; dV = 0; ratio = 0; nsign = 0; fliprat = NaN;
     kocc = 0; bocc = 0;
     hyst = NaN; if nargin >= 4 && HY.ran, hyst = HY.max; end
     for ia = 1:numel(R)
@@ -801,10 +881,13 @@ function V = classify(R, tee, tol, HY)
         if numel(d1) > 3
             ratio = max(ratio, max(abs(d1))/max(median(abs(d1)),eps));
         end
+        fr = flip_ratio(R(ia).up);
+        if isfinite(fr), fliprat = max(fliprat, fr); end
     end
     V.hysteresis = hyst; V.kflip = kflip; V.ksat = ksat; V.bsat = bsat;
     V.kocc = kocc; V.bocc = bocc;
-    V.dV = dV; V.jumpratio = ratio; V.n_alpha_bracketed = nsign;
+    V.dV = dV; V.jumpratio = ratio; V.fliprat = fliprat;
+    V.n_alpha_bracketed = nsign;
     V.kpass = ksat < tol; V.bpass = bsat < tol;
     V.boundary_pass = V.kpass && V.bpass;
     if isnan(hyst)
@@ -820,8 +903,15 @@ function V = classify(R, tee, tol, HY)
     tee('       occupied support: k %.2f, b %.2f of the grid tops at the root\n', kocc, bocc);
     tee('  C1 hh convergence   : max VFI dV = %.2e                -> %s\n', dV, ...
         ternstr(dV > 1e-5, 'SUSPECT', 'clear'));
-    tee('  C4 discrete k-choice: mean index flips/step = %.3f, jump ratio %.1f -> %s\n', ...
-        kflip, ratio, ternstr(kflip > 0.001 && ratio > 5, 'PRESENT (staircase)', 'not indicated'));
+    c4 = isfinite(fliprat) && fliprat > 3;
+    if isfinite(fliprat)
+        tee('  C4 discrete k-choice: |dFk| with vs without a policy index change = %.2f -> %s\n', ...
+            fliprat, ternstr(c4, 'PRESENT (staircase)', 'NOT indicated (jumps are curvature)'));
+    else
+        tee('  C4 discrete k-choice: not enough steps of each kind to test\n');
+    end
+    tee('       (raw max/median |dFk| = %.1f, reported only for continuity with\n', ratio);
+    tee('        earlier rounds -- it cannot separate a staircase from curvature)\n');
     tee('  root bracketed      : %d of %d alphas show a sign change in F_k\n', nsign, numel(R));
     tee('\n  VERDICT: ');
     if ~V.kpass
@@ -835,7 +925,7 @@ function V = classify(R, tee, tol, HY)
         tee('  freeze was for. Rerun with BFAC = 8 and KFAC unchanged.\n');
     elseif dV > 1e-5
         tee('HOUSEHOLD CONVERGENCE. Tighten tol_vfi and rescan before changing the policy.\n');
-    elseif kflip > 0.001 && ratio > 5
+    elseif c4
         tee('REPRODUCIBLE STAIRCASE from the discrete k-choice, now measured on grids\n');
         tee('  the distribution can cross -- so this is a statement about the POLICY,\n');
         tee('  which it was not while the boundary was binding.\n');

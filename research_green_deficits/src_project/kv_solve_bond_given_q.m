@@ -35,10 +35,11 @@ function st = kv_solve_bond_given_q(q, al, CTX, W, toptol, Pseed)
     if nargin < 4, W = []; end
     if nargin < 5 || isempty(toptol), toptol = 1e-4; end
     if nargin < 6, Pseed = []; end
+    steptol = 1e-3;   % largest relative bond residual callable "cleared to a step"
     st = struct('ok',false,'code','POLICY_NONCONV','P',NaN,'Sb',NaN,'Sk',NaN, ...
                 'sol',[],'dist',[],'dV',NaN,'ddist',NaN,'min_c',NaN, ...
-                'ksat',NaN,'bsat',NaN,'Pits',0,'Pgap',NaN,'tau',NaN,'dvd',NaN, ...
-                'dist_loose',false);
+                'ksat',NaN,'bsat',NaN,'Pits',0,'Pgap',NaN,'Pjump',NaN, ...
+                'tau',NaN,'dvd',NaN,'dist_loose',false,'stepped',false);
 
     P0 = CTX.iota*CTX.Bnom/0.30;
     if ~isempty(Pseed) && isfinite(Pseed) && Pseed > 0, P0 = Pseed; end
@@ -69,7 +70,10 @@ function st = kv_solve_bond_given_q(q, al, CTX, W, toptol, Pseed)
     end
 
     % ---- safeguarded secant inside the bracket ---------------------------
-    P = 0.5*(lo+hi); gP = NaN;
+    % Track the BEST point seen, not the last. On a step function the last
+    % iterate can sit on the wrong side of a jump while a better one was
+    % already visited, and reporting the last would throw that away.
+    best = struct('P', NaN, 'g', Inf, 'o', []);
     for i = 1:60
         if abs(ghi - glo) > 0                     % secant candidate
             Ps = lo + glo*(hi-lo)/(glo-ghi);
@@ -82,16 +86,49 @@ function st = kv_solve_bond_given_q(q, al, CTX, W, toptol, Pseed)
         P = Ps;
         [gP, S] = call(gof, P, S);
         if ~isempty(S.code), st.code = S.code; st.Pits = S.n; return; end
-        if abs(gP)/max(1,abs(P)) < 1e-12 || (hi-lo) < 1e-13*max(1,abs(P)), break; end
+        if abs(gP) < abs(best.g), best.P = P; best.g = gP; best.o = S.o; end
+        if abs(gP)/max(1,abs(P)) < 1e-12, break; end
+        if (hi-lo) < 1e-13*max(1,abs(P)), break; end
         if gP > 0, lo = P; glo = gP; else, hi = P; ghi = gP; end
     end
-    st.Pits = S.n; st.Pgap = abs(gP)/max(1,abs(P));
-    if ~(isfinite(st.Pgap) && st.Pgap < 1e-8)
-        st.code = 'BOND_NAN'; return;             % never report a non-fixed point
+
+    % ---- did it clear, step, or fail? ------------------------------------
+    % S_b(P) is a STEP function of P: the adjuster's portfolio choice is an
+    % argmax over a discrete candidate set, so aggregate liquid demand jumps
+    % as P moves the household problem across a candidate switch. When the
+    % market-clearing price falls inside such a jump there is NO P at which
+    % the residual vanishes -- the bracket collapses onto the discontinuity
+    % with |g| still finite. The previous version called that BOND_NAN, i.e.
+    % it reported "the model is undefined here" for prices at which the model
+    % is perfectly well defined and merely fails to have an exact zero on a
+    % discrete grid. That is what produced the SCATTERED failures that
+    % survived the switch away from the damped iteration: alternating q nodes
+    % whose bond root happened to land on a jump.
+    %
+    % The tree market already handles exactly this by taking the closest
+    % approach the discretization admits and gating the achieved residual
+    % (the golden-section polish in kv_solve_alpha). The bond market now does
+    % the same, and reports which of the two happened.
+    P = best.P; gP = best.g;
+    st.Pits = S.n;
+    st.Pgap = abs(gP)/max(1,abs(P));
+    st.Pjump = abs(glo - ghi);                    % local jump in g, if any
+    brw = (hi - lo)/max(1, abs(P));
+    if ~isfinite(st.Pgap)
+        st.code = 'BOND_NAN'; return;
+    elseif st.Pgap >= 1e-8
+        if brw < 1e-9 && st.Pgap < steptol
+            st.stepped = true;                    % clears to within one jump
+        else
+            % The bracket has NOT collapsed, so this is genuine
+            % non-convergence -- or the jump is too big to call it clearing.
+            st.code = 'BOND_NAN'; return;
+        end
     end
 
-    o = S.o;
+    o = best.o;
     [code, D] = kv_node_status(o, P, CTX, toptol);
+    if st.stepped && strcmp(code,'OK'), code = 'BOND_STEP'; end
     st.code = code;
     st.P = P; st.Sb = o.Sb; st.Sk = o.Sk; st.sol = o.sol; st.dist = o.dist;
     st.dV = o.dV; st.ddist = o.ddist;
