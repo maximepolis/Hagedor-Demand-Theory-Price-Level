@@ -176,8 +176,23 @@ if ~g0
 end
 g1 = abs(DEC.recon_err) < 1e-9 * max(1, abs(DEC.dSb));
 tee('G1 reconstruction  : residual %.3e  %s\n', DEC.recon_err, ternstr(g1,'PASS','FAIL'));
-g2 = max(abs(DEC.shap_err)) < 1e-9 * max(1, abs(DEC.dSb));
-tee('G2 shapley efficiency: max residual %.3e  %s\n', max(abs(DEC.shap_err)), ternstr(g2,'PASS','FAIL'));
+% G2 SPLIT. A single aggregate efficiency check hid a real defect: the
+% policy block added exactly while the distribution block's printed terms
+% did not sum to the printed block. Each displayed block now has its own
+% gate, and each must add EXACTLY as displayed.
+tolS = 1e-9 * max(1, abs(DEC.dSb));
+g2a = abs(DEC.shap_err(1)) < tolS;                       % policy block
+g2b = abs(DEC.shap_err(2)) < tolS;                       % distribution block
+g2c = abs(sum(DEC.comp) - DEC.dSb) < tolS;               % five components
+g2 = g2a && g2b && g2c;
+tee('G2a policy shapley  : residual %.3e  %s\n', DEC.shap_err(1), ternstr(g2a,'PASS','FAIL'));
+tee('G2b distrib shapley : residual %.3e  %s\n', DEC.shap_err(2), ternstr(g2b,'PASS','FAIL'));
+tee('G2c component sum   : residual %.3e  %s\n', sum(DEC.comp)-DEC.dSb, ternstr(g2c,'PASS','FAIL'));
+if ~g2b
+    tee('   the distribution Shapley endpoints are not the displayed block:\n');
+    tee('   the all-switched subset re-solves its own stationary distribution,\n');
+    tee('   while the block uses the solved alpha=1 equilibrium distribution.\n');
+end
 g3 = isfinite(SCH.relerr) && SCH.relerr < SCH.tol;
 tee('G3 finite difference : rel err %.3e vs tol %.1e  %s\n', SCH.relerr, SCH.tol, ternstr(g3,'PASS','FAIL'));
 
@@ -309,15 +324,33 @@ function E = solve_alpha(alpha, CTX, q_guess, verbose, tee)
         end
         if (bb-aa) < 1e-10*max(1,q_guess), break; end
     end
-    if v1 <= v2 && isfinite(v1) && s1.ok, m = c1; fm = f1; st = s1;
-    elseif isfinite(v2) && s2.ok,          m = c2; fm = f2; st = s2;
+    if v1 <= v2, m = c1; else, m = c2; end
+    % SINGLE FINAL-EQUILIBRIUM STRUCTURE. Everything displayed or gated is
+    % recomputed HERE, once, from the chosen q. The previous version carried
+    % f1/f2 alongside c1/c2 but shifted only the c and s variables inside the
+    % golden-section loop, so the printed residual could belong to a
+    % different q than the returned state -- which is exactly why the
+    % alpha = 0 tree gap printed 8.07e-04 at solve time and 1.97e-04 when
+    % recomputed in the summary. No residual is ever carried forward from an
+    % intermediate evaluation again.
+    [fm, st] = fq(m);
+    if isempty(st) || ~st.ok || ~isfinite(fm)
+        E.msg = 'tree solve failed at the finalized q'; return;
     end
-    if isempty(st) || ~st.ok, E.msg = 'tree solve failed'; return; end
     E.ok = true; E.q = m; E.P = st.P; E.Sb = st.Sb; E.Sk = st.Sk;
     E.sol = st.sol; E.dist = st.dist; E.tau = st.tau; E.dvd = st.dvd; E.pe = pe;
+    % canonical residuals, computed from THIS state and nothing else
+    E.Fk = st.Sk - CTX.Kbar;                       % tree market
+    E.Fb = st.Sb - CTX.iota*CTX.Bnom/st.P;         % bond market
+    E.mass_err = abs(1 - sum(st.dist(:)));
+    kmass = squeeze(sum(sum(st.dist,1),3)); kmass = kmass(:);
+    bmass = squeeze(sum(sum(st.dist,2),3)); bmass = bmass(:);
+    E.ksat = sum(kmass(max(1,end-1):end))/max(sum(kmass),eps);
+    E.bsat = sum(bmass(max(1,end-1):end))/max(sum(bmass),eps);
     if verbose && ~isempty(tee)
-        tee('  alpha=%.2f: q=%.8f |Sk-K| %.2e (%d bisect + %d polish steps)\n', ...
-            alpha, m, abs(fm), it, it2);
+        tee(['  alpha=%.2f: q=%.8f  |Fk|=%.2e |Fb|=%.2e  mass err %.1e  ' ...
+             'k-sat %.1e b-sat %.1e  (%d bisect + %d polish)\n'], ...
+            alpha, m, abs(E.Fk), abs(E.Fb), E.mass_err, E.ksat, E.bsat, it, it2);
     end
 end
 
@@ -367,7 +400,7 @@ function D = finite_decomposition(E0, E1, CTX, tee)
     % at baseline. Only the distribution argument switches, so the driver
     % attribution is over which price moved the distribution; we obtain it
     % by re-solving the stationary distribution under each driver subset.
-    [shD, errD] = shapley3_dist(p0, p1, CTX);
+    [shD, errD] = shapley3_dist(p0, p1, CTX, DIST);
 
     % DIST is itself the distribution component; shD attributes THAT block
     % across drivers and is reported separately -- it must not be added
@@ -456,7 +489,16 @@ function [sh, err] = shapley3(p0, p1, dist0, CTX)
     err = sum(sh) - (V(8) - base);
 end
 
-function [sh, err] = shapley3_dist(p0, p1, CTX)
+function [sh, err] = shapley3_dist(p0, p1, CTX, DIST_target)
+% DIST_target is the DISPLAYED distribution block. The previous version
+% measured its own efficiency against its own endpoints V(8)-V(1), which
+% are NOT the displayed block: the all-switched subset re-solves the
+% stationary distribution at (tau1,q1,div1), whereas the displayed block
+% uses the actual alpha=1 equilibrium distribution, and the two differ
+% because the equilibrium also solved for P. That is why the printed
+% Shapley terms summed to -0.005500 against a block of -0.005611 while G2
+% still reported machine-zero. Efficiency is now measured against the
+% displayed target, and the endpoint gap is returned so it is visible.
 % Shapley attribution of the DISTRIBUTION block by driver: each subset's
 % stationary distribution is formed under that subset's prices, and the
 % aggregate is taken with BASELINE policies.
@@ -479,7 +521,11 @@ function [sh, err] = shapley3_dist(p0, p1, CTX)
             sh(j) = sh(j) + w(sum(M(i,:))) * (V(bin2idx(m1)) - V(i));
         end
     end
-    err = sum(sh) - (V(8) - V(1));
+    if nargin >= 4 && ~isempty(DIST_target)
+        err = sum(sh) - DIST_target;          % against the DISPLAYED block
+    else
+        err = sum(sh) - (V(8) - V(1));
+    end
 end
 
 function i = bin2idx(m)
