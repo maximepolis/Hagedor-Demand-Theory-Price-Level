@@ -20,8 +20,14 @@ function rec = kv_scan_node(q, al, CTX, cachedir, gridkey, force)
 % 2 KB per node instead of several MB, and the index map is what the
 % staircase diagnostic needs.
 %
-% OUTPUT rec .alpha .q .ok .Fk .Fb .P .dV .ddist .mass .ksat .bsat .kocc
-%            .bocc .kidx .cached .key
+% A node that fails carries WHY it failed (rec.code, see KV_NODE_STATUS)
+% rather than a bare NaN. A NaN residual and a large residual are different
+% objects: the second says where the root is, the first says where the model
+% stops being defined, and only the second may be used in sign tests,
+% interpolation or differencing.
+%
+% OUTPUT rec .alpha .q .ok .code .Fk .Fb .P .dV .ddist .mass .min_c .ksat
+%            .bsat .kocc .bocc .kidx .cached .key
 
     if nargin < 6, force = false; end
     key = kv_hash(gridkey, al, q);
@@ -37,10 +43,12 @@ function rec = kv_scan_node(q, al, CTX, cachedir, gridkey, force)
     end
 
     rec = struct('alpha',al,'q',q,'key',key,'ok',false,'cached',false, ...
-                 'Fk',NaN,'Fb',NaN,'P',NaN,'dV',NaN,'ddist',NaN,'mass',NaN, ...
+                 'code','','Fk',NaN,'Fb',NaN,'P',NaN,'dV',NaN,'ddist',NaN, ...
+                 'mass',NaN,'min_c',NaN, ...
                  'ksat',NaN,'bsat',NaN,'kocc',NaN,'bocc',NaN,'kidx',uint16([]));
 
     st = kv_solve_bond_given_q(q, al, CTX, []);
+    rec.code = st.code; rec.min_c = st.min_c;
     if st.ok
         rec.ok = true;
         rec.Fk = st.Sk - CTX.Kbar;

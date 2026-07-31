@@ -213,12 +213,32 @@ tee('parallel: %s\n\n', ternstr(NWP>0, sprintf(['%d workers for the Shapley ' ..
     'coalitions and the grid rebuilds'], NWP), 'serial'));
 
 % ---------------------------------------------------------------- (A)+(B)
-tee('===== solving the two financing equilibria (serial continuation) =====\n');
+% ALPHA-CONTINUATION. alpha = 1 is not solved from the alpha = 0 guess in one
+% jump any more. The widened k-grid moved the admissible q region, and a
+% single long step lands the bracket search outside it -- which is how the
+% scan ended up reporting a NaN endpoint as a bracket. Stepping
+% 0 -> 0.5 -> 1, each seeded with the previous converged tree price, value
+% function and price level, keeps every search centred inside the region
+% where the model is defined. alpha = 0.5 is a stepping stone; only E0 and E1
+% enter the decomposition.
+tee('===== solving the financing equilibria by alpha-continuation =====\n');
 E0 = solve_alpha(0.0, CTX, eq0.q, true, tee);   % lump-sum
 assert(E0.ok, 'alpha=0 equilibrium failed: %s', E0.msg);
-CTX.W0 = E0.sol.V;                              % shared warm start
-E1 = solve_alpha(1.0, CTX, E0.q, true, tee);    % levy
+CTX.W0 = E0.sol.V;                              % shared warm start (Shapley/FD)
+CTX.Wseed = E0.sol.V; CTX.Pseed = E0.P;         % continuation seed
+Eh = solve_alpha(0.5, CTX, E0.q, true, tee);    % stepping stone
+qg = E0.q;
+if Eh.ok
+    CTX.Wseed = Eh.sol.V; CTX.Pseed = Eh.P; qg = Eh.q;
+else
+    tee('  alpha=0.5 failed (%s); stepping straight to alpha=1\n', Eh.msg);
+end
+E1 = solve_alpha(1.0, CTX, qg, true, tee);      % levy
 assert(E1.ok, 'alpha=1 equilibrium failed: %s', E1.msg);
+% The finite differences and the Shapley coalitions must all start from ONE
+% place, or the soft-accepted VFI settles on different plateaus and the
+% difference of two equilibria picks up the difference of two warm starts.
+CTX.Wseed = E0.sol.V; CTX.Pseed = E0.P;
 tee('  alpha=0 (lump-sum): P=%.6f q=%.6f Sb=%.6f Sk=%.6f\n', E0.P,E0.q,E0.Sb,E0.Sk);
 tee('  alpha=1 (levy)    : P=%.6f q=%.6f Sb=%.6f Sk=%.6f\n', E1.P,E1.q,E1.Sb,E1.Sk);
 tee('  dlnP = %+0.5f (solved, equilibrium-to-equilibrium)\n\n', log(E1.P/E0.P));
@@ -350,13 +370,29 @@ else
     tee('G4 grid            : skipped\n');
 end
 
-allpass = g0 && g1 && g2 && g3 && (isnan(g4) || g4);
+% ---------------------------------------------------- global finite-only gate
+% Nothing that is not a finite number computed at an ADMISSIBLE point may
+% enter a derivative, a Shapley value, a convergence comparison or a table. A
+% NaN that reaches an average or a share silently becomes a claim.
+fin = @(x) all(isfinite(x(:)));
+gfparts = [fin([E0.Fk E0.Fb E1.Fk E1.Fb]), fin(DEC.comp), fin(DEC.dSb), ...
+           fin([getf(SCH,'dP_pred') getf(SCH,'dP_sol')]), (isnan(g4) || fin(GRD.dSb(GRD.ok)))];
+gf = all(gfparts);
+tee('GF finite-only      : residuals %d  components %d  total %d  schur %d  grids %d  %s\n', ...
+    gfparts(1), gfparts(2), gfparts(3), gfparts(4), gfparts(5), ternstr(gf,'PASS','FAIL'));
+if ~gf
+    tee('  A non-finite value reached a reported quantity. That is a feasibility\n');
+    tee('  failure, not a small number: find the (alpha,q) point that produced it\n');
+    tee('  with main_kv_residual_scan before reading anything below.\n');
+end
+
+allpass = gf && g0 && g1 && g2 && g3 && (isnan(g4) || g4);
 tee('\nGATES %s. %s\n', ternstr(allpass,'PASS','FAIL'), ternstr(allpass, ...
    'The decomposition may be interpreted (as a diagnostic at the frozen calibration).', ...
    'DO NOT interpret the components, and do not begin the full climate transition.'));
 
 save(fullfile(projdir,'output','preferred_decomposition.mat'), ...
-     'DEC','SCH','E0','E1','CTX','g0','g1','g2','g3','g4','GRD');
+     'DEC','SCH','E0','E1','Eh','CTX','g0','g1','g2','g3','g4','gf','GRD');
 tee('\n[main_preferred_decomposition] wrote %s (%.1f s)\n', sf, toc(t0));
 fclose(fid);
 
@@ -664,6 +700,12 @@ end
 
 function tee2(fid, varargin)
     fprintf(varargin{:}); fprintf(fid, varargin{:});
+end
+
+function v = getf(S, f)
+% Read an optional field as NaN when absent, so the finite-only gate can be
+% evaluated even on a struct that a failed stage returned in short form.
+    if isfield(S, f), v = S.(f); else, v = NaN; end
 end
 
 function s = ternstr(c,a,b)

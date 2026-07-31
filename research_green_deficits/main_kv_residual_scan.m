@@ -90,6 +90,45 @@
 % ---------------------------------------------------------------------
 %
 % ---------------------------------------------------------------------
+% ROUND 3: THE ADMISSIBLE q DOMAIN.
+%
+% The widening worked: k-top mass fell from 2.8e-3 to ~1e-31 at kfac = 12.
+% What it exposed is a different bottleneck. With the tree grid no longer
+% truncating, the root moved and the q window expanded 16x chasing it -- into
+% prices where the household problem no longer solves. The run then reported
+%
+%   F_k(1.0319) = NaN, F_k(2.0030) = -1.82e-02  (brackets)
+%
+% which is wrong twice over. sign(NaN) is NaN and NaN ~= anything is true, so
+% the NaN endpoint SATISFIED the sign test and was accepted as a bracket; and
+% the expansion loop, whose guard required both endpoints finite, TERMINATED
+% on the NaN and treated stopping as success. A NaN is not a large residual.
+% A large residual says where the root is; a NaN says where the model stops
+% being defined, and only the first may be used in a sign test.
+%
+% So: no more blind expansion. Each alpha now gets a coarse FEASIBILITY MAP,
+% every node classified admissible or failed WITH A REASON (see
+% KV_NODE_STATUS: NEG_CONSUMPTION, POLICY_NONCONV, BOND_NAN, TREE_NAN,
+% BOUNDARY_HIT, ...). The largest CONTIGUOUS admissible interval is taken --
+% contiguity matters, because a bracket spanning a hole in the domain is not
+% a bracket -- the scan runs inside it, and the root is bracketed only there.
+% Widening the window is offered only when the admissible run reaches a
+% window edge, i.e. when the domain was cut by the window rather than by the
+% model; otherwise the honest answer is "no admissible root in this domain".
+%
+% The centre of each alpha's window is the PREVIOUS alpha's converged tree
+% price: continuation along 0 -> 0.5 -> 1, which is the best available prior
+% about where the admissible region has moved to. The diagnostic scan stays
+% cold-started; only the root path uses continuation.
+%
+% The bond grid is FROZEN for this round (BFACMAX = 1). The last ladder moved
+% bmax from 12 to 192 while kmax was also moving, and two grids widening at
+% once is not a controlled experiment. b-top mass is still measured and
+% reported inside the admissible interval, which is the one condition under
+% which it may move next.
+% ---------------------------------------------------------------------
+%
+% ---------------------------------------------------------------------
 % PARALLELISM. The (alpha,q) nodes are the unit of work: independent by
 % construction, one worker each, no state shared. Every node writes ONE
 % result file named by kv_hash of (alpha, q, grids, calibration), and
@@ -124,13 +163,16 @@
 %         >> clear; PARALLEL = false; main_kv_residual_scan
 %         >> clear; NWORKERS = 8; main_kv_residual_scan
 %         >> clear; RESCAN = true; main_kv_residual_scan   (ignore the cache)
+%         >> clear; QSPAN = 0.4; main_kv_residual_scan     (wider feasibility map)
+%         >> clear; BFAC = 8; main_kv_residual_scan        (deliberate b widening)
 %
 % OUTPUT  output/tables/kv_residual_scan.txt
 %         output/kv_residual_scan.mat    (per-node record + chosen kfac/bfac)
 %         output/scan_cache/<gridkey>/   (one .mat per (alpha,q) node)
 
 clearvars -except FAST NQ COLDSTART NOWIDEN KFAC BFAC TOPTOL KFACMAX BFACMAX ...
-                  PARALLEL NWORKERS RESCAN PARCHECK HPROBE; close all; clc;
+                  PARALLEL NWORKERS RESCAN PARCHECK HPROBE ...
+                  QSPAN NCOARSE QGROW; close all; clc;
 rng(20260731,'twister'); t0 = tic;
 
 projdir = fileparts(mfilename('fullpath'));
@@ -145,15 +187,25 @@ if ~exist('NQ','var') || isempty(NQ), NQ = 61; end
 if ~exist('COLDSTART','var'), COLDSTART = true; end
 if ~exist('NOWIDEN','var'), NOWIDEN = false; end
 if ~exist('KFAC','var') || isempty(KFAC), KFAC = 12; end    % initial kmax x12
-if ~exist('BFAC','var') || isempty(BFAC), BFAC = 1; end     % bond grid untouched
+% BOND GRID FROZEN. The last ladder took bmax from 12 to 192 chasing the
+% b-boundary mass while kmax was also moving. Two grids widening at once is
+% not a controlled experiment: neither result is attributable. The b
+% escalation is therefore OFF (BFACMAX = 1) and bmax is held at BFAC times
+% its calibrated value. The b-top mass is still measured and reported inside
+% the admissible q interval, which is the condition under which the bond grid
+% may move next: persistent b-top mass above TOPTOL there, and nowhere else.
+if ~exist('BFAC','var') || isempty(BFAC), BFAC = 1; end     % bond grid frozen
 if ~exist('TOPTOL','var') || isempty(TOPTOL), TOPTOL = 1e-4; end
 if ~exist('KFACMAX','var') || isempty(KFACMAX), KFACMAX = 192; end
-if ~exist('BFACMAX','var') || isempty(BFACMAX), BFACMAX = 32; end
+if ~exist('BFACMAX','var') || isempty(BFACMAX), BFACMAX = 1; end   % no b escalation
 if ~exist('PARALLEL','var') || isempty(PARALLEL), PARALLEL = true; end
 if ~exist('NWORKERS','var'), NWORKERS = []; end
 if ~exist('RESCAN','var') || isempty(RESCAN), RESCAN = false; end
 if ~exist('PARCHECK','var') || isempty(PARCHECK), PARCHECK = true; end
 if ~exist('HPROBE','var') || isempty(HPROBE), HPROBE = 9; end
+if ~exist('QSPAN','var')   || isempty(QSPAN),   QSPAN = 0.25; end
+if ~exist('NCOARSE','var') || isempty(NCOARSE), NCOARSE = 13; end
+if ~exist('QGROW','var')   || isempty(QGROW),   QGROW = 3; end
 assert(NQ >= 61, 'the diagnosis needs at least 61 nodes');
 KREF = 5;      % k below which node placement is held fixed (5 x aggregate)
 BREF = 3;      % b below which node placement is held fixed (10 x aggregate)
@@ -206,28 +258,63 @@ tee('grids nb=%d nk=%d ne=%d; kmax=%.1f bmax=%.2f xmax=%.1f; nq=%d; coldstart=%d
 % different directory and cannot be served a stale result.
 gridkey = kv_hash(CTX.p, CTX.iota, CTX.r_b, CTX.d_base, CTX.D0, ...
                   CTX.Bnom, CTX.Kbar, CTX.g_real);
+% The first version of kv_hash produced '0000000000000000' for every input
+% (a uint64 multiply that saturates instead of wrapping drove the state to
+% zero), which quietly mapped every grid to ONE cache directory -- the exact
+% failure content addressing exists to prevent. Check it here too: a
+% degenerate key must stop the run, not be written into a path.
+assert(numel(unique(gridkey)) > 2, ...
+    'degenerate cache key "%s" -- kv_hash is broken; refusing to cache', gridkey);
 cachedir = fullfile(projdir,'output','scan_cache', gridkey(1:16));
 if ~isfolder(cachedir), mkdir(cachedir); end
-tee('cache key %s  ->  %s\n', gridkey(1:16), cachedir);
+tee('cache key %s  ->  %s\n\n', gridkey(1:16), cachedir);
 
-% ------------------------------------------------------------ the job list
-% Bracketing is serial and cheap (a couple of solves per alpha) and has to
-% finish before the node list exists, so it runs first.
+% ================== FEASIBILITY DIAGNOSTIC AND ADMISSIBLE DOMAIN =========
+% The previous version expanded the q window geometrically until the endpoint
+% signs differed. Two things were wrong with it. sign(NaN) is NaN and
+% NaN ~= anything is true, so a NaN endpoint READ AS a sign change: the run
+% printed "(brackets)" over an interval whose lower end was a solver failure.
+% And even read correctly, expansion is the wrong response -- a NaN says the
+% model stops being defined below some q, so the answer is to stop there.
+%
+% Each alpha now gets a coarse feasibility map, from which the largest
+% CONTIGUOUS admissible interval is taken; the scan runs inside that interval
+% and the root is bracketed only there. The centre is the PREVIOUS alpha's
+% converged tree price -- continuation along alpha, which is the best
+% available prior about where the admissible region is.
 alphas = [0 0.5 1];
-QS = cell(1,numel(alphas));
+QS = cell(1,numel(alphas)); BK = cell(1,numel(alphas)); ROOT = cell(1,numel(alphas));
+qc = eq0.q;
+tee('===== q-feasibility diagnostic (alpha-continuation, serial) =====\n');
 for ia = 1:numel(alphas)
     al = alphas(ia);
-    qc = eq0.q * (1 - 0.02*al);                 % candidate root, drifts with alpha
-    tee('===== alpha = %.2f =====\n', al);
-    QS{ia} = bracket_q(qc, al, CTX, NQ, 0.02, tee);
-    tee('  scanning %d nodes over q in [%.5f, %.5f]\n', NQ, QS{ia}(1), QS{ia}(end));
+    B = kv_bracket_finite(@(qq) fk_code(qq, al, CTX), qc, ...
+                          struct('span',QSPAN,'n',NCOARSE,'maxgrow',QGROW));
+    BK{ia} = B;
+    report_feasibility(tee, al, qc, B);
+    if isnan(B.qlo)
+        tee('  alpha %.2f: NO admissible q in the window. Scan skipped.\n\n', al);
+        QS{ia} = []; continue;
+    end
+    % the diagnostic scan runs over the ADMISSIBLE interval, never past it
+    QS{ia} = linspace(B.qlo, B.qhi, NQ);
+    tee('  scanning %d nodes over the admissible interval [%.5f, %.5f]\n\n', ...
+        NQ, B.qlo, B.qhi);
+    % continuation: solve this alpha's root, and centre the next alpha on it
+    if B.ok
+        R = refine_root(@(qq) fk_code(qq, al, CTX), B);
+        ROOT{ia} = R;
+        if isfinite(R.q), qc = R.q; end
+    end
 end
 JOB_A = []; JOB_Q = [];
 for ia = 1:numel(alphas)
-    JOB_A = [JOB_A; repmat(ia, NQ, 1)];         %#ok<AGROW>
-    JOB_Q = [JOB_Q; QS{ia}(:)];                 %#ok<AGROW>
+    if isempty(QS{ia}), continue; end
+    JOB_A = [JOB_A; repmat(ia, numel(QS{ia}), 1)];   %#ok<AGROW>
+    JOB_Q = [JOB_Q; QS{ia}(:)];                      %#ok<AGROW>
 end
 nJ = numel(JOB_Q);
+assert(nJ > 0, 'no admissible (alpha,q) node: the model does not solve anywhere in the window');
 
 % ------------------------------------------------------------- the scan
 % One worker per node. Nothing is shared, nothing is accumulated inside the
@@ -305,12 +392,16 @@ end
 HY = hysteresis_probe(QS, alphas, CTX, HPROBE, tee);
 
 % ---------------------------------------------------------------- verdict
+report_table(tee, alphas, BK, ROOT, R, TOPTOL);
 tee('\n===== DIAGNOSIS =====\n');
 V = classify(R, tee, TOPTOL, HY);
 V.kfac = kfac; V.bfac = bfac; V.widen = WID; V.toptol = TOPTOL;
 V.parcheck = PC; V.nworkers = nw; V.gridkey = gridkey;
+V.root = ROOT; V.bracket = BK;
+V.roots_found = sum(cellfun(@(x) ~isempty(x) && isfinite(x.q), ROOT));
 save(fullfile(projdir,'output','kv_residual_scan.mat'), ...
-     'R','V','CTX','alphas','kfac','bfac','WID','TOPTOL','HY','PC','gridkey');
+     'R','V','CTX','alphas','kfac','bfac','WID','TOPTOL','HY','PC','gridkey', ...
+     'BK','ROOT');
 tee('\n[main_kv_residual_scan] wrote %s (%.1f s)\n', sf, toc(t0));
 fclose(fid);
 
@@ -376,33 +467,117 @@ function f = chain(qs, al, CTX)
     end
 end
 
-function qs = bracket_q(qc, al, CTX, NQ, span, tee)
-% The +/-2% window around the pre-widening q was calibrated to the OLD grids.
-% Widening kmax changes S_k at every q, so the root moves and a fixed window
-% can easily miss it -- a scan that never crosses zero says nothing about
-% whether the market clears. Expand the window geometrically until the
-% endpoints straddle, and say so when the expansion was needed: a root that
-% has walked far from eq0.q is itself a finding about how much the truncation
-% was distorting the equilibrium.
-    lo = qc*(1-span); hi = qc*(1+span);
-    flo = fk_at(lo, al, CTX); fhi = fk_at(hi, al, CTX);
-    nexp = 0;
-    while isfinite(flo) && isfinite(fhi) && sign(flo) == sign(fhi) && nexp < 6
-        span = span*2; nexp = nexp + 1;
-        lo = max(qc*(1-span), 0.05*qc); hi = qc*(1+span);
-        flo = fk_at(lo, al, CTX); fhi = fk_at(hi, al, CTX);
-    end
-    if nexp > 0
-        tee('  q window expanded %dx to +/-%.1f%%: F_k(%.4f)=%.2e, F_k(%.4f)=%.2e %s\n', ...
-            2^nexp, 100*span, lo, flo, hi, fhi, ...
-            ternstr(sign(flo)~=sign(fhi), '(brackets)', '(STILL NO SIGN CHANGE)'));
-    end
-    qs = linspace(lo, hi, NQ);
+function [F, code] = fk_code(q, al, CTX)
+% The reduced tree residual AND why it is what it is. Never returns a bare
+% NaN: a caller that cannot tell "the root is far away" from "the model does
+% not solve here" will eventually treat the second as the first.
+    st = kv_solve_bond_given_q(q, al, CTX, []);
+    code = st.code;
+    if st.ok, F = st.Sk - CTX.Kbar; else, F = NaN; end
 end
 
-function v = fk_at(q, al, CTX)
-    st = kv_solve_bond_given_q(q, al, CTX, []);
-    if st.ok, v = st.Sk - CTX.Kbar; else, v = NaN; end
+function R = refine_root(fev, B)
+% Bisect the straddling pair, then report. Confined to [B.lo, B.hi], both of
+% which are admissible by construction, so no iterate can leave the domain.
+    R = struct('q',NaN,'F',NaN,'code','','its',0);
+    a = B.lo; b = B.hi; fa = B.flo;
+    for it = 1:40
+        m = 0.5*(a+b);
+        [fm, cm] = fev(m);
+        if ~isfinite(fm)
+            % An interior failure inside an admissible bracket is a solver
+            % problem, not a bracketing problem, and must be said so.
+            R.code = ['INTERIOR_' cm]; R.its = it; return;
+        end
+        R.q = m; R.F = fm; R.code = cm; R.its = it;
+        if abs(fm) < 1e-9 || (b-a) < 1e-9*max(1,abs(m)), break; end
+        if sign(fm) == sign(fa), a = m; fa = fm; else, b = m; end
+    end
+end
+
+function report_feasibility(tee, al, qc, B)
+% The per-alpha feasibility record: admissible interval, first failure and
+% why, first sign change, and the boundary masses inside the domain.
+    tee('  alpha %.2f  (centred on q = %.5f, %d evaluations, %d window growths)\n', ...
+        al, qc, B.nev, B.grew);
+    bad = ~strcmp(B.code,'OK') & ~strcmp(B.code,'BOUNDARY_HIT');
+    if any(bad)
+        u = unique(B.code(bad));
+        tee('    failures: %d of %d nodes  [%s]\n', sum(bad), numel(B.code), ...
+            strjoin(u, ', '));
+        tee('    first non-admissible q  : %.5f\n', B.first_bad);
+    else
+        tee('    failures: none in the window\n');
+    end
+    if isnan(B.qlo)
+        tee('    admissible q interval   : EMPTY\n');
+        return;
+    end
+    tee('    admissible q interval   : [%.5f, %.5f]  (%s)\n', B.qlo, B.qhi, B.status);
+    if B.ok
+        tee('    first sign change in F_k: %.5f  (F_k %.3e -> %.3e)\n', ...
+            B.first_sign, B.flo, B.fhi);
+    else
+        tee('    first sign change in F_k: NONE inside the admissible interval\n');
+        if strcmp(B.status,'DOMAIN_TRUNCATED_BY_WINDOW')
+            tee('      the admissible run reaches a window edge, so the domain was\n');
+            tee('      cut by the window; widen QSPAN and rerun this alpha.\n');
+        else
+            tee('      the admissible run is strictly interior, so the MODEL bounds\n');
+            tee('      the domain. A wider window would only add more failures --\n');
+            tee('      there is no admissible root at this calibration.\n');
+        end
+    end
+end
+
+function report_table(tee, alphas, BK, ROOT, R, TOPTOL)
+% The compact per-alpha status table.
+    tee('\n===== PER-ALPHA STATUS =====\n');
+    tee(['%5s %22s %11s %11s %12s %12s %10s %10s %10s  %s\n'], ...
+        'alpha','finite q interval','first NaN','first sign','bond resid', ...
+        'tree resid','hh dV','b-top','k-top','status');
+    for ia = 1:numel(alphas)
+        B = BK{ia};
+        fb = NaN; ft = NaN; dv = NaN; bs = NaN; ks = NaN; stat = 'NO_DOMAIN';
+        if ia <= numel(R) && ~isempty(R(ia).up.ok) && any(R(ia).up.ok)
+            ok = R(ia).up.ok;
+            fb = max(abs(R(ia).up.Fb(ok)));
+            dv = max(R(ia).up.dV(ok));
+            bs = max(R(ia).up.bsat(ok));
+            ks = max(R(ia).up.ksat(ok));
+        end
+        if ~isempty(ROOT{ia}) && isfinite(ROOT{ia}.F)
+            ft = ROOT{ia}.F; stat = ROOT{ia}.code;
+        elseif ~isnan(B.qlo)
+            stat = B.status;
+        end
+        if isnan(B.qlo), iv = 'EMPTY';
+        else, iv = sprintf('[%.4f,%.4f]', B.qlo, B.qhi);
+        end
+        tee('%5.2f %22s %11s %11s %12.3e %12.3e %10.1e %10.2e %10.2e  %s\n', ...
+            alphas(ia), iv, numstr(B.first_bad), numstr(B.first_sign), ...
+            fb, ft, dv, bs, ks, stat);
+    end
+    tee('  (boundary tolerance %.0e; tree resid is at the SOLVED root, bond\n', TOPTOL);
+    tee('   resid is the worst over the scanned admissible interval)\n');
+end
+
+function s = numstr(x)
+    if isnan(x), s = '--'; else, s = sprintf('%.4f', x); end
+end
+
+function n = nsignchg(u)
+% Sign changes counted only between ADJACENT ADMISSIBLE nodes. Compressing
+% the failures out first (Fk(ok)) would splice the two sides of a hole in the
+% domain together and manufacture a crossing that no continuous path takes.
+    F = u.Fk; ok = u.ok;
+    n = 0;
+    for i = 1:numel(F)-1
+        if ok(i) && ok(i+1) && isfinite(F(i)) && isfinite(F(i+1)) ...
+                && sign(F(i)) ~= sign(F(i+1)) && sign(F(i)) ~= 0
+            n = n + 1;
+        end
+    end
 end
 
 function [p, kfac, bfac, W] = widen_until_interior(CTX, REFW, kfac, bfac, kcap, bcap, tol, tee)
@@ -423,12 +598,29 @@ function [p, kfac, bfac, W] = widen_until_interior(CTX, REFW, kfac, bfac, kcap, 
         [p, W, ks, bs, ko, bo] = probe_widen(CTX, REFW, kfac, bfac);
         rung(tee, kfac, bfac, W, ks, bs, ko, bo);
     end
+    % BACKTRACK. Doubling overshoots: the ladder stops at the first rung that
+    % clears, but the rung BELOW it may clear too, and every doubling of kmax
+    % costs resolution in the tail at a fixed node count. Walk back down while
+    % the boundary stays interior, so the widening is the smallest on the
+    % lattice that works rather than the first that works.
+    while isfinite(ks) && ks < tol && kfac > 1
+        [p2, W2, ks2, bs2, ko2, bo2] = probe_widen(CTX, REFW, kfac/2, bfac);
+        if ~(isfinite(ks2) && ks2 < tol), break; end
+        kfac = kfac/2; p = p2; W = W2; ks = ks2; bs = bs2; ko = ko2; bo = bo2;
+        rung(tee, kfac, bfac, W, ks, bs, ko, bo);
+    end
     if isfinite(bs) && bs > tol
-        tee('    b-boundary still bound after the k repair: the bond grid may now move.\n');
-        while isfinite(bs) && bs > tol && bfac*2 <= bcap
-            bfac = bfac*2;
-            [p, W, ks, bs, ko, bo] = probe_widen(CTX, REFW, kfac, bfac);
-            rung(tee, kfac, bfac, W, ks, bs, ko, bo);
+        if bcap <= 1
+            tee('    b-boundary is still bound (%.2e) but the bond grid is FROZEN by\n', bs);
+            tee('    BFACMAX=1: it moves only if the finite-domain scan confirms it,\n');
+            tee('    and only with the k-grid held still.\n');
+        else
+            tee('    b-boundary still bound after the k repair: the bond grid may now move.\n');
+            while isfinite(bs) && bs > tol && bfac*2 <= bcap
+                bfac = bfac*2;
+                [p, W, ks, bs, ko, bo] = probe_widen(CTX, REFW, kfac, bfac);
+                rung(tee, kfac, bfac, W, ks, bs, ko, bo);
+            end
         end
     end
     if ~isfinite(ks)
@@ -473,7 +665,7 @@ function report_dir(tee, qs, up, al, tol)
     ok = up.ok;
     if ~any(ok), tee('  no node solved.\n\n'); return; end
     tee('  |Fk| range          : [%.2e, %.2e]\n', min(abs(up.Fk(ok))), max(abs(up.Fk(ok))));
-    tee('  sign changes        : %d\n', sum(diff(sign(up.Fk(ok)))~=0));
+    tee('  sign changes        : %d (adjacent admissible nodes only)\n', nsignchg(up));
     d1 = diff(up.Fk(ok));
     if numel(d1) > 3
         tee('  step structure      : median |dFk| %.2e, max |dFk| %.2e, ratio %.1f\n', ...
@@ -510,7 +702,7 @@ function V = classify(R, tee, tol, HY)
         kocc  = max(kocc,  max(R(ia).up.kocc(ok)));
         bocc  = max(bocc,  max(R(ia).up.bocc(ok)));
         dV    = max(dV,    max(R(ia).up.dV(ok)));
-        nsign = nsign + (sum(diff(sign(R(ia).up.Fk(ok)))~=0) > 0);
+        nsign = nsign + (nsignchg(R(ia).up) > 0);
         d1 = diff(R(ia).up.Fk(ok));
         if numel(d1) > 3
             ratio = max(ratio, max(abs(d1))/max(median(abs(d1)),eps));

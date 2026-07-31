@@ -61,29 +61,43 @@ function h = digest(b)
     h = '';
     try
         md = java.security.MessageDigest.getInstance('MD5');
-        md.update(b);
+        md.update(typecast(b, 'int8'));   % Java bytes are SIGNED; uint8 > 127
         d = typecast(md.digest(), 'uint8');
         h = lower(reshape(dec2hex(d, 2)', 1, []));
     catch
         h = '';
     end
     if isempty(h)
-        % The fallback loops in MATLAB, so it is capped: the first 64 KiB
-        % plus the total length. Everything this project hashes (grids,
-        % scalars) is a few KiB, so the cap never bites here; it exists so a
-        % careless caller cannot turn a key into a minute of compute.
-        n = numel(b);
-        bb = b(1:min(n, 65536));
-        h = [fnv1a(bb, uint64(14695981039346656037)) ...
-             fnv1a([flipud(bb); typecast(uint64(n),'uint8')'], uint64(1099511628211))];
+        h = poly_digest(b);
     end
+    % A digest that is constant carries no information, and a key that is
+    % constant silently maps every configuration to the SAME cache entry --
+    % the exact failure content addressing exists to prevent. The first
+    % version of this file did precisely that: it fell back to a 64-bit FNV
+    % whose multiply SATURATES in MATLAB uint8/64 arithmetic (a*b pins at
+    % intmax rather than wrapping), so mod(intmax, intmax) drove the state to
+    % zero and every key came out '0000000000000000'. Fail loudly instead.
+    assert(numel(unique(h)) > 1, 'kv_hash: degenerate digest "%s"', h);
 end
 
-function s = fnv1a(b, seed)
-    p = uint64(1099511628211); hv = seed;
-    for i = 1:numel(b)
-        hv = bitxor(hv, uint64(b(i)));
-        hv = mod(hv * p, uint64(18446744073709551615));
+function h = poly_digest(b)
+% Four independent Horner hashes modulo distinct Mersenne-ish primes, in
+% DOUBLE arithmetic. Every intermediate stays below 2^53 (hv < p < 2^31
+% times a base < 2^8, plus a byte), so each step is exact -- unlike uint64
+% multiplication, which saturates instead of wrapping and destroys the state.
+% Capped at the first 64 KiB plus the length, because this loops in MATLAB.
+% Everything this project hashes is a few KiB, so the cap never bites; it is
+% there so a careless caller cannot turn a key into a minute of compute.
+    n = numel(b);
+    v = double(b(1:min(n, 65536)));
+    P = [2147483647 2147483629 2147483587 2147483579];
+    B = [131 137 139 149];
+    h = '';
+    for j = 1:4
+        hv = mod(1469598103 + n, P(j));
+        for i = 1:numel(v)
+            hv = mod(hv*B(j) + v(i) + 1, P(j));
+        end
+        h = [h lower(dec2hex(hv, 8))]; %#ok<AGROW>
     end
-    s = lower(dec2hex(hv, 16));
 end
