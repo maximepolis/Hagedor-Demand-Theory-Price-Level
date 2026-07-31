@@ -63,17 +63,30 @@
 %      derivative; the achieved relative error is reported, and the gate is
 %      set at the level the underlying solvers can actually support
 %   G4 GRID  the qualitative split (which component dominates, and the sign
-%      of each) is unchanged on a coarser grid
+%      of each) is unchanged on coarser grids, and the LEVEL sequence over
+%      three grids is reported so convergence can be distinguished from
+%      mere movement
+%
+% PARALLELISM. Independent equilibria run concurrently: the eight Shapley
+% coalitions, and the alternative-grid rebuilds (one grid per worker, each
+% running its own alpha = 0 -> alpha = 1 continuation serially). The
+% continuation itself, the bisection inside it, the (P,tau,div) fixed point
+% and the household VFI are chains and stay serial -- as does the Schur
+% finite-difference ladder, whose three alpha solves warm-start from one
+% another. parfor degrades to a for-loop without the toolbox, so the
+% computed result does not depend on whether a pool exists.
 %
 % USAGE   >> clear; main_preferred_decomposition
 %         >> clear; FAST = true; main_preferred_decomposition   (coarse only)
 %         >> clear; SKIPGRID = true; main_preferred_decomposition
+%         >> clear; PARALLEL = false; main_preferred_decomposition
+%         >> clear; NWORKERS = 8; main_preferred_decomposition
 %
 % REQUIRES output/twoasset_ownership_kv.mat
 % OUTPUT   output/tables/preferred_decomposition.txt
 %          output/preferred_decomposition.mat
 
-clearvars -except FAST SKIPGRID; close all; clc;
+clearvars -except FAST SKIPGRID PARALLEL NWORKERS; close all; clc;
 rng(20260731, 'twister'); t0 = tic;
 
 projdir = fileparts(mfilename('fullpath'));
@@ -85,6 +98,8 @@ addpath(genpath(fullfile(projdir, 'src_project')));
 
 if ~exist('FAST','var'), FAST = false; end
 if ~exist('SKIPGRID','var'), SKIPGRID = false; end
+if ~exist('PARALLEL','var') || isempty(PARALLEL), PARALLEL = true; end
+if ~exist('NWORKERS','var'), NWORKERS = []; end
 
 mf = fullfile(projdir, 'output', 'twoasset_ownership_kv.mat');
 assert(exist(mf,'file')==2, 'run main_twoasset_ownership_kv first');
@@ -143,7 +158,7 @@ if exist(scf,'file')==2
         tee('  factors. Every number below inherits that truncation.\n');
     end
 else
-    kfac = 6;
+    kfac = 12;
     tee('*** no kv_residual_scan.mat: falling back to kfac=%.1f UNVERIFIED ***\n', kfac);
 end
 if kfac > 1 || bfac > 1
@@ -183,8 +198,22 @@ CTX = struct('p',p,'iota',iota,'r_b',r_b,'d_base',d_base,'D0',D0, ...
              'Bnom',Bnom,'Kbar',Kbar,'g_real',g_real,'qref',eq0.q, ...
              'Pseed',eq0.P,'W0',[]);
 
+% PARALLELISM. Brought up once, here, so the Shapley coalitions and the grid
+% rebuilds below find a pool rather than each paying to start one. What is
+% parallelised is only work that is INDEPENDENT: the eight Shapley
+% coalitions, and the alternative-grid equilibria. What is not, and must not
+% be, is the alpha = 0 and alpha = 1 solve immediately below -- alpha = 1
+% continues from alpha = 0's tree price and shares its value function as a
+% warm start, so running them concurrently would change what is computed, not
+% just how fast. Inside each equilibrium the bisection, the (P,tau,div) fixed
+% point and the household VFI are all chains and stay serial.
+NWP = kv_parpool(PARALLEL, NWORKERS, true, tee, ...
+                 {fullfile(rootdir,'src'), fullfile(projdir,'src_project')});
+tee('parallel: %s\n\n', ternstr(NWP>0, sprintf(['%d workers for the Shapley ' ...
+    'coalitions and the grid rebuilds'], NWP), 'serial'));
+
 % ---------------------------------------------------------------- (A)+(B)
-tee('===== solving the two financing equilibria =====\n');
+tee('===== solving the two financing equilibria (serial continuation) =====\n');
 E0 = solve_alpha(0.0, CTX, eq0.q, true, tee);   % lump-sum
 assert(E0.ok, 'alpha=0 equilibrium failed: %s', E0.msg);
 CTX.W0 = E0.sol.V;                              % shared warm start
@@ -236,44 +265,86 @@ end
 g3 = isfinite(SCH.relerr) && SCH.relerr < SCH.tol;
 tee('G3 finite difference : rel err %.3e vs tol %.1e  %s\n', SCH.relerr, SCH.tol, ternstr(g3,'PASS','FAIL'));
 
-g4 = NaN;
+g4 = NaN; GRD = struct('fac',[],'dSb',[],'ok',[]);
 if ~SKIPGRID && ~FAST
-    tee('\n----- G4 grid check (coarse rebuild) -----\n');
-    pc = coarsen(p);
-    CTXc = CTX; CTXc.p = pc;
-    E0c = solve_alpha(0.0, CTXc, eq0.q, false, tee);
-    E1c = solve_alpha(1.0, CTXc, E0c.q, false, tee);
-    if E0c.ok && E1c.ok
-        DECc = finite_decomposition(E0c, E1c, CTXc, @(varargin) []);
+    % THREE grids, not two. The previous version compared the benchmark
+    % against a single 0.7x rebuild and, when the levels disagreed, said in
+    % its own output that "a third grid is needed before any level enters the
+    % paper". A two-point comparison can say the level MOVED; it cannot say
+    % whether it is converging, and that is the question. The grids are
+    % independent equilibria, so they run one per worker -- each solving its
+    % own alpha = 0 -> alpha = 1 continuation SERIALLY, which is the only way
+    % that continuation may be run.
+    GF = [0.85 0.70];
+    tee('\n----- G4 grid check (%d independent rebuilds at %s of the node count) -----\n', ...
+        numel(GF), strtrim(sprintf('%.2fx ', GF)));
+    nwG = kv_parpool(PARALLEL, NWORKERS, true, tee, ...
+                     {fullfile(rootdir,'src'), fullfile(projdir,'src_project')});
+    tee('  solving %d grids on %s\n', numel(GF), ...
+        ternstr(nwG>0, sprintf('%d workers', nwG), 'one worker (serial)'));
+    CTXs = cell(1,numel(GF)); ES = cell(1,numel(GF)); qref = eq0.q;
+    for i = 1:numel(GF), Ci = CTX; Ci.p = coarsen(p, GF(i)); CTXs{i} = Ci; end
+    parfor i = 1:numel(GF)
+        Ci = CTXs{i};
+        E0i = kv_solve_alpha(0.0, Ci, qref, false, []);
+        if ~E0i.ok, ES{i} = []; continue; end
+        E1i = kv_solve_alpha(1.0, Ci, E0i.q, false, []);   % serial continuation
+        if ~E1i.ok, ES{i} = []; continue; end
+        ES{i} = {E0i, E1i};
+    end
+    % The decompositions run on the client: finite_decomposition is a local
+    % function of this script and workers cannot see it, and it is cheap
+    % relative to the equilibrium solves that were just parallelised.
+    DECs = cell(1,numel(GF));
+    for i = 1:numel(GF)
+        if isempty(ES{i}), continue; end
+        DECs{i} = finite_decomposition(ES{i}{1}, ES{i}{2}, CTXs{i}, @(varargin) []);
+    end
+    good = find(~cellfun(@isempty, DECs));
+    GRD.fac = GF; GRD.ok = ~cellfun(@isempty, DECs);
+    GRD.dSb = nan(1,numel(GF));
+    for i = good, GRD.dSb(i) = DECs{i}.dSb; end
+
+    if isempty(good)
+        tee('G4 grid            : every coarse equilibrium failed -- INCONCLUSIVE\n');
+    else
         % The decomposition's CLAIM is about which channel carries the
-        % response, i.e. about SHARES. Gate on those. Levels are a separate
-        % quantity whose grid convergence is reported below rather than
-        % folded into this test -- and it is the weaker of the two.
-        shF = DEC.comp  / max(abs(DEC.dSb), eps);
-        shC = DECc.comp / max(abs(DECc.dSb), eps);
+        % response, i.e. about SHARES. Gate on those, against the COARSEST
+        % grid that solved -- the hardest comparison available. Levels are a
+        % separate quantity, reported as a sequence below.
+        ic = good(end);
+        shF = DEC.comp        / max(abs(DEC.dSb), eps);
+        shC = DECs{ic}.comp   / max(abs(DECs{ic}.dSb), eps);
         FLOOR = 0.05;                       % below 5% of the total is noise
         big = (abs(shF) > FLOOR) | (abs(shC) > FLOOR);
         same_sign = all(sign(shF(big)) == sign(shC(big)));
         close_sh  = max(abs(shF(big) - shC(big))) < 0.15;
         [~,iF] = max(abs(shF)); [~,iC] = max(abs(shC));
         g4 = same_sign && close_sh && (iF == iC);
-        tee('  fine   shares: %s\n', vecstr(100*shF));
-        tee('  coarse shares: %s\n', vecstr(100*shC));
+        tee('  fine    shares: %s\n', vecstr(100*shF));
+        tee('  coarsest shares (%.2fx): %s\n', GF(ic), vecstr(100*shC));
         tee('  components below the %.0f%% floor on both grids are exempt: %s\n', ...
             100*FLOOR, mat2str(find(~big)'));
         tee('G4 grid (shares)   : dominant %s, signs %s, max share gap %.1fpp  %s\n', ...
             ternstr(iF==iC,'same','DIFFER'), ternstr(same_sign,'match','DIFFER'), ...
             100*max(abs(shF(big)-shC(big))), ternstr(g4,'PASS','FAIL'));
-        lvl = abs(DECc.dSb - DEC.dSb)/max(abs(DEC.dSb),eps);
-        tee('  LEVEL sensitivity: dS_b fine %+0.6f vs coarse %+0.6f (%.0f%% apart)\n', ...
-            DEC.dSb, DECc.dSb, 100*lvl);
-        if lvl > 0.15
-            tee('  *** The LEVEL of dS_b is NOT grid-converged. The share split may\n');
-            tee('  *** be quoted as a diagnostic; the magnitude of dS_b may not, and\n');
-            tee('  *** a third grid is needed before any level enters the paper.\n');
+        % LEVEL sequence: benchmark first, then coarser. Monotone AND
+        % shrinking increments is what convergence looks like; anything else
+        % is a level that has not settled.
+        seq = [DEC.dSb, GRD.dSb(good)];
+        tee('  LEVEL sequence dS_b (1.00x, then %s): %s\n', ...
+            strtrim(sprintf('%.2fx ', GF(good))), vecstr(seq));
+        d = abs(diff(seq));
+        lvl = max(d)/max(abs(DEC.dSb), eps);
+        if numel(d) >= 2
+            tee('  successive |changes|: %s  -> increments %s\n', vecstr(d), ...
+                ternstr(all(diff(d) < 0), 'SHRINKING', 'NOT shrinking'));
         end
-    else
-        tee('G4 grid            : coarse equilibrium failed -- INCONCLUSIVE\n');
+        if lvl > 0.15
+            tee('  *** The LEVEL of dS_b is NOT grid-converged (worst step %.0f%%).\n', 100*lvl);
+            tee('  *** The share split may be quoted as a diagnostic; the magnitude\n');
+            tee('  *** of dS_b may not.\n');
+        end
     end
 else
     tee('G4 grid            : skipped\n');
@@ -285,137 +356,35 @@ tee('\nGATES %s. %s\n', ternstr(allpass,'PASS','FAIL'), ternstr(allpass, ...
    'DO NOT interpret the components, and do not begin the full climate transition.'));
 
 save(fullfile(projdir,'output','preferred_decomposition.mat'), ...
-     'DEC','SCH','E0','E1','CTX','g0','g1','g2','g3','g4');
+     'DEC','SCH','E0','E1','CTX','g0','g1','g2','g3','g4','GRD');
 tee('\n[main_preferred_decomposition] wrote %s (%.1f s)\n', sf, toc(t0));
 fclose(fid);
 
 % =====================================================================
+% The pricing, tax, dividend and equilibrium-solver primitives now live in
+% src_project as kv_* files rather than as locals here, because parallel
+% workers cannot see a script's local functions. These are thin wrappers so
+% the call sites below are unchanged and there is still exactly ONE
+% definition of each.
 function pe = prices_to_pe(alpha, CTX)
-% household-facing parameters at financing intensity alpha:
-%   effective endowments scaled by damages and by the levy (1 - vartheta)
-%   vartheta(alpha) = alpha * g /(1-D)   so alpha=1 funds g entirely by levy
-    pe = CTX.p;
-    vth = alpha * CTX.g_real / (1 - CTX.D0);
-    pe.eGrid = (1 - CTX.D0) * (1 - vth) * CTX.p.eGrid;
+    pe = kv_prices_to_pe(alpha, CTX);
 end
 
 function tau = tau_of(alpha, P, CTX)
-% lump-sum component: services the debt and the un-levied share of g
-    tau = CTX.r_b * (CTX.Bnom / P) + (1 - alpha) * CTX.g_real;
+    tau = kv_tau_of(alpha, P, CTX);
 end
 
 function dvd = div_of(P, CTX)
-% intermediary pass-through: the fund holds (1-iota) of the stock and pays
-% the coupon on it through as dividend
-    dvd = CTX.d_base + CTX.r_b * (1 - CTX.iota) * (CTX.Bnom / P) / CTX.Kbar;
+    dvd = kv_div_of(P, CTX);
 end
 
 function E = solve_alpha(alpha, CTX, q_guess, verbose, tee)
-% Equilibrium at financing intensity alpha: bisect q on the tree market;
-% for each q run an inner fixed point on (P, tau, div) with P = iota*B/S_b.
-% Tolerances are TIGHTER than the calibration driver's because this feeds
-% finite differences.
-    E = struct('ok',false,'msg','','P',NaN,'q',NaN,'Sb',NaN,'Sk',NaN, ...
-               'sol',[],'dist',[],'alpha',alpha,'tau',NaN,'dvd',NaN);
-    pe = prices_to_pe(alpha, CTX);
-    lo = 0.80*q_guess; hi = 1.25*q_guess; Vc = [];
-    fq = @(qq) tree_gap(qq, alpha, CTX, pe);
-    [flo, ~] = fq(lo); [fhi, ~] = fq(hi);
-    ex = 0;
-    while ~(isfinite(flo) && isfinite(fhi) && sign(flo)~=sign(fhi)) && ex < 4
-        lo = 0.75*lo; hi = 1.35*hi; [flo,~] = fq(lo); [fhi,~] = fq(hi); ex = ex+1;
-    end
-    if ~(isfinite(flo) && isfinite(fhi) && sign(flo)~=sign(fhi))
-        E.msg = 'no tree bracket'; return;
-    end
-    a = lo; b = hi; fa = flo; st = [];
-    for it = 1:45
-        m = 0.5*(a+b);
-        [fm, st] = fq(m);
-        if ~isfinite(fm), b = m; continue; end
-        if abs(fm) < 1e-9 || (b-a) < 1e-7*max(1,q_guess), break; end
-        if sign(fm)==sign(fa), a = m; fa = fm; else, b = m; end
-    end
-    % POLISH. S_k(q) is a step function at fine scales, because the
-    % adjuster's portfolio choice is an argmax over a discrete candidate
-    % set. Bisection on a step function converges to the JUMP, where the
-    % residual can remain large -- which is exactly what happened at
-    % alpha = 1 (a 1.3e-3 gap after the bracket had collapsed to 1e-11).
-    % Bisection cannot fix that, because there may be no exact zero. Golden
-    % section on |gap| over the final bracket instead returns the closest
-    % approach the discretization admits, and the achieved value is gated
-    % (G0) rather than assumed.
-    gr = (sqrt(5)-1)/2;
-    aa = max(a - 4*(b-a), lo); bb = min(b + 4*(b-a), hi);
-    c1 = bb - gr*(bb-aa); c2 = aa + gr*(bb-aa);
-    [f1,s1] = fq(c1); [f2,s2] = fq(c2);
-    v1 = abs(f1); v2 = abs(f2);
-    if ~isfinite(v1), v1 = Inf; end
-    if ~isfinite(v2), v2 = Inf; end
-    for it2 = 1:40
-        if v1 < v2
-            bb = c2; c2 = c1; v2 = v1; s2 = s1;
-            c1 = bb - gr*(bb-aa); [f1,s1] = fq(c1); v1 = abs(f1);
-            if ~isfinite(v1), v1 = Inf; end
-        else
-            aa = c1; c1 = c2; v1 = v2; s1 = s2;
-            c2 = aa + gr*(bb-aa); [f2,s2] = fq(c2); v2 = abs(f2);
-            if ~isfinite(v2), v2 = Inf; end
-        end
-        if (bb-aa) < 1e-10*max(1,q_guess), break; end
-    end
-    if v1 <= v2, m = c1; else, m = c2; end
-    % SINGLE FINAL-EQUILIBRIUM STRUCTURE. Everything displayed or gated is
-    % recomputed HERE, once, from the chosen q. The previous version carried
-    % f1/f2 alongside c1/c2 but shifted only the c and s variables inside the
-    % golden-section loop, so the printed residual could belong to a
-    % different q than the returned state -- which is exactly why the
-    % alpha = 0 tree gap printed 8.07e-04 at solve time and 1.97e-04 when
-    % recomputed in the summary. No residual is ever carried forward from an
-    % intermediate evaluation again.
-    [fm, st] = fq(m);
-    if isempty(st) || ~st.ok || ~isfinite(fm)
-        E.msg = 'tree solve failed at the finalized q'; return;
-    end
-    E.ok = true; E.q = m; E.P = st.P; E.Sb = st.Sb; E.Sk = st.Sk;
-    E.sol = st.sol; E.dist = st.dist; E.tau = st.tau; E.dvd = st.dvd; E.pe = pe;
-    % canonical residuals, computed from THIS state and nothing else
-    E.Fk = st.Sk - CTX.Kbar;                       % tree market
-    E.Fb = st.Sb - CTX.iota*CTX.Bnom/st.P;         % bond market
-    E.mass_err = abs(1 - sum(st.dist(:)));
-    kmass = squeeze(sum(sum(st.dist,1),3)); kmass = kmass(:);
-    bmass = squeeze(sum(sum(st.dist,2),3)); bmass = bmass(:);
-    E.ksat = sum(kmass(max(1,end-1):end))/max(sum(kmass),eps);
-    E.bsat = sum(bmass(max(1,end-1):end))/max(sum(bmass),eps);
-    if verbose && ~isempty(tee)
-        tee(['  alpha=%.2f: q=%.8f  |Fk|=%.2e |Fb|=%.2e  mass err %.1e  ' ...
-             'k-sat %.1e b-sat %.1e  (%d bisect + %d polish)\n'], ...
-            alpha, m, abs(E.Fk), abs(E.Fb), E.mass_err, E.ksat, E.bsat, it, it2);
-    end
-end
-
-function [gap, st] = tree_gap(qq, alpha, CTX, pe)
-% inner fixed point on (P, tau, div) at a trial tree price
-    st = struct('ok',false);
-    P = CTX.iota * CTX.Bnom / max(1e-9, 0.30);      % harmless seed
-    if isfield(CTX,'Pseed') && ~isempty(CTX.Pseed), P = CTX.Pseed; end
-    Vc = []; gap = NaN;
-    for it = 1:60
-        tau = tau_of(alpha, P, CTX);
-        dvd = div_of(P, CTX);
-        out = kv_stationary_block(CTX.r_b, qq, dvd, tau, pe, Vc);
-        if ~out.ok, gap = NaN; return; end
-        Vc = out.sol.V;
-        Pn = CTX.iota * CTX.Bnom / max(out.Sb, 1e-12);
-        if abs(Pn - P) < 1e-12 * max(1,abs(P)), P = Pn; break; end
-        P = 0.5*P + 0.5*Pn;                        % damped, monotone here
-    end
-    tau = tau_of(alpha, P, CTX); dvd = div_of(P, CTX);
-    out = kv_stationary_block(CTX.r_b, qq, dvd, tau, pe, Vc);
-    if ~out.ok, gap = NaN; return; end
-    gap = out.Sk - CTX.Kbar;
-    st = struct('ok',true,'P',P,'Sb',out.Sb,'Sk',out.Sk,'sol',out.sol, ...
-                'dist',out.dist,'tau',tau,'dvd',dvd);
+% Wrapper. The solver itself lives in src_project/kv_solve_alpha.m so that a
+% worker solving one alternative grid can call it. It is and stays SERIAL:
+% the bisection is a sequential search and the inner (P,tau,div) fixed point
+% and the household VFI are contractions. Parallelism in this project sits
+% one level up, across independent equilibria.
+    E = kv_solve_alpha(alpha, CTX, q_guess, verbose, tee);
 end
 
 function D = finite_decomposition(E0, E1, CTX, tee)
@@ -492,28 +461,26 @@ function v = agg_at(pr, dist, CTX)
     if out.ok, v = out.Sb; else, v = NaN; end
 end
 
-function v = agg_stat(pr, CTX)
-% aggregate at pr with its OWN stationary distribution
-    pe = prices_to_pe(pr.alpha, CTX);
-    out = kv_stationary_block(CTX.r_b, pr.q, pr.dvd, pr.tau, pe, []);
-    if out.ok, v = out.Sb; else, v = NaN; end
-end
-
-function pr = mix(p0, p1, mask)
-% driver subset: mask = [tau q div] logical, 1 = take the alpha=1 value
-    pr = p0;
-    if mask(1), pr.tau = p1.tau; pr.alpha = p1.alpha; end
-    if mask(2), pr.q   = p1.q;   end
-    if mask(3), pr.dvd = p1.dvd; end
-end
+% The driver-subset mixer used to live here as well. It now lives ONLY in
+% kv_shapley_coalition, because that is where the coalitions are evaluated:
+% two copies of "which fields does subset T switch on" is precisely the kind
+% of duplication that drifts silently and turns a Shapley decomposition into
+% an arbitrary one. agg_stat went with it -- it had no remaining caller.
 
 function [sh, err] = shapley3(p0, p1, dist0, CTX)
 % exact Shapley values over three drivers for the POLICY block (distribution
 % held at dist0). 8 evaluations; weights (|T|!(n-|T|-1)!)/n! with n=3.
+%
+% The eight coalitions are independent -- each re-solves the household
+% problem at its own driver vector, sharing only the fixed warm start
+% CTX.W0 -- so they run concurrently. parfor is a plain for-loop when there
+% is no pool, so this is identical work either way; the only requirement is
+% that the body call a FILE function, since a worker cannot see this
+% script's local functions.
     M = dec2bin(0:7,3) - '0';                    % 8 x 3 masks
     V = zeros(8,1);
-    for i = 1:8
-        V(i) = agg_at(mix(p0,p1,logical(M(i,:))), dist0, CTX);
+    parfor i = 1:8
+        V(i) = kv_shapley_coalition(logical(M(i,:)), p0, p1, dist0, CTX, 'policy');
     end
     base = V(1);
     sh = zeros(3,1);
@@ -544,13 +511,8 @@ function [sh, err] = shapley3_dist(p0, p1, CTX, DIST_target)
 % aggregate is taken with BASELINE policies.
     M = dec2bin(0:7,3) - '0';
     V = zeros(8,1);
-    for i = 1:8
-        prm = mix(p0,p1,logical(M(i,:)));
-        pem = prices_to_pe(prm.alpha, CTX);
-        Wm = []; if isfield(CTX,'W0'), Wm = CTX.W0; end
-        o   = kv_stationary_block(CTX.r_b, prm.q, prm.dvd, prm.tau, pem, Wm);
-        if ~o.ok, V(i) = NaN; continue; end
-        V(i) = agg_at(p0, o.dist, CTX);          % baseline policies, this dist
+    parfor i = 1:8
+        V(i) = kv_shapley_coalition(logical(M(i,:)), p0, p1, [], CTX, 'dist');
     end
     sh = zeros(3,1);
     w = @(s) factorial(s)*factorial(3-s-1)/factorial(3);
@@ -682,15 +644,16 @@ function v = resid_k(P, q, alpha, CTX, W)
     if o.ok, v = o.Sk - CTX.Kbar; else, v = NaN; end
 end
 
-function pc = coarsen(p)
+function pc = coarsen(p, fac)
 % The nested-grid check must vary ONLY the node count. Rebuilding with a
 % literal 2.4 would also move the curvature once the grids have been widened
 % (the widening re-solves the exponent), so what looked like a resolution
-% test would be a resolution-and-shape test. Take the curvature from the grid
-% being coarsened.
+% test would be a resolution-and-shape test. Take the curvature, and both
+% endpoints, from the grid being coarsened.
+    if nargin < 2, fac = 0.7; end
     pc = p;
-    nb = max(30, round(numel(p.bGrid)*0.7));
-    nk = max(18, round(numel(p.kGrid)*0.7));
+    nb = max(30, round(numel(p.bGrid)*fac));
+    nk = max(18, round(numel(p.kGrid)*fac));
     [blo,bhi,gb] = kv_grid_curv(p.bGrid); pc.bGrid = kv_grid_build(blo,bhi,gb,nb);
     [klo,khi,gk] = kv_grid_curv(p.kGrid); pc.kGrid = kv_grid_build(klo,khi,gk,nk);
 end

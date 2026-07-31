@@ -29,16 +29,37 @@
 % fraction of household states whose k-policy grid index differs from the
 % previous scan node. That last series is the direct test for (C4).
 %
-% The scan runs ASCENDING and DESCENDING over the same q nodes so (C2) is
-% testable, and never reuses a value function across nodes within a
-% direction unless COLDSTART is false.
+% ---------------------------------------------------------------------
+% A CORRECTION TO THE ROUND-1 READING OF (C2).
+%
+% Round 1 reported hysteresis of exactly 0.00e+00 at every alpha and that was
+% read as "path dependence ruled out". It is not evidence for that. Round 1
+% ran with COLDSTART = true, under which the scan never assigned the warm
+% start at all: W stayed empty at every node in BOTH directions, so the
+% ascending and descending passes were bit-for-bit the same computation and
+% the difference was zero by construction, not by finding. The test had no
+% content -- the same shape of error as the terminal-dlnP "validation" that
+% compared a pinned value against itself.
+%
+% What IS true, and is what actually licenses parallelising the scan, is the
+% premise rather than the result: with no warm start, each node is by
+% construction a pure function of (alpha, q, grids, calibration), so
+% evaluating the nodes concurrently is the identical computation in a
+% different order, not an approximation. That is a property of the cold-start
+% design, and it needs no scan to establish.
+%
+% C2 is now tested where it can actually fail: a small WARM-STARTED probe
+% (HPROBE nodes, ascending then descending, chained value functions) run
+% serially after the main scan. If that probe shows hysteresis, the warm
+% start carries state and the warm-started solvers elsewhere in the project
+% are suspect -- while the cold scan itself remains unaffected.
+% ---------------------------------------------------------------------
 %
 % ---------------------------------------------------------------------
 % ROUND 2: THE BOUNDARY REPAIR.
 %
-% Round 1 answered the question. Hysteresis was exactly 0.00e+00 at every
-% alpha, so the residual IS a function of q and (C2) is dead. VFI dV stayed
-% below 1e-6 and the distribution residual below 1e-11, so (C1) is dead. What
+% Round 1's other findings stand. VFI dV stayed below 1e-6 and the
+% distribution residual below 1e-11, so (C1) is dead. What
 % round 1 did find is 2.8e-3 of mass in the top two nodes of BOTH the k- and
 % the b-grid -- about 29 times the 1e-4 tolerance. With Kbar = 1 that is a
 % sixth of aggregate tree demand pinned against a wall, and mass against a
@@ -68,17 +89,48 @@
 % grid before any number here is treated as final rather than diagnostic.
 % ---------------------------------------------------------------------
 %
+% ---------------------------------------------------------------------
+% PARALLELISM. The (alpha,q) nodes are the unit of work: independent by
+% construction, one worker each, no state shared. Every node writes ONE
+% result file named by kv_hash of (alpha, q, grids, calibration), and
+% aggregation happens only after every worker has finished -- so the reported
+% series are assembled from files on disk, in q order, never from whatever
+% order the workers happened to complete in. Content addressing means a
+% rerun after an unrelated edit is a cache hit and a rerun after a grid or
+% parameter change is a miss, with no bookkeeping to get wrong.
+%
+% What is NOT parallelised, deliberately:
+%   * the household VFI and the inner (P,tau,div) fixed point -- contraction
+%     iterations, where iterate k+1 reads iterate k and there is no
+%     independent work to spread;
+%   * the final continuation solver kv_solve_alpha -- a sequential bisection
+%     plus golden-section polish, likewise a chain;
+%   * the warm-started hysteresis probe -- chaining is the entire point of it;
+%   * the whole scan when COLDSTART = false, because warm starts chain the
+%     nodes together and the parallel result would then NOT be the serial
+%     one. The driver falls back to serial in that case and says so.
+%
+% PARCHECK re-runs a few nodes with the cache forced off and compares against
+% the parallel values, so "same computation, different order" is verified
+% rather than asserted.
+% ---------------------------------------------------------------------
+%
 % USAGE   >> clear; main_kv_residual_scan
 %         >> clear; FAST = true; main_kv_residual_scan     (coarse grids)
 %         >> clear; NQ = 121; main_kv_residual_scan        (finer scan)
-%         >> clear; COLDSTART = false; main_kv_residual_scan
+%         >> clear; COLDSTART = false; main_kv_residual_scan  (serial, warm)
 %         >> clear; NOWIDEN = true; main_kv_residual_scan  (round-1 grids)
-%         >> clear; KFAC = 12; main_kv_residual_scan       (force a widening)
+%         >> clear; KFAC = 24; main_kv_residual_scan       (force a widening)
+%         >> clear; PARALLEL = false; main_kv_residual_scan
+%         >> clear; NWORKERS = 8; main_kv_residual_scan
+%         >> clear; RESCAN = true; main_kv_residual_scan   (ignore the cache)
 %
 % OUTPUT  output/tables/kv_residual_scan.txt
-%         output/kv_residual_scan.mat   (per-node record + chosen kfac/bfac)
+%         output/kv_residual_scan.mat    (per-node record + chosen kfac/bfac)
+%         output/scan_cache/<gridkey>/   (one .mat per (alpha,q) node)
 
-clearvars -except FAST NQ COLDSTART NOWIDEN KFAC BFAC TOPTOL KFACMAX BFACMAX; close all; clc;
+clearvars -except FAST NQ COLDSTART NOWIDEN KFAC BFAC TOPTOL KFACMAX BFACMAX ...
+                  PARALLEL NWORKERS RESCAN PARCHECK HPROBE; close all; clc;
 rng(20260731,'twister'); t0 = tic;
 
 projdir = fileparts(mfilename('fullpath'));
@@ -92,11 +144,16 @@ if ~exist('FAST','var'), FAST = false; end
 if ~exist('NQ','var') || isempty(NQ), NQ = 61; end
 if ~exist('COLDSTART','var'), COLDSTART = true; end
 if ~exist('NOWIDEN','var'), NOWIDEN = false; end
-if ~exist('KFAC','var') || isempty(KFAC), KFAC = 6; end     % initial kmax x6
+if ~exist('KFAC','var') || isempty(KFAC), KFAC = 12; end    % initial kmax x12
 if ~exist('BFAC','var') || isempty(BFAC), BFAC = 1; end     % bond grid untouched
 if ~exist('TOPTOL','var') || isempty(TOPTOL), TOPTOL = 1e-4; end
-if ~exist('KFACMAX','var') || isempty(KFACMAX), KFACMAX = 48; end
-if ~exist('BFACMAX','var') || isempty(BFACMAX), BFACMAX = 16; end
+if ~exist('KFACMAX','var') || isempty(KFACMAX), KFACMAX = 192; end
+if ~exist('BFACMAX','var') || isempty(BFACMAX), BFACMAX = 32; end
+if ~exist('PARALLEL','var') || isempty(PARALLEL), PARALLEL = true; end
+if ~exist('NWORKERS','var'), NWORKERS = []; end
+if ~exist('RESCAN','var') || isempty(RESCAN), RESCAN = false; end
+if ~exist('PARCHECK','var') || isempty(PARCHECK), PARCHECK = true; end
+if ~exist('HPROBE','var') || isempty(HPROBE), HPROBE = 9; end
 assert(NQ >= 61, 'the diagnosis needs at least 61 nodes');
 KREF = 5;      % k below which node placement is held fixed (5 x aggregate)
 BREF = 3;      % b below which node placement is held fixed (10 x aggregate)
@@ -143,81 +200,180 @@ tee('grids nb=%d nk=%d ne=%d; kmax=%.1f bmax=%.2f xmax=%.1f; nq=%d; coldstart=%d
     numel(CTX.p.bGrid), numel(CTX.p.kGrid), numel(CTX.p.eGrid), ...
     CTX.p.kGrid(end), CTX.p.bGrid(end), CTX.p.xGridA(end), NQ, COLDSTART);
 
+% ------------------------------------------------- content-addressed cache
+% The key covers the grids, the calibrated parameters and the economy-level
+% constants, so the widening above -- or any parameter change -- lands in a
+% different directory and cannot be served a stale result.
+gridkey = kv_hash(CTX.p, CTX.iota, CTX.r_b, CTX.d_base, CTX.D0, ...
+                  CTX.Bnom, CTX.Kbar, CTX.g_real);
+cachedir = fullfile(projdir,'output','scan_cache', gridkey(1:16));
+if ~isfolder(cachedir), mkdir(cachedir); end
+tee('cache key %s  ->  %s\n', gridkey(1:16), cachedir);
+
+% ------------------------------------------------------------ the job list
+% Bracketing is serial and cheap (a couple of solves per alpha) and has to
+% finish before the node list exists, so it runs first.
 alphas = [0 0.5 1];
-R = struct();
+QS = cell(1,numel(alphas));
 for ia = 1:numel(alphas)
     al = alphas(ia);
     qc = eq0.q * (1 - 0.02*al);                 % candidate root, drifts with alpha
     tee('===== alpha = %.2f =====\n', al);
-    qs = bracket_q(qc, al, CTX, NQ, 0.02, tee);
-    tee('  scanning %d nodes over q in [%.5f, %.5f]\n', NQ, qs(1), qs(end));
-    up   = scan_dir(qs,        al, CTX, COLDSTART);
-    down = scan_dir(fliplr(qs), al, CTX, COLDSTART);
-    down = flip_struct(down);                    % back to ascending order
-    R(ia).alpha = al; R(ia).q = qs; R(ia).up = up; R(ia).down = down;
-    report_dir(tee, qs, up, down, al, TOPTOL);
+    QS{ia} = bracket_q(qc, al, CTX, NQ, 0.02, tee);
+    tee('  scanning %d nodes over q in [%.5f, %.5f]\n', NQ, QS{ia}(1), QS{ia}(end));
 end
+JOB_A = []; JOB_Q = [];
+for ia = 1:numel(alphas)
+    JOB_A = [JOB_A; repmat(ia, NQ, 1)];         %#ok<AGROW>
+    JOB_Q = [JOB_Q; QS{ia}(:)];                 %#ok<AGROW>
+end
+nJ = numel(JOB_Q);
+
+% ------------------------------------------------------------- the scan
+% One worker per node. Nothing is shared, nothing is accumulated inside the
+% loop: each iteration writes its own file and returns its own record, and
+% the series are assembled afterwards.
+par_ok = PARALLEL && COLDSTART;
+if PARALLEL && ~COLDSTART
+    tee('\n*** COLDSTART=false: warm starts chain the nodes, so the scan runs\n');
+    tee('*** SERIALLY. A parallel run would not be the same computation.\n');
+end
+nw = 0;
+if par_ok
+    nw = kv_parpool(true, NWORKERS, true, tee, ...
+                    {fullfile(rootdir,'src'), fullfile(projdir,'src_project')});
+end
+tee('\nscanning %d nodes (%d alpha x %d q) on %s\n', nJ, numel(alphas), NQ, ...
+    ternstr(nw>0, sprintf('%d workers', nw), 'one worker (serial)'));
+
+RECS = cell(nJ,1);
+if nw > 0
+    ctxB = CTX;                                  % broadcast once
+    parfor j = 1:nJ
+        RECS{j} = kv_scan_node(JOB_Q(j), alphas(JOB_A(j)), ctxB, ...
+                               cachedir, gridkey, RESCAN);
+    end
+else
+    for j = 1:nJ
+        RECS{j} = kv_scan_node(JOB_Q(j), alphas(JOB_A(j)), CTX, ...
+                               cachedir, gridkey, RESCAN);
+    end
+end
+ncached = sum(cellfun(@(r) r.cached, RECS));
+tee('  %d/%d nodes served from cache, %d computed (%.1f s so far)\n\n', ...
+    ncached, nJ, nJ-ncached, toc(t0));
+
+% ---------------------------------------------------- aggregate, then report
+% AFTER every worker has finished, and in q order rather than completion
+% order. kflip -- the staircase diagnostic -- is a difference between
+% ADJACENT q nodes, so it is computed here from the stored policy-index maps
+% rather than inside the loop; that also makes it independent of evaluation
+% order, which the serial version was not.
+R = struct();
+for ia = 1:numel(alphas)
+    sel = find(JOB_A == ia);
+    R(ia).alpha = alphas(ia); R(ia).q = QS{ia};
+    R(ia).up = assemble(RECS(sel));
+    report_dir(tee, QS{ia}, R(ia).up, alphas(ia), TOPTOL);
+end
+
+% ------------------------------------------ parallel-equals-serial check
+PC = struct('ran',false,'maxrel',NaN,'n',0);
+if PARCHECK && nw > 0
+    idx = unique(round(linspace(1, nJ, min(3,nJ))));
+    dmax = 0;
+    for t = idx
+        r2 = kv_scan_node(JOB_Q(t), alphas(JOB_A(t)), CTX, cachedir, gridkey, true);
+        r1 = RECS{t};
+        if r1.ok && r2.ok
+            dmax = max(dmax, abs(r1.Fk - r2.Fk)/max(abs(r2.Fk), 1e-12));
+        else
+            dmax = Inf;
+        end
+    end
+    PC.ran = true; PC.maxrel = dmax; PC.n = numel(idx);
+    tee('PARCHECK: %d nodes re-solved on the client with the cache off;\n', numel(idx));
+    tee('  max relative |dF_k| vs the worker values = %.2e  %s\n', dmax, ...
+        ternstr(dmax < 1e-10, 'PASS', 'FAIL -- the parallel run is NOT the serial run'));
+    tee('  (tolerance is 1e-10 rather than bitwise: multithreaded reductions\n');
+    tee('   need not associate identically, and that is not a defect.)\n\n');
+end
+
+% ---------------------------------------- warm-start hysteresis probe (C2)
+% The real C2 test, and the only one with content: chained warm starts, up
+% then down, serial by design.
+HY = hysteresis_probe(QS, alphas, CTX, HPROBE, tee);
 
 % ---------------------------------------------------------------- verdict
 tee('\n===== DIAGNOSIS =====\n');
-V = classify(R, tee, TOPTOL);
+V = classify(R, tee, TOPTOL, HY);
 V.kfac = kfac; V.bfac = bfac; V.widen = WID; V.toptol = TOPTOL;
+V.parcheck = PC; V.nworkers = nw; V.gridkey = gridkey;
 save(fullfile(projdir,'output','kv_residual_scan.mat'), ...
-     'R','V','CTX','alphas','kfac','bfac','WID','TOPTOL');
+     'R','V','CTX','alphas','kfac','bfac','WID','TOPTOL','HY','PC','gridkey');
 tee('\n[main_kv_residual_scan] wrote %s (%.1f s)\n', sf, toc(t0));
 fclose(fid);
 
 % =====================================================================
-function out = scan_dir(qs, al, CTX, cold)
-    n = numel(qs);
+function out = assemble(recs)
+% Turn the per-node records into the ascending-in-q series the report reads.
+% Runs only after every worker has finished.
+    n = numel(recs);
     out = struct('Fk',nan(1,n),'Fb',nan(1,n),'P',nan(1,n),'dV',nan(1,n), ...
                  'ddist',nan(1,n),'mass',nan(1,n),'ksat',nan(1,n), ...
                  'bsat',nan(1,n),'kocc',nan(1,n),'bocc',nan(1,n), ...
                  'kflip',nan(1,n),'ok',false(1,n));
-    W = []; prevIdx = [];
+    prevIdx = [];
     for i = 1:n
-        st = solve_bond_given_q(qs(i), al, CTX, W);
-        if ~st.ok, continue; end
-        if ~cold, W = st.sol.V; end
+        r = recs{i};
+        if isempty(r) || ~r.ok, prevIdx = []; continue; end
         out.ok(i) = true;
-        out.Fk(i) = st.Sk - CTX.Kbar;
-        out.Fb(i) = st.Sb - CTX.iota*CTX.Bnom/st.P;
-        out.P(i)  = st.P;  out.dV(i) = st.dV;  out.ddist(i) = st.ddist;
-        out.mass(i) = abs(1 - sum(st.dist(:)));
-        [out.ksat(i), out.bsat(i), out.kocc(i), out.bocc(i)] = ...
-            boundary_mass(st.dist, CTX.p.kGrid, CTX.p.bGrid);
+        out.Fk(i) = r.Fk; out.Fb(i) = r.Fb; out.P(i) = r.P;
+        out.dV(i) = r.dV; out.ddist(i) = r.ddist; out.mass(i) = r.mass;
+        out.ksat(i) = r.ksat; out.bsat(i) = r.bsat;
+        out.kocc(i) = r.kocc; out.bocc(i) = r.bocc;
         % fraction of states whose ADJUSTER k-choice moved a grid index
-        kG = CTX.p.kGrid(:);
-        kp = st.sol.polKa;                       % nx x ne
-        idx = discretize(min(max(kp,kG(1)),kG(end)), kG);
-        idx(isnan(idx)) = 1;
-        if ~isempty(prevIdx) && isequal(size(idx),size(prevIdx))
+        % between this q node and the previous one -- the staircase test.
+        idx = r.kidx;
+        if ~isempty(prevIdx) && isequal(size(idx), size(prevIdx))
             out.kflip(i) = mean(idx(:) ~= prevIdx(:));
         end
         prevIdx = idx;
     end
 end
 
-function st = solve_bond_given_q(q, al, CTX, W)
-% solve ONLY the bond market conditional on q: P = iota*B/S_b with tau and
-% div consistent with that P. The tree market is left as the residual.
-    st = struct('ok',false);
-    pe = CTX.p;
-    vth = al * CTX.g_real / (1 - CTX.D0);
-    pe.eGrid = (1 - CTX.D0) * (1 - vth) * CTX.p.eGrid;
-    P = CTX.iota*CTX.Bnom/0.30; o = [];
-    for it = 1:80
-        tau = CTX.r_b*(CTX.Bnom/P) + (1-al)*CTX.g_real;
-        dvd = CTX.d_base + CTX.r_b*(1-CTX.iota)*(CTX.Bnom/P)/CTX.Kbar;
-        o = kv_stationary_block(CTX.r_b, q, dvd, tau, pe, W);
-        if ~o.ok, return; end
-        W = o.sol.V;
-        Pn = CTX.iota*CTX.Bnom/max(o.Sb,1e-12);
-        if abs(Pn-P) < 1e-13*max(1,abs(P)), P = Pn; break; end
-        P = 0.5*P + 0.5*Pn;
+function HY = hysteresis_probe(QS, alphas, CTX, npr, tee)
+% The genuine C2 test. The main scan is cold-started, so ascending and
+% descending passes there are the SAME computation and cannot disagree --
+% which is why the round-1 hysteresis of exactly 0.00e+00 was an identity,
+% not a finding. Here the value function is CHAINED from node to node, up
+% then down over the same few q values, which is the only configuration in
+% which the warm start can carry state. Serial by construction.
+    HY = struct('ran',false,'max',NaN,'n',npr);
+    if npr < 3, return; end
+    tee('--- warm-start hysteresis probe (%d nodes per alpha, chained) ---\n', npr);
+    worst = 0;
+    for ia = 1:numel(alphas)
+        qs = linspace(QS{ia}(1), QS{ia}(end), npr);
+        fu = chain(qs,        alphas(ia), CTX);
+        fd = chain(fliplr(qs), alphas(ia), CTX); fd = fliplr(fd);
+        ok = isfinite(fu) & isfinite(fd);
+        d = 0; if any(ok), d = max(abs(fu(ok) - fd(ok))); end
+        worst = max(worst, d);
+        tee('    alpha %.2f: max |F_k(up) - F_k(down)| = %.2e\n', alphas(ia), d);
     end
-    st = struct('ok',true,'P',P,'Sb',o.Sb,'Sk',o.Sk,'sol',o.sol, ...
-                'dist',o.dist,'dV',o.dV,'ddist',o.ddist);
+    HY.ran = true; HY.max = worst;
+    tee('\n');
+end
+
+function f = chain(qs, al, CTX)
+    f = nan(1,numel(qs)); W = [];
+    for i = 1:numel(qs)
+        st = kv_solve_bond_given_q(qs(i), al, CTX, W);
+        if ~st.ok, W = []; continue; end
+        W = st.sol.V;                            % the chaining that matters
+        f(i) = st.Sk - CTX.Kbar;
+    end
 end
 
 function qs = bracket_q(qc, al, CTX, NQ, span, tee)
@@ -245,7 +401,7 @@ function qs = bracket_q(qc, al, CTX, NQ, span, tee)
 end
 
 function v = fk_at(q, al, CTX)
-    st = solve_bond_given_q(q, al, CTX, []);
+    st = kv_solve_bond_given_q(q, al, CTX, []);
     if st.ok, v = st.Sk - CTX.Kbar; else, v = NaN; end
 end
 
@@ -308,45 +464,16 @@ function [p, W, ks, bs, ko, bo] = probe_widen(CTX, REFW, kfac, bfac)
     R = REFW; R.bfac = bfac;
     [p, W] = kv_widen_grids(CTX.p, kfac, R);
     C = CTX; C.p = p;
-    st = solve_bond_given_q(REFW.q*(1-0.02*0.5), 0.5, C, []);
+    st = kv_solve_bond_given_q(REFW.q*(1-0.02*0.5), 0.5, C, []);
     if ~st.ok, ks = NaN; bs = NaN; ko = NaN; bo = NaN; return; end
-    [ks, bs, ko, bo] = boundary_mass(st.dist, p.kGrid, p.bGrid);
+    [ks, bs, ko, bo] = kv_boundary_mass(st.dist, p.kGrid, p.bGrid);
 end
 
-function [ks, bs, ko, bo] = boundary_mass(dist, kG, bG)
-% ks, bs : share of mass in the top TWO nodes -- the truncation gate.
-% ko, bo : highest OCCUPIED node as a fraction of the grid top. This guards
-%   the gate against being passed by stretching rather than by fixing: a top
-%   mass that falls only because the top two nodes now sit far beyond any
-%   household shows up here as ko well below 1, whereas a genuinely interior
-%   distribution shows the same. ko ~ 1 with a small top mass means the
-%   support still reaches the ceiling and the widening was cosmetic.
-    km = squeeze(sum(sum(dist,1),3)); km = km(:);
-    bm = squeeze(sum(sum(dist,2),3)); bm = bm(:);
-    ks = sum(km(max(1,end-1):end))/max(sum(km),eps);
-    bs = sum(bm(max(1,end-1):end))/max(sum(bm),eps);
-    ko = NaN; bo = NaN;
-    if nargin >= 3
-        ik = find(km > 1e-8, 1, 'last'); ib = find(bm > 1e-8, 1, 'last');
-        if ~isempty(ik), ko = kG(ik)/kG(end); end
-        if ~isempty(ib), bo = bG(ib)/bG(end); end
-    end
-end
-
-function s = flip_struct(s)
-    f = fieldnames(s);
-    for i = 1:numel(f), s.(f{i}) = fliplr(s.(f{i})); end
-end
-
-function report_dir(tee, qs, up, dn, al, tol)
-    ok = up.ok & dn.ok;
+function report_dir(tee, qs, up, al, tol)
+    ok = up.ok;
     if ~any(ok), tee('  no node solved.\n\n'); return; end
-    hyst = max(abs(up.Fk(ok) - dn.Fk(ok)));
     tee('  |Fk| range          : [%.2e, %.2e]\n', min(abs(up.Fk(ok))), max(abs(up.Fk(ok))));
-    tee('  sign changes (up)   : %d\n', sum(diff(sign(up.Fk(ok)))~=0));
-    tee('  HYSTERESIS up vs dn : max |dFk| = %.2e  %s\n', hyst, ...
-        ternstr(hyst < 1e-8,'(none: the map is a function of q)', ...
-                            '(PATH DEPENDENT -- warm start carries state)'));
+    tee('  sign changes        : %d\n', sum(diff(sign(up.Fk(ok)))~=0));
     d1 = diff(up.Fk(ok));
     if numel(d1) > 3
         tee('  step structure      : median |dFk| %.2e, max |dFk| %.2e, ratio %.1f\n', ...
@@ -368,14 +495,14 @@ function report_dir(tee, qs, up, dn, al, tol)
     tee('\n');
 end
 
-function V = classify(R, tee, tol)
+function V = classify(R, tee, tol, HY)
     V = struct();
-    hyst = 0; kflip = 0; ksat = 0; bsat = 0; dV = 0; ratio = 0; nsign = 0;
+    kflip = 0; ksat = 0; bsat = 0; dV = 0; ratio = 0; nsign = 0;
     kocc = 0; bocc = 0;
+    hyst = NaN; if nargin >= 4 && HY.ran, hyst = HY.max; end
     for ia = 1:numel(R)
-        ok = R(ia).up.ok & R(ia).down.ok;
+        ok = R(ia).up.ok;
         if ~any(ok), continue; end
-        hyst  = max(hyst,  max(abs(R(ia).up.Fk(ok) - R(ia).down.Fk(ok))));
         kf = R(ia).up.kflip(~isnan(R(ia).up.kflip));
         if ~isempty(kf), kflip = max(kflip, mean(kf)); end
         ksat  = max(ksat,  max(R(ia).up.ksat(ok)));
@@ -393,8 +520,14 @@ function V = classify(R, tee, tol)
     V.kocc = kocc; V.bocc = bocc;
     V.dV = dV; V.jumpratio = ratio; V.n_alpha_bracketed = nsign;
     V.boundary_pass = (ksat < tol) && (bsat < tol);
-    tee('  C2 path dependence  : max up-vs-down |dFk| = %.2e  -> %s\n', hyst, ...
-        ternstr(hyst > 1e-8, 'PRESENT', 'absent'));
+    if isnan(hyst)
+        tee('  C2 path dependence  : NOT TESTED (probe disabled)\n');
+    else
+        tee(['  C2 path dependence  : warm-start probe max |dFk| = %.2e  -> %s\n' ...
+             '                        (the COLD scan is order-free by construction,\n' ...
+             '                         so it cannot test this and is not used to)\n'], ...
+            hyst, ternstr(hyst > 1e-8, 'PRESENT', 'absent'));
+    end
     tee('  C3 grid boundaries  : k top %.2e, b top %.2e (tol %.0e)  -> %s\n', ...
         ksat, bsat, tol, ternstr(~V.boundary_pass, 'BINDING', 'clear'));
     tee('       occupied support: k %.2f, b %.2f of the grid tops\n', kocc, bocc);
@@ -404,10 +537,7 @@ function V = classify(R, tee, tol)
         kflip, ratio, ternstr(kflip > 0.001 && ratio > 5, 'PRESENT (staircase)', 'not indicated'));
     tee('  root bracketed      : %d of %d alphas show a sign change in F_k\n', nsign, numel(R));
     tee('\n  VERDICT: ');
-    if hyst > 1e-8
-        tee('PATH DEPENDENCE dominates. Fix the warm start before anything else;\n');
-        tee('  the residual is not yet a function of q.\n');
-    elseif ~V.boundary_pass
+    if ~V.boundary_pass
         tee('GRID BOUNDARY STILL BINDING after the widening.\n');
         tee('  Raise KFAC (and BFAC if it is the b-grid that fails) and rerun. If the\n');
         tee('  mass will not go interior at any factor, the tail is not a grid artefact:\n');
@@ -426,6 +556,17 @@ function V = classify(R, tee, tol)
         tee('  equilibrium on the widened grid and rebuild the Schur derivative.\n');
         tee('  Recalibrate main_twoasset_ownership_kv first: the widening moves the\n');
         tee('  wealth moments beta and chi_b were set to hit.\n');
+    end
+    % Warm-start hysteresis is reported separately because it does not bear on
+    % the cold scan above -- that scan carries no state to be path dependent
+    % about. It bears on the WARM-STARTED solvers used elsewhere: the
+    % continuation in kv_solve_alpha, the transition kernels, the Shapley
+    % evaluations that share CTX.W0.
+    if ~isnan(hyst) && hyst > 1e-8
+        tee('\n  SEPARATELY: the warm-start probe DOES show hysteresis (%.2e). The cold\n', hyst);
+        tee('  scan is unaffected, but every warm-started solver in the project is\n');
+        tee('  suspect until this is explained -- starting with kv_solve_alpha, whose\n');
+        tee('  inner fixed point chains the value function across trial tree prices.\n');
     end
 end
 
