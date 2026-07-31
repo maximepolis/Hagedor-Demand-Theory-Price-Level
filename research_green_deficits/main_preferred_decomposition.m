@@ -103,14 +103,51 @@ tee('PREFERRED-CALIBRATION MECHANISM DECOMPOSITION  (DIAGNOSTIC)\n');
 tee('grids nb=%d nk=%d ne=%d; lambda=%.2f iota_H=%.3f; g_real=%.5f\n\n', ...
     numel(p.bGrid), numel(p.kGrid), numel(p.eGrid), p.lambda_adj, iota, g_real);
 
+% CANDIDATE-GRID REFINEMENT. The adjuster's portfolio choice is an argmax
+% over a discrete candidate set (acGrid x sGrid, 100 x 22 as calibrated).
+% That set is a NUMERICAL discretization of a continuous choice, not an
+% economic parameter, and it is what makes S_k(q) a step function: as q
+% moves, the argmax jumps between candidates, so the tree market has no
+% exact zero and bisection lands on a discontinuity (the alpha = 1 failure).
+% Refining it here smooths the market residual without touching the
+% economics. The refinement is reported so the run is reproducible, and the
+% baseline calibration file is NOT modified.
+if ~isfield(p,'acGrid') || ~isfield(p,'sGrid')
+    error('saved calibration lacks the adjuster candidate grids');
+end
+nac0 = numel(p.acGrid); nsh0 = numel(p.sGrid);
+REF = 3;                       % candidate-grid refinement factor
+if FAST, REF = 1; end
+if REF > 1
+    acmax = p.acGrid(end); acmin = p.acGrid(1);
+    uac = linspace(0,1,REF*nac0)';
+    p.acGrid = acmin + (acmax-acmin)*(uac.^2.8);
+    nsh = REF*nsh0;  p.sGrid = linspace(1/nsh, 1, nsh);
+    tee('candidate grid refined %dx: acGrid %d -> %d, sGrid %d -> %d\n', ...
+        REF, nac0, numel(p.acGrid), nsh0, numel(p.sGrid));
+    tee('  (a numerical discretization of the portfolio choice; the tree\n');
+    tee('   market residual is a step function at the coarse setting)\n\n');
+end
+
+% FAST now genuinely coarsens the STATE grids so gates can be debugged in
+% about an hour rather than the ten hours the full run takes.
+if FAST
+    nb = max(28, round(numel(p.bGrid)*0.5));
+    nk = max(16, round(numel(p.kGrid)*0.5));
+    ub = linspace(0,1,nb)'; p.bGrid = p.bGrid(1)+(p.bGrid(end)-p.bGrid(1))*(ub.^2.4);
+    uk = linspace(0,1,nk)'; p.kGrid = p.kGrid(end)*(uk.^2.4);
+    tee('*** FAST: state grids coarsened to nb=%d nk=%d (DEBUG ONLY) ***\n\n', nb, nk);
+end
+
 CTX = struct('p',p,'iota',iota,'r_b',r_b,'d_base',d_base,'D0',D0, ...
              'Bnom',Bnom,'Kbar',Kbar,'g_real',g_real,'qref',eq0.q, ...
-             'Pseed',eq0.P);
+             'Pseed',eq0.P,'W0',[]);
 
 % ---------------------------------------------------------------- (A)+(B)
 tee('===== solving the two financing equilibria =====\n');
 E0 = solve_alpha(0.0, CTX, eq0.q, true, tee);   % lump-sum
 assert(E0.ok, 'alpha=0 equilibrium failed: %s', E0.msg);
+CTX.W0 = E0.sol.V;                              % shared warm start
 E1 = solve_alpha(1.0, CTX, E0.q, true, tee);    % levy
 assert(E1.ok, 'alpha=1 equilibrium failed: %s', E1.msg);
 tee('  alpha=0 (lump-sum): P=%.6f q=%.6f Sb=%.6f Sk=%.6f\n', E0.P,E0.q,E0.Sb,E0.Sk);
@@ -371,9 +408,14 @@ function D = finite_decomposition(E0, E1, CTX, tee)
 end
 
 function v = agg_at(pr, dist, CTX)
-% aggregate bond demand with policies solved at pr, evaluated against dist
+% aggregate bond demand with policies solved at pr, evaluated against dist.
+% The warm start matters here as well as in the derivatives: all 8 Shapley
+% subsets sit near the baseline, and cold-starting each one lets the
+% soft-accepted VFI settle on different plateau points, which shows up as
+% noise in differences that are themselves small.
     pe = prices_to_pe(pr.alpha, CTX);
-    out = kv_stationary_block(CTX.r_b, pr.q, pr.dvd, pr.tau, pe, [], dist);
+    W = []; if isfield(CTX,'W0'), W = CTX.W0; end
+    out = kv_stationary_block(CTX.r_b, pr.q, pr.dvd, pr.tau, pe, W, dist);
     if out.ok, v = out.Sb; else, v = NaN; end
 end
 
@@ -423,7 +465,8 @@ function [sh, err] = shapley3_dist(p0, p1, CTX)
     for i = 1:8
         prm = mix(p0,p1,logical(M(i,:)));
         pem = prices_to_pe(prm.alpha, CTX);
-        o   = kv_stationary_block(CTX.r_b, prm.q, prm.dvd, prm.tau, pem, []);
+        Wm = []; if isfield(CTX,'W0'), Wm = CTX.W0; end
+        o   = kv_stationary_block(CTX.r_b, prm.q, prm.dvd, prm.tau, pem, Wm);
         if ~o.ok, V(i) = NaN; continue; end
         V(i) = agg_at(p0, o.dist, CTX);          % baseline policies, this dist
     end
