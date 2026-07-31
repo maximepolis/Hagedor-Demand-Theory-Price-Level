@@ -51,13 +51,14 @@ function B = kv_bracket_finite(fev, qc, opts)
     B = struct('ok',false,'lo',NaN,'hi',NaN,'flo',NaN,'fhi',NaN, ...
                'qlo',NaN,'qhi',NaN,'q',[],'F',[],'code',{{}}, ...
                'first_bad',NaN,'first_sign',NaN,'status','NO_FEASIBLE_POINT', ...
-               'nev',0,'grew',0);
+               'nev',0,'grew',0,'pattern','NONE');
 
     for g = 0:maxg
         q = linspace(qc*(1-span), qc*(1+span), n);
         [F, C] = evalmap(fev, q);
         B.nev = B.nev + n; B.grew = g;
         adm = admissible(C, allowB);
+        B.pattern = fail_pattern(adm);
         [i0, i1] = longest_run(adm, q, qc);
         B.q = q; B.F = F; B.code = C;
         bad = find(~adm, 1, 'first');
@@ -80,6 +81,13 @@ function B = kv_bracket_finite(fev, qc, opts)
         % model itself bounds the region and a wider window would only add
         % more failures.
         at_lo = (i0 == 1); at_hi = (i1 == n);
+        if strcmp(B.pattern, 'SCATTERED')
+            % Interleaved failures. Growing the window cannot help and the
+            % "the model bounds the domain" reading is not available: a
+            % domain does not alternate. Stop and say so.
+            B.status = 'SOLVER_SCATTERED';
+            return;
+        end
         if ~(at_lo || at_hi) || g == maxg
             B.status = 'NO_SIGN_CHANGE';
             if at_lo || at_hi, B.status = 'DOMAIN_TRUNCATED_BY_WINDOW'; end
@@ -98,9 +106,26 @@ function [F, C] = evalmap(fev, q)
 end
 
 function a = admissible(C, allowB)
-    a = false(1, numel(C));
-    for i = 1:numel(C)
-        a(i) = strcmp(C{i},'OK') || (allowB && strcmp(C{i},'BOUNDARY_HIT'));
+    a = kv_is_admissible(C);
+    if ~allowB
+        a = a & ~strcmp(C,'BOUNDARY_HIT');
+    end
+end
+
+function pat = fail_pattern(adm)
+% A domain boundary produces a CONTIGUOUS block of failures at one or both
+% ends. Failures interleaved with successes cannot be a domain boundary --
+% the model does not stop existing and start again -- so they indict the
+% SOLVER. The two call for opposite responses (move the bracket vs fix the
+% solver), so they must not share a label.
+    if all(adm), pat = 'NONE'; return; end
+    if ~any(adm), pat = 'ALL'; return; end
+    f = find(~adm); a = find(adm);
+    interleaved = any(f > min(a) & f < max(a));
+    if interleaved, pat = 'SCATTERED';
+    elseif all(f < min(a)), pat = 'TAIL_LOW';
+    elseif all(f > max(a)), pat = 'TAIL_HIGH';
+    else, pat = 'TAIL_BOTH';
     end
 end
 

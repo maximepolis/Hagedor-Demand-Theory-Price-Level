@@ -129,6 +129,40 @@
 % ---------------------------------------------------------------------
 %
 % ---------------------------------------------------------------------
+% ROUND 4: THE BOND FIXED POINT WAS THE FAILURE.
+%
+% Round 3 came back with the k-boundary repaired (top-two-node mass 2.8e-3 ->
+% 9e-5 at kfac = 6, and the backtrack showed 12 was overkill), admissible
+% roots at alpha = 0 and alpha = 1, and one thing that could not be a
+% property of the model: at alpha = 0.5, four of thirteen q nodes failed with
+% BOND_NAN / DIST_NONCONV, INTERLEAVED with successes, leaving a "largest
+% admissible interval" of [1.83, 2.17] that sits ABOVE both neighbouring
+% alphas' roots. A domain does not alternate, and alpha = 0.5's domain cannot
+% lie outside the interval spanned by alpha = 0 and alpha = 1. The failure
+% was in the solver.
+%
+% It was the inner bond fixed point: P <- 0.5*P + 0.5*iota*B/S_b(P), up to 80
+% sweeps. That map is not a contraction away from equilibrium, so it
+% oscillates, exhausts its budget and reports BOND_NAN -- at some q values and
+% not their neighbours, which is exactly the scattered pattern. It is now a
+% bracketed, safeguarded secant solve on a residual that is monotone in P (a
+% higher P deflates the real debt burden, cuts the lump-sum tax and raises
+% liquid demand, while cutting real supply). That is both more robust and
+% several times cheaper: ~10-15 household solves per node instead of 80.
+%
+% Three diagnostics were also misreading their own evidence:
+%   * the boundary gate took the WORST node of a +/-25% q sweep, which by
+%     design visits prices far from equilibrium where the tail piles up. It
+%     now gates AT THE ROOT and reports the sweep maximum as context only.
+%   * the staircase rate is flips per q STEP, so widening the window from
+%     +/-2% to +/-25% inflated it about tenfold on its own. It is now also
+%     reported per 1% of q, which is comparable across scans.
+%   * the distribution tolerance was binary at 1e-11, so a solve that reached
+%     1e-9 was discarded as infeasible. It is graded now: DIST_LOOSE is
+%     carried and reported, only worse than 1e-8 is a failure.
+% ---------------------------------------------------------------------
+%
+% ---------------------------------------------------------------------
 % PARALLELISM. The (alpha,q) nodes are the unit of work: independent by
 % construction, one worker each, no state shared. Every node writes ONE
 % result file named by kv_hash of (alpha, q, grids, calibration), and
@@ -413,11 +447,18 @@ function out = assemble(recs)
     out = struct('Fk',nan(1,n),'Fb',nan(1,n),'P',nan(1,n),'dV',nan(1,n), ...
                  'ddist',nan(1,n),'mass',nan(1,n),'ksat',nan(1,n), ...
                  'bsat',nan(1,n),'kocc',nan(1,n),'bocc',nan(1,n), ...
-                 'kflip',nan(1,n),'ok',false(1,n));
+                 'kflip',nan(1,n),'Pits',nan(1,n),'ok',false(1,n));
+    % NOT inside the struct() call: struct() given a cell value REPLICATES
+    % into a struct ARRAY (a 1xn array of structs, every numeric field
+    % scalar), which is not what any of this code then indexes.
+    out.code = repmat({''}, 1, n);
     prevIdx = [];
     for i = 1:n
         r = recs{i};
-        if isempty(r) || ~r.ok, prevIdx = []; continue; end
+        if isempty(r), prevIdx = []; continue; end
+        out.code{i} = r.code;
+        if isfield(r,'Pits'), out.Pits(i) = r.Pits; end
+        if ~r.ok, prevIdx = []; continue; end
         out.ok(i) = true;
         out.Fk(i) = r.Fk; out.Fb(i) = r.Fb; out.P(i) = r.P;
         out.dV(i) = r.dV; out.ddist(i) = r.ddist; out.mass(i) = r.mass;
@@ -509,11 +550,20 @@ function report_feasibility(tee, al, qc, B)
     else
         tee('    failures: none in the window\n');
     end
+    if ~strcmp(B.pattern,'NONE')
+        tee('    failure pattern         : %s\n', B.pattern);
+    end
     if isnan(B.qlo)
         tee('    admissible q interval   : EMPTY\n');
         return;
     end
     tee('    admissible q interval   : [%.5f, %.5f]  (%s)\n', B.qlo, B.qhi, B.status);
+    if strcmp(B.pattern,'SCATTERED')
+        tee('      *** Failures INTERLEAVED with successes. A domain boundary cannot\n');
+        tee('      *** do that -- the model does not stop existing and start again --\n');
+        tee('      *** so this indicts the SOLVER, not the calibration. Do not move the\n');
+        tee('      *** bracket and do not widen anything until it is gone.\n');
+    end
     if B.ok
         tee('    first sign change in F_k: %.5f  (F_k %.3e -> %.3e)\n', ...
             B.first_sign, B.flo, B.fhi);
@@ -522,10 +572,13 @@ function report_feasibility(tee, al, qc, B)
         if strcmp(B.status,'DOMAIN_TRUNCATED_BY_WINDOW')
             tee('      the admissible run reaches a window edge, so the domain was\n');
             tee('      cut by the window; widen QSPAN and rerun this alpha.\n');
+        elseif strcmp(B.status,'SOLVER_SCATTERED')
+            tee('      and the failures are interleaved, so nothing about the DOMAIN\n');
+            tee('      can be concluded here at all. Fix the solver first.\n');
         else
-            tee('      the admissible run is strictly interior, so the MODEL bounds\n');
-            tee('      the domain. A wider window would only add more failures --\n');
-            tee('      there is no admissible root at this calibration.\n');
+            tee('      the admissible run is strictly interior AND the failures form a\n');
+            tee('      clean tail, so the MODEL bounds the domain. A wider window would\n');
+            tee('      only add more failures -- there is no admissible root here.\n');
         end
     end
 end
@@ -625,11 +678,21 @@ function [p, kfac, bfac, W] = widen_until_interior(CTX, REFW, kfac, bfac, kcap, 
     end
     if ~isfinite(ks)
         tee('    PROBE FAILED to solve; falling back to kfac=%.1f bfac=%.1f unverified.\n', kfac, bfac);
-    elseif ks > tol || bs > tol
-        tee('    CAP REACHED with ksat %.2e bsat %.2e still above %.0e.\n', ks, bs, tol);
+    elseif ks > tol
+        tee('    k-BOUNDARY CAP REACHED: ksat %.2e still above %.0e at kfac=%.0f.\n', ks, tol, kfac);
         tee('    The scan runs anyway so the gate reports the true masses, but a\n');
-        tee('    boundary that will not go interior at kfac=%.0f is not a grid\n', kfac);
+        tee('    k-boundary that will not go interior at any factor is not a grid\n');
         tee('    problem: re-examine the superstar state and the payout rule.\n');
+    elseif bs > tol && bcap <= 1
+        % NOT a cap failure. The k side cleared and the b side was held on
+        % purpose, so saying "cap reached" here reads as a defeat when it is
+        % the design.
+        tee('    k-boundary CLEAR at kfac=%.0f (%.2e). b-boundary %.2e is above %.0e\n', ...
+            kfac, ks, bs, tol);
+        tee('    but the bond grid was held fixed on purpose, so this is the expected\n');
+        tee('    state of the controlled experiment, not a failure of the ladder.\n');
+    elseif bs > tol
+        tee('    b-BOUNDARY CAP REACHED: bsat %.2e still above %.0e at bfac=%.0f.\n', bs, tol, bfac);
     end
     if W.changed
         tee('    kmax %.1f -> %.1f, bmax %.2f -> %.2f, xmax %.1f -> %.1f\n', ...
@@ -674,17 +737,47 @@ function report_dir(tee, qs, up, al, tol)
     tee('  household dV        : max %.2e   distribution dv: max %.2e\n', ...
         max(up.dV(ok)), max(up.ddist(ok)));
     tee('  mass error          : max %.2e\n', max(up.mass(ok)));
-    ks = max(up.ksat(ok)); bs = max(up.bsat(ok));
-    tee('  boundary mass       : k-grid top %.2e [%s], b-grid top %.2e [%s]  (tol %.0e)\n', ...
-        ks, ternstr(ks < tol,'PASS','FAIL'), bs, ternstr(bs < tol,'PASS','FAIL'), tol);
-    tee('  occupied support    : k up to %.2f of kmax, b up to %.2f of bmax\n', ...
-        max(up.kocc(ok)), max(up.bocc(ok)));
+    pit = up.Pits(isfinite(up.Pits));
+    if ~isempty(pit)
+        tee('  bond-solve cost     : median %.0f, max %.0f household solves per node\n', ...
+            median(pit), max(pit));
+    end
+    % BOUNDARY GATE AT THE ROOT, not over the whole sweep. The sweep spans
+    % +/-25% of q by design and so deliberately visits prices far from
+    % equilibrium, where trees are cheap and the k-tail naturally piles up.
+    % Gating on the worst node of that sweep condemns grids that are perfectly
+    % adequate AT the equilibrium, which is the only place the aggregates are
+    % ever evaluated. The sweep maximum is still reported, as context.
+    [ksR, bsR, koR, boR, qR] = at_root(up, qs);
+    tee('  boundary mass AT ROOT (q=%.4f): k %.2e [%s], b %.2e [%s]  (tol %.0e)\n', ...
+        qR, ksR, ternstr(ksR < tol,'PASS','FAIL'), bsR, ...
+        ternstr(bsR < tol,'PASS','FAIL'), tol);
+    tee('    over the whole sweep : k %.2e, b %.2e (context, NOT the gate)\n', ...
+        max(up.ksat(ok)), max(up.bsat(ok)));
+    tee('  occupied support at root: k %.2f of kmax, b %.2f of bmax\n', koR, boR);
     kf = up.kflip(~isnan(up.kflip));
     if ~isempty(kf)
-        tee('  k-policy index flips: mean %.3f, max %.3f of states per q step\n', ...
-            mean(kf), max(kf));
+        % Flips per q STEP are not comparable across scans: a wider window at
+        % the same node count means bigger steps and mechanically more index
+        % changes. Round 1 swept +/-2%, this one +/-25%, so the raw rate rose
+        % about tenfold for that reason alone. Normalise by the relative step.
+        rel = 100*mean(diff(qs))/max(mean(qs), eps);
+        tee('  k-policy index flips: mean %.3f per q step = %.3f per 1%% of q\n', ...
+            mean(kf), mean(kf)/max(rel, eps));
     end
     tee('\n');
+end
+
+function [ks, bs, ko, bo, qr] = at_root(up, qs)
+% Diagnostics at the admissible node closest to clearing the tree market.
+    ks = NaN; bs = NaN; ko = NaN; bo = NaN; qr = NaN;
+    ok = up.ok & isfinite(up.Fk);
+    if ~any(ok), return; end
+    idx = find(ok);
+    [~, j] = min(abs(up.Fk(idx)));
+    i = idx(j);
+    ks = up.ksat(i); bs = up.bsat(i); ko = up.kocc(i); bo = up.bocc(i);
+    if numel(qs) >= i, qr = qs(i); end
 end
 
 function V = classify(R, tee, tol, HY)
@@ -697,10 +790,11 @@ function V = classify(R, tee, tol, HY)
         if ~any(ok), continue; end
         kf = R(ia).up.kflip(~isnan(R(ia).up.kflip));
         if ~isempty(kf), kflip = max(kflip, mean(kf)); end
-        ksat  = max(ksat,  max(R(ia).up.ksat(ok)));
-        bsat  = max(bsat,  max(R(ia).up.bsat(ok)));
-        kocc  = max(kocc,  max(R(ia).up.kocc(ok)));
-        bocc  = max(bocc,  max(R(ia).up.bocc(ok)));
+        [ksR, bsR, koR, boR] = at_root(R(ia).up, R(ia).q);
+        if isfinite(ksR), ksat = max(ksat, ksR); end
+        if isfinite(bsR), bsat = max(bsat, bsR); end
+        if isfinite(koR), kocc = max(kocc, koR); end
+        if isfinite(boR), bocc = max(bocc, boR); end
         dV    = max(dV,    max(R(ia).up.dV(ok)));
         nsign = nsign + (nsignchg(R(ia).up) > 0);
         d1 = diff(R(ia).up.Fk(ok));
@@ -711,7 +805,8 @@ function V = classify(R, tee, tol, HY)
     V.hysteresis = hyst; V.kflip = kflip; V.ksat = ksat; V.bsat = bsat;
     V.kocc = kocc; V.bocc = bocc;
     V.dV = dV; V.jumpratio = ratio; V.n_alpha_bracketed = nsign;
-    V.boundary_pass = (ksat < tol) && (bsat < tol);
+    V.kpass = ksat < tol; V.bpass = bsat < tol;
+    V.boundary_pass = V.kpass && V.bpass;
     if isnan(hyst)
         tee('  C2 path dependence  : NOT TESTED (probe disabled)\n');
     else
@@ -720,20 +815,24 @@ function V = classify(R, tee, tol, HY)
              '                         so it cannot test this and is not used to)\n'], ...
             hyst, ternstr(hyst > 1e-8, 'PRESENT', 'absent'));
     end
-    tee('  C3 grid boundaries  : k top %.2e, b top %.2e (tol %.0e)  -> %s\n', ...
-        ksat, bsat, tol, ternstr(~V.boundary_pass, 'BINDING', 'clear'));
-    tee('       occupied support: k %.2f, b %.2f of the grid tops\n', kocc, bocc);
+    tee('  C3 grid boundaries  : AT THE ROOT, k %.2e [%s], b %.2e [%s]  (tol %.0e)\n', ...
+        ksat, ternstr(V.kpass,'PASS','FAIL'), bsat, ternstr(V.bpass,'PASS','FAIL'), tol);
+    tee('       occupied support: k %.2f, b %.2f of the grid tops at the root\n', kocc, bocc);
     tee('  C1 hh convergence   : max VFI dV = %.2e                -> %s\n', dV, ...
         ternstr(dV > 1e-5, 'SUSPECT', 'clear'));
     tee('  C4 discrete k-choice: mean index flips/step = %.3f, jump ratio %.1f -> %s\n', ...
         kflip, ratio, ternstr(kflip > 0.001 && ratio > 5, 'PRESENT (staircase)', 'not indicated'));
     tee('  root bracketed      : %d of %d alphas show a sign change in F_k\n', nsign, numel(R));
     tee('\n  VERDICT: ');
-    if ~V.boundary_pass
-        tee('GRID BOUNDARY STILL BINDING after the widening.\n');
-        tee('  Raise KFAC (and BFAC if it is the b-grid that fails) and rerun. If the\n');
-        tee('  mass will not go interior at any factor, the tail is not a grid artefact:\n');
-        tee('  re-examine the superstar state and the dividend payout rule.\n');
+    if ~V.kpass
+        tee('THE k-BOUNDARY IS STILL BINDING AT THE ROOT (%.2e).\n', ksat);
+        tee('  Raise KFAC and rerun. If it will not go interior at any factor the tail\n');
+        tee('  is not a grid artefact: re-examine the superstar state and the payout rule.\n');
+    elseif ~V.bpass
+        tee('THE k-BOUNDARY IS CLEAR; the b-boundary is not (%.2e at the root).\n', bsat);
+        tee('  That is exactly the condition under which the bond grid may move, and it\n');
+        tee('  may now move with the k-grid HELD STILL -- the controlled experiment the\n');
+        tee('  freeze was for. Rerun with BFAC = 8 and KFAC unchanged.\n');
     elseif dV > 1e-5
         tee('HOUSEHOLD CONVERGENCE. Tighten tol_vfi and rescan before changing the policy.\n');
     elseif kflip > 0.001 && ratio > 5

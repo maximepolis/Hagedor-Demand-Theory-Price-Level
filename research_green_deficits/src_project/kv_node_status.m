@@ -17,6 +17,7 @@ function [code, D] = kv_node_status(o, P, CTX, toptol)
 %   POLICY_NONFINITE a policy array contains NaN or Inf
 %   BOND_NAN         P, or aggregate liquid demand, is non-finite or <= 0
 %   TREE_NAN         aggregate tree demand is non-finite
+%   DIST_LOOSE       the distribution settled to 1e-8 but not to 1e-11
 %   BOUNDARY_HIT     top-of-grid mass above toptol (admissible but truncated)
 %
 % BOUNDARY_HIT is deliberately last: it is a WARNING about accuracy, not a
@@ -60,4 +61,7 @@ function [code, D] = kv_node_status(o, P, CTX, toptol)
 
     [D.ksat, D.bsat] = kv_boundary_mass(o.dist, CTX.p.kGrid, CTX.p.bGrid);
     if D.ksat > toptol || D.bsat > toptol, code = 'BOUNDARY_HIT'; end
+    if isfield(o,'dist_loose') && o.dist_loose && strcmp(code,'OK')
+        code = 'DIST_LOOSE';
+    end
 end

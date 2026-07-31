@@ -26,7 +26,7 @@ function out = kv_stationary_block(rb, q, dvd, tau, pe, V0, distIn)
 
     out = struct('ok', false, 'msg', '', 'Sb', NaN, 'Sk', NaN, ...
                  'sol', [], 'dist', [], 'bch', [], 'kch', [], ...
-                 'dV', NaN, 'ddist', NaN);
+                 'dV', NaN, 'ddist', NaN, 'dist_loose', false);
     if nargin < 6, V0 = []; end
     if nargin < 7, distIn = []; end
 
@@ -39,14 +39,20 @@ function out = kv_stationary_block(rb, q, dvd, tau, pe, V0, distIn)
 
     if isempty(distIn)
         [dist, dd] = stationary_distribution_twoasset_kv(sol, rb, q, dvd, tau, pe);
-        if ~dd.converged
+        % GRADED, not binary. The target is 1e-11; missing it by an order of
+        % magnitude is not the same event as diverging, and treating the two
+        % alike threw away otherwise usable prices as "infeasible". A run that
+        % reached 1e-8 is reported as loose and carried, so the caller can
+        % decide; only worse than that is a failure.
+        if ~dd.converged && dd.supnorm > 1e-8
             out.msg = sprintf('distribution failed (dv=%.2e)', dd.supnorm);
             return;
         end
+        out.dist_loose = ~dd.converged;
         out.ddist = dd.supnorm;
     else
         dist = distIn;                       % mismatched evaluation
-        out.ddist = 0;
+        out.ddist = 0; out.dist_loose = false;
     end
     out.dist = dist;
 

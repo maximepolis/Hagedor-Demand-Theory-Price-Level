@@ -44,11 +44,11 @@ function rec = kv_scan_node(q, al, CTX, cachedir, gridkey, force)
 
     rec = struct('alpha',al,'q',q,'key',key,'ok',false,'cached',false, ...
                  'code','','Fk',NaN,'Fb',NaN,'P',NaN,'dV',NaN,'ddist',NaN, ...
-                 'mass',NaN,'min_c',NaN, ...
+                 'mass',NaN,'min_c',NaN,'Pits',NaN, ...
                  'ksat',NaN,'bsat',NaN,'kocc',NaN,'bocc',NaN,'kidx',uint16([]));
 
     st = kv_solve_bond_given_q(q, al, CTX, []);
-    rec.code = st.code; rec.min_c = st.min_c;
+    rec.code = st.code; rec.min_c = st.min_c; rec.Pits = st.Pits;
     if st.ok
         rec.ok = true;
         rec.Fk = st.Sk - CTX.Kbar;
