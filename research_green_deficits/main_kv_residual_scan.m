@@ -245,6 +245,49 @@
 % ---------------------------------------------------------------------
 %
 % ---------------------------------------------------------------------
+% ROUND 7: FEASIBILITY IS DONE; GRID CONVERGENCE IS NOT.
+%
+% With bfac = 8 every alpha brackets, hysteresis is 1.8e-07 relative,
+% VFI dV ~ 1e-06, and k-top mass at the root is 1e-07. C1, C2 and the
+% k-boundary are settled. Two things are not.
+%
+% THE ROOTS MOVED 7.7% ON A PURE GRID CHANGE. bmax 12 -> 96, nothing else,
+% and q* went 1.7071 -> 1.8399 at alpha = 0. Worse, the ORDERING in alpha
+% broke: 1.8399, 1.8322, 1.8430 is not monotone, where the previous grid gave
+% a clean 1.7071 > 1.6979 > 1.6887. The spread across alpha is 0.6% of q
+% while the root residual is ~1e-2, so the comparative static the paper is
+% about currently sits inside the solver's own noise. That is a statement
+% about resolution, not economics, and the run now says it: the root path in
+% alpha is reported with a monotonicity check.
+%
+% THE RESIDUAL FLOOR IS THE BINDING CONSTRAINT. The polished root reaches
+% |F_k| ~ 1e-2, and every gate downstream needs orders of magnitude better.
+% There are exactly two reasons a polish stops: F_k is steep but SMOOTH, in
+% which case more bisection reaches any tolerance; or F_k JUMPS across the
+% root, in which case no q attains zero and this is the true floor. The
+% coarse scan cannot separate them, so there is now a FLOOR PROBE: 21 nodes
+% across a window a thousandth as wide as the scan, reporting whether F_k is
+% monotone there, whether it crosses zero, and whether the largest step is
+% what the local slope implies or far larger.
+%
+% AND THE STAIRCASE DETECTOR WAS LOSSY. It counted changes in the k-GRID
+% INDEX of the adjuster's choice. But the adjuster does not choose on kGrid:
+% it picks an outlay a and a share s from acGrid x sGrid, so a switch between
+% candidates that lands in the same kGrid cell moves S_k without moving the
+% index. The test could miss the switching it exists to find -- and it is the
+% gate on whether the continuous adjuster is ever built, so "NOT indicated"
+% at 0.88 / 0.61 / 0.40 is provisional until re-measured. polBa = a*s is a
+% pure function of the candidate indices with no q in it, so it changes if
+% and only if the argmax moved: that is the exact detector, and it is now
+% what the test uses.
+%
+% The b-tail also gets a direct truncation test: halve bmax and see whether
+% the top-of-grid mass scales with the ceiling (truncation, widen further) or
+% barely moves (a genuine tail, in which case the payout rule and the
+% superstar state are the place to look, not the grid).
+% ---------------------------------------------------------------------
+%
+% ---------------------------------------------------------------------
 % PARALLELISM. The (alpha,q) nodes are the unit of work: independent by
 % construction, one worker each, no state shared. Every node writes ONE
 % result file named by kv_hash of (alpha, q, grids, calibration), and
@@ -423,9 +466,12 @@ for ia = 1:numel(alphas)
         NQ, B.qlo, B.qhi);
     % continuation: solve this alpha's root, and centre the next alpha on it
     if B.ok
-        R = refine_root(@(qq) fk_code(qq, al, CTX), B);
+        fev = @(qq) fk_code(qq, al, CTX);
+        R = refine_root(fev, B);
+        R.floor = floor_probe(fev, R.q, tee);
         ROOT{ia} = R;
         if isfinite(R.q), qc = R.q; end
+        tee('  root q = %.6f, |F_k| = %.3e (%s)\n\n', R.q, abs(R.F), R.code);
     end
 end
 JOB_A = []; JOB_Q = [];
@@ -512,6 +558,31 @@ end
 % then down, serial by design.
 HY = hysteresis_probe(QS, alphas, CTX, HPROBE, tee);
 
+% ------------------------------------------------- root ordering across alpha
+% The roots are a comparative static, and the paper's claim is about its
+% SIGN. If the ordering of q across alpha is not stable to a pure grid
+% change, the sign is not measurable yet -- which is a finding about the
+% resolution, not about the economics, and has to be said before any
+% derivative is taken.
+qr = nan(1,numel(alphas));
+for ia = 1:numel(alphas)
+    if ~isempty(ROOT{ia}) && isfinite(ROOT{ia}.q), qr(ia) = ROOT{ia}.q; end
+end
+tee('\n===== ROOT PATH IN ALPHA =====\n');
+tee('  q(alpha) = %s\n', vecstr6(qr));
+if all(isfinite(qr))
+    dq = diff(qr);
+    mono = all(dq < 0) || all(dq > 0);
+    spread = (max(qr)-min(qr))/max(abs(mean(qr)),eps);
+    tee('  monotone in alpha: %d;  total spread %.2e of q\n', mono, spread);
+    if ~mono
+        tee('  *** The tree price is NOT monotone in the financing mix. With a\n');
+        tee('  *** spread of %.1e and a root residual of ~%.0e, the ordering is\n', ...
+            spread, max(abs(cellfun(@(x) x.F, ROOT(cellfun(@(x) ~isempty(x), ROOT))))));
+        tee('  *** inside the solver noise: it is not yet a measurement.\n');
+    end
+end
+
 % ---------------------------------------------------------------- verdict
 report_table(tee, alphas, BK, ROOT, R, TOPTOL);
 tee('\n===== DIAGNOSIS =====\n');
@@ -534,12 +605,13 @@ function out = assemble(recs)
     out = struct('Fk',nan(1,n),'Fb',nan(1,n),'P',nan(1,n),'dV',nan(1,n), ...
                  'ddist',nan(1,n),'mass',nan(1,n),'ksat',nan(1,n), ...
                  'bsat',nan(1,n),'kocc',nan(1,n),'bocc',nan(1,n), ...
-                 'kflip',nan(1,n),'Pits',nan(1,n),'ok',false(1,n));
+                 'kflip',nan(1,n),'cswitch',nan(1,n),'Pits',nan(1,n), ...
+                 'ok',false(1,n));
     % NOT inside the struct() call: struct() given a cell value REPLICATES
     % into a struct ARRAY (a 1xn array of structs, every numeric field
     % scalar), which is not what any of this code then indexes.
     out.code = repmat({''}, 1, n);
-    prevIdx = [];
+    prevIdx = []; prevBa = single([]);
     for i = 1:n
         r = recs{i};
         if isempty(r), prevIdx = []; continue; end
@@ -558,6 +630,13 @@ function out = assemble(recs)
             out.kflip(i) = mean(idx(:) ~= prevIdx(:));
         end
         prevIdx = idx;
+        % the exact detector: polBa moves only when the argmax moves
+        if isfield(r,'bapol'), ba = r.bapol; else, ba = single([]); end
+        if ~isempty(prevBa) && isequal(size(ba), size(prevBa))
+            out.cswitch(i) = mean(abs(double(ba(:)) - double(prevBa(:))) > ...
+                                  1e-9*max(1, abs(double(prevBa(:)))));
+        end
+        prevBa = ba;
     end
 end
 
@@ -672,6 +751,57 @@ function R = refine_root(fev, B)
     end
 end
 
+function FL = floor_probe(fev, qr, tee)
+% THE decisive experiment on the residual floor.
+%
+% Every gate downstream -- the Schur derivative, the Shapley decomposition --
+% needs |F_k| far below the ~1e-2 the polished root now achieves, and there
+% are only two possible reasons it stops there. Either F_k is STEEP but
+% smooth near the root, in which case the floor is just resolution and more
+% bisection reaches any tolerance; or F_k JUMPS across the root, in which
+% case no q attains zero and 1e-2 is the true floor of this discretization.
+% Those call for opposite responses and no amount of staring at the coarse
+% scan separates them.
+%
+% So: 21 nodes across a window one thousandth as wide as the scan's. If F_k
+% is monotone there and changes sign, the floor is resolution. If it steps
+% across zero with a jump comparable to the achieved |F_k|, the floor is
+% discretization, and the jump size IS the floor.
+    FL = struct('span',NaN,'minF',NaN,'jump',NaN,'monotone',false, ...
+                'crosses',false,'slope',NaN,'ok',false);
+    if ~isfinite(qr), return; end
+    span = 1e-3;                       % relative half-width
+    n = 21;
+    q = linspace(qr*(1-span), qr*(1+span), n);
+    F = nan(1,n);
+    for i = 1:n
+        [F(i), c] = fev(q(i));
+        if ~kv_is_admissible(c), F(i) = NaN; end
+    end
+    g = isfinite(F);
+    if sum(g) < 5, return; end
+    FL.ok = true; FL.span = span;
+    Fg = F(g); qg = q(g);
+    FL.minF = min(abs(Fg));
+    d = diff(Fg);
+    FL.monotone = all(d > 0) || all(d < 0);
+    FL.crosses = any(sign(Fg(1:end-1)) ~= sign(Fg(2:end)));
+    FL.jump = max(abs(d));
+    FL.slope = (Fg(end)-Fg(1))/(qg(end)-qg(1));
+    % A smooth steep function has max|dF| ~ |slope|*dq; a jump has max|dF|
+    % much larger than that.
+    dq = mean(diff(qg));
+    smoothstep = abs(FL.slope)*dq;
+    FL.jumpratio = FL.jump/max(smoothstep, eps);
+    tee('  FLOOR probe at q=%.6f (+/-%.1e relative, %d nodes)\n', qr, span, n);
+    tee('    min |F_k| here %.3e; largest step %.3e vs %.3e implied by the slope\n', ...
+        FL.minF, FL.jump, smoothstep);
+    tee('    monotone %d, crosses zero %d, step/smooth ratio %.1f -> %s\n', ...
+        FL.monotone, FL.crosses, FL.jumpratio, ...
+        ternstr(FL.jumpratio > 3, 'DISCRETIZATION floor (no q attains zero)', ...
+                                   'RESOLUTION only (bisect further)'));
+end
+
 function report_feasibility(tee, al, qc, B)
 % The per-alpha feasibility record: admissible interval, first failure and
 % why, first sign change, and the boundary masses inside the domain.
@@ -751,6 +881,10 @@ function report_table(tee, alphas, BK, ROOT, R, TOPTOL)
     tee('   resid is the worst over the scanned admissible interval)\n');
 end
 
+function s = vecstr6(v)
+    s = sprintf('%.6f ', v); s = strtrim(s);
+end
+
 function s = numstr(x)
     if isnan(x), s = '--'; else, s = sprintf('%.4f', x); end
 end
@@ -797,6 +931,27 @@ function [p, kfac, bfac, W] = widen_until_interior(CTX, REFW, kfac, bfac, kcap, 
         if ~(isfinite(ks2) && ks2 < tol), break; end
         kfac = kfac/2; p = p2; W = W2; ks = ks2; bs = bs2; ko = ko2; bo = bo2;
         rung(tee, kfac, bfac, W, ks, bs, ko, bo);
+    end
+    % IS THE b-TAIL TRUNCATED OR JUST FAT? If the top-of-grid mass falls
+    % roughly in proportion to bmax when bmax doubles, the tail is being cut
+    % off and widening is the fix. If it barely moves, the mass is a genuine
+    % feature of the calibration and no widening will remove it -- the payout
+    % rule and the superstar state are then the place to look, not the grid.
+    % One extra probe answers this and it is the difference between a numerics
+    % problem and a modelling one.
+    if bfac > 1 && isfinite(bs)
+        [~, Wh, ksh, bsh] = probe_widen(CTX, REFW, kfac, bfac/2);
+        if isfinite(bsh)
+            ratio = bsh/max(bs, eps);
+            tee('    b-TAIL TEST: halving bmax %.1f -> %.1f raises b-top mass %.2e -> %.2e\n', ...
+                Wh.bmax*2, Wh.bmax, bs, bsh);
+            tee('      ratio %.2f  -> %s\n', ratio, ternstr(ratio > 1.6, ...
+                'TRUNCATION (mass scales with the ceiling; widen further)', ...
+                'GENUINE TAIL (widening barely moves it; look at the payout rule)'));
+            if abs(ksh - ks)/max(ks,eps) > 1, ...
+                tee('      note: this also moved k-top mass %.2e -> %.2e; the grids are COUPLED\n', ks, ksh);
+            end
+        end
     end
     if isfinite(bs) && bs > tol
         if bcap <= 1
@@ -901,11 +1056,17 @@ function report_dir(tee, qs, up, al, tol)
         tee('  k-policy index flips: mean %.3f per q step = %.3f per 1%% of q\n', ...
             mean(kf), mean(kf)/max(rel, eps));
     end
-    [fr, nf, nn] = flip_ratio(up);
+    cs = up.cswitch(~isnan(up.cswitch));
+    if ~isempty(cs)
+        tee('  adjuster candidate switches: mean %.3f of states per q step\n', mean(cs));
+    end
+    [fr, nf, nn, src] = flip_ratio(up);
     if isfinite(fr)
-        tee('  STAIRCASE test      : median |dFk| on HIGH-flip vs LOW-flip q steps\n');
-        tee('                        = %.2f  (%d vs %d steps)  -> %s\n', ...
-            fr, nf, nn, ternstr(fr > 3, 'discrete', 'curvature, not discreteness'));
+        tee('  STAIRCASE test      : median |dFk| on HIGH- vs LOW-switch q steps\n');
+        tee('                        = %.2f  (%d vs %d steps, detector: %s)\n', ...
+            fr, nf, nn, src);
+        tee('                        -> %s\n', ...
+            ternstr(fr > 3, 'DISCRETE', 'curvature, not discreteness'));
     end
     cs = up.code(~cellfun(@isempty, up.code));
     if ~isempty(cs)
@@ -925,7 +1086,7 @@ function report_dir(tee, qs, up, al, tol)
     tee('\n');
 end
 
-function [r, nf, nn] = flip_ratio(up)
+function [r, nf, nn, src] = flip_ratio(up)
 % THE staircase test. The old one was max|dF_k| / median|dF_k| over the
 % window, and it does not measure what it claims: F_k sweeps four orders of
 % magnitude across a +/-25% q window, so a smooth but steeply curved residual
@@ -937,8 +1098,10 @@ function [r, nf, nn] = flip_ratio(up)
 % the typical |dF_k| on steps where the adjuster policy moved against those
 % where it did not. Curvature raises both; discreteness raises only the
 % first. r >> 1 is a staircase; r ~ 1 says the jumps are curvature.
-    r = NaN; nf = 0; nn = 0;
-    F = up.Fk; ok = up.ok; kf = up.kflip;
+    r = NaN; nf = 0; nn = 0; src = 'candidate switch';
+    F = up.Fk; ok = up.ok;
+    kf = up.cswitch;
+    if all(isnan(kf)), kf = up.kflip; src = 'k-grid index (lossy fallback)'; end
     n = numel(F); d = nan(1,n-1); f = nan(1,n-1);
     for j = 1:n-1
         if ok(j) && ok(j+1) && isfinite(F(j)) && isfinite(F(j+1))

@@ -27,7 +27,7 @@ function rec = kv_scan_node(q, al, CTX, cachedir, gridkey, force)
 % interpolation or differencing.
 %
 % OUTPUT rec .alpha .q .ok .code .Fk .Fb .P .dV .ddist .mass .min_c .ksat
-%            .bsat .kocc .bocc .kidx .cached .key
+%            .bsat .kocc .bocc .kidx .bapol .cached .key
 
     if nargin < 6, force = false; end
     key = kv_hash(gridkey, al, q);
@@ -45,7 +45,8 @@ function rec = kv_scan_node(q, al, CTX, cachedir, gridkey, force)
     rec = struct('alpha',al,'q',q,'key',key,'ok',false,'cached',false, ...
                  'code','','Fk',NaN,'Fb',NaN,'P',NaN,'dV',NaN,'ddist',NaN, ...
                  'mass',NaN,'min_c',NaN,'Pits',NaN, ...
-                 'ksat',NaN,'bsat',NaN,'kocc',NaN,'bocc',NaN,'kidx',uint16([]));
+                 'ksat',NaN,'bsat',NaN,'kocc',NaN,'bocc',NaN, ...
+                 'kidx',uint16([]),'bapol',single([]));
 
     st = kv_solve_bond_given_q(q, al, CTX, []);
     rec.code = st.code; rec.min_c = st.min_c; rec.Pits = st.Pits;
@@ -61,6 +62,21 @@ function rec = kv_scan_node(q, al, CTX, cachedir, gridkey, force)
         idx = discretize(min(max(st.sol.polKa, kG(1)), kG(end)), kG);
         idx(isnan(idx)) = 1;
         rec.kidx = uint16(idx);
+        % THE CANDIDATE-SWITCH FINGERPRINT, which is what the discreteness
+        % test actually needs. rec.kidx above records the k-GRID index of the
+        % adjuster's tree choice, and that is a lossy proxy: the adjuster does
+        % not choose on kGrid, it chooses an outlay a and a liquid share s
+        % from acGrid x sGrid, and a switch between candidates that lands in
+        % the same kGrid cell moves S_k without moving the index. The test
+        % built on kidx can therefore MISS the very switching it is looking
+        % for -- and it is the gate on whether the continuous adjuster ever
+        % gets built.
+        %
+        % polBa = a*s is a pure function of the chosen candidate indices, with
+        % no q in it (k' = a(1-s)/q does have q, which is why polKa cannot be
+        % used for this). So polBa changes between two q nodes if and only if
+        % the argmax moved. That is the exact detector.
+        rec.bapol = single(st.sol.polBa);
     end
 
     tmp = [tempname(cachedir) '.mat'];
