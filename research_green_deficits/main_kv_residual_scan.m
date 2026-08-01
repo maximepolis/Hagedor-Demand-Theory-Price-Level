@@ -199,6 +199,52 @@
 % ---------------------------------------------------------------------
 %
 % ---------------------------------------------------------------------
+% ROUND 6: THE DOMAIN IS SOLVED; THE RESIDUAL FLOOR IS NOT.
+%
+% BOND_STEP fixed the feasibility problem. All three alphas now have a
+% contiguous admissible interval with no failures in the coarse map, all
+% three bracket a root, and the roots are ordered and tightly spaced
+% (1.7071, 1.6979, 1.6887 for alpha = 0, 0.5, 1) -- which is what a
+% continuation along alpha should look like and is the first time it has.
+%
+% Four things were still wrong with the reporting, three of them mine.
+%
+% BOND_STEP NEVER APPEARED IN THE STATUS HISTOGRAM. The override only fired
+% when the code was exactly 'OK', but with the bond grid frozen every node is
+% BOUNDARY_HIT, so the step information could never be reported. It now takes
+% priority over BOUNDARY_HIT and the count is printed.
+%
+% THE SECANT STALLED. Plain false position retains one endpoint forever: |g|
+% falls but the bracket width does not, so the nodes that hit 62 evaluations
+% were running 60 steps without collapsing the bracket -- and the step test
+% requires a collapsed bracket before it will call a residual a jump. Those
+% nodes were therefore still discarded. Illinois (halve the retained
+% endpoint's value when the same side updates twice) plus a forced bisection
+% every eighth step restores two-sided convergence.
+%
+% THE SCAN REPORTED A WORSE ROOT THAN THE SOLVER ACHIEVES. refine_root
+% bisected and stopped. S_k(q) is a step function, so bisection lands on a
+% jump with the residual still at the jump's size -- hence tree residuals of
+% ~3e-3 at the roots, against a production solver (kv_solve_alpha) that has
+% always polished. The scan now polishes too, so the two report the same
+% quantity.
+%
+% HYSTERESIS WAS JUDGED ON AN ABSOLUTE SCALE. 6.35e-08 was flagged as PATH
+% DEPENDENCE on a residual whose steps between adjacent nodes are ~2.6e-02: a
+% relative disagreement of 2e-06, which is the VFI tolerance showing through.
+% The gate is now relative, at 1e-3.
+%
+% And the staircase test could not fire: about 7.5% of states change k index
+% at EVERY q step at this window width, so the zero-flip group was empty. It
+% now splits at the median flip rate, which always has both groups.
+%
+% WHAT REMAINS is a residual floor, not a feasibility problem. Both markets
+% clear only to ~1e-3 relative because both aggregates are step functions of
+% their own price. That is the C4 question, and it is now the binding
+% constraint on every derivative downstream.
+% ---------------------------------------------------------------------
+%
+% ---------------------------------------------------------------------
 % PARALLELISM. The (alpha,q) nodes are the unit of work: independent by
 % construction, one worker each, no state shared. Every node writes ONE
 % result file named by kv_hash of (alpha, q, grids, calibration), and
@@ -304,6 +350,11 @@ if FAST
     tee('*** FAST: state grids coarsened to nb=%d nk=%d (curvature %.2f / %.2f preserved) ***\n\n', ...
         nbF, nkF, gbF, gkF);
 end
+
+% The stationary distribution is cheap next to the VFI, and three nodes at
+% alpha = 0 were being discarded as DIST_NONCONV at the default cap. Give it
+% room before calling it a failure; the tolerance itself is unchanged.
+if isfield(p,'maxit_dist'), p.maxit_dist = max(p.maxit_dist, 200000); end
 
 CTX = struct('p',p,'iota',iota,'r_b',r_b,'d_base',d_base,'D0',D0, ...
              'Bnom',Bnom,'Kbar',Kbar,'g_real',g_real);
@@ -526,12 +577,24 @@ function HY = hysteresis_probe(QS, alphas, CTX, npr, tee)
         fu = chain(qs,        alphas(ia), CTX);
         fd = chain(fliplr(qs), alphas(ia), CTX); fd = fliplr(fd);
         ok = isfinite(fu) & isfinite(fd);
-        d = 0; if any(ok), d = max(abs(fu(ok) - fd(ok))); end
-        worst = max(worst, d);
-        tee('    alpha %.2f: max |F_k(up) - F_k(down)| = %.2e\n', alphas(ia), d);
+        d = 0; sc = NaN;
+        if any(ok)
+            d = max(abs(fu(ok) - fd(ok)));
+            sc = median(abs(diff(fu(ok))));      % the residual's own step scale
+        end
+        rel = d/max(sc, eps);
+        worst = max(worst, rel);
+        tee('    alpha %.2f: max |F_k(up)-F_k(down)| = %.2e, median |dF_k| = %.2e, ratio %.1e\n', ...
+            alphas(ia), d, sc, rel);
     end
     HY.ran = true; HY.max = worst;
-    tee('\n');
+    % RELATIVE, not absolute. The previous 1e-8 absolute threshold flagged a
+    % 6.35e-08 discrepancy as PATH DEPENDENCE on a residual whose own steps
+    % between adjacent nodes are ~2.6e-02 -- a relative disagreement of 2e-06,
+    % which is the VFI tolerance showing through, not the map depending on
+    % the order it was evaluated in. Hysteresis only means something measured
+    % against the scale of the thing it is perturbing.
+    tee('    worst RELATIVE hysteresis = %.2e (gate 1e-3)\n\n', worst);
 end
 
 function f = chain(qs, al, CTX)
@@ -554,9 +617,19 @@ function [F, code] = fk_code(q, al, CTX)
 end
 
 function R = refine_root(fev, B)
-% Bisect the straddling pair, then report. Confined to [B.lo, B.hi], both of
-% which are admissible by construction, so no iterate can leave the domain.
-    R = struct('q',NaN,'F',NaN,'code','','its',0);
+% Bisect the straddling pair, then POLISH. Confined to [B.lo, B.hi], both
+% admissible by construction, so no iterate can leave the domain.
+%
+% The polish is not optional and its absence was distorting the report. S_k(q)
+% is a step function -- the same discrete portfolio choice that makes S_b(P)
+% one -- so bisection drives the bracket onto a JUMP and stops with the
+% residual still at the jump's size. That is why the reported tree residuals
+% at the roots were ~3e-3 while kv_solve_alpha, which has always polished,
+% reaches far less: the scan was reporting a worse number than the production
+% solver achieves, on the same economy. Golden section on |F_k| over the
+% collapsed bracket returns the closest approach the discretization admits,
+% which is the honest quantity to report and to gate.
+    R = struct('q',NaN,'F',NaN,'code','','its',0,'pol',0,'bracket',NaN);
     a = B.lo; b = B.hi; fa = B.flo;
     for it = 1:40
         m = 0.5*(a+b);
@@ -569,6 +642,33 @@ function R = refine_root(fev, B)
         R.q = m; R.F = fm; R.code = cm; R.its = it;
         if abs(fm) < 1e-9 || (b-a) < 1e-9*max(1,abs(m)), break; end
         if sign(fm) == sign(fa), a = m; fa = fm; else, b = m; end
+    end
+    R.bracket = b - a;
+    if abs(R.F) < 1e-9, return; end               % exact zero found; nothing to polish
+    gr = (sqrt(5)-1)/2;
+    aa = max(a - 4*(b-a), B.lo); bb = min(b + 4*(b-a), B.hi);
+    c1 = bb - gr*(bb-aa); c2 = aa + gr*(bb-aa);
+    [f1, k1] = fev(c1); [f2, k2] = fev(c2);
+    v1 = abs(f1); v2 = abs(f2);
+    if ~isfinite(v1), v1 = Inf; end
+    if ~isfinite(v2), v2 = Inf; end
+    for it2 = 1:40
+        if v1 < v2
+            bb = c2; c2 = c1; v2 = v1; k2 = k1;
+            c1 = bb - gr*(bb-aa); [f1, k1] = fev(c1); v1 = abs(f1);
+            if ~isfinite(v1), v1 = Inf; end
+        else
+            aa = c1; c1 = c2; v1 = v2; k1 = k2;
+            c2 = aa + gr*(bb-aa); [f2, k2] = fev(c2); v2 = abs(f2);
+            if ~isfinite(v2), v2 = Inf; end
+        end
+        if (bb-aa) < 1e-10*max(1,abs(c1)), break; end
+    end
+    R.pol = it2;
+    if v1 <= v2 && isfinite(v1)
+        [R.F, R.code] = fev(c1); R.q = c1;
+    elseif isfinite(v2)
+        [R.F, R.code] = fev(c2); R.q = c2;
     end
 end
 
@@ -803,8 +903,8 @@ function report_dir(tee, qs, up, al, tol)
     end
     [fr, nf, nn] = flip_ratio(up);
     if isfinite(fr)
-        tee('  STAIRCASE test      : median |dFk| on steps WITH a policy index change\n');
-        tee('                        vs WITHOUT = %.2f  (%d vs %d steps)  -> %s\n', ...
+        tee('  STAIRCASE test      : median |dFk| on HIGH-flip vs LOW-flip q steps\n');
+        tee('                        = %.2f  (%d vs %d steps)  -> %s\n', ...
             fr, nf, nn, ternstr(fr > 3, 'discrete', 'curvature, not discreteness'));
     end
     cs = up.code(~cellfun(@isempty, up.code));
@@ -815,6 +915,12 @@ function report_dir(tee, qs, up, al, tol)
         parts = arrayfun(@(i) sprintf('%s x%d', u{o2(i)}, cnt(o2(i))), ...
                          1:numel(u), 'UniformOutput', false);
         tee('  status codes        : %s\n', strjoin(parts, ', '));
+        nstep = sum(strcmp(cs,'BOND_STEP'));
+        if nstep > 0
+            tee('    of which %d cleared the BOND market only to within one jump of the\n', nstep);
+            tee('    discrete portfolio choice (BOND_STEP): admissible, but the achieved\n');
+            tee('    |F_b| is the floor on any derivative taken through P.\n');
+        end
     end
     tee('\n');
 end
@@ -841,10 +947,19 @@ function [r, nf, nn] = flip_ratio(up)
         end
     end
     good = isfinite(d) & isfinite(f);
-    hi = good & f > 0; lo = good & f == 0;
+    if sum(good) < 8, return; end
+    % MEDIAN SPLIT, not "flips vs no flips". About 7.5% of states change index
+    % at EVERY q step at this window width, so the zero-flip group is empty
+    % and the test could never fire -- which is why it reported "not enough
+    % steps of each kind". Splitting at the median flip rate always has both
+    % groups and asks the same question: do the steps where more households
+    % switch move the residual more?
+    fg = f(good); dg = d(good);
+    m = median(fg);
+    hi = fg > m; lo = fg <= m;
     nf = sum(hi); nn = sum(lo);
     if nf >= 3 && nn >= 3
-        r = median(d(hi))/max(median(d(lo)), eps);
+        r = median(dg(hi))/max(median(dg(lo)), eps);
     end
 end
 
@@ -864,7 +979,7 @@ function V = classify(R, tee, tol, HY)
     V = struct();
     kflip = 0; ksat = 0; bsat = 0; dV = 0; ratio = 0; nsign = 0; fliprat = NaN;
     kocc = 0; bocc = 0;
-    hyst = NaN; if nargin >= 4 && HY.ran, hyst = HY.max; end
+    hyst = NaN; if nargin >= 4 && HY.ran, hyst = HY.max; end   % RELATIVE
     for ia = 1:numel(R)
         ok = R(ia).up.ok;
         if ~any(ok), continue; end
@@ -893,10 +1008,10 @@ function V = classify(R, tee, tol, HY)
     if isnan(hyst)
         tee('  C2 path dependence  : NOT TESTED (probe disabled)\n');
     else
-        tee(['  C2 path dependence  : warm-start probe max |dFk| = %.2e  -> %s\n' ...
+        tee(['  C2 path dependence  : warm-start probe, hysteresis / median |dFk| = %.2e -> %s\n' ...
              '                        (the COLD scan is order-free by construction,\n' ...
              '                         so it cannot test this and is not used to)\n'], ...
-            hyst, ternstr(hyst > 1e-8, 'PRESENT', 'absent'));
+            hyst, ternstr(hyst > 1e-3, 'PRESENT', 'absent'));
     end
     tee('  C3 grid boundaries  : AT THE ROOT, k %.2e [%s], b %.2e [%s]  (tol %.0e)\n', ...
         ksat, ternstr(V.kpass,'PASS','FAIL'), bsat, ternstr(V.bpass,'PASS','FAIL'), tol);
@@ -905,7 +1020,7 @@ function V = classify(R, tee, tol, HY)
         ternstr(dV > 1e-5, 'SUSPECT', 'clear'));
     c4 = isfinite(fliprat) && fliprat > 3;
     if isfinite(fliprat)
-        tee('  C4 discrete k-choice: |dFk| with vs without a policy index change = %.2f -> %s\n', ...
+        tee('  C4 discrete k-choice: |dFk| on high-flip vs low-flip q steps = %.2f -> %s\n', ...
             fliprat, ternstr(c4, 'PRESENT (staircase)', 'NOT indicated (jumps are curvature)'));
     else
         tee('  C4 discrete k-choice: not enough steps of each kind to test\n');
@@ -943,8 +1058,8 @@ function V = classify(R, tee, tol, HY)
     % about. It bears on the WARM-STARTED solvers used elsewhere: the
     % continuation in kv_solve_alpha, the transition kernels, the Shapley
     % evaluations that share CTX.W0.
-    if ~isnan(hyst) && hyst > 1e-8
-        tee('\n  SEPARATELY: the warm-start probe DOES show hysteresis (%.2e). The cold\n', hyst);
+    if ~isnan(hyst) && hyst > 1e-3
+        tee('\n  SEPARATELY: the warm-start probe DOES show hysteresis (%.2e relative). The cold\n', hyst);
         tee('  scan is unaffected, but every warm-started solver in the project is\n');
         tee('  suspect until this is explained -- starting with kv_solve_alpha, whose\n');
         tee('  inner fixed point chains the value function across trial tree prices.\n');

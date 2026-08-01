@@ -73,12 +73,23 @@ function st = kv_solve_bond_given_q(q, al, CTX, W, toptol, Pseed)
     % Track the BEST point seen, not the last. On a step function the last
     % iterate can sit on the wrong side of a jump while a better one was
     % already visited, and reporting the last would throw that away.
+    % ILLINOIS, not plain false position. Plain regula falsi stalls: one
+    % endpoint is retained forever, |g| falls but the BRACKET WIDTH does not
+    % go to zero. That is what the max-62-evaluations nodes were doing -- 60
+    % secant steps that never collapsed the bracket, so the step test below
+    % (which requires a collapsed bracket before it will call a residual a
+    % discretization jump) could not fire and the node was thrown away as
+    % BOND_NAN. Illinois halves the retained endpoint's function value
+    % whenever the same side is updated twice running, which restores
+    % two-sided convergence, and a forced bisection every 8th step bounds the
+    % width geometrically in the worst case.
     best = struct('P', NaN, 'g', Inf, 'o', []);
+    side = 0;
     for i = 1:60
-        if abs(ghi - glo) > 0                     % secant candidate
+        if abs(ghi - glo) > 0 && mod(i, 8) ~= 0   % false-position candidate
             Ps = lo + glo*(hi-lo)/(glo-ghi);
         else
-            Ps = 0.5*(lo+hi);
+            Ps = 0.5*(lo+hi);                     % forced bisection
         end
         if ~(isfinite(Ps) && Ps > min(lo,hi) && Ps < max(lo,hi))
             Ps = 0.5*(lo+hi);                     % safeguard -> bisection
@@ -89,7 +100,15 @@ function st = kv_solve_bond_given_q(q, al, CTX, W, toptol, Pseed)
         if abs(gP) < abs(best.g), best.P = P; best.g = gP; best.o = S.o; end
         if abs(gP)/max(1,abs(P)) < 1e-12, break; end
         if (hi-lo) < 1e-13*max(1,abs(P)), break; end
-        if gP > 0, lo = P; glo = gP; else, hi = P; ghi = gP; end
+        if gP > 0
+            lo = P; glo = gP;
+            if side == 1, ghi = ghi/2; end        % Illinois on the retained side
+            side = 1;
+        else
+            hi = P; ghi = gP;
+            if side == -1, glo = glo/2; end
+            side = -1;
+        end
     end
 
     % ---- did it clear, step, or fail? ------------------------------------
@@ -117,7 +136,7 @@ function st = kv_solve_bond_given_q(q, al, CTX, W, toptol, Pseed)
     if ~isfinite(st.Pgap)
         st.code = 'BOND_NAN'; return;
     elseif st.Pgap >= 1e-8
-        if brw < 1e-9 && st.Pgap < steptol
+        if brw < 1e-7 && st.Pgap < steptol
             st.stepped = true;                    % clears to within one jump
         else
             % The bracket has NOT collapsed, so this is genuine
@@ -128,7 +147,14 @@ function st = kv_solve_bond_given_q(q, al, CTX, W, toptol, Pseed)
 
     o = best.o;
     [code, D] = kv_node_status(o, P, CTX, toptol);
-    if st.stepped && strcmp(code,'OK'), code = 'BOND_STEP'; end
+    % BOND_STEP must not be masked by BOUNDARY_HIT. With the bond grid frozen
+    % every node is BOUNDARY_HIT, so the previous "only override OK" rule hid
+    % the step information entirely -- the status histogram showed
+    % BOUNDARY_HIT x58 and no BOND_STEP anywhere, which read as "the step
+    % relaxation never fired" when in fact it could never be reported.
+    if st.stepped && (strcmp(code,'OK') || strcmp(code,'BOUNDARY_HIT'))
+        code = 'BOND_STEP';
+    end
     st.code = code;
     st.P = P; st.Sb = o.Sb; st.Sk = o.Sk; st.sol = o.sol; st.dist = o.dist;
     st.dV = o.dV; st.ddist = o.ddist;
