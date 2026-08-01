@@ -130,21 +130,32 @@ function pat = fail_pattern(adm)
 end
 
 function [i0, i1] = longest_run(adm, q, qc)
-% Longest contiguous admissible run; ties broken toward the run nearest qc,
-% because the continuation guess is the best available prior about which
-% branch of the domain the equilibrium lives on.
+% CONTAINING qc first, then longest, then nearest.
+%
+% Longest-first was wrong and produced visibly incoherent domains: at
+% alpha = 0.5 it returned [1.78, 2.14] and at alpha = 1 it returned
+% [1.28, 1.50] from the SAME window centred on 1.712 -- disjoint intervals on
+% opposite sides of the continuation guess, one of which cannot contain an
+% equilibrium that must lie between its neighbours'. When scattered failures
+% chop the window, "the longest surviving piece" is an arbitrary choice among
+% pieces; the piece straddling the continuation guess is not.
     i0 = []; i1 = [];
     d = diff([false adm false]);
     s = find(d == 1); e = find(d == -1) - 1;
     if isempty(s), return; end
-    len = e - s + 1;
-    best = max(len);
-    cand = find(len == best);
-    if numel(cand) > 1
-        dist = arrayfun(@(k) min(abs(q(s(k):e(k)) - qc)), cand);
-        [~, w] = min(dist); cand = cand(w);
+    contains_qc = arrayfun(@(k) q(s(k)) <= qc && qc <= q(e(k)), 1:numel(s));
+    if any(contains_qc)
+        cand = find(contains_qc);
+    else
+        cand = 1:numel(s);
     end
-    i0 = s(cand); i1 = e(cand);
+    len = e(cand) - s(cand) + 1;
+    keep = cand(len == max(len));
+    if numel(keep) > 1
+        dist = arrayfun(@(k) min(abs(q(s(k):e(k)) - qc)), keep);
+        [~, w] = min(dist); keep = keep(w);
+    end
+    i0 = s(keep); i1 = e(keep);
 end
 
 function v = getdef(s, f, dv)
