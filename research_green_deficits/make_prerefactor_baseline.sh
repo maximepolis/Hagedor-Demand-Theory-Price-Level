@@ -1,7 +1,20 @@
 #!/usr/bin/env bash
-# make_prerefactor_baseline.sh -- check out the FROZEN pre-refactor commit in a
-# separate git worktree, so the pre-refactor code can be executed as it was
-# without any file in the working tree being touched.
+# make_prerefactor_baseline.sh -- OPTIONAL. Check out the FROZEN pre-refactor
+# commit in a separate git worktree.
+#
+# ============================ YOU PROBABLY DO NOT NEED THIS ============================
+# The frozen baseline now SHIPS WITH THE PROJECT in <root>/baseline_bf0a4e8,
+# verified by SHA-256 manifest rather than by git, so the capture works on a
+# plain extracted ZIP:
+#
+#     (MATLAB, in research_green_deficits)   clear; main_baseline_capture
+#
+# This script exists only for someone working from a git CLONE who would rather
+# materialise the commit themselves. It is not required, and nothing in the
+# MATLAB pipeline calls it. See baseline_bf0a4e8/README.md.
+# ======================================================================================
+#
+# The original rationale, which still applies to the worktree route:
 #
 # WHY A WORKTREE AND NOT A COPY. The point of the baseline is that it is the
 # code at bf0a4e8, not a reconstruction of it. A worktree is produced by git
