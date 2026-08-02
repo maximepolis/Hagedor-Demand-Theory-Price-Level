@@ -66,6 +66,7 @@ sf = fullfile(pg.tabdir,'parity_d11_deficit.txt');
 fid = fopen(sf,'w'); assert(fid>0);
 tee = @(varargin) tee2(fid, varargin{:});
 tee('D11 THREE-WAY TRANSITION PARITY\n%s\n\n', repmat('=',1,60));
+tee('%s\n\n', kv_code_version(mfilename('fullpath')));
 
 tag = 'bench'; if FAST, tag = 'fast'; end
 bf = fullfile(projdir,'output','baseline', sprintf('baseline_d11_%s.mat', tag));

@@ -44,6 +44,7 @@ tee = @(varargin) tee2(fid, varargin{:});
 
 tee('FUNCTION PROVENANCE AUDIT (R10/R11)\n');
 tee('%s\n\n', repmat('=', 1, 70));
+tee('%s\n', kv_code_version(mfilename('fullpath')));
 tee('MATLAB %s on %s\n', version, computer);
 tee('root    %s\n', rootdir);
 tee('project %s\n', projdir);
@@ -142,13 +143,20 @@ else
          '  five and MATLAB errors immediately. Only the second is safe.\n']);
 end
 
-% ---------------------------------------------------------------- excluded
-% download_data.m is EXCLUDED from the block parser, deliberately, with the
-% reason recorded. See DATA_PIPELINE_EXCLUSION_R11.md. It is not modified to
-% satisfy a static check.
+% ---------------------------------------------------------------- exclusions
+% NONE. This block previously announced that download_data.m was excluded from
+% the block parser and pointed at a rationale document. That was written before
+% the question was actually settled, and it was wrong on both counts: no
+% exclusion is needed and no such document exists.
+%
+% The block-parser failure was in the PARSER. paper/check_matlab_blocks.py now
+% implements MATLAB's real lexical rules and passes all 269 project files
+% including download_data.m, which is well-formed (it uses a nested function,
+% which naive parsers mis-balance). See FUNCTION_NAMESPACE_PLAN_R11.md section 3.
 tee('\nDELIBERATE EXCLUSIONS\n');
-tee('  src_project/download_data.m -- excluded from the block parser.\n');
-tee('  Reason and evidence: DATA_PIPELINE_EXCLUSION_R11.md. Not modified.\n');
+tee('  none. download_data.m parses cleanly under paper/check_matlab_blocks.py;\n');
+tee('  the earlier failure was a parser defect, not a file defect, and the data\n');
+tee('  pipeline was not modified. See FUNCTION_NAMESPACE_PLAN_R11.md section 3.\n');
 
 allok = isempty(sh) || all(arrayfun(@(r) endsWith(r.winner, ...
             fullfile('src_project', [r.name '.m'])), sh));

@@ -65,6 +65,7 @@ sf = fullfile(pg.tabdir,'parity_d10_calibration.txt');
 fid = fopen(sf,'w'); assert(fid>0);
 tee = @(varargin) tee2(fid, varargin{:});
 tee('D10 THREE-WAY CALIBRATION PARITY\n%s\n\n', repmat('=',1,60));
+tee('%s\n\n', kv_code_version(mfilename('fullpath')));
 
 tag = 'bench'; if FAST, tag = 'fast'; end
 bf = fullfile(projdir, 'output', 'baseline', sprintf('baseline_d10_%s.mat', tag));
