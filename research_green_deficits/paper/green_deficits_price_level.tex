@@ -2651,14 +2651,9 @@ faster than the nominal market, and the price level follows. This is the
 paper's timing claim surviving the portfolio structure that overturns its
 \emph{sign}: the announcement, not the spending, is what the market prices,
 whatever the sign of the repricing and whatever the asset menu. The
-transition operators are validated against the stationary ones by a
-consistency test rather than by the terminal prices, which are pinned at
-the program steady state and so agree with it by construction: with no
-program and prices held constant, the full recursion must reproduce the
-initial steady state, and the market residual must vanish. Getting the
-forward-pass timing wrong leaves the system with no solution at all, which
-a solver trace cannot distinguish from slow convergence but this test
-detects immediately.
+transition operators are validated against the stationary ones by the
+null-program consistency test described below, not by the terminal prices,
+which are pinned and so agree by construction.
 
 \paragraph{The announcement path in the disciplined economy.} The path
 above is frictionless, and it is the economy whose \emph{sign} the
@@ -2674,19 +2669,16 @@ $T=\KVTrT$ years). Backward induction along a path needs
 only one Bellman application per date --- the expensive fixed-point
 iteration of the stationary solver is a property of stationarity, not of
 backward induction --- which is what makes the exercise feasible. Because
-the per-date operators are new, they are gated rather than trusted: the
-one-step Bellman operator and the one-step distribution push must each
-return the stationary object as a fixed point at the terminal prices; the
-kernels' aggregates must match the independent stationary construction
-to machine precision; and, end to end, with no program and prices held
-constant the whole recursion must reproduce the baseline steady state. All
-four pass (the first two to $\KVTrGateB$ and $\KVTrGateK$, the third
-exactly). The terminal prices are \emph{not} a check: they are pinned at
-the program steady state, so they agree with it by construction. Nothing is
-reported unless all four gates pass, and the path itself converges to
-$\KVTrResid$, with a horizon residual of $\KVTrTerm$; residuals,
-conditioning and the implied price precision are reported directly rather
-than against an acceptance threshold.
+the per-date operators are new, they are gated rather than trusted: four
+checks require the one-step kernels to reproduce the stationary objects and
+the full recursion to reproduce the baseline steady state under a null
+program (Appendix~\ref{app:numerics}). All four pass, the first two to
+$\KVTrGateB$ and $\KVTrGateK$ and the third exactly; the terminal prices are
+\emph{not} among them, being pinned at the program steady state and so in
+agreement by construction. Nothing is reported unless all four pass. The
+path converges to $\KVTrResid$ with a horizon residual of $\KVTrTerm$, and
+residuals and the implied price precision are reported directly rather than
+against an acceptance threshold.
 
 Like the steady-state experiment it is anchored to, this path holds damages
 fixed and varies only the tax, so it prices the announcement of the
@@ -3020,29 +3012,21 @@ price path: excess asset demand at date $t$ lowers $\hat P_t$, raising the
 real value $\hat B_t/\hat P_t$ of the detrended nominal stock until it
 meets demand --- the transition form of $P^{*}=B/\Sfun$. Because a change
 in $\hat P_t$ moves the realized real return at dates $t$ and $t+1$ with
-opposite signs, the dates are coupled and the path must be solved jointly;
-the accelerated iteration is described in Appendix~\ref{app:numerics}.
-Convergence is assessed on the \emph{free} unknowns
-$\hat P_1,\dots,\hat P_{T-1}$; the pinned terminal date's residual is a
-separate horizon-adequacy check --- it vanishes only when $T$ is long
-enough for the wealth distribution to reach the green steady state, at
-which point green-steady-state savings equal $B_T/P_T$ by construction.
-We report only paths that pass both checks.
+opposite signs, the dates are coupled and the path must be solved jointly.
+Appendix~\ref{app:numerics} states the iteration, the convergence criteria,
+and the separate horizon-adequacy check on the pinned terminal date; only
+paths passing both are reported.
 
-\paragraph{A second solver, and a dynamic determinacy diagnostic.} Because
-the announcement result is the paper's central dynamic claim, we solve it a
-second, independent way. The alternative forms the general-equilibrium
-Jacobian of the market-clearing residual along the path --- the
-sequence-space Jacobian of \citet{auclert2021} --- and Newton-steps on it;
-the two methods rest on independent implementations of the residual, so
-their agreement is a genuine cross-validation, and no announcement number is
-reported unless they agree (Appendix~\ref{app:numerics}). That Jacobian also
-delivers a \emph{dynamic} determinacy diagnostic complementing the
-steady-state elasticity test of Definition~\ref{def:elasticity}: the
-transition is locally determinate where the Jacobian is well conditioned,
-and a near-singular Jacobian is the sequence-space signature of the
-flat-demand multiplicity region of Proposition~\ref{prop:sunspots}. We
-compute two experiments, the \emph{nominal appropriation} (anchor-exposed)
+\paragraph{Two solvers, two experiments.} Because the announcement result is
+the paper's central dynamic claim, it is solved a second, independent way:
+by Newton steps on the sequence-space Jacobian of the market-clearing
+residual \citep{auclert2021}. The two implementations of the residual are
+independent, so their agreement is a genuine cross-validation, and no
+announcement number is reported unless they agree; the same Jacobian's
+conditioning is a dynamic counterpart to the steady-state determinacy test
+of Definition~\ref{def:elasticity}, near-singular exactly in the flat-demand
+region of Proposition~\ref{prop:sunspots} (Appendix~\ref{app:numerics}). We
+compute two experiments: the \emph{nominal appropriation} (anchor-exposed)
 and the \emph{indexed mandate} (anchor-insulated,
 Proposition~\ref{prop:insulation}). The model's central untested prediction
 --- that a credible green announcement produces \emph{disinflation on
@@ -3105,16 +3089,11 @@ $-2.0\%$ (the asset-demand shift) --- opposite signs for the same class of
 announcement, because the
 two exercises answer with different mechanisms, and only the latter
 contains the price-level-as-market-clearing margin the paper is about.
-One caution bounds the contrast: the two computations differ
-not only in the price-determination margin but also in rigidities,
-financing detail, and shock scale, so the sign contrast is a statement
-about \emph{mechanisms within each model class}, a model-contingent
-diagnostic, not a clean empirical sign test. An empirical implementation
-would have to hold those environmental differences fixed (the
-high-frequency design sketched in the conclusion) before the
-announcement-window sign can discriminate between the two views. This
-transition is the converged, horizon-adequate, grid-consistent run
-described in Appendix~\ref{app:numerics}.
+The scope condition stated at the head of this section applies: the two
+computations differ in rigidities, financing detail and scale as well as in
+price determination, so this is a diagnostic within each model class and not
+an empirical sign test. This transition is the converged, horizon-adequate,
+grid-consistent run described in Appendix~\ref{app:numerics}.
 
 \paragraph{Transition-inclusive welfare.} The converged path also settles
 a question the steady-state incidence of Section~\ref{subsec:welfaregroups}
