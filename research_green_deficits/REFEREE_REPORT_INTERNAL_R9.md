@@ -1,3 +1,45 @@
+# ERRATUM (added round 10, before the original text)
+
+**§3(c) of this report is withdrawn. It was wrong in two ways.**
+
+*First, factually.* I described the fixed-real-program comparison as a design
+choice the paper had not made. The paper has made it and computed it:
+`\subsection{The financing regimes at fixed real scale}`
+(`subsec:regimesreal`, `tab:regimesreal`) holds `g_g` fixed at its baseline
+across all four regimes, lets `G_g` adjust, notes that the damage dividend is
+therefore identical across regimes, and reports that the revaluation swing and
+the welfare reversal survive, with fixed-nominal and fixed-real revaluation
+shares differing only in the third decimal. The numbers are live macros in
+`paper/numbers_auto.tex`. I read the section map, saw the subsection title, and
+did not open it. That is the error.
+
+*Second, conceptually.* I framed the distinction as "fixed-nominal `B`" versus
+"fixed-real `B`". That is a category error. The nominal debt stock `B` is the
+same in both experiments; what differs is whether the **appropriation** is held
+fixed in nominal terms (`G_g`) or in real terms (`g_g`). There is no
+outstanding question about the debt stock, and my claim that "the comparison's
+answer depends on whether the debt stock is held fixed in nominal or in real
+terms" is simply false.
+
+The correct editorial disposition, which supersedes §3(c) and the
+corresponding row of §5 and §7:
+
+- **retain** Experiment N (fixed `G_g`) as the institutional baseline, because
+  the nominal denomination of public budgets is part of the paper's mechanism;
+- **elevate** Experiment R (fixed `g_g`) from the supplementary appendix into
+  the main quantitative section as the pure-incidence companion;
+- present them **adjacent**, not as alternatives;
+- never describe Experiment N as comparing the same physical program;
+- never describe Experiment R as holding the nominal fiscal position constant.
+
+That the two experiments produce near-identical financing rankings is evidence
+for robustness. It is not evidence that the design question was open.
+
+Everything below this line is the original round-9 text, unaltered except that
+§3(c) should be read as withdrawn.
+
+---
+
 # Internal referee report, round 9
 
 **Manuscript.** *Who Pays for Green Public Investment? Tax Incidence, Debt
