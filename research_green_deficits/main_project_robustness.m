@@ -250,7 +250,13 @@ fh = figure('Name','PFig20: calibration robustness','Color','w', ...
 subplot(1,2,1); hold on; box on;
 [TT, DD] = meshgrid(th_grid, D0_grid);
 contourf(TT, DD, NU, 12, 'LineColor', 'none');
-cb = colorbar; ylabel(cb, 'self-financing share \nu');
+%% TERMINOLOGY (round 10). The paper's own accounting distinguishes three
+%% objects and the figures must not collapse them: nu_reval is FISCAL
+%% SELF-FINANCING, nu_dam is the RESOURCE BENEFIT-COST RATIO, and their sum
+%% nu is the NET HOUSEHOLD-BURDEN OFFSET. Labelling nu a 'self-financing
+%% share' asserts the fiscal reading of a household object, which is the
+%% misstatement the body text was rewritten to avoid.
+cb = colorbar; ylabel(cb, 'net household-burden offset \nu');
 % nu = 1 frontier over computed nodes
 okf = isfinite(th_star);
 plot(th_star(okf), D0_grid(okf), 'w-o', 'LineWidth', 2.2, ...
@@ -268,7 +274,7 @@ nuS    = [SENok.nu];
 bar(nuS, 'FaceColor', [0.20 0.55 0.25]);
 yline(1, 'k--');
 set(gca,'XTick',1:numel(SENok),'XTickLabel',{SENok.name},'XTickLabelRotation',35);
-ylabel('self-financing share \nu');
+ylabel('net household-burden offset \nu');
 title('(b) one-at-a-time sensitivity (medium column, held debt target)');
 save_all_figs(fh, 'PFig20_robustness', pg);
 fprintf('\n  [saved] PFig20_robustness\n');

@@ -173,7 +173,13 @@ if ~isempty(have)
 end
 
 % ----- PFig7: nu by damage column -----
-fh7 = figure('Name','PFig7: Calibrated self-financing by damage column', ...
+%% TERMINOLOGY (round 10). The paper's own accounting distinguishes three
+%% objects and the figures must not collapse them: nu_reval is FISCAL
+%% SELF-FINANCING, nu_dam is the RESOURCE BENEFIT-COST RATIO, and their sum
+%% nu is the NET HOUSEHOLD-BURDEN OFFSET. Labelling nu a 'self-financing
+%% share' asserts the fiscal reading of a household object, which is the
+%% misstatement the body text was rewritten to avoid.
+fh7 = figure('Name','PFig7: Calibrated net household-burden offset by damage column', ...
              'Color','w','Position',[80 80 640 480]); hold on; box on;
 nuv = [cols.nu]; nrv = [cols.nu_reval]; ndv = [cols.nu_damage];
 bh = bar(1:numel(cols), [nrv; ndv]', 'stacked');
@@ -182,7 +188,7 @@ set(bh(2), 'FaceColor', [0.45 0.70 0.45]);   % damage dividend
 plot([0.5, numel(cols)+0.5], [1 1], 'k--', 'LineWidth', 1.3);
 plot(1:numel(cols), nuv, 'ko', 'MarkerFaceColor','k', 'MarkerSize', 7);
 set(gca, 'XTick', 1:numel(cols), 'XTickLabel', {'LOW','MEDIUM','HIGH'});
-ylabel('self-financing share \nu');
+ylabel('net household-burden offset \nu');
 title(sprintf(['Calibrated pass: debt/GDP=%.1f, program %.0f%% of income ' ...
       '(\\beta=%.3f)'], b_target, 100*g_share, beta_star));
 legend({'revaluation \nu_{reval}','damage dividend \nu_{dam}', ...

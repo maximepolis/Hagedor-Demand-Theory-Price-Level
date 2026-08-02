@@ -166,7 +166,13 @@ b1.FaceColor = 'flat';
 b1.CData = [0.10 0.30 0.75; 0.20 0.55 0.25; 0.35 0.35 0.35];
 yline(1,'k--'); yline(0,'k-');
 set(gca,'XTick',1:3,'XTickLabel',{'\nu_{reval}','\nu_{dam}','\nu (total)'});
-ylabel('self-financing share'); title('(a) fiscal decomposition (premium inert)');
+%% TERMINOLOGY (round 10). The paper's own accounting distinguishes three
+%% objects and the figures must not collapse them: nu_reval is FISCAL
+%% SELF-FINANCING, nu_dam is the RESOURCE BENEFIT-COST RATIO, and their sum
+%% nu is the NET HOUSEHOLD-BURDEN OFFSET. Labelling nu a 'self-financing
+%% share' asserts the fiscal reading of a household object, which is the
+%% misstatement the body text was rewritten to avoid.
+ylabel('net household-burden offset  \nu'); title('(a) fiscal decomposition (premium inert)');
 subplot(1,2,2); hold on; box on;
 gg = [WEL.risk.constrained, WEL.risk.wq(1), WEL.risk.wq(3), WEL.risk.wq(5), ...
       WEL.risk.state(1), WEL.risk.state(2), WEL.risk.overall];
