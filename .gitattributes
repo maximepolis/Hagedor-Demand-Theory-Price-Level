@@ -1,0 +1,9 @@
+# The frozen pre-refactor baseline is verified by SHA-256 of its file bytes
+# (baseline_bf0a4e8/MANIFEST_bf0a4e8.sha256). Any line-ending normalisation on
+# checkout or on ZIP export would change those bytes and the verification would
+# fail on a snapshot whose CONTENT is perfectly correct. Mark the tree as
+# binary so git never rewrites it.
+baseline_bf0a4e8/** -text
+
+# The manifest itself must stay LF for the same reason.
+baseline_bf0a4e8/MANIFEST_bf0a4e8.sha256 -text

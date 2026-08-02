@@ -12,9 +12,11 @@
 % was no branch in it that did not depend on the moved code.
 %
 % ================= THE THREE LEGS =================
-%   1. BASELINE  the script at pre-refactor commit bf0a4e8, executed in a
-%                separate git worktree by main_baseline_capture, its outputs
-%                frozen into output/baseline/baseline_d10_<tag>.mat.
+%   1. BASELINE  the script at pre-refactor commit bf0a4e8, executed by
+%                main_baseline_capture from the frozen snapshot shipped in
+%                <root>/baseline_bf0a4e8 (content-verified against a SHA-256
+%                manifest; no git required), its outputs frozen into
+%                output/baseline/baseline_d10_<tag>.mat.
 %                THIS IS THE ONLY LEG THAT DOES NOT USE THE MOVED CODE.
 %   2. SCRIPT    the current backward-compatible entry point
 %                (main_twoasset_ownership_kv, which now calls the extracted
@@ -39,9 +41,7 @@
 %   * output/baseline/baseline_d10_<tag>.mat exists, and its FAST tag matches
 %     this run's. A parity test across different grids is not a parity test.
 %
-% USAGE   $ ./make_prerefactor_baseline.sh create
-%         (in MATLAB, in the WORKTREE)  BASELINE_OUT = '...'; main_baseline_capture
-%         (back in the main tree)
+% USAGE   >> clear; main_baseline_capture      (no git needed; see that file)
 %         >> clear; restoredefaultpath; run_project_path_setup
 %         >> clear; main_parity_d10_calibration
 %         >> clear; FAST = true; main_parity_d10_calibration
@@ -86,11 +86,10 @@ if exist(bf,'file') ~= 2
     tee('\n*** NO PRE-REFACTOR BASELINE at\n***   %s\n', bf);
     tee(['***\n*** The two-way comparison this file used to run compared two branches\n' ...
          '*** that both call the extracted code, so it could not test the refactor.\n' ...
-         '*** Build the baseline first:\n' ...
-         '***   $ ./make_prerefactor_baseline.sh create\n' ...
-         '***   $ ./make_prerefactor_baseline.sh verify\n' ...
-         '***   (MATLAB, in the worktree) BASELINE_OUT=''%s''; main_baseline_capture\n'], ...
-        fullfile(projdir,'output','baseline'));
+         '*** Build the baseline first -- NO GIT REQUIRED, the frozen snapshot\n' ...
+         '*** ships with the project in <root>/baseline_bf0a4e8:\n' ...
+         '***   >> clear; main_baseline_capture\n' ...
+         '***   (add FAST = true first if this run uses FAST)\n']);
     fclose(fid);
     error('main_parity_d10_calibration:nobaseline', 'no frozen baseline at %s', bf);
 end

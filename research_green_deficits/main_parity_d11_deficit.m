@@ -10,8 +10,9 @@
 % treats these paths as independently cross-validated quantitative outputs.
 %
 % ================= THE THREE LEGS =================
-%   1. BASELINE  solve_hank_dtpl_transition at bf0a4e8, executed in the
-%                frozen worktree by main_baseline_capture. The only leg that
+%   1. BASELINE  solve_hank_dtpl_transition at bf0a4e8, executed by
+%                main_baseline_capture from the content-verified snapshot in
+%                <root>/baseline_bf0a4e8 (no git required). The only leg that
 %                does not run the refactored file.
 %   2. LEGACY    the current solver with opts.fiscal ABSENT.
 %   3. EXPLICIT  the current solver with the legacy rho_d = 0.90 path passed
@@ -42,8 +43,7 @@
 % legs 2 and 3 should still match the baseline exactly. If they do not, the
 % removal touched the free branch and that is a real defect.
 %
-% USAGE   $ ./make_prerefactor_baseline.sh create
-%         (MATLAB, in the worktree) BASELINE_OUT='...'; main_baseline_capture
+% USAGE   >> clear; main_baseline_capture      (no git needed; see that file)
 %         >> clear; restoredefaultpath; run_project_path_setup
 %         >> clear; main_parity_d11_deficit
 %
@@ -80,7 +80,8 @@ if exist(bf,'file') ~= 2
     tee('\n*** NO PRE-REFACTOR BASELINE at\n***   %s\n', bf);
     tee(['***\n*** The two-way comparison this file used to run compared two branches\n' ...
          '*** of the ALREADY-REFACTORED solver, so it could not test the refactor.\n' ...
-         '*** Build the baseline first (see make_prerefactor_baseline.sh).\n']);
+         '*** Build the baseline first -- NO GIT REQUIRED:\n' ...
+         '***   >> clear; main_baseline_capture\n']);
     fclose(fid);
     error('main_parity_d11_deficit:nobaseline','no frozen baseline at %s', bf);
 end
