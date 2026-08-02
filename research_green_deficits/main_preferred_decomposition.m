@@ -161,15 +161,24 @@ else
     kfac = 12;
     tee('*** no kv_residual_scan.mat: falling back to kfac=%.1f UNVERIFIED ***\n', kfac);
 end
-if kfac > 1 || bfac > 1
-    [p, WID] = kv_widen_grids(p, kfac, struct('r_b',r_b,'q',eq0.q,'d',d_base, ...
-                                              'kref',5,'bref',3,'bfac',bfac));
-    tee('  kmax %.1f -> %.1f, bmax %.2f -> %.2f, xmax %.1f -> %.1f; k-curvature %.2f -> %.2f\n', ...
-        WID.kmax0, WID.kmax, WID.bmax0, WID.bmax, WID.xmax0, WID.xmax, WID.gk0, WID.gk);
+% TARGET STATE, NOT OPERATION. This used to call kv_widen_grids directly on
+% the p loaded from twoasset_ownership_kv.mat, which was right until REGRID
+% began saving the WIDENED p to that file. From then on the factors were
+% applied a second time (kmax 60 -> 360 -> 2160, bmax 12 -> 96 -> 768) with
+% nothing to warn that they had been. kv_ensure_widened is idempotent: it
+% no-ops when the grid is already at the target and errors when it is at
+% neither the target nor the base.
+[p, GR] = kv_ensure_widened(p, kfac, bfac, ...
+             struct('r_b',r_b,'q',eq0.q,'d',d_base,'kref',5,'bref',3), tee);
+if strcmp(GR.action,'APPLIED')
     tee('  CAVEAT beta and chi_b were calibrated on the pre-widening grids.\n');
     tee('  These results stay DIAGNOSTIC until main_twoasset_ownership_kv is\n');
     tee('  recalibrated on the widened grid.\n');
+elseif strcmp(GR.action,'ALREADY')
+    tee('  The loaded calibration is ALREADY on these grids, so beta and chi_b\n');
+    tee('  belong to them and the pre-widening caveat does not apply.\n');
 end
+WID = GR.W;
 tee('\n');
 
 % CANDIDATE-GRID REFINEMENT. The adjuster's portfolio choice is an argmax

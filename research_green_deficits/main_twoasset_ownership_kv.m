@@ -150,6 +150,22 @@ uxA = linspace(0,1,nx)';  p.xGridA = 0.05 + (xmax-0.05)*(uxA.^2.8);  % strong cu
 uac = linspace(0,1,nac)'; p.acGrid = 1e-4 + (0.92*xmax-1e-4)*(uac.^2.8);
 p.sGrid = linspace(1/nsh, 1, nsh);
 
+% PROVENANCE STAMP. These are the calibration-base grids by definition, so
+% record that fact in p itself. Everything this driver saves carries the
+% stamp, and every downstream driver reads it rather than inferring the
+% widening from a ceiling. Without it, a p loaded from disk cannot say
+% whether it has already been widened -- which is how three drivers came to
+% apply the verified factors to a grid that already carried them.
+p.grid_state = struct('kfac', 1, 'bfac', 1, 'kmax', kmax, 'bmax', bmax, ...
+                      'xmax', xmax, 'base', kv_grid_base(), ...
+                      'stamped_by', 'main_twoasset_ownership_kv:base');
+assert(abs(kmax - p.grid_state.base.kmax) < 1e-12 && ...
+       abs(bmax - p.grid_state.base.bmax) < 1e-12 && ...
+       abs(xmax - p.grid_state.base.xmax) < 1e-12, ...
+    ['the base grids built here disagree with kv_grid_base(). Those constants ' ...
+     'define what every stored widening FACTOR means; change them in one place ' ...
+     'or every factor on disk silently redefines itself.']);
+
 
 D0 = 0.06; r_b = (1 + pg.i_ss)/(1 + pg.mu) - 1;
 Bnom = pg.Bnom; Kbar = 1.0; d_base = 0.12;
@@ -182,9 +198,13 @@ if REGRID
         O0 = load(ownf0, 'eq0');
         if isfield(O0,'eq0') && isstruct(O0.eq0) && O0.eq0.ok, q_seed = O0.eq0.q; end
     end
-    [p, GW] = kv_widen_grids(p, KFAC, struct('r_b', r_b, 'q', q_seed, ...
-                             'd', d_base, 'kref', 5, 'bref', 3, 'bfac', BFAC));
+    [p, GR] = kv_ensure_widened(p, KFAC, BFAC, struct('r_b', r_b, 'q', q_seed, ...
+                             'd', d_base, 'kref', 5, 'bref', 3), @(varargin) fprintf(varargin{:}));
+    GW = GR.W;
     bmax = p.bGrid(end); kmax = p.kGrid(end); xmax = p.xGridA(end);
+    % The saved .mat carries the WIDENED p. Downstream drivers must therefore
+    % reconcile rather than re-apply; they call kv_ensure_widened, which reads
+    % p.grid_state and no-ops when the grid is already at the target.
 end
 
 b_debt = 1.10; b_targ_H = 0.30; iota_H = b_targ_H/b_debt;
@@ -243,6 +263,14 @@ if KMV
 end
 tee('OWNERSHIP + INFREQUENT ADJUSTMENT. nb=%d nk=%d nx=%d ne=%d lambda=%.2f FAST=%d\n', ...
     nb, nk, nx, numel(p.eGrid), p.lambda_adj, FAST);
+if REGRID
+    GSN = kv_grid_state(p);
+    tee('*** GRID STATE: kfac %.4g, bfac %.4g relative to the calibration base\n', ...
+        GSN.kfac, GSN.bfac);
+    tee('*** (kmax %.1f, bmax %.2f, xmax %.1f). This p is SAVED widened; every\n', ...
+        GSN.kmax, GSN.bmax, GSN.xmax);
+    tee('*** downstream driver must reconcile via kv_ensure_widened, not re-apply.\n');
+end
 if GW.changed
     tee('*** REGRID: kmax %.1f -> %.1f, bmax %.2f -> %.2f, xmax %.1f -> %.1f\n', ...
         GW.kmax0, GW.kmax, GW.bmax0, GW.bmax, GW.xmax0, GW.xmax);

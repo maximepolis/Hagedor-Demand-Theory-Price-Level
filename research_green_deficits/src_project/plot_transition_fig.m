@@ -26,14 +26,20 @@ function plot_transition_fig(TRn, TRi, pgc, pg, TRr)
 
     fh = figure('Name','PFig18: nonlinear HANK-DTPL transition','Color','w', ...
                 'Position',[60 60 1150 700]);
-    leg1 = {'nominal appropriation, service rule', 'indexed mandate, service rule'};
+    % R11 safety patch: all three paths in this panel are BALANCED SERVICE-RULE
+    % paths, so no label may contain the word 'deficit'. The stale checked-in
+    % PDF carried 'nominal budget, deficit' and 'indexed mandate, deficit',
+    % which described a different experiment from the one plotted.
+    EMD  = char(8212);                       % em dash
+    leg1 = {['Nominal appropriation ' EMD ' service rule'], ...
+            ['Indexed mandate ' EMD ' service rule']};
 
     subplot(2,2,1); hold on; box on;
     plot(tv, TRn.phat, 'LineWidth', 2.0, 'Color', BLUE);
     if isfield(TRi,'phat'), plot(tv, TRi.phat, 'LineWidth', 2.0, 'Color', GREEN); end
     if hasR
         plot(tv, TRr.phat, 'LineWidth', 2.0, 'Color', ORANGE);
-        leg1{end+1} = 'levy + rebate';
+        leg1{end+1} = ['Levy plus rebate ' EMD ' service rule'];
     end
     yline(TRn.P0, ':k', 'HandleVisibility','off');
     ylabel('price level  P_t/(1+\mu)^t');

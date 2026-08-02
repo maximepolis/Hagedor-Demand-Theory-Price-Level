@@ -39,7 +39,8 @@ function st = kv_solve_bond_given_q(q, al, CTX, W, toptol, Pseed)
     st = struct('ok',false,'code','POLICY_NONCONV','P',NaN,'Sb',NaN,'Sk',NaN, ...
                 'sol',[],'dist',[],'dV',NaN,'ddist',NaN,'min_c',NaN, ...
                 'ksat',NaN,'bsat',NaN,'Pits',0,'Pgap',NaN,'Pjump',NaN, ...
-                'tau',NaN,'dvd',NaN,'dist_loose',false,'stepped',false);
+                'tau',NaN,'dvd',NaN,'dist_loose',false,'stepped',false, ...
+                'edge_lo',false,'edge_hi',false,'edge_code','','seed_rungs',0);
 
     P0 = CTX.iota*CTX.Bnom/0.30;
     if ~isempty(Pseed) && isfinite(Pseed) && Pseed > 0, P0 = Pseed; end
@@ -48,25 +49,66 @@ function st = kv_solve_bond_given_q(q, al, CTX, W, toptol, Pseed)
     gof = @(P, Win) gres(P, q, al, CTX, toptol, Win);
 
     % ---- bracket g(P) = iota*B/S_b(P) - P, which is decreasing in P -------
+    % AN INFEASIBLE EXPLORATORY ENDPOINT IS A DOMAIN EDGE, NOT A FAILURE OF
+    % THIS SOLVE. The previous version returned the endpoint's code as the
+    % code of the whole call, so one overshoot into the region where the
+    % household problem stops being defined -- typically a low P, where the
+    % real debt burden iota*B/P and hence the lump-sum tax explode and
+    % consumption goes non-positive -- discarded a q at which the root was
+    % comfortably interior and already bracketed.
+    %
+    % That is the mechanism behind the SCATTERED pattern. Whether the
+    % geometric expansion overshoots depends on where the continuation seed
+    % P0 sits relative to the root, and the seed moves with q; so neighbouring
+    % q could differ in whether they ever probed the infeasible region, and
+    % the admissible set came out interleaved. kv_bracket_finite reads
+    % interleaving as an indictment of the solver rather than a domain
+    % boundary, and it was right: a domain does not alternate.
+    %
+    % Expansion now STOPS at an infeasible endpoint and keeps the last
+    % feasible one. Failure is reported only if no sign change exists among
+    % points the model actually defines, and it is then reported as
+    % BOND_DOMAIN_EDGE -- which, unlike the old BOND_NOBRACKET, is a statement
+    % about the model and should appear in CONTIGUOUS runs of q.
     [g0, S] = call(gof, P0, S);
-    if ~isempty(S.code), st.code = S.code; st.Pits = S.n; return; end
+    if ~isempty(S.code)
+        [P0, g0, S] = seed_ladder(gof, P0, S);
+        if isfield(S,'n_seed_rungs'), st.seed_rungs = S.n_seed_rungs; end
+        if ~isempty(S.code), st.code = S.code; st.Pits = S.n; return; end
+    end
     lo = P0; hi = P0; glo = g0; ghi = g0;
+    edge_lo = false; edge_hi = false; edge_code = '';
     fac = 1.6; got = false;
     for i = 1:14
         if glo > 0 && ghi > 0                     % need a larger P
-            lo = hi; glo = ghi; hi = hi*fac;
-            [ghi, S] = call(gof, hi, S);
+            if edge_hi, break; end
+            Pn = hi*fac; [gn, S] = call(gof, Pn, S);
+            if ~isempty(S.code)
+                edge_hi = true; edge_code = S.code; S.code = ''; continue;
+            end
+            lo = hi; glo = ghi; hi = Pn; ghi = gn;
         elseif glo < 0 && ghi < 0                 % need a smaller P
-            hi = lo; ghi = glo; lo = lo/fac;
-            [glo, S] = call(gof, lo, S);
+            if edge_lo, break; end
+            Pn = lo/fac; [gn, S] = call(gof, Pn, S);
+            if ~isempty(S.code)
+                edge_lo = true; edge_code = S.code; S.code = ''; continue;
+            end
+            hi = lo; ghi = glo; lo = Pn; glo = gn;
         else
             got = true; break;
         end
-        if ~isempty(S.code), st.code = S.code; st.Pits = S.n; return; end
         if ~isfinite(glo) || ~isfinite(ghi), break; end
     end
+    st.edge_lo = edge_lo; st.edge_hi = edge_hi; st.edge_code = edge_code;
     if ~got && ~(glo >= 0 && ghi <= 0)
-        st.code = 'BOND_NOBRACKET'; st.Pits = S.n; return;
+        if edge_lo || edge_hi
+            % The model bounds the feasible price range and no equilibrium
+            % lies inside it. Distinct from "the expansion ran out of steps".
+            st.code = 'BOND_DOMAIN_EDGE';
+        else
+            st.code = 'BOND_NOBRACKET';
+        end
+        st.Pits = S.n; return;
     end
 
     % ---- safeguarded secant inside the bracket ---------------------------
@@ -165,6 +207,29 @@ function st = kv_solve_bond_given_q(q, al, CTX, W, toptol, Pseed)
 end
 
 % ---------------------------------------------------------------------
+function [P, g, S] = seed_ladder(gof, P0, S)
+% The seed itself was infeasible. That is not the same as the model being
+% undefined at this q: the seed is a CONTINUATION guess carried over from a
+% neighbouring alpha or a coarser grid, and it can land outside the feasible
+% price range without saying anything about whether a root exists inside it.
+%
+% Walk outward from the seed in alternating directions before giving up. The
+% ladder is short and geometric on purpose -- it is looking for any foothold
+% in the feasible set, not for the root, which the bracket search then finds.
+    P = P0; g = NaN;
+    rungs = [1.5 1/1.5 2.25 1/2.25 3.375 1/3.375 6 1/6];
+    for i = 1:numel(rungs)
+        S.code = '';
+        Pt = P0 * rungs(i);
+        [gt, S] = call(gof, Pt, S);
+        S.n_seed_rungs = i;
+        if isempty(S.code) && isfinite(gt)
+            P = Pt; g = gt; S.code = ''; return;
+        end
+    end
+    % every rung failed: leave the last code in place for the caller to report
+end
+
 function [g, S] = call(gof, P, S)
 % One residual evaluation, warm-started from the previous one. The warm start
 % is a pure accelerator here: the household solve runs to its own tolerance,
