@@ -18,10 +18,14 @@
 %   tree:  int k dOmega = Kbar               (pins q)
 %
 % USAGE   >> parpool; clear; FAST = true; main_twoasset_ownership_kv
+%         >> clear; REGRID = true; main_twoasset_ownership_kv
+%            recalibrates beta and chi_b ON the widened grids the residual
+%            scan settled on, instead of transplanting a calibration that was
+%            fitted at kmax = 60 onto a grid with kmax = 360.
 % OUTPUT  output/twoasset_ownership_kv.mat, output/tables/twoasset_ownership_kv.txt
 % STATUS: scaffolded, untested pending a MATLAB run.
 
-clearvars -except FAST KMV ZETA LADDER WTARGET; close all; clc;
+clearvars -except FAST KMV ZETA LADDER WTARGET REGRID KFAC BFAC; close all; clc;
 rng(20260723, 'twister'); t0 = tic;
 
 projdir = fileparts(mfilename('fullpath'));
@@ -146,8 +150,43 @@ uxA = linspace(0,1,nx)';  p.xGridA = 0.05 + (xmax-0.05)*(uxA.^2.8);  % strong cu
 uac = linspace(0,1,nac)'; p.acGrid = 1e-4 + (0.92*xmax-1e-4)*(uac.^2.8);
 p.sGrid = linspace(1/nsh, 1, nsh);
 
+
 D0 = 0.06; r_b = (1 + pg.i_ss)/(1 + pg.mu) - 1;
 Bnom = pg.Bnom; Kbar = 1.0; d_base = 0.12;
+
+% ---------------------------------------------------------------- REGRID
+% The diagnostic scan established that kmax = 60 truncates: 2.8e-3 of mass
+% sat in the top two k-nodes, a sixth of aggregate tree demand pinned against
+% a wall and unable to respond to the tree price. Widening fixed that, but
+% every result computed on a widened grid is PROVISIONAL until beta and
+% chi_b are recalibrated there, because the calibration targets are wealth
+% moments and widening moves them. That is what this switch is for: it
+% recalibrates ON the widened grid rather than transplanting a calibration
+% across grids.
+%
+% The factors are read from the scan that verified them, so the calibration
+% and the diagnosis run on the same grid by construction. REGRID = false
+% reproduces the original calibration exactly.
+if ~exist('REGRID','var'), REGRID = false; end
+GW = struct('changed', false);
+if REGRID
+    scf = fullfile(projdir, 'output', 'kv_residual_scan.mat');
+    if exist(scf,'file') == 2 && ~exist('KFAC','var')
+        Sc = load(scf, 'kfac', 'bfac'); KFAC = Sc.kfac; BFAC = Sc.bfac;
+    end
+    if ~exist('KFAC','var') || isempty(KFAC), KFAC = 6; end
+    if ~exist('BFAC','var') || isempty(BFAC), BFAC = 8; end
+    q_seed = d_base / max(r_b, 5e-3);            % crude, pre-solution
+    ownf0 = fullfile(projdir, 'output', 'twoasset_ownership.mat');
+    if exist(ownf0,'file') == 2
+        O0 = load(ownf0, 'eq0');
+        if isfield(O0,'eq0') && isstruct(O0.eq0) && O0.eq0.ok, q_seed = O0.eq0.q; end
+    end
+    [p, GW] = kv_widen_grids(p, KFAC, struct('r_b', r_b, 'q', q_seed, ...
+                             'd', d_base, 'kref', 5, 'bref', 3, 'bfac', BFAC));
+    bmax = p.bGrid(end); kmax = p.kGrid(end); xmax = p.xGridA(end);
+end
+
 b_debt = 1.10; b_targ_H = 0.30; iota_H = b_targ_H/b_debt;
 Gg = 0.02 * (Bnom / b_debt);
 htm_b = 0.02; whtm_k = 0.50;
@@ -204,6 +243,12 @@ if KMV
 end
 tee('OWNERSHIP + INFREQUENT ADJUSTMENT. nb=%d nk=%d nx=%d ne=%d lambda=%.2f FAST=%d\n', ...
     nb, nk, nx, numel(p.eGrid), p.lambda_adj, FAST);
+if GW.changed
+    tee('*** REGRID: kmax %.1f -> %.1f, bmax %.2f -> %.2f, xmax %.1f -> %.1f\n', ...
+        GW.kmax0, GW.kmax, GW.bmax0, GW.bmax, GW.xmax0, GW.xmax);
+    tee('*** k-curvature %.2f -> %.2f; beta and chi_b are recalibrated HERE, on\n', GW.gk0, GW.gk);
+    tee('*** this grid, so the calibration and the diagnostics share one grid.\n');
+end
 tee('iota_H=%.3f (direct target %.2f of income); superstar mult=%.1f p_in=%.3f\n', ...
     iota_H, b_targ_H, ss.mult, ss.p_in);
 tee('liquidity: zeta_b=%.2f, Stone-Geary shift bbar=%.3f (0 => Inada at b=0 => HtM==0)\n', ...
