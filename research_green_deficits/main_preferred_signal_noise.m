@@ -83,15 +83,23 @@ fid = fopen(sf,'w'); assert(fid>0);
 tee = @(varargin) tee2(fid,varargin{:});
 tee('IS THE FINANCING RESULT A MEASUREMENT YET?  signal vs solver noise\n\n');
 
-if FAST
-    nbF = max(28, round(numel(p.bGrid)*0.5));
-    nkF = max(16, round(numel(p.kGrid)*0.5));
-    [blo,bhi,gb] = kv_grid_curv(p.bGrid); p.bGrid = kv_grid_build(blo,bhi,gb,nbF);
-    [klo,khi,gk] = kv_grid_curv(p.kGrid); p.kGrid = kv_grid_build(klo,khi,gk,nkF);
-    tee('*** FAST: nb=%d nk=%d (DEBUG) ***\n', nbF, nkF);
-end
-
-% same widening the scan verified, read from the scan
+% WIDEN FIRST, COARSEN SECOND. The two operations were the other way round
+% and they do not commute. kv_widen_grids re-solves the curvature exponent so
+% that the NODE COUNT below k_ref = 5 is unchanged; run it after the node
+% count has already been halved and it preserves the halved count, so FAST
+% lost resolution twice -- once from the halving and once from spending the
+% surviving nodes over a ceiling six times higher. Coarsening afterwards, via
+% the same endpoints-and-curvature rebuild used for the N3 channel, varies
+% only the node count and leaves the shape alone, which is what a resolution
+% test is supposed to do.
+%
+% AND THE WIDENING IS A TARGET, NOT AN OPERATION. This block used to call
+% kv_widen_grids directly on the p loaded from twoasset_ownership_kv.mat.
+% That was correct until REGRID = true started saving the WIDENED p into that
+% same file; from then on this driver widened an already-widened grid and
+% reached kmax = 60*6*6 = 2160 and bmax = 12*8*8 = 768, which is what the
+% failing run printed. kv_ensure_widened is idempotent and errors rather than
+% composing.
 kfac = 1; bfac = 1;
 scf = fullfile(projdir,'output','kv_residual_scan.mat');
 if exist(scf,'file')==2
@@ -100,11 +108,45 @@ else
     kfac = 6; bfac = 8;
     tee('*** no kv_residual_scan.mat: using kfac=%.0f bfac=%.0f UNVERIFIED ***\n', kfac, bfac);
 end
-if kfac > 1 || bfac > 1
-    [p, WID] = kv_widen_grids(p, kfac, struct('r_b',r_b,'q',eq0.q,'d',d_base, ...
-                                              'kref',5,'bref',3,'bfac',bfac));
-    tee('grids: kmax %.1f, bmax %.2f, xmax %.1f (kfac=%.0f bfac=%.0f)\n', ...
-        WID.kmax, WID.bmax, WID.xmax, kfac, bfac);
+[p, GR] = kv_ensure_widened(p, kfac, bfac, ...
+             struct('r_b',r_b,'q',eq0.q,'d',d_base,'kref',5,'bref',3), tee);
+gs = kv_grid_state(p);
+tee('grids: kmax %.1f, bmax %.2f, xmax %.1f (kfac=%.4g bfac=%.4g, %s)\n', ...
+    gs.kmax, gs.bmax, gs.xmax, gs.kfac, gs.bfac, GR.action);
+
+if FAST
+    % Floors are resolution floors, not cost floors: they are set by how many
+    % nodes must remain BELOW the reference levels where the mass lives, not
+    % by how long the run takes.
+    nbF = max(40, round(numel(p.bGrid)*0.5));
+    nkF = max(28, round(numel(p.kGrid)*0.5));
+    [blo,bhi,gb] = kv_grid_curv(p.bGrid); p.bGrid = kv_grid_build(blo,bhi,gb,nbF);
+    [klo,khi,gk] = kv_grid_curv(p.kGrid); p.kGrid = kv_grid_build(klo,khi,gk,nkF);
+    tee('*** FAST: nb=%d nk=%d (DEBUG; widened first, then coarsened) ***\n', nbF, nkF);
+end
+
+% RESOLUTION GATE. A widened ceiling with a coarse node count is not a cheap
+% version of the benchmark economy, it is a different and much worse one: the
+% adjuster's portfolio choice is an argmax over a discrete candidate set, so
+% S_k(q) is a step function whose steps are set by the spacing of kGrid where
+% the mass sits. Halve the nodes and multiply the ceiling and those steps grow
+% until the bond root lands inside one at most trial prices. Refusing here is
+% the honest response; tuning the bracket until it finds something is not.
+KREF = 5; BREF = 3;
+nk_lo = sum(p.kGrid(:) <= KREF); nb_lo = sum(p.bGrid(:) <= BREF);
+tee('resolution: %d k-nodes below k=%g, %d b-nodes below b=%g\n', ...
+    nk_lo, KREF, nb_lo, BREF);
+if nk_lo < 8 || nb_lo < 10
+    tee(['\n*** CONFIGURATION REFUSED: too few nodes where the mass lives.\n' ...
+         '*** Need >= 8 k-nodes below k=%g and >= 10 b-nodes below b=%g.\n' ...
+         '*** At this resolution S_k(q) steps so coarsely that the bond root\n' ...
+         '*** falls inside a jump at most trial prices, and the scattered\n' ...
+         '*** bracket failures that follow are an artefact of the grid.\n' ...
+         '*** Raise the FAST node floors or lower the widening factors.\n'], KREF, BREF);
+    fclose(fid);
+    error('main_preferred_signal_noise:resolution', ...
+          'refusing to run: %d k-nodes below %g, %d b-nodes below %g', ...
+          nk_lo, KREF, nb_lo, BREF);
 end
 tee('nb=%d nk=%d ne=%d\n\n', numel(p.bGrid), numel(p.kGrid), numel(p.eGrid));
 
@@ -114,7 +156,22 @@ CTX = struct('p',p,'iota',iota,'r_b',r_b,'d_base',d_base,'D0',D0, ...
 % ===================================================================== SIGNAL
 tee('===== SIGNAL: the alpha = 0 -> alpha = 1 move =====\n');
 [BASE, ok] = solve_pair(CTX, eq0.q, tee, 'continuation');
-assert(ok, 'the baseline pair did not solve; nothing to measure');
+if ~ok
+    % The assert that used to sit here destroyed the only thing worth having
+    % when a pair fails. The bracket search returns the whole coarse map --
+    % every trial q, its residual and its status code -- and that map is what
+    % distinguishes a domain boundary (contiguous failures; move the bracket)
+    % from a solver defect (interleaved failures; fix the solver). Throwing it
+    % away and printing one sentence is how the same failure gets rediagnosed
+    % from scratch every time.
+    report_pair_failure(BASE, CTX, tee);
+    save(fullfile(projdir,'output','preferred_signal_noise_FAILED.mat'), ...
+         'BASE','CTX','GR','gs');
+    fclose(fid);
+    error('main_preferred_signal_noise:baseline', ...
+          ['the baseline pair did not solve; nothing to measure. ' ...
+           'The bracket map is above and in output/preferred_signal_noise_FAILED.mat']);
+end
 sig = struct('dlnP', log(BASE.E1.P/BASE.E0.P), ...
              'dSb',  BASE.E1.Sb - BASE.E0.Sb, ...
              'dq',   BASE.E1.q  - BASE.E0.q);
@@ -209,10 +266,14 @@ function [PR, ok] = solve_pair(CTX, q0, tee, mode)
 % alpha = 0 then alpha = 1. 'continuation' steps through alpha = 0.5 and
 % seeds each solve with the previous one; 'cold' solves alpha = 1 from the
 % baseline guess with no inherited value function. The two must agree.
-    PR = struct('E0',[],'E1',[]); ok = false;
+    PR = struct('E0',[],'E1',[],'failed_at',NaN,'failed',[],'mode',mode,'qc',q0);
+    ok = false;
     C = CTX;
     E0 = kv_solve_alpha(0.0, C, q0, false, []);
-    if ~E0.ok, tee('  alpha=0 failed: %s\n', E0.msg); return; end
+    if ~E0.ok
+        tee('  alpha=0 failed: %s\n', E0.msg);
+        PR.failed_at = 0.0; PR.failed = E0; return;
+    end
     if strcmp(mode,'continuation')
         C.Wseed = E0.sol.V; C.Pseed = E0.P;
         Eh = kv_solve_alpha(0.5, C, E0.q, false, []);
@@ -221,9 +282,68 @@ function [PR, ok] = solve_pair(CTX, q0, tee, mode)
     else
         qg = q0;                                  % cold: no inherited state
     end
+    PR.qc = qg;
     E1 = kv_solve_alpha(1.0, C, qg, false, []);
-    if ~E1.ok, tee('  alpha=1 failed: %s\n', E1.msg); return; end
+    if ~E1.ok
+        tee('  alpha=1 failed: %s\n', E1.msg);
+        PR.failed_at = 1.0; PR.failed = E1; PR.E0 = E0; return;
+    end
     PR.E0 = E0; PR.E1 = E1; ok = true;
+end
+
+function report_pair_failure(PR, CTX, tee)
+% Print the bracket map that the failure was diagnosed from, and say what the
+% failure PATTERN implies. The distinction that matters is in
+% kv_bracket_finite: contiguous failures at one or both ends are the model
+% bounding its own domain, and the response is to move or widen the window;
+% failures interleaved with successes cannot be a domain boundary, because a
+% domain does not stop existing and start again, so they indict the solver.
+    if ~isstruct(PR) || ~isfield(PR,'failed') || isempty(PR.failed)
+        tee('  (no bracket map was captured)\n'); return;
+    end
+    E = PR.failed; B = E.bracket;
+    tee('\n  ---- bracket map at alpha = %.1f (mode %s, centre q = %.6f) ----\n', ...
+        PR.failed_at, PR.mode, PR.qc);
+    if isempty(B) || ~isstruct(B) || isempty(B.q)
+        tee('  (the bracket search returned nothing)\n'); return;
+    end
+    tee('   %3s  %12s  %14s  %s\n', 'i', 'q', 'F_k', 'code');
+    for i = 1:numel(B.q)
+        tee('   %3d  %12.6f  %14.6e  %s\n', i, B.q(i), B.F(i), B.code{i});
+    end
+    tee('  status %s, pattern %s, %d evaluations, %d window growths\n', ...
+        B.status, B.pattern, B.nev, B.grew);
+    tee('  admissible run [%.6f, %.6f]%s\n', B.qlo, B.qhi, ...
+        tern(B.qlo <= PR.qc && PR.qc <= B.qhi, ' (contains the centre)', ...
+             ' *** DOES NOT CONTAIN THE CENTRE ***'));
+    switch B.pattern
+      case 'SCATTERED'
+        tee(['\n  SCATTERED: failures interleaved with successes. A domain boundary\n' ...
+             '  cannot do this. Read it as a SOLVER defect, not a bracketing one --\n' ...
+             '  and check the grid first: with a widened ceiling and a coarse node\n' ...
+             '  count, S_k(q) steps so coarsely that the bond root lands inside a\n' ...
+             '  jump at scattered trial prices. Widening the q window will not help.\n']);
+      case {'TAIL_LOW','TAIL_HIGH','TAIL_BOTH'}
+        tee(['\n  %s: contiguous failures at the edge(s). This is consistent with the\n' ...
+             '  model bounding its own domain. Re-centre the window inside the\n' ...
+             '  admissible run, or accept that no equilibrium exists in it.\n'], B.pattern);
+      case 'ALL'
+        tee(['\n  ALL nodes failed. The centre is outside the feasible region entirely;\n' ...
+             '  the continuation seed, not the window width, is what is wrong.\n']);
+      otherwise
+        tee(['\n  Every node was admissible but the residual never changed sign, so\n' ...
+             '  there is no root in this window. Widen it or re-centre it.\n']);
+    end
+    gsl = kv_grid_state(CTX.p);
+    tee('\n  grid at failure: kmax %.1f (kfac %.4g), bmax %.2f (bfac %.4g), nk %d, nb %d\n', ...
+        gsl.kmax, gsl.kfac, gsl.bmax, gsl.bfac, gsl.nk, gsl.nb);
+    if gsl.double_widened
+        tee('  *** kfac/bfac is a perfect square: the grid looks DOUBLE-WIDENED.\n');
+    end
+end
+
+function s = tern(c,a,b)
+    if c, s = a; else, s = b; end
 end
 
 function N1 = floor_band(CTX, BASE, tee)

@@ -157,6 +157,15 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
         assert(isfield(fs,'phi_path') && numel(fs.phi_path) >= T, ...
             'fiscal.phi_path must be supplied with at least T entries');
         assert(isfield(fs,'kappa_mode'), 'fiscal.kappa_mode required (free|target)');
+        if isfield(fs,'consolidation_path') && ~isempty(fs.consolidation_path)
+            assert(numel(fs.consolidation_path) >= T, ...
+                'fiscal.consolidation_path must have at least T entries');
+        end
+        % 'target' no longer changes anything this solver DOES. It records
+        % that the caller is solving for the consolidation amplitude and wants
+        % kappa_inf reported against a target; the price path and the debt
+        % recursion are identical under both modes. See the terminal-pin
+        % comment below for why.
         deficit = true;                    % a supplied path IS the financing rule
     end
     assert(~deficit || strcmpi(regime, 'indexed'), ...
@@ -271,33 +280,50 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
             % rearranges to the explicit forward form below; phi==1
             % reproduces b_t = B0/phat_t exactly (the (1+r_t)/(1+rbar)
             % factor is phat_{t-1}/phat_t).
+            % THE TAX RULE, WRITTEN OUT:
+            %     tau_t = rbar*b_t + phi_t*g_t + xi_t,
+            % where phi_t is the contemporaneously financed share of green
+            % spending, (1 - phi_t) is the initially debt-financed share, and
+            % xi_t is a CONSOLIDATION SURCHARGE (zero in the legacy rule).
+            % The surcharge is the fiscal instrument that retires the debt a
+            % delayed phase-in accumulates; without it, "delayed taxation" and
+            % "permanently higher terminal debt" are the same treatment.
             if have_fs
                 phi_path = reshape(fs.phi_path(1:T), 1, T);
+                xi_path  = zeros(1, T);
+                if isfield(fs,'consolidation_path') && ~isempty(fs.consolidation_path)
+                    xi_path = reshape(fs.consolidation_path(1:T), 1, T);
+                end
             else
                 phi_path = 1 - rho_d.^(1:T);          % LEGACY, unchanged
+                xi_path  = zeros(1, T);               % LEGACY: no surcharge
             end
             b_path = zeros(1, T);
             bprev  = B0 / eq0.P;               % pre-announcement real debt
             for tt = 1:T
                 b_path(tt) = ((1 + r_path(tt)) * bprev ...
-                              + (1 - phi_path(tt)) * g_path(tt)) / (1 + rbar);
+                              + (1 - phi_path(tt)) * g_path(tt) ...
+                              - xi_path(tt)) / (1 + rbar);
                 bprev = b_path(tt);
             end
             vart_path = zeros(1, T);
-            tau_path  = rbar .* b_path + phi_path .* g_path;
+            tau_path  = rbar .* b_path + phi_path .* g_path + xi_path;
             kappa_path = b_path .* phat / B0;  % stationarized stock, /B0
-            % terminal pin. LEGACY ('free'): floats with the accumulated
-            % stock, by nominal neutrality -- same real terminal economy,
-            % price scaled by kappa. TARGETED: the experiment fixes
-            % kappa_inf, so the pin is imposed and the realized kappa_path
-            % is checked against it afterwards rather than defining it.
-            % A targeted case that cannot reach its target is a FAILURE, not
-            % an occasion to adopt the realized stock as the new target.
-            if have_fs && strcmpi(fs.kappa_mode, 'target')
-                phat(T) = fs.kappa_target * eq1.P;
-            else
-                phat(T) = kappa_path(T) * eq1.P;      % LEGACY, unchanged
-            end
+            % TERMINAL PIN: ALWAYS the legacy free form. kappa_inf is an
+            % OUTCOME of the tax path, never an input to the price path.
+            %
+            % The previous version set phat(T) = kappa_target*eq1.P whenever a
+            % target was supplied. That reaches the target by overriding the
+            % accounting rather than by financing it: the debt recursion is
+            % left intact but the terminal price is moved to whatever makes
+            % the ratio come out right, so the "matched terminal debt" case
+            % had no fiscal counterpart and the government budget was no
+            % longer an identity at T. A terminal debt target must be hit
+            % through the tax path. That is what the consolidation amplitude
+            % a_xi is for, and it is solved for OUTSIDE this function by
+            % kv_solve_consolidation, which calls this solver repeatedly with
+            % different xi_path scales and reads kappa_inf back off.
+            phat(T) = kappa_path(T) * eq1.P;
         else
             phi_path = ones(1, T); kappa_path = ones(1, T);
             b_path = B0 ./ phat;
@@ -408,7 +434,16 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
     TR.Kg_path = Kg;    TR.S_path = S_path;     TR.b_path = b_path;
     TR.g_path = g_path; TR.vart_path = vart_path; TR.financing = financing;
     TR.phi_path = best.phi_path;  TR.kappa_path = best.kappa_path;
-    TR.primary_gap = (1 - best.phi_path) .* best.g_path;
+    TR.xi_path = zeros(1, T);
+    if have_fs && isfield(fs,'consolidation_path') && ~isempty(fs.consolidation_path)
+        TR.xi_path = reshape(fs.consolidation_path(1:T), 1, T);
+    end
+    % The primary gap is now the DEBT-FINANCED share net of the surcharge, so
+    % that summing it reproduces the accumulated stock. Reporting
+    % (1-phi)*g alone would attribute the whole gap to timing even in a case
+    % whose entire purpose is that the surcharge closes it.
+    TR.primary_gap = (1 - best.phi_path) .* best.g_path - TR.xi_path;
+    TR.primary_gap_gross = (1 - best.phi_path) .* best.g_path;
     TR.kappa_inf = best.kappa_path(end);  TR.rho_d = rho_d;
     TR.fiscal = fs;
     TR.kappa_mode = 'free';

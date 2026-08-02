@@ -16,6 +16,12 @@ function [code, D] = kv_node_status(o, P, CTX, toptol)
 %   NEG_CONSUMPTION  a state carrying mass consumes <= 0
 %   POLICY_NONFINITE a policy array contains NaN or Inf
 %   BOND_NAN         P, or aggregate liquid demand, is non-finite or <= 0
+%   BOND_NOBRACKET   the price expansion ran out of steps with no sign change
+%   BOND_DOMAIN_EDGE the feasible price range is bounded by the model and
+%                    contains no bond-market root. Unlike BOND_NOBRACKET this
+%                    is a statement about the MODEL, so it should appear in
+%                    contiguous runs of q; scattered occurrences still indict
+%                    the solver (see KV_BRACKET_FINITE's fail_pattern)
 %   TREE_NAN         aggregate tree demand is non-finite
 %   DIST_LOOSE       the distribution settled to 1e-8 but not to 1e-11
 %   BOUNDARY_HIT     top-of-grid mass above toptol (admissible but truncated)

@@ -58,6 +58,15 @@ function [p, W] = kv_widen_grids(p, kfac, ref)
 %                   headroom (opt, default 1.02) slack on the implied xmax
 %
 % OUTPUT  p (widened) and W, a report struct suitable for printing.
+%
+% THIS FUNCTION IS AN OPERATION, NOT A TARGET STATE, AND SO IS NOT
+% IDEMPOTENT. Applying it twice gives kfac^2. That is not hypothetical: once
+% REGRID began saving the widened p, three drivers loaded it and applied the
+% verified factors again, giving kmax = 60*36 = 2160 and bmax = 12*64 = 768.
+% CALL KV_ENSURE_WIDENED INSTEAD unless you specifically want to compose a
+% widening onto whatever the grid already carries. The cumulative factor
+% relative to the calibration base is recorded in p.grid_state either way, so
+% the next reader is never left inferring it from a ceiling.
 
     if nargin < 2 || isempty(kfac), kfac = 1; end
     if nargin < 3, ref = struct(); end
@@ -85,6 +94,13 @@ function [p, W] = kv_widen_grids(p, kfac, ref)
         W.gk = gk; W.gb = gb; W.gx = gx;
         W.kprime_max = W.kprime_max0;
         W.n_below_kref0 = nbelow(p.kGrid, kref); W.n_below_kref = W.n_below_kref0;
+        base = kv_grid_base();
+        p.grid_state = struct('kfac', kmax0/base.kmax, 'bfac', bmax0/base.bmax, ...
+                              'kmax', kmax0, 'bmax', bmax0, 'xmax', xmax0, ...
+                              'base', base, 'stamped_by', 'kv_widen_grids:noop');
+        W.kfac_cumulative = p.grid_state.kfac;
+        W.bfac_cumulative = p.grid_state.bfac;
+        W.composed_onto_widened = false;
         return;
     end
 
@@ -125,6 +141,18 @@ function [p, W] = kv_widen_grids(p, kfac, ref)
     W.n_below_bref = nbelow(p.bGrid, bref);
     W.kref = kref; W.bref = bref;
     W.bind_portfolio = x_port >= x_coh;          % which bound set xmax
+
+    % Cumulative provenance, relative to the CALIBRATION base rather than to
+    % whatever this call happened to receive. W.kmax0 is the input ceiling and
+    % answers "what did this call do"; grid_state.kfac answers "where is this
+    % grid", which is the question a downstream driver actually has.
+    base = kv_grid_base();
+    p.grid_state = struct('kfac', kmax/base.kmax, 'bfac', bmax/base.bmax, ...
+                          'kmax', kmax, 'bmax', bmax, 'xmax', xmax, ...
+                          'base', base, 'stamped_by', 'kv_widen_grids');
+    W.kfac_cumulative = p.grid_state.kfac;
+    W.bfac_cumulative = p.grid_state.bfac;
+    W.composed_onto_widened = (kmax0 > base.kmax*(1+1e-8)) || (bmax0 > base.bmax*(1+1e-8));
 end
 
 % ---------------------------------------------------------------------

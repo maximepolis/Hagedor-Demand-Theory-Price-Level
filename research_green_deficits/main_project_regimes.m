@@ -142,7 +142,11 @@ end
 if ~isempty(RREG)
     fh9 = figure('Name','PFig9: Financing regimes','Color','w', ...
                  'Position',[80 80 1200 560]);
-    nm = {'lump-sum','levy','levy+rebate','mixed'};  % short ticks
+    % Regime tick labels, spelled out per the R11 safety patch. The internal
+    % regime NAMES are R1-LUMPSUM ... R4-MIXED-DEFICIT-LEVY, but 'R1 deficit'
+    % must never reach an axis: R1 is the lump-sum baseline and carries no
+    % deficit, so the internal name would misdescribe the bar it sits under.
+    nm = {'Lump-sum','Proportional levy','Levy plus rebate','Mixed'};
     subplot(1,2,1); hold on; box on;
     bh = bar([[RREG.nu_reval]; [RREG.nu_damage]]', 'stacked');
     set(bh(1),'FaceColor',[0.55 0.65 0.85]); set(bh(2),'FaceColor',[0.45 0.70 0.45]);
@@ -155,12 +159,10 @@ if ~isempty(RREG)
 %% nu is the NET HOUSEHOLD-BURDEN OFFSET. Labelling nu a 'self-financing
 %% share' asserts the fiscal reading of a household object, which is the
 %% misstatement the body text was rewritten to avoid.
-    ylabel('net household-burden offset \nu');
-    title('(a) net household-burden offset');
+    ylabel('Net household-burden offset \nu');
+    title('(a) Net household-burden offset');
     % legend BELOW the axes: never overlaps the stacked bars
-    legend({'fiscal self-financing \nu_{reval}', ...
-            'resource benefit-cost \nu_{dam}', ...
-            'net offset \nu'}, ...
+    legend({'Revaluation', 'Damage dividend', 'Total offset'}, ...
            'Location','southoutside', 'Orientation','horizontal');
     subplot(1,2,2); hold on; box on;
     bh2 = bar(100*[[RREG.lam_b50]; [RREG.lam_t10]]', 'grouped');
