@@ -70,7 +70,85 @@ benchmark grid. Gates marked "not yet run" require the refinement matrix below.
 
 ---
 
+## 1b. Two binding tracks, and why recalibration cannot substitute
+
+Certification has **two separate and independently binding tracks**. Passing
+one does not excuse the other, and neither may be described in the language of
+the other.
+
+### Track A — fixed-parameter discretization convergence
+
+Freeze **one** economic parameter vector `Θ̄` — the calibration in force, not
+re-fitted — and solve the *same economy* over the full joint grid matrix. This
+and only this measures **numerical approximation error**.
+
+Why it must come first: if the grid is refined and the parameters are
+simultaneously re-fitted to hit the same targets, a calibration movement can
+offset a discretization error and the pair can look stable while neither is.
+Recalibration has a free parameter for every target; discretization
+convergence must be measured with none.
+
+### Track B — recalibrated-grid robustness
+
+Recalibrate at each grid to the **same declared empirical targets**, then ask
+whether the economic results survive. This measures **calibration
+robustness** — a different and weaker property.
+
+**Prohibited language.** Track B stability may never be reported as numerical
+convergence, and a Track B pass does not satisfy Gate 11. If Track A fails and
+Track B passes, the correct statement is that the calibration absorbs the
+discretization error, which is a finding about the calibration's flexibility
+and not about the solution's accuracy.
+
+### Reported for every cell of both tracks
+
+`P`, `q`, each financing-regime price `P^{LS}`, `P^{LEV}`, the contrast
+`ΔP = P^{LEV} − P^{LS}`, the sign of each price relative to the no-program
+equilibrium `P^0`, welfare by group, both normalized market residuals, both
+boundary masses, the sup-norm policy-function difference against the finest
+grid, the sup-norm invariant-distribution difference against the finest grid,
+calibration target errors, and the untargeted moment vector.
+
+Track A additionally reports Gate 11 over its own matrix; Track B reports the
+same ratio, labelled **calibration-robustness spread**, never "convergence".
+
+---
+
+## 1c. Root-continuity protocol
+
+Applies at every cell of both tracks. A refinement that jumps between
+equilibrium branches produces a spurious Gate 11 failure — or, worse, a
+spurious pass — and neither is detectable from residuals alone.
+
+At each refinement:
+
+1. **Continuation start.** Initialize from the neighbouring coarser cell's
+   solution (both prices and the value function).
+2. **Dispersed cold starts.** Run at least two additional solves from cold
+   starts dispersed over the admissible domain: `q` at the 25th and 75th
+   percentile of the certified admissible interval, `P` seeded independently.
+3. **Record every distinct equilibrium found**, not only the retained one.
+   Two roots are distinct if they differ by more than `1e-6` relative in `q`
+   or `P` and both satisfy Gates 1–2.
+4. **Branch tracing.** The reported solution is the one reached by
+   continuation from the coarser cell. If a cold start finds a different root
+   that also passes Gates 1–2, the cell is flagged **MULTIPLE_ROOTS** and the
+   full set is reported.
+5. **Conditioning and local uniqueness.** Report the two-market Jacobian's
+   condition number and the smallest singular value at the retained root, and
+   the sign of the reduced tree residual on either side of it.
+6. **Selection prohibition.** A root is never selected because it preserves a
+   desired sign. If branches disagree on the sign of `ΔP`, the cell fails and
+   the disagreement is reported. This rule binds even when one branch is
+   obviously the economically sensible one; in that case the sensible branch
+   must be identified by a stated criterion fixed in advance, not chosen after
+   seeing the sign.
+
+---
+
 ## 2. The refinement matrix
+
+### Track A — fixed parameters `Θ̄` (the calibration in force, not re-fitted)
 
 Run as a **joint** 3×3, not two one-dimensional sweeps. One-at-a-time
 refinement cannot detect the interaction that the diagnostic runs already
@@ -90,6 +168,18 @@ welfare-by-group vector. Gate 11 is then computed over the nine cells.
 Curvature (gate 16) and boundary (gate 17) invariance run as separate 3-point
 and 2×2 sweeps at the baseline node count, so their effect is not confounded
 with resolution.
+
+### Track B — recalibrated at each grid to the same declared targets
+
+The identical 3×3, but with `main_twoasset_ownership_kv` re-run under
+`REGRID` at every cell so that `β` and `χ_b` are re-fitted to the declared
+targets on that grid. Reports the same quantities plus the target errors and
+the untargeted moments, and its Gate-11 ratio is labelled
+**calibration-robustness spread**.
+
+Track B is 9 calibration runs and is the expensive half. It runs only after
+Track A has been completed and reported, so that the two numbers can never be
+conflated in the record.
 
 ---
 

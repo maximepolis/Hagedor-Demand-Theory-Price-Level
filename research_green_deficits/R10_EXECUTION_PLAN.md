@@ -241,8 +241,25 @@ Everything from `main_twoasset_grid_certification` onward writes to
 | D7 | If gate 11 cannot be met after certification, publish with one-asset quantitative claims plus a documented two-asset numerical limitation? | Scope of the paper | Yes — that is a publishable paper; an uncertified sign is not |
 | D8 | Sign-map parameters: `(λ, ι_H, concentration)` as I proposed, or a different triple? | Yours to choose | As proposed; these are the three the straddling-zero result is said to depend on |
 | D9 | Should Experiment R or Experiment N be the *first* table the reader sees? | Editorial | R first (it answers the title question), N immediately adjacent |
+| D10 | **Track B wiring.** Recalibrating at each grid must call the paper's own calibration loop in `main_twoasset_ownership_kv`, not a second implementation. That loop is not currently callable as a function. Refactor it, or run Track B as nine separate `REGRID` invocations driven from a shell/script? | A second calibration implementation would make Track B a different calibration from the paper's — the exact confound the two-track split exists to prevent | Refactor the loop into a callable function; it is a contained change and it is needed anyway |
+| D11 | **2×2 wiring.** The existing one-asset deficit path solver embeds its own financing rule. The 2×2 needs `φ_t` and a terminal-dilution target passed *in*, so the four cases differ in exactly one object. Refactor it, or write a wrapper? | Writing a second path solver would reintroduce the two-implementations defect this round is about | Refactor to accept `(φ_t, κ_target)`; keep the current call signature as a thin default |
+| D12 | `ρ̄ = 0.90` for the delayed cases (the manuscript's deficit run), or the critical `ρ* ≈ 0.61`? | Determines what the 2×2 is centred on | `ρ̄ = 0.90`, so C4 reproduces the existing experiment exactly and the 2×2 explains a number already in the paper |
 
 ---
+
+## 8b. Round-10 amendments applied
+
+- Seven threshold-language edits committed (see the reply's §2).
+- Claim register: row 16 split into 16a–16d; the round-10 "robust ordering"
+  upgrade **withdrawn**; rows 17–19 retired without reuse of the numbers.
+- Acceptance protocol: two binding tracks (§1b) and the root-continuity
+  protocol (§1c) added; the refinement matrix split by track.
+- `DEFICIT_2X2_SPEC_R10.md` created with the formal C1–C4 statement, the
+  consolidation parameters (`T_c` and `H_c` as distinct symbols), and the
+  budget identities V1–V7 as gates.
+- No one-asset publication fallback is approved; `TWO_ASSET_FAILURE_FALLBACK_MEMO.md`
+  is required if the gate fails, comparing three architectural options, and no
+  fallback rewrite proceeds without approval.
 
 ## 8. What was verified for this document, and how
 
