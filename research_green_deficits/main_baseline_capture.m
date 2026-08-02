@@ -66,6 +66,8 @@ fid = fopen(lf, 'w'); assert(fid > 0, 'cannot write %s', lf);
 tee = @(varargin) tee2(fid, varargin{:});
 
 tee('PRE-REFACTOR BASELINE CAPTURE\n%s\n\n', repmat('=', 1, 60));
+addpath(fullfile(MAINPROJ, 'src_project'));      % for kv_code_version
+tee('%s\n', kv_code_version(mfilename('fullpath')));
 tee('baseline source %s\n', BASELINE_SRC);
 tee('output          %s\n', BASELINE_OUT);
 tee('MATLAB          %s on %s\n', version, computer);
@@ -82,7 +84,6 @@ if ~isfolder(BASELINE_SRC)
 end
 
 % ---- content verification, in place of the git check ---------------------
-addpath(fullfile(MAINPROJ, 'src_project'));      % for kv_verify_baseline
 VB = kv_verify_baseline(BASELINE_SRC, tee);
 if ~VB.ok
     tee(['\n*** REFUSING TO CAPTURE. The baseline directory does not match the\n' ...

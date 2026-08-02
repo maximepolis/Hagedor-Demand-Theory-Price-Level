@@ -1,0 +1,17 @@
+R11.3
+# One line, above, is the pipeline revision. Everything below is a comment.
+#
+# Bump this whenever a driver's INTERFACE or required inputs change, so that a
+# pasted console log identifies which revision produced it. This exists because
+# a stale main_baseline_capture.m -- one that still required a git worktree and
+# a BASELINE_OUT variable -- was run against a set of instructions written for
+# the rewritten one, and the only symptom was an assertion about a variable
+# that the current file does not mention. The revision is now printed by every
+# driver in the parity sequence, next to that file's own modification date.
+#
+# R11.3  baseline capture is git-free: baseline_bf0a4e8/ ships with the project
+#        and is verified by SHA-256 manifest. main_baseline_capture takes no
+#        required variables. Version banners added.
+# R11.2  three-way D10/D11 parity against bf0a4e8; C3 withdrawn as infeasible;
+#        consolidation surcharge; double-widening fix (kv_ensure_widened).
+# R11.1  figure terminology at source; mangled-macro check; p.29 repair.
