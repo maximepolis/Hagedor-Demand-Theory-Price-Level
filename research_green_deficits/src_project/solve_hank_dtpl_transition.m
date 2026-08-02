@@ -68,6 +68,15 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
 %         climate fields set; opts fields (all optional):
 %   .T (80 years) .tol (2e-3) .maxit (60) .xi (0.5) .regime ('nominal')
 %   .Gg_nom (default: pgc.Gg_nom) .verbose (true)
+%   .fiscal  (optional, round 10): a fiscal specification struct built by
+%     kv_fiscal_spec. Supplying it overrides the internal rho_d rule:
+%       .phi_path      1 x T share of the program covered by current tax
+%       .kappa_mode    'free' (legacy: terminal pin floats) | 'target'
+%       .kappa_target  required when kappa_mode == 'target'
+%       .kappa_tol     terminal-debt tolerance (default 1e-8)
+%       .experiment_id string, carried into the output for provenance
+%     With .fiscal absent every line below behaves exactly as before.
+%
 %   .financing ('lumpsum' default | 'rebate' | 'deficit'):
 %     'rebate' runs the R3 design of the regimes section along the path --
 %     a proportional levy at twice the program with half rebated lump-sum,
@@ -130,6 +139,26 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
     rebate  = strcmpi(financing, 'rebate');
     deficit = strcmpi(financing, 'deficit');
     rho_d   = getopt(opts, 'rho_d', 0.8);
+
+    % ---------------- FISCAL SPECIFICATION (round 10, decision D11) -------
+    % The core solver takes a fiscal path and a terminal condition as INPUTS.
+    % It does not know about C1-C4, and no experiment logic lives here: a
+    % separate builder (kv_fiscal_spec) constructs the specifications, so the
+    % four cases of the 2x2 differ in exactly one object and the solver cannot
+    % silently reinterpret one of them.
+    %
+    % LEGACY DEFAULT. With no opts.fiscal the solver reproduces the previous
+    % behaviour exactly: phi_t = 1 - rho_d^t under deficit financing, phi == 1
+    % otherwise, and a terminal pin that floats with the realized dilution.
+    % That path is unchanged line for line below.
+    fs = getopt(opts, 'fiscal', []);
+    have_fs = ~isempty(fs) && isstruct(fs);
+    if have_fs
+        assert(isfield(fs,'phi_path') && numel(fs.phi_path) >= T, ...
+            'fiscal.phi_path must be supplied with at least T entries');
+        assert(isfield(fs,'kappa_mode'), 'fiscal.kappa_mode required (free|target)');
+        deficit = true;                    % a supplied path IS the financing rule
+    end
     assert(~deficit || strcmpi(regime, 'indexed'), ...
         ['financing=''deficit'' requires regime=''indexed'': the experiment ' ...
          'holds the REAL program at the balanced benchmark so only the tax ' ...
@@ -242,7 +271,11 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
             % rearranges to the explicit forward form below; phi==1
             % reproduces b_t = B0/phat_t exactly (the (1+r_t)/(1+rbar)
             % factor is phat_{t-1}/phat_t).
-            phi_path = 1 - rho_d.^(1:T);
+            if have_fs
+                phi_path = reshape(fs.phi_path(1:T), 1, T);
+            else
+                phi_path = 1 - rho_d.^(1:T);          % LEGACY, unchanged
+            end
             b_path = zeros(1, T);
             bprev  = B0 / eq0.P;               % pre-announcement real debt
             for tt = 1:T
@@ -253,10 +286,18 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
             vart_path = zeros(1, T);
             tau_path  = rbar .* b_path + phi_path .* g_path;
             kappa_path = b_path .* phat / B0;  % stationarized stock, /B0
-            % terminal pin FLOATS with the accumulated stock (nominal
-            % neutrality: same real terminal economy, price scaled by
-            % kappa). Lagged one iteration; kappa is flat at the tail.
-            phat(T) = kappa_path(T) * eq1.P;
+            % terminal pin. LEGACY ('free'): floats with the accumulated
+            % stock, by nominal neutrality -- same real terminal economy,
+            % price scaled by kappa. TARGETED: the experiment fixes
+            % kappa_inf, so the pin is imposed and the realized kappa_path
+            % is checked against it afterwards rather than defining it.
+            % A targeted case that cannot reach its target is a FAILURE, not
+            % an occasion to adopt the realized stock as the new target.
+            if have_fs && strcmpi(fs.kappa_mode, 'target')
+                phat(T) = fs.kappa_target * eq1.P;
+            else
+                phat(T) = kappa_path(T) * eq1.P;      % LEGACY, unchanged
+            end
         else
             phi_path = ones(1, T); kappa_path = ones(1, T);
             b_path = B0 ./ phat;
@@ -369,6 +410,18 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
     TR.phi_path = best.phi_path;  TR.kappa_path = best.kappa_path;
     TR.primary_gap = (1 - best.phi_path) .* best.g_path;
     TR.kappa_inf = best.kappa_path(end);  TR.rho_d = rho_d;
+    TR.fiscal = fs;
+    TR.kappa_mode = 'free';
+    TR.kappa_target = NaN;  TR.kappa_gap = NaN;  TR.kappa_hit = true;
+    if have_fs
+        TR.kappa_mode = lower(fs.kappa_mode);
+        if strcmpi(fs.kappa_mode, 'target')
+            TR.kappa_target = fs.kappa_target;
+            TR.kappa_gap = abs(TR.kappa_inf/fs.kappa_target - 1);
+            tolk = 1e-8; if isfield(fs,'kappa_tol'), tolk = fs.kappa_tol; end
+            TR.kappa_hit = TR.kappa_gap < tolk;
+        end
+    end
     TR.resid  = resid;  TR.iters = it;  TR.best_iter = best.it;
     % split diagnostics: fixed-point convergence (free unknowns) vs horizon
     % adequacy (pinned terminal date). A reportable result needs BOTH small.

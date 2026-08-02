@@ -18,15 +18,22 @@
 %   C4  delayed tax, no consolidation, kappa_inf = kbar    the current experiment
 %
 % ESTIMANDS
-%   timing                  = C2 - C1
-%   ratchet                 = C3 - C1
-%   interaction             = C4 - C2 - C3 + C1
-%   timing | ratchet        = C4 - C3
+%   timing at baseline debt       = C2 - C1
+%   ratchet under contemporaneous = C3 - C1
+%   timing conditional on ratchet = C4 - C3
+%   ratchet conditional on delay  = C4 - C2
+%   interaction                   = C4 - C3 - C2 + C1
 %
-% ORDERING. C4 runs before C3 because kbar is READ from C4's endogenous
-% kappa_inf and then imposed on C3. Choosing kbar independently would leave
-% C3 - C1 measuring a different ratchet from the one C4 contains, and the 2x2
-% would not be balanced.
+% KAPPA IS FROZEN BEFORE THE FACTORIAL RUNS. kappa_bar is measured ONCE, in a
+% preliminary step that is NOT one of the four cases (kv_kappa_legacy), from
+% the legacy rho = 0.90 run, and then imposed identically on C3 and C4. A
+% factorial design requires the ratchet treatment to be assigned independently
+% of the timing treatment: if C4 defined kappa_bar from its own realized
+% terminal stock, the ratchet would be endogenous to timing and would move
+% across grids and initial conditions, so C4 - C3 and the interaction would
+% not be contrasts of a common treatment. A case that cannot reach the frozen
+% target is marked INFEASIBLE and does NOT adopt its realized stock as the
+% target.
 %
 % CONSOLIDATION PARAMETERS ARE FIXED IN THE SPEC, NOT HERE, and T_c (start
 % date) and H_c (half-life) are separate symbols with separate values even
@@ -81,72 +88,71 @@ tee('terminal-debt tolerance eps_kappa = %.0e\n\n', EPS_KAPPA);
 tee('These parameters were fixed in DEFICIT_2X2_SPEC_R10.md before this run.\n\n');
 
 % =====================================================================
-% Case definitions. Each returns a tax-share path phi_t and a terminal
-% dilution target; the solver reads them and nothing else differs.
+% STEP 0 (NOT a factorial case): freeze the ratchet size.
+%
+% kappa_bar is measured ONCE from the legacy rho = 0.90 run and then imposed
+% identically on C3 and C4. In a 2x2 factorial the ratchet treatment must be
+% assigned independently of the timing treatment; if C4 defined kappa_bar from
+% its own realized terminal stock, the ratchet would be endogenous to timing
+% and would move across grids and initial conditions, so C4 - C3 and the
+% interaction would not be contrasts of a common treatment.
+%
+% A case that cannot reach the frozen target is marked INFEASIBLE. It does not
+% adopt its realized terminal stock as the target.
 % =====================================================================
 T = 80; if FAST, T = 60; end
-tvec = (1:T)';
+pgc = setup_params_green();
 
-CASES = struct('tag',{},'name',{},'phi',{},'kappa_target',{},'issue1',{});
-
-CASES(1) = struct('tag','C1','name','contemporaneous, kappa=1', ...
-                  'phi', ones(T,1), 'kappa_target', 1, 'issue1', 0);
-
-CASES(2) = struct('tag','C2','name','delayed + consolidation, kappa=1', ...
-                  'phi', [], 'kappa_target', 1, 'issue1', 0);   % phi solved below
-
-CASES(3) = struct('tag','C3','name','contemporaneous + ratchet', ...
-                  'phi', ones(T,1), 'kappa_target', NaN, 'issue1', NaN); % kbar from C4
-
-CASES(4) = struct('tag','C4','name','delayed, no consolidation (current experiment)', ...
-                  'phi', 1 - RHOBAR.^tvec, 'kappa_target', NaN, 'issue1', 0);
+tee('STEP 0  freezing the ratchet size from the legacy run\n');
+KB = kv_kappa_legacy(pgc, T, RHOBAR, false);
+tee('  kappa_bar = B_inf^legacy / B_inf^baseline = %.10f / %.10f = %.10f\n', ...
+    KB.B_inf_legacy, KB.B_inf_baseline, KB.kappa_bar);
+tee('  FROZEN before C1-C4 are solved; no case may redefine it.\n\n');
+kappa_bar = KB.kappa_bar;
 
 % =====================================================================
-% NOT YET IMPLEMENTED BELOW THIS LINE.
-%
-% The path solver this driver must call is the one-asset deficit transition
-% already in the project. Wiring it is decision D11: the existing driver
-% embeds its own financing rule, and this experiment needs the rule passed IN
-% as phi_t plus a terminal-dilution target, so the four cases differ in
-% exactly one object and nothing else.
-%
-% Writing a second path solver here instead would reintroduce the defect this
-% whole round is about -- two implementations of the same object that can
-% silently diverge -- so it is not done unilaterally.
-%
-% What the wired version must do, in order:
-%   1. solve C1; verify V1, V4, V5
-%   2. solve C4 at rho_bar; READ kappa_inf^{C4}; set kbar := kappa_inf^{C4}
-%   3. solve C3 with the one-off issuance sized to deliver kbar
-%   4. solve C2: bisect s_0 on the consolidation surcharge
-%          s_t = s_0 * (2^(-1/H_c))^(t - T_c),  t >= T_c
-%      until |kappa_inf^{C2} - 1| < EPS_KAPPA
-%   5. gates V1-V7 across all four
-%   6. estimands, only if the gates pass
-%   7. the within-case decomposition of the impact response
+% The four fiscal specifications, built OUTSIDE the solver.
 % =====================================================================
-
-tee('*** NOT YET WIRED. See decision D11 in R10_EXECUTION_PLAN.md.\n');
-tee('*** The case definitions, the consolidation rule, the ordering and the\n');
-tee('*** budget gates are fixed above and in DEFICIT_2X2_SPEC_R10.md. What is\n');
-tee('*** missing is the call into the existing one-asset deficit path solver,\n');
-tee('*** which must accept phi_t and a terminal-dilution target as arguments\n');
-tee('*** rather than embedding its own financing rule.\n\n');
-
-tee('Case definitions as fixed:\n');
-for i = 1:numel(CASES)
-    c = CASES(i);
-    if isempty(c.phi), ph = '(solved: phase-in + consolidation)';
-    else, ph = sprintf('phi_1=%.4f phi_%d=%.4f', c.phi(1), T, c.phi(end));
-    end
-    if isnan(c.kappa_target), kt = 'kbar (read from C4)';
-    else, kt = sprintf('%.6f', c.kappa_target);
-    end
-    tee('  %-3s %-44s %-42s kappa_inf -> %s\n', c.tag, c.name, ph, kt);
+sopts = struct('T', T, 'rho_bar', RHOBAR, 'kappa_bar', kappa_bar, ...
+               'consolidation_start', TC, 'consolidation_half_life', HC, ...
+               'kappa_tol', EPS_KAPPA);
+SPEC = struct();
+for c = {'C1','C2','C3','C4'}
+    SPEC.(c{1}) = kv_fiscal_spec(c{1}, sopts);
 end
 
+tee('CASE SPECIFICATIONS (all built by kv_fiscal_spec; solver sees only these)\n');
+for c = {'C1','C2','C3','C4'}
+    f = SPEC.(c{1});
+    tee('  %-3s timing=%-16s debt=%-10s kappa_mode=%-6s kappa_target=%.10f\n', ...
+        f.caseid, f.timing, f.debt_target, f.kappa_mode, f.kappa_target);
+end
+tee('\n  kappa^C1 = kappa^C2 = 1;  kappa^C3 = kappa^C4 = kappa_bar = %.10f\n\n', kappa_bar);
+
+% =====================================================================
+% NOT YET AUTHORIZED TO RUN. The remaining steps, in order:
+%
+%   1. solve C1, C3, C4 with their frozen targets
+%   2. solve C2 by bisecting s_0 on the consolidation surcharge until
+%      |kappa_inf^{C2} - 1| < EPS_KAPPA
+%   3. verify TR.kappa_hit for every case; an unmet target is INFEASIBLE
+%   4. budget identities V1-V7 (DEFICIT_2X2_SPEC_R10.md)
+%   5. estimands, only if 3 and 4 pass:
+%        timing at baseline debt     = C2 - C1
+%        ratchet under contemporaneous = C3 - C1
+%        timing conditional on ratchet = C4 - C3
+%        ratchet conditional on delay  = C4 - C2
+%        interaction                   = C4 - C3 - C2 + C1
+%   6. the within-case decomposition of the impact response
+%
+% Steps 1-2 require the D11 parity test to have PASSED. That test has not
+% been run in this environment and no parity is claimed.
+% =====================================================================
+tee('*** SPECIFICATIONS BUILT AND FROZEN. Solving is not yet authorized:\n');
+tee('*** main_parity_d11_deficit must run and pass first.\n\n');
+
 save(fullfile(projdir,'output','deficit_2x2.mat'), ...
-     'CASES','T','TC','HC','RHOBAR','EPS_KAPPA','TOL_V4','TOL_V5');
+     'SPEC','KB','kappa_bar','T','TC','HC','RHOBAR','EPS_KAPPA','TOL_V4','TOL_V5');
 tee('\n[main_deficit_2x2] wrote %s (%.1f s)\n', sf, toc(t0));
 fclose(fid);
 
