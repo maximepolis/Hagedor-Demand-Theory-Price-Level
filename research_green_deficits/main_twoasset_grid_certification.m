@@ -129,7 +129,10 @@ for ib = 1:nB
             % targets. Deliberately not implemented inline: it must call the
             % same calibration routine the paper uses, or it is a different
             % calibration. See the decision list in R10_EXECUTION_PLAN.
-            [p, tgt] = recalibrate_on_grid(p, projdir, nb, nk, tee);
+            ctxo = struct('r_b',r_b,'d_base',d_base,'D0',D0,'Bnom',Bnom, ...
+                          'Kbar',Kbar,'iota',iota,'b_targ_H',0.30, ...
+                          'q_ref',eq0.q,'W_targ',[]);
+            [p, tgt] = recalibrate_on_grid(p, ctxo, nb, nk, tee);
             if ~tgt.ok
                 tee('    recalibration unavailable: %s\n', tgt.msg);
                 tee('    Track B cannot run until this is wired. Cell skipped.\n\n');
@@ -166,7 +169,8 @@ function C = solve_cell(CTX, eq0, prev, tee)
 % One cell: three solves (continued + two dispersed cold), per-equilibrium
 % gates on the retained one, and the root-continuity record.
     C = struct('ok', false, 'msg', '', 'roots', [], 'multiple', false, ...
-               'signdisagree', false);
+               'signdisagree', false, 'state', 'NO_CONVERGENCE', ...
+               'branch_id', NaN, 'cold_distance', []);
 
     % --- starts ---------------------------------------------------------
     qc = eq0.q; Pc = eq0.P;
@@ -199,8 +203,29 @@ function C = solve_cell(CTX, eq0, prev, tee)
         if s == 1, E0 = a0; E1 = a1; end
     end
     C.roots = R;
+    % distance of each cold-start root from the continuation root, and a
+    % branch identifier propagated across neighbouring cells, so a refinement
+    % that hops branches is visible as a change of identifier rather than as
+    % an unexplained Gate-11 movement.
+    C.cold_distance = struct('name',{},'dq',{},'dP',{});
+    ref0 = R(find([R.ok] & [R.alpha]==0, 1, 'first'));
+    if ~isempty(ref0)
+        for rr = R([R.ok] & [R.alpha]==0)
+            if strcmp(rr.name,'continued'), continue; end
+            C.cold_distance(end+1) = struct('name', rr.name, ...
+                'dq', abs(rr.q/ref0.q - 1), 'dP', abs(rr.P/ref0.P - 1)); %#ok<AGROW>
+        end
+    end
+    C.branch_id = NaN;
+    if ~isempty(prev) && isfield(prev,'branch_id') && ~isempty(ref0)
+        moved = abs(ref0.q/prev.q0 - 1) > 5e-2;   % a branch hop, not a refinement
+        if moved, C.branch_id = prev.branch_id + 1; else, C.branch_id = prev.branch_id; end
+    else
+        C.branch_id = 1;
+    end
     if isempty(E0) || isempty(E1) || ~E0.ok || ~E1.ok
         C.msg = 'the continued solve did not deliver both financing equilibria';
+        C.state = 'NO_CONVERGENCE';
         tee('    CELL FAILED: %s\n', C.msg); return;
     end
 
@@ -229,6 +254,21 @@ function C = solve_cell(CTX, eq0, prev, tee)
     print_gates(tee, 'alpha=0', g0);
     print_gates(tee, 'alpha=1', g1);
 
+    % Result classification, five states, never collapsed to pass/fail:
+    %   NO_CONVERGENCE | ONE_CERTIFIED_ROOT | MULTI_SAME_SIGN
+    %   MULTI_CONFLICTING_SIGN | CONVERGED_INADMISSIBLE
+    if C.signdisagree
+        C.state = 'MULTI_CONFLICTING_SIGN';
+    elseif C.multiple
+        C.state = 'MULTI_SAME_SIGN';
+    elseif ~(g0.pass && g1.pass)
+        C.state = 'CONVERGED_INADMISSIBLE';
+    else
+        C.state = 'ONE_CERTIFIED_ROOT';
+    end
+    % ONE_CERTIFIED_ROOT is a statement about the SEARCH, not about the
+    % economy: it means no other root was found by the starts tried, which is
+    % not the same as uniqueness and is never reported as such.
     C.ok  = g0.pass && g1.pass && ~C.signdisagree;
     C.E0  = E0; C.E1 = E1; C.g0 = g0; C.g1 = g1;
     C.V0  = E0.sol.V;
@@ -244,9 +284,12 @@ function [G, tab] = contrast_gates(CELL, TRACK, tee)
 % Gate 11 (and 12's price leg) over the whole matrix.
     G = struct('ran', false, 'ratio', NaN, 'pass', false, 'n', 0);
     v = []; lab = {};
+    nfail = 0;
     for i = 1:numel(CELL)
         c = CELL{i};
-        if isempty(c) || ~isstruct(c) || ~isfield(c,'ok') || ~c.ok, continue; end
+        if isempty(c) || ~isstruct(c) || ~isfield(c,'ok') || ~c.ok
+            nfail = nfail + 1; continue;     % counted, never dropped silently
+        end
         v(end+1) = c.dP; %#ok<AGROW>
         lab{end+1} = sprintf('nb%d,nk%d', c.nb, c.nk); %#ok<AGROW>
     end
@@ -264,7 +307,14 @@ function [G, tab] = contrast_gates(CELL, TRACK, tee)
     G.preferred = G.ratio < 0.05;
     nm = ternstr(TRACK=='A', 'GATE 11 grid uncertainty in dP / |dP|', ...
                              'calibration-robustness spread in dP / |dP|');
-    tee('  cells certified            : %d of %d\n', G.n, numel(CELL));
+    tee('  cells certified            : %d of %d (%d failed, all retained in CELL)\n', ...
+        G.n, numel(CELL), nfail);
+    tee('  cell states                : ');
+    for i = 1:numel(CELL)
+        c = CELL{i};
+        if isstruct(c) && isfield(c,'state'), tee('%s ', c.state); end
+    end
+    tee('\n');
     tee('  dP across cells            : [%+0.6f, %+0.6f], median %+0.6f\n', ...
         min(v), max(v), med);
     tee('  %-26s : %.4f  (required <0.10, preferred <0.05)  %s\n', ...
@@ -279,14 +329,35 @@ function [G, tab] = contrast_gates(CELL, TRACK, tee)
     end
 end
 
-function [p, tgt] = recalibrate_on_grid(p, projdir, nb, nk, tee) %#ok<INUSD>
-% Track B hook. Deliberately NOT an inline re-implementation of the
-% calibration: re-fitting beta and chi_b with a second piece of code would
-% make Track B a different calibration from the paper's, which is exactly the
-% confound the two-track split exists to prevent. Wiring this to
-% main_twoasset_ownership_kv's own calibration loop is decision D10.
-    tgt = struct('ok', false, 'msg', ...
-        'Track B not wired: must call the paper''s own calibration routine (decision D10)');
+function [p, tgt] = recalibrate_on_grid(p, ctxo, nb, nk, tee)
+% TRACK B. Re-fits beta (and chi_b under a 2D target) on THIS grid by calling
+% kv_calibrate_on_grid, which is a typed interface around the SAME
+% calib_beta / calib_beta_chi that the production script uses. There is no
+% second calibration implementation anywhere in this project, and there must
+% not be: two implementations of one object drift, and the drift is silent
+% because both of them "work".
+%
+% Requires main_parity_d10_calibration to have PASSED. That test compares the
+% legacy call against this one on the production grid; until it has run, this
+% path is unverified and Track B must not be reported.
+    tgt = struct('ok', false, 'msg', '');
+    C = kv_calibrate_on_grid( ...
+          struct('p_base', p, 'nb', nb, 'nk', nk), ...
+          struct('r_b', ctxo.r_b, 'd_base', ctxo.d_base, 'D0', ctxo.D0, ...
+                 'Bnom', ctxo.Bnom, 'Kbar', ctxo.Kbar, 'iota_H', ctxo.iota, ...
+                 'b_targ_H', ctxo.b_targ_H, 'q_ref', ctxo.q_ref, ...
+                 'W_targ', ctxo.W_targ, ...
+                 'tag', sprintf('trackB_nb%d_nk%d', nb, nk)));
+    if ~C.ok
+        tgt.msg = C.msg; return;
+    end
+    p = C.p;
+    tgt = struct('ok', true, 'msg', '', 'theta', C.theta, ...
+                 'target_err', C.target_err, 'untargeted', C.untargeted, ...
+                 'diag', C.diag, 'provenance', C.provenance);
+    tee('    recalibrated: beta=%.8f', C.theta(1));
+    if numel(C.theta) > 1, tee(' chi_b=%.8f', C.theta(2)); end
+    tee('  S_b err %+0.3e\n', C.target_err.Sb_direct);
 end
 
 function print_gates(tee, tag, G)
