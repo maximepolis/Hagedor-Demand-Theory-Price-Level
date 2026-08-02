@@ -149,10 +149,18 @@ if ~isempty(RREG)
     yline(1, 'k--', 'LineWidth',1.2, 'HandleVisibility','off');
     plot(1:numel(RREG), [RREG.nu], 'ko', 'MarkerFaceColor','k', 'MarkerSize',7);
     set(gca,'XTick',1:numel(RREG),'XTickLabel',nm,'XTickLabelRotation',20);
-    ylabel('self-financing share \nu');
-    title('(a) self-financing');
+%% TERMINOLOGY (round 10). The paper's own accounting distinguishes three
+%% objects and the figures must not collapse them: nu_reval is FISCAL
+%% SELF-FINANCING, nu_dam is the RESOURCE BENEFIT-COST RATIO, and their sum
+%% nu is the NET HOUSEHOLD-BURDEN OFFSET. Labelling nu a 'self-financing
+%% share' asserts the fiscal reading of a household object, which is the
+%% misstatement the body text was rewritten to avoid.
+    ylabel('net household-burden offset \nu');
+    title('(a) net household-burden offset');
     % legend BELOW the axes: never overlaps the stacked bars
-    legend({'revaluation','damage dividend','total \nu'}, ...
+    legend({'fiscal self-financing \nu_{reval}', ...
+            'resource benefit-cost \nu_{dam}', ...
+            'net offset \nu'}, ...
            'Location','southoutside', 'Orientation','horizontal');
     subplot(1,2,2); hold on; box on;
     bh2 = bar(100*[[RREG.lam_b50]; [RREG.lam_t10]]', 'grouped');

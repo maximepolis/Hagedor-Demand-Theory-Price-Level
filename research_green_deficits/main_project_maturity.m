@@ -143,7 +143,13 @@ set(bh(1),'FaceColor',[0.55 0.65 0.85]); set(bh(2),'FaceColor',[0.45 0.70 0.45])
 plot(qgs, nu_q, 'ko-', 'MarkerFaceColor','k', 'LineWidth',1.5);
 plot([min(qgs)-0.05, max(qgs)+0.05], [1 1], 'k--');
 xlabel('implementation efficiency  q_g');
-ylabel('self-financing share \nu');
+%% TERMINOLOGY (round 10). The paper's own accounting distinguishes three
+%% objects and the figures must not collapse them: nu_reval is FISCAL
+%% SELF-FINANCING, nu_dam is the RESOURCE BENEFIT-COST RATIO, and their sum
+%% nu is the NET HOUSEHOLD-BURDEN OFFSET. Labelling nu a 'self-financing
+%% share' asserts the fiscal reading of a household object, which is the
+%% misstatement the body text was rewritten to avoid.
+ylabel('net household-burden offset \nu');
 title('Damage dividend under implementation frictions (medium damages)');
 legend({'revaluation','damage dividend','total \nu','full financing'}, ...
        'Location','best');

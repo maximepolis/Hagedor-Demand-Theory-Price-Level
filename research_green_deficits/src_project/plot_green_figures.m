@@ -101,7 +101,13 @@ function plot_green_figures(RESP, pg)
     yline(1, 'k--', 'LineWidth',1.2, 'HandleVisibility','off');
     yline(0, 'k-',  'LineWidth',0.8, 'HandleVisibility','off');
     xlabel('abatement effectiveness  \theta_g');
-    ylabel('self-financing share  \nu');
+%% TERMINOLOGY (round 10). The paper's own accounting distinguishes three
+%% objects and the figures must not collapse them: nu_reval is FISCAL
+%% SELF-FINANCING, nu_dam is the RESOURCE BENEFIT-COST RATIO, and their sum
+%% nu is the NET HOUSEHOLD-BURDEN OFFSET. Labelling nu a 'self-financing
+%% share' asserts the fiscal reading of a household object, which is the
+%% misstatement the body text was rewritten to avoid.
+    ylabel('net household-burden offset  \nu');
     title('(b) \nu(\theta_g), full financing at the dashed line');
     legend({'total \nu','revaluation','damage dividend'}, ...
            'Location','northwest');
