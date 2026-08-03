@@ -46,9 +46,12 @@ function s = kv_code_version(callerpath)
     if ~isempty(callerpath)
         cdir = fileparts(callerpath);
         if ~strcmpi(norm_(cdir), norm_(proj)) && ~strcmpi(norm_(cdir), norm_(here))
-            sib = sprintf('  [!! CODE_VERSION.txt read from %s, NOT from the ' ...
-                          'directory of the running driver -- you have more ' ...
-                          'than one copy of the project]', proj);
+            % The BRACKETS are load-bearing. MATLAB does not concatenate
+            % adjacent string literals: 'a' 'b' is a syntax error, not 'ab'.
+            % A multi-line message inside a call must be wrapped in [ ].
+            sib = sprintf(['  [!! CODE_VERSION.txt read from %s, NOT from the ' ...
+                           'directory of the running driver -- you have more ' ...
+                           'than one copy of the project]'], proj);
         end
     end
 

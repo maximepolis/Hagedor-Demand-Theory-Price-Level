@@ -161,8 +161,114 @@ def scan(path):
     return depth, events, errors
 
 
+# ----------------------------------------------------------------------
+# ADJACENT STRING LITERALS.
+#
+# MATLAB does NOT concatenate juxtaposed string literals: 'a' 'b' is a syntax
+# error, not 'ab'. C and Python both do concatenate, so the habit is easy to
+# carry in, and a multi-line message written as
+#
+#     error('first part ' ...
+#           'second part', x)
+#
+# fails only when that line is finally executed -- which, in a long solver
+# run, can be twenty minutes in. It has now happened three times in this
+# project. Inside [ ] or { } the adjacency IS valid (concatenation and cell
+# construction), so the rule fires only at bracket depth zero.
+def check_adjacent_strings(path):
+    with open(path, encoding="utf-8", errors="replace") as fh:
+        raw = fh.read().split("\n")
+
+    # Join continuations into logical lines, remembering the first line number.
+    logical, buf, start, in_bc = [], "", None, False
+    for ln, line in enumerate(raw, 1):
+        code, in_bc = strip_line_keep_strings(line, in_bc)
+        if start is None:
+            start = ln
+        stripped = code.rstrip()
+        if stripped.endswith("..."):
+            buf += stripped[:-3] + " "
+            continue
+        buf += stripped
+        logical.append((start, buf))
+        buf, start = "", None
+    if buf:
+        logical.append((start or len(raw), buf))
+
+    errs = []
+    for ln, text in logical:
+        depth = 0
+        i, n = 0, len(text)
+        prev_string_end = None
+        while i < n:
+            c = text[i]
+            if c in "[{":
+                depth += 1; i += 1; prev_string_end = None; continue
+            if c in "]}":
+                depth -= 1; i += 1; prev_string_end = None; continue
+            if c == "'":
+                pc = text[i - 1] if i > 0 else ""
+                if pc and (pc.isalnum() or pc in ")]}._"):
+                    i += 1; continue                      # transpose
+                j = i + 1
+                while j < n:
+                    if text[j] == "'":
+                        if j + 1 < n and text[j + 1] == "'":
+                            j += 2; continue
+                        break
+                    j += 1
+                if depth == 0 and prev_string_end is not None:
+                    between = text[prev_string_end:i]
+                    if between.strip() == "":
+                        errs.append(
+                            "line %d: adjacent string literals at depth 0 -- "
+                            "MATLAB does not concatenate them; wrap in [ ]" % ln)
+                prev_string_end = j + 1
+                i = j + 1
+                continue
+            if not c.isspace():
+                prev_string_end = None
+            i += 1
+    return errs
+
+
+def strip_line_keep_strings(line, in_block_comment):
+    """Like strip_line, but KEEPS string literals (blanking them would erase
+    exactly what this check is looking for). Comments and continuations are
+    still handled."""
+    s = line.strip()
+    if in_block_comment:
+        if re.match(r"^%\}\s*$", s) or re.match(r"^#\}\s*$", s):
+            return "", False
+        return "", True
+    if re.match(r"^%\{\s*$", s) or re.match(r"^#\{\s*$", s):
+        return "", True
+    out, i, n = [], 0, len(line)
+    while i < n:
+        c = line[i]
+        if c in "%#":
+            break
+        if c == "'":
+            pc = line[i - 1] if i > 0 else ""
+            if pc and (pc.isalnum() or pc in ")]}._"):
+                out.append(c); i += 1; continue
+            j = i + 1
+            while j < n:
+                if line[j] == "'":
+                    if j + 1 < n and line[j + 1] == "'":
+                        j += 2; continue
+                    break
+                j += 1
+            out.append(line[i:min(j + 1, n)])
+            i = j + 1
+            continue
+        out.append(c); i += 1
+    return "".join(out), False
+
+
 def check(path):
     depth, events, errors = scan(path)
+    errors = errors + check_adjacent_strings(path)
     if depth > 0:
         opens = [e for e in events if e[1] == "open"]
         tail = ", ".join("%s@%d" % (e[2], e[0]) for e in opens[-3:])
@@ -189,6 +295,20 @@ SELFTEST = [
      "function f()\nx = strcat(a, 'z');\nif true, disp(x); end\nend\n", True),
     ("transpose then string",
      "function f()\ny = [A' 'lit'];\ndisp(y);\nend\n", True),
+    ("adjacent strings in a call",
+     "function f()\nerror('a ' ...\n  'b', 1);\nend\n", False),
+    ("adjacent strings, same line",
+     "function f()\nerror('a ' 'b');\nend\n", False),
+    ("bracketed concatenation is fine",
+     "function f()\nerror(['a ' ...\n  'b'], 1);\nend\n", True),
+    ("cell of strings is fine",
+     "function f()\nx = {'a' 'b'};\ndisp(x);\nend\n", True),
+    ("bracket concat same line",
+     "function f()\ns = ['a' 'b'];\ndisp(s);\nend\n", True),
+    ("transpose then string is fine",
+     "function f(A)\ny = [A' 'lit'];\ndisp(y);\nend\n", True),
+    ("two args are fine",
+     "function f()\nfprintf('%s', 'b');\nend\n", True),
     ("MISSING end", "function f()\nif true\ndisp(1);\nend\n", False),
     ("EXTRA end", "function f()\ndisp(1);\nend\nend\n", False),
     ("unclosed for", "function f()\nfor i=1:3\ndisp(i);\nend\n", False),
