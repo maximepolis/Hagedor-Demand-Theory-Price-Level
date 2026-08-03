@@ -174,7 +174,7 @@ tee('\nLEG 2: current script entry point (main_twoasset_ownership_kv) ...\n');
 % this workspace. Inline, it would have wiped pg (needed at pg.Bnom below),
 % the timer t2, and the stash path itself.
 t2 = tic;
-run_ownership_isolated(FAST, false);               % current script, extracted fns
+[WS2, ~, ~] = run_ownership_isolated(FAST, false); % current script, extracted fns
 t_script = toc(t2);
 % fid and tee survive now, so the log file is NOT reopened: doing so would
 % leave a second handle on an already-open file.
@@ -185,15 +185,52 @@ tee('  done (%.1f s)\n', t_script);
 % LEG 3: the CALLABLE interface, with identical inputs.
 % =====================================================================
 tee('\nLEG 3: kv_calibrate_on_grid with identical inputs ...\n');
-p = SCRIPT.p; iota = SCRIPT.iota_H; r_b = SCRIPT.r_b; d_base = SCRIPT.d_base;
+
+% THE INPUTS MUST BE THE ONES THE SCRIPT ACTUALLY USED, NOT ITS OUTPUTS.
+%
+% This block previously passed p_base = SCRIPT.p and q_ref = SCRIPT.eq_q --
+% the SOLVED parameters and the SOLVED tree price. The script's calibration
+% instead starts from p.beta = RCAL.beta_star (read from
+% calibrated_results.mat) and from its own q_ref, and only afterwards
+% overwrites p.beta with the answer. So the callable was being started AT the
+% solution while the script started away from it.
+%
+% The two pre-scan ladders in the log show it exactly: both are
+% beta0 * [0.95 0.97 0.985 1.00], with beta0 = 0.92670 for the script and
+% beta0 = 0.87404 -- the script's own ANSWER -- for the callable. Same code,
+% different starting point, hence a different path through a step-valued tree
+% market and a 4.8% difference in q. That is not a wrapper defect; it is this
+% driver handing the two legs different problems.
+%
+% The initial values are recovered from the script's own workspace (WS2)
+% rather than reconstructed here, so there is no second implementation of the
+% script's input logic to drift out of step.
+iota = SCRIPT.iota_H; r_b = SCRIPT.r_b; d_base = SCRIPT.d_base;
 D0 = SCRIPT.D0; Bnom = pg.Bnom; Kbar = 1.0; b_targ_H = SCRIPT.b_targ_H;
-q_ref = SCRIPT.eq_q;
+
+q_ref  = getws(WS2, 'q_ref', NaN);
+chi_ref = getws(WS2, 'chi_ref', NaN);
+beta0  = script_initial_beta(WS2);
+assert(isfinite(q_ref), ...
+    ['could not recover q_ref from the script workspace; without it leg 3 ' ...
+     'would be given a different tree-price bracket than the script used']);
+assert(isfinite(beta0), 'could not recover the script''s initial beta');
+tee('  inputs recovered from the script''s own workspace:\n');
+tee('    beta0  = %.6f   (the value its calibration STARTED from)\n', beta0);
+tee('    q_ref  = %.6f   (its tree-price bracket anchor)\n', q_ref);
+tee('    chi_b  = %.6f   (script) vs %.6f (chi_ref)   %s\n', ...
+    SCRIPT.theta_chi_b, chi_ref, ...
+    ternstr(abs(SCRIPT.theta_chi_b - chi_ref) < 1e-12, 'consistent', '*** DIFFER ***'));
+tee('    the script CONVERGED to beta = %.6f, which is NOT the starting point\n', ...
+    SCRIPT.theta_beta);
+
+p = SCRIPT.p;                    % grids and fixed parameters, as calibrated
 t3 = tic;
 C = kv_calibrate_on_grid( ...
       struct('p_base', p, 'bGrid', p.bGrid, 'kGrid', p.kGrid), ...
       struct('r_b', r_b, 'd_base', d_base, 'D0', D0, 'Bnom', Bnom, ...
              'Kbar', Kbar, 'iota_H', iota, 'b_targ_H', b_targ_H, ...
-             'q_ref', q_ref, 'W_targ', [], 'tag', 'parity'));
+             'q_ref', q_ref, 'theta0', beta0, 'W_targ', [], 'tag', 'parity'));
 CALL = capture_C(C);
 tee('  done (%.1f s)\n', toc(t3));
 
@@ -236,7 +273,8 @@ if ~PASS
 end
 
 save(fullfile(projdir,'output','parity_d10_calibration.mat'), ...
-     'CA','CB','CC','PASS','TOL','BASE','SCRIPT','CALL','tag');
+     'CA','CB','CC','PASS','TOL','BASE','SCRIPT','CALL','tag', ...
+     'beta0','q_ref','chi_ref');
 tee('\n[main_parity_d10_calibration] wrote %s\n', sf);
 fclose(fid);
 
@@ -392,6 +430,28 @@ function Q = drop(Q, names)
         f = fieldnames(Q);
         hit = f(startsWith(f, names{i}));
         for j = 1:numel(hit), Q = rmfield(Q, hit{j}); end
+    end
+end
+
+function v = getws(WS, name, dv)
+% Read a variable out of the script's returned workspace.
+    v = dv;
+    if isstruct(WS) && isfield(WS, name) && ~isempty(WS.(name)), v = WS.(name); end
+end
+
+function b = script_initial_beta(WS)
+% The beta the script's calibration STARTED from, recovered from its own
+% workspace. main_twoasset_ownership_kv sets p.beta = pg.beta and then
+% overwrites it with RCAL.beta_star when calibrated_results.mat is present
+% (line 70), so `L` -- the struct it loaded that file into -- still holds the
+% starting value after p.beta has been replaced by the answer.
+    b = NaN;
+    if isstruct(WS) && isfield(WS,'L') && isstruct(WS.L) && isfield(WS.L,'RCAL') ...
+            && isfield(WS.L.RCAL, 'beta_star')
+        b = WS.L.RCAL.beta_star; return;
+    end
+    if isstruct(WS) && isfield(WS,'pg') && isstruct(WS.pg) && isfield(WS.pg,'beta')
+        b = WS.pg.beta; return;                 % no cached calibration: pg default
     end
 end
 

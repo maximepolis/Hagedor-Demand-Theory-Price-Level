@@ -172,6 +172,30 @@ is the observable distinction from a Phillips-curve economy.
 
 ---
 
+## 3a. Status of the code the report's concerns rest on
+
+The report treats the numerical apparatus as a source of doubt. Two of the
+three parity legs are now settled, which narrows what is actually in question.
+
+| test | result |
+|---|---|
+| **D10 comparison A** — pre-refactor `bf0a4e8` vs current script | **PASS: 40 fields exact, 0 FAIL** |
+| **D11 comparisons A/B/C** — transition solver, all three legs | **PASS: 48 fields exact**, `neutrality_gap` exactly 0 |
+| D10 comparisons B/C — script vs callable | driver defect, fixed in R11.11 (leg 3 was given the script's outputs as its inputs) |
+
+So the **refactor is not a source of numerical doubt**, and the transition
+solver reproduces the pre-refactor commit bit-for-bit including its residual
+history. Nominal neutrality — $P_\infty^{d}/P_\infty^{b} = \kappa_\infty$ —
+holds to zero relative gap, which is the sharpest available internal check
+that the debt recursion and the terminal pin are mutually consistent.
+
+**This does not answer the report.** Parity says the code computes what it
+computed before; it says nothing about whether the discretization resolves the
+economics. The FAST transition paths are NOT CONVERGED (T=60, maxit=80), and
+the two-asset grid noise still exceeds the financing signal. Major 11 stands
+in full. What is now excluded is the possibility that the refactor introduced
+the problem.
+
 ## 4. Ordering
 
 Nothing here jumps the queue ahead of parity and certification. The report's
