@@ -134,11 +134,15 @@ end
 % The path is restored MANUALLY at the end and in the error handler, not by
 % onCleanup. main_twoasset_ownership_kv opens with
 %     clearvars -except FAST KMV ZETA LADDER WTARGET REGRID KFAC BFAC
-% which would delete an onCleanup object held in this workspace and fire its
-% callback MID-RUN, restoring the main tree's path while the baseline script
-% was still executing -- turning the "pre-refactor" leg into a mixture of both
-% trees. The same clearvars is why OLDPATH is written to the stash file rather
-% than merely held in a variable.
+% and an onCleanup object held in this workspace would once have been deleted
+% by it and fired MID-RUN, restoring the main tree's path while the baseline
+% script was still executing -- turning the "pre-refactor" leg into a mixture
+% of both trees.
+%
+% That clearvars can no longer reach this workspace at all: the script is now
+% invoked through run_ownership_isolated, a local function whose own workspace
+% absorbs it. OLDPATH therefore survives as an ordinary variable, with no
+% stash file and no enumeration of what to save.
 OLDPATH = path; OLDCWD = pwd;
 restoredefaultpath;
 addpath(genpath(BSRC), '-begin');
@@ -165,40 +169,31 @@ assert(startsWith(canon(wt), canon(BASELINE_SRC)), 'transition solver is shadowe
 % =====================================================================
 % LEG 1 (D10): the calibration.
 %
-% main_twoasset_ownership_kv is a SCRIPT and begins with `clearvars -except
-% FAST KMV ZETA LADDER WTARGET REGRID KFAC BFAC`, so it will wipe this
-% workspace. Stash what is needed, run it, reload. Running it as a script (not
-% a function) is deliberate: that is exactly how it is invoked in production,
-% including its local-function block, which is the thing under test.
+% Invoked through run_ownership_isolated so that its
+%     clearvars -except FAST KMV ZETA LADDER WTARGET REGRID KFAC BFAC
+% is absorbed by that function's workspace and cannot touch this one.
+%
+% It is still run AS A SCRIPT, which is deliberate: that is exactly how it is
+% invoked in production, including its local-function block, which is the
+% thing under test. The isolation changes where its variables live, not how it
+% executes.
 % =====================================================================
-stash = fullfile(tempdir, 'baseline_capture_stash.mat');
-save(stash, 'BASELINE_OUT', 'BASELINE_SRC', 'tag', 'ENV', 'RHOBAR', 'lf', ...
-     'BPROJ', 'MAINPROJ', 'MAINROOT', 'stash', 'OLDPATH', 'OLDCWD');
-
 lastwarn('');
 tee('LEG 1 (D10): running the pre-refactor main_twoasset_ownership_kv ...\n');
 fclose(fid); fid = -1;                          % the script writes a lot
 try
-    main_twoasset_ownership_kv;                 % the PRE-REFACTOR script
+    [WS, wmsg, wid] = run_ownership_isolated(FAST, false);
 catch ME_capture
-    S = load(fullfile(tempdir, 'baseline_capture_stash.mat'));
-    path(S.OLDPATH); cd(S.OLDCWD);
+    path(OLDPATH); cd(OLDCWD);
     rethrow(ME_capture);
 end
-[wmsg, wid] = lastwarn;
-
-S = load(stash);
-BASELINE_OUT = S.BASELINE_OUT; BASELINE_SRC = S.BASELINE_SRC; tag = S.tag;
-ENV = S.ENV; RHOBAR = S.RHOBAR; lf = S.lf; BPROJ = S.BPROJ;
-MAINPROJ = S.MAINPROJ; MAINROOT = S.MAINROOT; stash = S.stash;
-OLDPATH = S.OLDPATH; OLDCWD = S.OLDCWD;
 fid = fopen(lf, 'a'); tee = @(varargin) tee2(fid, varargin{:});
 
 own = fullfile(BPROJ, 'output', 'twoasset_ownership_kv.mat');
 D10 = struct();
 D10.env = ENV;
 D10.warning_last = struct('msg', wmsg, 'id', wid);
-[D10, missing10] = harvest(D10, own, { ...
+[D10, missing10] = harvest(D10, WS, own, { ...
     'eq0', 'EXK', 'omega', 'H', 'p', 'iota_H', 'b_targ_H', 'ss', ...
     'r_b', 'd_base', 'D0', 'Gg'});
 D10 = flatten_eq(D10, 'eq0');
@@ -240,7 +235,6 @@ tee('\n  kappa_legacy    %.12f\n', D11.kappa_legacy);
 tee('  dlnP0           %+.12f\n', D11.dlnP0);
 tee('\n[main_baseline_capture] done (%.1f s)\n', toc(t0));
 fclose(fid); fid = -1;
-if exist(stash, 'file'), delete(stash); end
 
 % ---- restore the caller's environment -----------------------------------
 path(OLDPATH); cd(OLDCWD);
@@ -249,6 +243,44 @@ fprintf('If a run is ever interrupted before this line, recover with:\n');
 fprintf('  clear; restoredefaultpath; run_project_path_setup\n');
 
 % =====================================================================
+function [WS, wmsg, wid] = run_ownership_isolated(FAST, REGRID)
+% Run main_twoasset_ownership_kv in a PRIVATE workspace and hand back what it
+% produced, as a struct.
+%
+% WHY A FUNCTION AND NOT AN INLINE CALL. That script opens with
+%     clearvars -except FAST KMV ZETA LADDER WTARGET REGRID KFAC BFAC
+% so calling it inline DELETES the caller's variables. Everything not on that
+% keep-list is gone: the stash path, timers, the parameter struct, the log
+% file handle. Working around it by writing the needed variables to a .mat and
+% reloading them requires enumerating them correctly, and I got that
+% enumeration wrong twice -- first by holding the path-restoring onCleanup
+% object in a variable that clearvars deleted MID-RUN, then by storing the
+% stash path in a variable named `stash` and then calling load(stash) after
+% `stash` itself had been cleared.
+%
+% Inside a function the clearvars can only reach THIS workspace, which holds
+% nothing that needs to survive: FAST and REGRID are on the script's own
+% keep-list, and every other variable here is created AFTER the script
+% returns. The caller's workspace is untouched by construction rather than by
+% bookkeeping.
+%
+% THIS IS A LOCAL FUNCTION, not a file in src_project, because the caller runs
+% with a deliberately isolated MATLAB path (only the frozen baseline is on it).
+% A file helper would not be findable, and adding the current tree to the path
+% to reach it is exactly the shadowing the isolation exists to prevent.
+    if nargin < 1 || isempty(FAST),   FAST = false;   end
+    if nargin < 2 || isempty(REGRID), REGRID = false; end
+    lastwarn('');
+    main_twoasset_ownership_kv;                 %#ok<NASGU> resolved via the path
+    [wmsg, wid] = lastwarn;
+    WS = struct();
+    v = who;
+    for i = 1:numel(v)
+        if any(strcmp(v{i}, {'WS','wmsg','wid','v','i'})), continue; end
+        WS.(v{i}) = eval(v{i});
+    end
+end
+
 function s = canon(p)
     s = strrep(char(p), '\', '/');
     s = regexprep(s, '/+$', '');
@@ -284,17 +316,18 @@ function h = try_git(d)
     end
 end
 
-function [D, missing] = harvest(D, matfile, names)
-% Take each name from the caller's workspace if it is there, else from the
-% saved .mat, else record it as missing. Never invent a default: a capture
-% that quietly omitted a field would make the comparison pass by default.
+function [D, missing] = harvest(D, WS, matfile, names)
+% Take each name from the script's returned workspace if it is there, else
+% from the saved .mat, else record it as missing. Never invent a default: a
+% capture that quietly omitted a field would make the comparison pass by
+% default rather than fail.
     missing = {};
     M = struct();
     if exist(matfile, 'file') == 2, M = load(matfile); end
     for i = 1:numel(names)
         n = names{i};
-        if evalin('caller', sprintf('exist(''%s'',''var'')==1', n))
-            D.(n) = evalin('caller', n);
+        if isstruct(WS) && isfield(WS, n)
+            D.(n) = WS.(n);
         elseif isfield(M, n)
             D.(n) = M.(n);
         else

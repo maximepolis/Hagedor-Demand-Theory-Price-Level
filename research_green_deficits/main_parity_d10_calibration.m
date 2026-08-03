@@ -123,14 +123,14 @@ tee(' these is a real defect, not a numerical difference)\n');
 % both exercised.
 % =====================================================================
 tee('\nLEG 2: current script entry point (main_twoasset_ownership_kv) ...\n');
-stash = fullfile(tempdir, 'parity_d10_stash.mat');
-save(stash, 'projdir', 'sf', 'bf', 'tag', 'TOL', 'FAST', 'BASE');
+% Isolated, so the script's `clearvars -except FAST KMV ...` cannot delete
+% this workspace. Inline, it would have wiped pg (needed at pg.Bnom below),
+% the timer t2, and the stash path itself.
 t2 = tic;
-main_twoasset_ownership_kv;                     % current script, extracted fns
-S2 = load(stash); projdir = S2.projdir; sf = S2.sf; bf = S2.bf; tag = S2.tag;
-TOL = S2.TOL; FAST = S2.FAST; BASE = S2.BASE;
-fid = fopen(sf,'a'); tee = @(varargin) tee2(fid, varargin{:});
+run_ownership_isolated(FAST, false);               % current script, extracted fns
 t_script = toc(t2);
+% fid and tee survive now, so the log file is NOT reopened: doing so would
+% leave a second handle on an already-open file.
 SCRIPT = capture_current(fullfile(projdir,'output','twoasset_ownership_kv.mat'));
 tee('  done (%.1f s)\n', t_script);
 
@@ -186,9 +186,46 @@ save(fullfile(projdir,'output','parity_d10_calibration.mat'), ...
      'CA','CB','CC','PASS','TOL','BASE','SCRIPT','CALL','tag');
 tee('\n[main_parity_d10_calibration] wrote %s\n', sf);
 fclose(fid);
-if exist(stash,'file'), delete(stash); end
 
 % =====================================================================
+function [WS, wmsg, wid] = run_ownership_isolated(FAST, REGRID)
+% Run main_twoasset_ownership_kv in a PRIVATE workspace and hand back what it
+% produced, as a struct.
+%
+% WHY A FUNCTION AND NOT AN INLINE CALL. That script opens with
+%     clearvars -except FAST KMV ZETA LADDER WTARGET REGRID KFAC BFAC
+% so calling it inline DELETES the caller's variables. Everything not on that
+% keep-list is gone: the stash path, timers, the parameter struct, the log
+% file handle. Working around it by writing the needed variables to a .mat and
+% reloading them requires enumerating them correctly, and I got that
+% enumeration wrong twice -- first by holding the path-restoring onCleanup
+% object in a variable that clearvars deleted MID-RUN, then by storing the
+% stash path in a variable named `stash` and then calling load(stash) after
+% `stash` itself had been cleared.
+%
+% Inside a function the clearvars can only reach THIS workspace, which holds
+% nothing that needs to survive: FAST and REGRID are on the script's own
+% keep-list, and every other variable here is created AFTER the script
+% returns. The caller's workspace is untouched by construction rather than by
+% bookkeeping.
+%
+% THIS IS A LOCAL FUNCTION, not a file in src_project, because the caller runs
+% with a deliberately isolated MATLAB path (only the frozen baseline is on it).
+% A file helper would not be findable, and adding the current tree to the path
+% to reach it is exactly the shadowing the isolation exists to prevent.
+    if nargin < 1 || isempty(FAST),   FAST = false;   end
+    if nargin < 2 || isempty(REGRID), REGRID = false; end
+    lastwarn('');
+    main_twoasset_ownership_kv;                 %#ok<NASGU> resolved via the path
+    [wmsg, wid] = lastwarn;
+    WS = struct();
+    v = who;
+    for i = 1:numel(v)
+        if any(strcmp(v{i}, {'WS','wmsg','wid','v','i'})), continue; end
+        WS.(v{i}) = eval(v{i});
+    end
+end
+
 function D = capture_current(matfile)
 % Harvest the current script's saved output into the same field names the
 % baseline capture used, so the two are directly comparable.
