@@ -1,4 +1,4 @@
-R11.7
+R11.8
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,14 @@ R11.7
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.8  D10: the baseline tree's output/ was EMPTY while the current tree's
+#        was full, so main_twoasset_ownership_kv read different cached inputs
+#        in the two legs and they solved DIFFERENT ECONOMIES (p_in 0.006 vs
+#        0.000 -> a different income grid). The capture now mirrors and hashes
+#        the four cached inputs; the parity driver gates on them. Also: the two
+#        captures extracted different eq_* field lists; nested structs are
+#        flattened instead of compared whole; fields outside the callable's
+#        contract are excluded from B and C.
 # R11.7  D11 harness fixes: pgc/calinfo are provenance INPUTS and are no longer
 #        compared as outputs (they were manufacturing two FAILs from a run in
 #        which all 47 economic fields were bit-identical); the residual print
