@@ -108,13 +108,34 @@ TOL = struct('default', 1e-12, ...
 % LEG 2: current solver, opts.fiscal ABSENT (the legacy branch).
 % =====================================================================
 tee('LEG 2: current solver, legacy branch (no opts.fiscal) ...\n');
-pgc = setup_params_green();
-o  = struct('T', T, 'regime', 'indexed', 'financing', 'deficit', ...
-            'rho_d', RHOBAR, 'verbose', false);
-ob = o; ob.financing = 'lumpsum'; ob.rho_d = 0;
+
+% pgc AND the opts COME FROM THE BASELINE .mat, not from a second call to
+% setup_params_green here. The legacy setup involves a calibrated beta
+% (calibrate_beta), a rebuilt FAST asset grid, climate_version, D0 and Gg_nom;
+% reconstructing all of that on this side would be a second implementation of
+% the experiment, and any drift between the two would show up as a "parity
+% failure" that is really a setup difference. Reusing the captured struct makes
+% the INPUTS identical by construction, so the only thing that differs between
+% legs is the CODE -- which is the entire point.
+%
+% pgc contains no function handles (checked), so it carries no reference back
+% into the baseline tree.
+assert(isfield(BASE,'pgc'), ...
+    ['this baseline .mat predates R11.6 and has no pgc. Re-run ' ...
+     'main_baseline_capture; the earlier transition leg used an ' ...
+     'uncalibrated beta and was not the legacy experiment.']);
+pgc = BASE.pgc;
+o   = BASE.opts_deficit;   o.verbose = false;
+ob  = BASE.opts_baseline;  ob.verbose = false;
+if isfield(BASE,'calinfo')
+    tee('  legacy setup from the baseline: na=%d, T=%d, beta*=%.6f, Gg=%.6f\n', ...
+        BASE.calinfo.na, BASE.calinfo.T, BASE.calinfo.beta_star, BASE.calinfo.Gg_cal);
+end
 t2 = tic;
 TR2d = solve_hank_dtpl_transition(pgc, o);
+check_TR(TR2d, 'current legacy-branch deficit');
 TR2b = solve_hank_dtpl_transition(pgc, ob);
+check_TR(TR2b, 'current legacy-branch baseline');
 tee('  done (%.1f s)\n', toc(t2));
 
 % =====================================================================
@@ -131,6 +152,7 @@ assert(all(abs(fsC4.consolidation_path) < 1e-15), ...
 o3 = o; o3.fiscal = fsC4;
 t3 = tic;
 TR3d = solve_hank_dtpl_transition(pgc, o3);
+check_TR(TR3d, 'current explicit-fiscal deficit');
 tee('  done (%.1f s)\n', toc(t3));
 
 % =====================================================================
@@ -190,6 +212,15 @@ tee('\n[main_parity_d11_deficit] wrote %s\n', sf);
 fclose(fid);
 
 % =====================================================================
+function check_TR(TR, name)
+% A transition that produced no path is a DIAGNOSIS, not a missing field.
+    if isstruct(TR) && isfield(TR, 'phat') && ~isempty(TR.phat), return; end
+    m = '(the solver returned no message)';
+    if isstruct(TR) && isfield(TR, 'msg') && ~isempty(TR.msg), m = TR.msg; end
+    error('main_parity_d11_deficit:failed', ...
+        'the %s transition produced no price path.\n  solver message: %s', name, m);
+end
+
 function D = flat(TR, sfx)
     D = struct();
     names = {'phat','P0','pi_path','r_path','tau_path','D_path','Kg_path', ...

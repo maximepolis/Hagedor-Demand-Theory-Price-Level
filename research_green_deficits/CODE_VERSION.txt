@@ -1,4 +1,4 @@
-R11.5
+R11.6
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,11 @@ R11.5
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.6  the D11 transition legs now use the LEGACY setup (calibrated beta via
+#        calibrate_beta, climate_version, D0, Gg_nom, FAST asset grid). Passing
+#        the default beta left no root in the solver's [0.5, 1.3] bracket and
+#        the baseline steady state did not exist. Same defect fixed in
+#        kv_kappa_legacy. The parity driver now reuses the CAPTURED pgc.
 # R11.5  the baseline/current calibration script is invoked through a local
 #        function, so its `clearvars -except ...` cannot delete the caller's
 #        workspace. Fixes load(stash) after `stash` was itself cleared, and
