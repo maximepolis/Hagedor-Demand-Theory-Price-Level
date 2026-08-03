@@ -1,4 +1,4 @@
-R11.8
+R11.9
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,12 @@ R11.8
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.9  D11: dlnP0 and kappa_legacy were dropped when the derived statistics
+#        were consolidated in R11.7, so the baseline carried them and the
+#        current legs did not -- two FAILs on a run where every economic field
+#        was bit-identical. Restored inside derived(). kv_code_version now
+#        reports when CODE_VERSION.txt comes from a different folder than the
+#        running driver.
 # R11.8  D10: the baseline tree's output/ was EMPTY while the current tree's
 #        was full, so main_twoasset_ownership_kv read different cached inputs
 #        in the two legs and they solved DIFFERENT ECONOMIES (p_in 0.006 vs

@@ -34,6 +34,24 @@ function s = kv_code_version(callerpath)
         fclose(fh);
     end
 
+    % A STALE VERSION FILE IS ITSELF A HAZARD. CODE_VERSION.txt is maintained
+    % by hand and lives beside the source, so it can go out of date relative to
+    % the .m files -- a run reported "pipeline R11.6" while executing R11.7
+    % code, because an extract-over-existing-folder had refreshed the sources
+    % and skipped the text file. Worse, with two project copies present the
+    % file read here may belong to a DIFFERENT folder than the driver that is
+    % running. Report the resolved location, and flag it when it is not a
+    % sibling of the caller.
+    sib = '';
+    if ~isempty(callerpath)
+        cdir = fileparts(callerpath);
+        if ~strcmpi(norm_(cdir), norm_(proj)) && ~strcmpi(norm_(cdir), norm_(here))
+            sib = sprintf('  [!! CODE_VERSION.txt read from %s, NOT from the ' ...
+                          'directory of the running driver -- you have more ' ...
+                          'than one copy of the project]', proj);
+        end
+    end
+
     fpart = '';
     if ~isempty(callerpath)
         f = callerpath;
@@ -47,5 +65,14 @@ function s = kv_code_version(callerpath)
         end
     end
 
-    s = sprintf('pipeline %s%s', tag, fpart);
+    s = sprintf('pipeline %s%s%s', tag, fpart, sib);
+end
+
+function s = norm_(p)
+% MATLAB single-quoted strings do NOT treat backslash as an escape, so the
+% separator to replace is '\', one character. '\\' would match a doubled
+% backslash and leave every Windows path unnormalised -- turning this check
+% into one that always fires.
+    s = strrep(char(p), '\', '/');
+    s = regexprep(s, '/+$', '');
 end

@@ -288,6 +288,21 @@ function D = derived(D)
     D.overshoot_cross = (d(1) - b(1)) / (d(end) - b(end));
 
     D.revaluation = d(1)/b(1) - 1;
+
+    % dlnP0 and kappa_legacy are the two statistics the capture writes into
+    % the baseline .mat as top-level fields, so they MUST be computed here too
+    % or the baseline carries them and the current legs do not. Consolidating
+    % the derived statistics into this one function in R11.7 dropped them, and
+    % they then read as "MISSING in legacy" -- two FAILs on a run in which
+    % every economic field was bit-identical. Same class as the pgc/calinfo
+    % rows the same revision fixed: the harness inventing a difference.
+    %
+    % dlnP0 is log(1 + revaluation) by construction; both are kept because the
+    % manuscript quotes the log form and the capture reports the ratio.
+    D.dlnP0 = log(d(1)/b(1));
+    if isfield(D,'d_kappa_path') && isfield(D,'b_kappa_path')
+        D.kappa_legacy = D.d_kappa_path(end) / D.b_kappa_path(end);
+    end
     if isfield(D,'d_kappa_path'), D.terminal_dilution = D.d_kappa_path(end); end
 
     % NOMINAL-NEUTRALITY GATE. A permanent proportional rescaling of the
