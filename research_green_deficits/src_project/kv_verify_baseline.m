@@ -30,7 +30,7 @@ function V = kv_verify_baseline(basedir, tee)
 %
 % OUTPUT  V .ok .n .n_exact .n_eol .n_bad .n_missing .n_extra
 %           .bad {paths} .missing {paths} .extra {paths}
-%           .method 'sha256' | 'unavailable'
+%           .method 'sha256 (pure MATLAB, kv_sha256)' | 'BROKEN'
 %           .manifest path actually used
 
     if nargin < 2 || isempty(tee), tee = @(varargin) fprintf(varargin{:}); end
@@ -49,11 +49,22 @@ function V = kv_verify_baseline(basedir, tee)
     end
     V.manifest = mf;
 
-    if ~have_sha256()
-        V.method = 'unavailable';
-        tee(['kv_verify_baseline: SHA-256 is unavailable (no JVM). Verification\n' ...
-             'cannot be performed, and an UNVERIFIED baseline must not be used to\n' ...
-             'certify a refactor. Start MATLAB with the JVM enabled.\n']);
+    % SHA-256 is computed by kv_sha256, in pure MATLAB. The previous version
+    % used java.security.MessageDigest and gave up when R2025b reported no
+    % JVM -- making the integrity gate depend on an optional runtime, so a
+    % perfectly correct baseline could not be certified. That is the wrong
+    % failure mode for a check whose purpose is to let work proceed.
+    %
+    % The hash proves itself first. A hand-written digest that is wrong does
+    % not fail loudly: it returns plausible 64-character strings that never
+    % match, and the verification then blames the BASELINE for a defect in the
+    % checker.
+    V.method = 'sha256 (pure MATLAB, kv_sha256)';
+    if ~kv_sha256_selftest(false)
+        V.method = 'BROKEN';
+        tee(['kv_verify_baseline: kv_sha256 FAILED ITS OWN SELF-TEST.\n' ...
+             'The hash is wrong, so nothing can be concluded about the baseline.\n' ...
+             'Run  kv_sha256_selftest  to see which vector failed.\n']);
         return;
     end
 
@@ -61,7 +72,17 @@ function V = kv_verify_baseline(basedir, tee)
     V.n = numel(P);
     bad = {}; missing = {}; neol = 0; nex = 0;
 
+    % Pure-MATLAB SHA-256 over ~1.1 MB is not instant. Report progress rather
+    % than sitting silent for minutes, which reads as a hang and invites a
+    % Ctrl-C in the middle of a verification.
+    tee('hashing %d files with pure-MATLAB SHA-256 -- allow a few minutes;\n', numel(P));
+    tee('this is a one-time gate, not part of any solve.\n');
+    tick = max(1, floor(numel(P)/10));
+
     for i = 1:numel(P)
+        if mod(i, tick) == 0
+            tee('  ... %d/%d\n', i, numel(P));
+        end
         f = fullfile(basedir, strrep(P{i}, '/', filesep));
         if exist(f, 'file') ~= 2
             missing{end+1} = P{i}; %#ok<AGROW>
@@ -135,20 +156,8 @@ function V = kv_verify_baseline(basedir, tee)
 end
 
 % ---------------------------------------------------------------------
-function t = have_sha256()
-    t = false;
-    try
-        java.security.MessageDigest.getInstance('SHA-256');
-        t = true;
-    catch
-    end
-end
-
 function h = sha256_hex(b)
-    md = java.security.MessageDigest.getInstance('SHA-256');
-    md.update(typecast(b(:), 'int8'));         % Java bytes are SIGNED
-    d = typecast(md.digest(), 'uint8');
-    h = lower(reshape(dec2hex(d, 2)', 1, []));
+    h = kv_sha256(b);
 end
 
 function b = readbytes(f)

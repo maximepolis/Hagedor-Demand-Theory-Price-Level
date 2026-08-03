@@ -1,4 +1,4 @@
-R11.3
+R11.4
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,9 @@ R11.3
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.4  SHA-256 is computed in pure MATLAB (kv_sha256), with its own NIST
+#        self-test. R2025b has no JVM, so java.security.MessageDigest was
+#        unavailable and the baseline could not be verified at all.
 # R11.3  baseline capture is git-free: baseline_bf0a4e8/ ships with the project
 #        and is verified by SHA-256 manifest. main_baseline_capture takes no
 #        required variables. Version banners added.
