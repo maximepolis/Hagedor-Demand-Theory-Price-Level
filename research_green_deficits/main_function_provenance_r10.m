@@ -176,14 +176,8 @@ function [h, n] = filehash(f)
     if fh < 0, return; end
     b = fread(fh, Inf, '*uint8'); fclose(fh);
     n = numel(b);
-    try
-        md = java.security.MessageDigest.getInstance('SHA-256');
-        md.update(typecast(b, 'int8'));       % Java bytes are SIGNED
-        d = typecast(md.digest(), 'uint8');
-        h = lower(reshape(dec2hex(d, 2)', 1, []));
-    catch
-        h = kv_hash(b);                        % -nojvm fallback
-    end
+    % kv_sha256 is pure MATLAB: no JVM, which R2025b does not have.
+    h = kv_sha256(b);
 end
 
 function [n, sig] = out_arity(f)
@@ -209,10 +203,17 @@ function [n, sig] = out_arity(f)
 end
 
 function s = git_head(d)
-    s = '(unknown)';
+% Informational only, and it must NEVER let git's stderr become the answer.
+% The project is normally used from an extracted ZIP with no .git, where an
+% unguarded version of this returned "fatal: not a git repository ..." and
+% that string was printed as though it were a commit.
+    s = '(no git; project distributed as a ZIP)';
     try
         [st, o] = system(sprintf('git -C "%s" rev-parse HEAD', d));
-        if st == 0, s = strtrim(o); end
+        if st ~= 0, return; end
+        t = strtrim(o);
+        if isempty(regexp(t, '^[0-9a-f]{40}$', 'once')), return; end
+        s = t;
         [st2, o2] = system(sprintf('git -C "%s" status --porcelain', d));
         if st2 == 0 && ~isempty(strtrim(o2)), s = [s '  (WORKING TREE DIRTY)']; end
     catch
