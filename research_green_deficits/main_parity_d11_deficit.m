@@ -158,18 +158,9 @@ tee('  done (%.1f s)\n', toc(t3));
 % =====================================================================
 % Flatten and compare.
 % =====================================================================
-L2 = flat(TR2d, 'd'); L2 = merge(L2, flat(TR2b, 'b'));
-L2.dlnP0 = log(TR2d.phat(1)/TR2b.phat(1));
-L2.kappa_legacy = TR2d.kappa_path(end)/TR2b.kappa_path(end);
-L2 = derived(L2, TR2d, TR2b);
-
-L3 = flat(TR3d, 'd'); L3 = merge(L3, flat(TR2b, 'b'));   % same baseline leg
-L3.dlnP0 = log(TR3d.phat(1)/TR2b.phat(1));
-L3.kappa_legacy = TR3d.kappa_path(end)/TR2b.kappa_path(end);
-L3 = derived(L3, TR3d, TR2b);
-
-L1 = pickbase(BASE);
-L1 = derived_from_fields(L1);
+L2 = derived(merge(flat(TR2d,'d'), flat(TR2b,'b')));
+L3 = derived(merge(flat(TR3d,'d'), flat(TR2b,'b')));   % same balanced leg
+L1 = derived(pickbase(BASE));
 
 tee('\n%s\nCOMPARISON A -- BASELINE (bf0a4e8) vs CURRENT LEGACY BRANCH\n', repmat('=',1,60));
 tee('this is the leg that tests the refactor\n%s\n', repmat('=',1,60));
@@ -186,12 +177,50 @@ CC = kv_parity_compare(L1, common(L3, L1), 'baseline', 'explicit', TOL, tee);
 % Iteration counts, reported next to the verdict: the one benign explanation
 % for a last-bit difference is a stopping rule firing a step earlier, and
 % that is only distinguishable if the counts are on the page.
-tee('\nITERATION COUNTS  baseline %s / legacy %d / explicit %d\n', ...
-    numstr(getfd(BASE,'d_iters')), geti(TR2d,'iters'), geti(TR3d,'iters'));
-tee('BEST ITER         baseline %s / legacy %d / explicit %d\n', ...
-    numstr(getfd(BASE,'d_best_iter')), geti(TR2d,'best_iter'), geti(TR3d,'best_iter'));
-tee('FINAL RESIDUAL    baseline %s / legacy %.3e / explicit %.3e\n', ...
-    numstr(getfd(BASE,'d_resid')), geti(TR2d,'resid'), geti(TR3d,'resid'));
+% .resid is a residual HISTORY, not a scalar. Passing it straight to a %.3e
+% made fprintf recycle the whole format string once per element and print
+% forty lines of "FINAL RESIDUAL", burying the counts it sits next to. Reduce
+% to sup-norms first.
+tee('\nITERATION COUNTS  baseline %s / legacy %s / explicit %s\n', ...
+    numstr(getfd(BASE,'d_iters')), numstr(geti(TR2d,'iters')), numstr(geti(TR3d,'iters')));
+tee('BEST ITER         baseline %s / legacy %s / explicit %s\n', ...
+    numstr(getfd(BASE,'d_best_iter')), numstr(geti(TR2d,'best_iter')), numstr(geti(TR3d,'best_iter')));
+tee('RESIDUAL sup-norm baseline %s / legacy %s / explicit %s\n', ...
+    supstr(getfd(BASE,'d_resid')), supstr(geti(TR2d,'resid')), supstr(geti(TR3d,'resid')));
+
+% ---------------------------------------------------------------- convergence
+% PARITY AND CONVERGENCE ARE DIFFERENT QUESTIONS AND MUST NOT BE CONFLATED.
+% Reproducing a NON-converged path bit-for-bit is a perfectly valid parity
+% result -- arguably a sharper one, since it reproduces the entire iteration
+% history rather than a converged fixed point both legs would reach from
+% anywhere. But it licenses NOTHING economic. This block makes that explicit
+% so that a green parity verdict is never mistaken for a usable number.
+conv = struct('d', tern2(isfield(TR2d,'converged'), getfl(TR2d,'converged'), NaN), ...
+              'b', tern2(isfield(TR2b,'converged'), getfl(TR2b,'converged'), NaN));
+allconv = isequal(conv.d, true) && isequal(conv.b, true);
+tee('\nCONVERGENCE (a separate question from parity)\n');
+tee('  deficit path converged  : %s\n', yn(conv.d));
+tee('  balanced path converged : %s\n', yn(conv.b));
+if isfield(TR2d,'msg'), tee('  deficit  : %s\n', TR2d.msg); end
+if isfield(TR2b,'msg'), tee('  balanced : %s\n', TR2b.msg); end
+if ~allconv
+    tee(['\n  *** NOT CONVERGED. Parity may still be ESTABLISHED below and that\n' ...
+         '  *** conclusion is valid -- the legs reproduce each other exactly. But\n' ...
+         '  *** NO ECONOMIC NUMBER from this run may be quoted: not kappa, not\n' ...
+         '  *** dlnP0, not the front-loading statistics. Re-run at the benchmark\n' ...
+         '  *** setting (T=80, maxit=120) before reading anything off it.\n']);
+end
+
+% ---------------------------------------------------------------- theory gate
+% Nominal neutrality: the terminal price must scale one-for-one with the
+% terminal nominal stock. This is a check on the MODEL, identical across legs,
+% and it is the sharpest test that the debt recursion and the terminal pin are
+% mutually consistent.
+if isfield(L2,'neutrality_gap')
+    tee('\nNOMINAL NEUTRALITY  P_inf^d / P_inf^b  vs  kappa_inf\n');
+    tee('  relative gap %+.3e   %s\n', L2.neutrality_gap, ...
+        tern(abs(L2.neutrality_gap) < 1e-3, 'consistent', '*** INCONSISTENT ***'));
+end
 
 PASS = CA.pass && CB.pass && CC.pass;
 tee('\n%s\nVERDICT\n%s\n', repmat('=',1,60), repmat('=',1,60));
@@ -233,27 +262,56 @@ function D = flat(TR, sfx)
     end
 end
 
-function D = derived(D, TRd, TRb)
-% The reported statistics, recomputed here from the paths rather than read
-% from either solver, so a change in how a solver reports them cannot make a
-% parity test pass.
-    D.front_loading = (TRd.phat(1) - TRb.phat(1)) / (TRd.phat(end) - TRb.phat(1));
-    D.revaluation   = TRd.phat(1)/TRb.phat(1) - 1;
-    D.terminal_dilution = TRd.kappa_path(end);
-end
+function D = derived(D)
+% The reported statistics, computed HERE from the flattened paths -- one
+% implementation for all three legs, so a change in how any solver reports a
+% statistic cannot make the parity test pass. (There were two implementations
+% before, one reading TR structs and one reading flat fields; they had to be
+% kept in step by hand, and a field added to one would have shown up as
+% MISSING against the other.)
+    if ~isfield(D,'d_phat') || ~isfield(D,'b_phat'), return; end
+    d = D.d_phat(:)'; b = D.b_phat(:)';
+    P0 = NaN; if isfield(D,'d_P0'), P0 = D.d_P0; end
 
-function D = derived_from_fields(D)
-    if isfield(D,'d_phat') && isfield(D,'b_phat')
-        D.front_loading = (D.d_phat(1) - D.b_phat(1)) / (D.d_phat(end) - D.b_phat(1));
-        D.revaluation   = D.d_phat(1)/D.b_phat(1) - 1;
-    end
+    % OWN-PATH front-loading, F^j = (P_1^j - P_0)/(P_inf^j - P_0). One per
+    % path, each with its OWN denominator. This is the statistic the claim
+    % register defines.
+    D.front_loading_d = (d(1) - P0) / (d(end) - P0);
+    D.front_loading_b = (b(1) - P0) / (b(end) - P0);
+
+    % CROSS-INSTRUMENT ratio. Deliberately NOT called "front-loading": its
+    % denominator is a difference between two DIFFERENT paths' terminals, so a
+    % value above 1 is OVERSHOOTING of the long-run financing gap, not a
+    % fraction of a path's own long-run move. Conflating the two is the error
+    % the register corrected, and naming this field front_loading would have
+    % walked it straight back in.
+    D.overshoot_cross = (d(1) - b(1)) / (d(end) - b(end));
+
+    D.revaluation = d(1)/b(1) - 1;
     if isfield(D,'d_kappa_path'), D.terminal_dilution = D.d_kappa_path(end); end
+
+    % NOMINAL-NEUTRALITY GATE. A permanent proportional rescaling of the
+    % nominal stock must move the terminal price one-for-one, so
+    %     P_inf^deficit / P_inf^balanced  ==  kappa_inf.
+    % This is a THEORY check on the solved path, not a parity check: it holds
+    % or fails identically in all three legs. It is the sharpest available
+    % test that the debt recursion and the terminal pin are mutually
+    % consistent, and it is exactly what the withdrawn terminal-price override
+    % would have made vacuous by construction.
+    if isfield(D,'d_kappa_inf') && isfinite(D.d_kappa_inf) && D.d_kappa_inf ~= 0
+        D.neutrality_gap = (d(end)/b(end)) / D.d_kappa_inf - 1;
+    end
 end
 
 function Q = pickbase(B)
     Q = struct(); f = fieldnames(B);
+    % pgc and calinfo are INPUTS recorded for provenance, not outputs. Leaving
+    % them in made the comparison report them as "MISSING in legacy" and count
+    % two FAILs, so a run in which all 47 economic fields were bit-identical
+    % was reported as NOT ESTABLISHED. The harness was manufacturing a failure
+    % out of its own metadata.
     skip = {'env','opts_deficit','opts_baseline','TR_deficit_full', ...
-            'TR_baseline_full','T','rho_bar'};
+            'TR_baseline_full','T','rho_bar','pgc','calinfo'};
     for i = 1:numel(f)
         if any(strcmp(f{i}, skip)), continue; end
         Q.(f{i}) = B.(f{i});
@@ -281,6 +339,31 @@ end
 
 function v = geti(TR, f)
     v = NaN; if isfield(TR, f), v = TR.(f); end
+end
+
+function s = yn(v)
+    if isequal(v, true), s = 'YES'; elseif isequal(v, false), s = 'NO';
+    else, s = '(not reported)'; end
+end
+
+function y = tern2(c, a, b)
+    if c, y = a; else, y = b; end
+end
+
+function y = getfl(S, f)
+    y = NaN; if isstruct(S) && isfield(S, f), y = S.(f); end
+end
+
+function s = tern(c, a, b)
+    if c, s = a; else, s = b; end
+end
+
+function s = supstr(v)
+% Sup-norm of a possibly-vector residual, as ONE number.
+    if isempty(v) || ~isnumeric(v), s = '(none)'; return; end
+    v = v(isfinite(v));
+    if isempty(v), s = '(nonfinite)'; return; end
+    s = sprintf('%.3e', max(abs(v)));
 end
 
 function s = numstr(v)
