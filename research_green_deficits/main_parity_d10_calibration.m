@@ -107,6 +107,53 @@ if isfield(BASE,'missing_fields') && ~isempty(BASE.missing_fields)
 end
 tee('\n');
 
+% ---- precondition 3: THE CACHED INPUTS MUST MATCH ------------------------
+% main_twoasset_ownership_kv reads calibrated_results.mat, wealth_fit_results
+% .mat, twoasset_ownership.mat and kv_residual_scan.mat from output/, and
+% changes its economy according to what it finds -- including ss.p_in, which
+% sets the superstar income state and hence the ENTIRE income grid.
+%
+% When the baseline tree's output/ was empty and the current tree's was not,
+% the two legs solved different economies: p_in 0.006 vs 0.000, chi 0.0015 vs
+% 0.0022, and consequently different eGrid, beta, q, P and distribution. Every
+% numeric difference reported was that, and none of it was the refactor. This
+% gate makes the configuration difference impossible to mistake for a code
+% difference again.
+if isfield(BASE, 'input_caches')
+    tee('cached inputs (must match the baseline capture):\n');
+    IC = BASE.input_caches; cache_ok = true;
+    for i = 1:numel(IC)
+        f = fullfile(projdir, 'output', IC(i).name);
+        here_present = exist(f, 'file') == 2;
+        here_sha = '';
+        if here_present
+            fh = fopen(f,'r'); b = fread(fh, Inf, '*uint8'); fclose(fh);
+            here_sha = kv_sha256(b);
+        end
+        same = (here_present == IC(i).present) && ...
+               (~here_present || strcmp(here_sha, IC(i).sha));
+        cache_ok = cache_ok && same;
+        tee('  %-28s %s\n', IC(i).name, ternstr(same, 'match', ...
+            sprintf('*** DIFFERS (baseline %s / here %s) ***', ...
+                    shortsha(IC(i)), ternstr(here_present, first12(here_sha), 'ABSENT'))));
+    end
+    if ~cache_ok
+        tee(['\n*** THE CACHED INPUTS DIFFER between the baseline capture and this\n' ...
+             '*** tree, so the two legs would solve DIFFERENT ECONOMIES and any\n' ...
+             '*** comparison would report a configuration difference as a refactor\n' ...
+             '*** defect. Re-run  clear; FAST = %d; main_baseline_capture  to\n' ...
+             '*** re-mirror the current caches into the baseline tree.\n'], FAST);
+        fclose(fid);
+        error('main_parity_d10_calibration:caches', ...
+              'cached inputs differ from those used for the baseline capture');
+    end
+    tee('\n');
+else
+    tee(['*** this baseline .mat predates R11.8 and records no input caches, so\n' ...
+         '*** the two legs may have solved different economies. Re-run\n' ...
+         '*** main_baseline_capture before trusting any verdict below.\n\n']);
+end
+
 % ---- tolerances, fixed here ---------------------------------------------
 TOL = struct('default', 1e-12, ...
              'eq_P', 1e-10, 'eq_q', 1e-10, 'eq_Sb', 1e-10, 'eq_Sk', 1e-10, ...
@@ -163,12 +210,18 @@ tee('\n%s\n', repmat('=',1,60));
 tee('COMPARISON B -- CURRENT SCRIPT vs kv_calibrate_on_grid\n');
 tee('wrapper consistency; localises a failure once A has flagged one\n');
 tee('%s\n', repmat('=',1,60));
-CB = kv_parity_compare(pick(SCRIPT), pick(CALL), 'script', 'callable', TOL, tee);
+NOTCALLABLE = {'EXK', 'H', 'omega', 'Gg'};
+tee('fields outside kv_calibrate_on_grid''s contract, excluded from B and C:\n');
+tee('  %s  (compared in A, where both legs are the same entry point)\n\n', ...
+    strjoin(NOTCALLABLE, ', '));
+CB = kv_parity_compare(drop(pick(SCRIPT),NOTCALLABLE), drop(pick(CALL),NOTCALLABLE), ...
+                       'script', 'callable', TOL, tee);
 
 tee('\n%s\n', repmat('=',1,60));
 tee('COMPARISON C -- BASELINE vs kv_calibrate_on_grid (end to end)\n');
 tee('%s\n', repmat('=',1,60));
-CC = kv_parity_compare(pick(BASE), pick(CALL), 'baseline', 'callable', TOL, tee);
+CC = kv_parity_compare(drop(pick(BASE),NOTCALLABLE), drop(pick(CALL),NOTCALLABLE), ...
+                       'baseline', 'callable', TOL, tee);
 
 PASS = CA.pass && CB.pass && CC.pass;
 tee('\n%s\nVERDICT\n%s\n', repmat('=',1,60), repmat('=',1,60));
@@ -236,7 +289,11 @@ function D = capture_current(matfile)
     end
     if isfield(M,'eq0')
         e = M.eq0;
-        for n = {'P','q','Sb','Sk','tau','dvd','Fk','Fb','ok','mass_err','ksat','bsat'}
+        % THE SAME LIST the baseline capture's flatten_eq uses. It was shorter
+        % here, so div/min_c/msg/n_infeas/code/alpha were reported as MISSING
+        % in the script leg when the script had produced them perfectly well.
+        for n = {'P','q','Sb','Sk','tau','dvd','Fk','Fb','ok','mass_err', ...
+                 'ksat','bsat','code','msg','alpha','div','min_c','n_infeas'}
             if isfield(e, n{1}), D.(['eq_' n{1}]) = e.(n{1}); end
         end
         if isfield(e,'dist'), D.distribution = e.dist; end
@@ -260,7 +317,11 @@ function D = capture_C(C)
     end
     if isfield(C,'equilibrium')
         e = C.equilibrium;
-        for n = {'P','q','Sb','Sk','tau','dvd','Fk','Fb','ok','mass_err','ksat','bsat'}
+        % THE SAME LIST the baseline capture's flatten_eq uses. It was shorter
+        % here, so div/min_c/msg/n_infeas/code/alpha were reported as MISSING
+        % in the script leg when the script had produced them perfectly well.
+        for n = {'P','q','Sb','Sk','tau','dvd','Fk','Fb','ok','mass_err', ...
+                 'ksat','bsat','code','msg','alpha','div','min_c','n_infeas'}
             if isfield(e, n{1}), D.(['eq_' n{1}]) = e.(n{1}); end
         end
     end
@@ -288,15 +349,58 @@ function D = add_derived(D)
 end
 
 function Q = pick(D)
-% Compare only the numeric/derived fields, never the whole p struct: a struct
-% comparison collapses to one isequaln bit and tells you nothing about WHICH
-% field moved.
+% Compare only comparable fields, and FLATTEN nested structs rather than
+% comparing them whole.
+%
+% A struct comparison collapses to a single isequaln bit, which is why EXK and
+% H reported "1.0000e+00 FAIL" -- a value that means "not equal" and says
+% nothing about which leaf moved. Their scalar leaves are expanded into
+% EXK_<leaf>, H_<leaf> instead, so a difference names itself.
+%
+% eq0 is dropped because every one of its fields is already present flattened
+% as eq_*; comparing it as well would double-count and add an uninformative
+% whole-struct bit on top of the informative per-field ones.
     Q = struct(); f = fieldnames(D);
+    SKIP = {'p','ss','env','missing_fields','warning_last','eq0', ...
+            'input_caches','distribution_full'};
     for i = 1:numel(f)
         n = f{i};
-        if any(strcmp(n, {'p','ss','env','missing_fields','warning_last'})), continue; end
-        Q.(n) = D.(n);
+        if any(strcmp(n, SKIP)), continue; end
+        v = D.(n);
+        if isstruct(v) && isscalar(v)
+            g = fieldnames(v);
+            for j = 1:numel(g)
+                w = v.(g{j});
+                if (isnumeric(w) || islogical(w)) && isscalar(w)
+                    Q.([n '_' g{j}]) = w;
+                end
+            end
+        else
+            Q.(n) = v;
+        end
     end
+end
+
+function Q = drop(Q, names)
+% Remove fields the CALLABLE is not contracted to produce. kv_calibrate_on_grid
+% is a calibration interface: it does not run the Shapley extension (EXK), the
+% hand-to-mouth decomposition (H), the liquid share (omega) or the program size
+% (Gg). Reporting those as parity failures would be reporting a difference in
+% SCOPE as a difference in behaviour. They are still compared in A, where both
+% legs are the same entry point and a missing field is a real defect.
+    for i = 1:numel(names)
+        f = fieldnames(Q);
+        hit = f(startsWith(f, names{i}));
+        for j = 1:numel(hit), Q = rmfield(Q, hit{j}); end
+    end
+end
+
+function s = shortsha(r)
+    if r.present && ~isempty(r.sha), s = r.sha(1:12); else, s = 'ABSENT'; end
+end
+
+function s = first12(h)
+    if isempty(h), s = 'ABSENT'; else, s = h(1:min(12,numel(h))); end
 end
 
 function s = ternstr(c,a,b)

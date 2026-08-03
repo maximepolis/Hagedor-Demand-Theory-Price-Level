@@ -138,6 +138,35 @@ for d = {fullfile(BPROJ,'output'), fullfile(BPROJ,'output','tables'), ...
     if ~isfolder(d{1}), mkdir(d{1}); end
 end
 
+% ---- MIRROR THE CACHED INPUTS THE SCRIPT CONSUMES ------------------------
+% main_twoasset_ownership_kv reads FOUR .mat files from output/ and changes
+% its economy according to what it finds:
+%
+%   calibrated_results.mat  -> p.beta
+%   wealth_fit_results.mat  -> ss.mult, ss.p_in, ss.p_out  -> THE INCOME GRID
+%   twoasset_ownership.mat  -> q_ref and chi_ref
+%   kv_residual_scan.mat    -> KFAC, BFAC (REGRID only)
+%
+% The baseline tree's output/ is created empty, so without this the baseline
+% leg silently fell back to the hard-coded defaults while the current leg used
+% the cached values. That is exactly what happened: the baseline ran with
+% p_in = 0.006 and chi = 0.0015, the current script with p_in = 0.000 and
+% chi = 0.0022. The two legs solved DIFFERENT ECONOMIES -- different income
+% processes, hence different eGrid, beta, q, P and distribution -- and every
+% numeric difference the comparison reported was that, not the refactor.
+%
+% A parity test must hold the inputs fixed and vary only the code. So the
+% caches are copied in and HASHED, and the hashes are stored with the capture
+% so the parity driver can verify the current tree still has the same ones.
+% This is the same "differ by cache, not by code" failure the D11 setup
+% guards against by always recalibrating; here the script owns the reads, so
+% the inputs must be mirrored instead.
+CACHE_INPUTS = {'calibrated_results.mat', 'wealth_fit_results.mat', ...
+                'twoasset_ownership.mat', 'kv_residual_scan.mat'};
+INCACHE = mirror_inputs(fullfile(MAINPROJ,'output'), fullfile(BPROJ,'output'), ...
+                        CACHE_INPUTS, tee);
+ENV.input_caches = INCACHE;
+
 % The path is restored MANUALLY at the end and in the error handler, not by
 % onCleanup. main_twoasset_ownership_kv opens with
 %     clearvars -except FAST KMV ZETA LADDER WTARGET REGRID KFAC BFAC
@@ -215,6 +244,7 @@ else
     own = fullfile(BPROJ, 'output', 'twoasset_ownership_kv.mat');
     D10 = struct();
     D10.env = ENV;
+    D10.input_caches = INCACHE;
     D10.warning_last = struct('msg', wmsg, 'id', wid);
     [D10, missing10] = harvest(D10, WS, own, { ...
         'eq0', 'EXK', 'omega', 'H', 'p', 'iota_H', 'b_targ_H', 'ss', ...
@@ -273,6 +303,32 @@ fprintf('If a run is ever interrupted before this line, recover with:\n');
 fprintf('  clear; restoredefaultpath; run_project_path_setup\n');
 
 % =====================================================================
+function C = mirror_inputs(srcdir, dstdir, names, tee)
+% Copy the cached inputs into the baseline tree and record their hashes.
+% A file ABSENT from the source is recorded as absent rather than skipped
+% silently: "the current tree has no wealth_fit_results.mat" is itself part of
+% the configuration both legs must share.
+    C = struct('name', {}, 'present', {}, 'bytes', {}, 'sha', {});
+    tee('cached inputs mirrored into the baseline tree:\n');
+    for i = 1:numel(names)
+        n = names{i};
+        srcf = fullfile(srcdir, n);
+        dstf = fullfile(dstdir, n);
+        rec = struct('name', n, 'present', false, 'bytes', NaN, 'sha', '');
+        if exist(srcf, 'file') == 2
+            copyfile(srcf, dstf, 'f');
+            fh = fopen(dstf, 'r'); b = fread(fh, Inf, '*uint8'); fclose(fh);
+            rec.present = true; rec.bytes = numel(b); rec.sha = kv_sha256(b);
+            tee('  %-28s %9d bytes  %s\n', n, rec.bytes, rec.sha(1:12));
+        else
+            if exist(dstf, 'file') == 2, delete(dstf); end   % no stale copy
+            tee('  %-28s ABSENT in the current tree (both legs run without it)\n', n);
+        end
+        C(end+1) = rec; %#ok<AGROW>
+    end
+    tee('\n');
+end
+
 function [pgc, opts, info] = legacy_transition_setup(FAST)
 % Build (pgc, opts) EXACTLY as the legacy transition drivers do.
 %
