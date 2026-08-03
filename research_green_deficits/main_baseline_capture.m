@@ -43,7 +43,7 @@
 %         <BASELINE_OUT>/baseline_d11_<tag>.mat   transition leg
 %         <BASELINE_OUT>/baseline_capture.txt
 
-clearvars -except BASELINE_SRC BASELINE_OUT FAST RHOBAR; close all; clc;
+clearvars -except BASELINE_SRC BASELINE_OUT FAST RHOBAR REUSE_D10; close all; clc;
 t0 = tic;
 
 MAINPROJ = fileparts(mfilename('fullpath'));
@@ -52,6 +52,13 @@ MAINROOT = fileparts(MAINPROJ);
 
 if ~exist('FAST','var'), FAST = false; end
 if ~exist('RHOBAR','var') || isempty(RHOBAR), RHOBAR = 0.90; end
+% REUSE_D10: skip leg 1 if its .mat is already there from an earlier run of
+% THIS revision. Leg 1 is the ~17-minute pre-refactor calibration and it is
+% unchanged by fixes to leg 2, so re-running it is pure cost. Off by default:
+% reusing a captured result is a decision, not a convenience, and it must be
+% asked for. The manifest is re-verified either way -- the skip covers the
+% solve, never the integrity check.
+if ~exist('REUSE_D10','var') || isempty(REUSE_D10), REUSE_D10 = false; end
 if ~exist('BASELINE_SRC','var') || isempty(BASELINE_SRC)
     BASELINE_SRC = fullfile(MAINROOT, 'baseline_bf0a4e8');
 end
@@ -178,49 +185,69 @@ assert(startsWith(canon(wt), canon(BASELINE_SRC)), 'transition solver is shadowe
 % thing under test. The isolation changes where its variables live, not how it
 % executes.
 % =====================================================================
-lastwarn('');
-tee('LEG 1 (D10): running the pre-refactor main_twoasset_ownership_kv ...\n');
-fclose(fid); fid = -1;                          % the script writes a lot
-try
-    [WS, wmsg, wid] = run_ownership_isolated(FAST, false);
-catch ME_capture
-    path(OLDPATH); cd(OLDCWD);
-    rethrow(ME_capture);
-end
-fid = fopen(lf, 'a'); tee = @(varargin) tee2(fid, varargin{:});
-
-own = fullfile(BPROJ, 'output', 'twoasset_ownership_kv.mat');
-D10 = struct();
-D10.env = ENV;
-D10.warning_last = struct('msg', wmsg, 'id', wid);
-[D10, missing10] = harvest(D10, WS, own, { ...
-    'eq0', 'EXK', 'omega', 'H', 'p', 'iota_H', 'b_targ_H', 'ss', ...
-    'r_b', 'd_base', 'D0', 'Gg'});
-D10 = flatten_eq(D10, 'eq0');
-D10.missing_fields = missing10;
-
 f10 = fullfile(BASELINE_OUT, sprintf('baseline_d10_%s.mat', tag));
-save(f10, '-struct', 'D10');
-tee('  wrote %s\n', f10);
-if ~isempty(missing10)
-    tee('  NOT CAPTURED (absent at this commit): %s\n', strjoin(missing10, ', '));
+if REUSE_D10 && exist(f10, 'file') == 2
+    tee(['LEG 1 (D10): REUSED from %s\n' ...
+         '  (REUSE_D10 = true; the pre-refactor calibration was not re-run.\n' ...
+         '   The baseline manifest was still verified above.)\n'], f10);
+    Dchk = load(f10, 'env');
+    if isfield(Dchk,'env') && isfield(Dchk.env,'fast') && Dchk.env.fast ~= FAST
+        path(OLDPATH); cd(OLDCWD);
+        error('main_baseline_capture:reusefast', ...
+            'the reused leg-1 file has FAST=%d but this run has FAST=%d', ...
+            Dchk.env.fast, FAST);
+    end
+else
+    lastwarn('');
+    tee('LEG 1 (D10): running the pre-refactor main_twoasset_ownership_kv ...\n');
+    fclose(fid); fid = -1;                          % the script writes a lot
+    try
+        [WS, wmsg, wid] = run_ownership_isolated(FAST, false);
+    catch ME_capture
+        path(OLDPATH); cd(OLDCWD);
+        rethrow(ME_capture);
+    end
+    fid = fopen(lf, 'a'); tee = @(varargin) tee2(fid, varargin{:});
+
+    own = fullfile(BPROJ, 'output', 'twoasset_ownership_kv.mat');
+    D10 = struct();
+    D10.env = ENV;
+    D10.warning_last = struct('msg', wmsg, 'id', wid);
+    [D10, missing10] = harvest(D10, WS, own, { ...
+        'eq0', 'EXK', 'omega', 'H', 'p', 'iota_H', 'b_targ_H', 'ss', ...
+        'r_b', 'd_base', 'D0', 'Gg'});
+    D10 = flatten_eq(D10, 'eq0');
+    D10.missing_fields = missing10;
+    save(f10, '-struct', 'D10');
+    tee('  wrote %s\n', f10);
+    if ~isempty(missing10)
+        tee('  NOT CAPTURED (absent at this commit): %s\n', strjoin(missing10, ', '));
+    end
 end
 
 % =====================================================================
 % LEG 2 (D11): the transition, at the LEGACY rho_d = 0.90 rule.
 % =====================================================================
 tee('\nLEG 2 (D11): pre-refactor solve_hank_dtpl_transition, rho_d = %.2f ...\n', RHOBAR);
-pgc = setup_params_green();
-T = 80; if ENV.fast, T = 60; end
-o = struct('T', T, 'regime', 'indexed', 'financing', 'deficit', ...
-           'rho_d', RHOBAR, 'verbose', false);
-TRd = solve_hank_dtpl_transition(pgc, o);
+[pgc, opts_base, calinfo] = legacy_transition_setup(ENV.fast);
+T = opts_base.T;
+tee('  legacy setup: na=%d, T=%d, beta*=%.6f, D0=%.3f, Gg=%.6f\n', ...
+    calinfo.na, T, calinfo.beta_star, calinfo.D0_med, calinfo.Gg_cal);
+tee('  (beta is CALIBRATED, as every legacy driver does; the default beta\n');
+tee('   leaves no root in the solver''s hard-coded [0.5, 1.3] price bracket)\n');
 
-ob = o; ob.financing = 'lumpsum'; ob.rho_d = 0;
+o = opts_base; o.regime = 'indexed'; o.financing = 'deficit'; o.rho_d = RHOBAR;
+TRd = solve_hank_dtpl_transition(pgc, o);
+check_TR(TRd, 'deficit');
+tee('  deficit  : %s\n', getmsg(TRd));
+
+ob = opts_base; ob.regime = 'indexed'; ob.financing = 'lumpsum'; ob.rho_d = 0;
 TRb = solve_hank_dtpl_transition(pgc, ob);
+check_TR(TRb, 'balanced baseline');
+tee('  balanced : %s\n', getmsg(TRb));
 
 D11 = struct('env', ENV, 'opts_deficit', o, 'opts_baseline', ob, ...
-             'T', T, 'rho_bar', RHOBAR);
+             'pgc', pgc, 'calinfo', calinfo, 'T', T, 'rho_bar', RHOBAR);
 D11 = flatten_TR(D11, TRd, 'd');
 D11 = flatten_TR(D11, TRb, 'b');
 D11.dlnP0 = log(TRd.phat(1) / TRb.phat(1));
@@ -243,6 +270,73 @@ fprintf('If a run is ever interrupted before this line, recover with:\n');
 fprintf('  clear; restoredefaultpath; run_project_path_setup\n');
 
 % =====================================================================
+function [pgc, opts, info] = legacy_transition_setup(FAST)
+% Build (pgc, opts) EXACTLY as the legacy transition drivers do.
+%
+% WHY THIS EXISTS. The first version of this capture called
+%     pgc = setup_params_green();
+%     o   = struct('T',T,'regime','indexed','financing','deficit','rho_d',0.90);
+% and the solver failed with "regime TR-BASE: no sign change on [0.5, 1.3]
+% (Phi ends: +2.018 / +3.078)". It was not a solver defect. Every real caller
+% -- main_transition_deficit.m lines 55-83, main_project_transition.m -- does
+%
+%     pgc = pg; pgc.beta = beta_star; pgc.climate_version = 1; pgc.D0 = D0_med;
+%     opts.Gg_nom = Gg_cal;
+%
+% with beta_star from calibrate_beta. Passing the DEFAULT beta leaves asset
+% demand far above debt supply at every P in the hard-coded bracket, so Phi is
+% positive at both ends and no root exists. The FAST branch additionally
+% rebuilds the asset grid at pg.fast.na, which the first version also skipped:
+% it only shortened T.
+%
+% So the earlier D11 leg was never the legacy experiment. That defect was
+% shared by kv_kappa_legacy, which is corrected the same way.
+%
+% THE CALIBRATION IS ALWAYS RECOMPUTED, never read from
+% output/calibrated_results.mat as the legacy driver optionally does. A cached
+% beta that exists in one tree and not the other would make the two legs
+% differ by their CACHE rather than by their code, which is precisely what a
+% parity test must not permit.
+    pg = setup_params_green();
+    opts = struct('T', 80, 'tol', 2e-3, 'maxit', 120, 'xi', 0.5, 'verbose', false);
+    if FAST
+        pg.na    = pg.fast.na;
+        u        = linspace(0, 1, pg.na)';
+        pg.aGrid = -pg.abar + (pg.amax + pg.abar) * (u .^ pg.acurv);
+        pg.aGrid(1) = -pg.abar; pg.aGrid(end) = pg.amax;
+        opts.T = 60; opts.maxit = 80;
+    end
+    D0_med = 0.06;
+    [beta_star, ~] = calibrate_beta(pg, (1 + pg.i_ss)/(1 + pg.mu) - 1, 1.10, D0_med);
+    Gg_cal = 0.02 * (pg.Bnom / 1.10);
+    pgc = pg;
+    pgc.beta = beta_star; pgc.climate_version = 1; pgc.D0 = D0_med;
+    opts.Gg_nom = Gg_cal;
+    info = struct('beta_star', beta_star, 'D0_med', D0_med, 'Gg_cal', Gg_cal, ...
+                  'na', pg.na, 'T', opts.T, ...
+                  'source', 'main_transition_deficit.m lines 55-83');
+end
+
+function check_TR(TR, name)
+% A transition that did not produce a path is a DIAGNOSIS, not a missing
+% field. Accessing TR.phat on a failed solve raised "Unrecognized field name",
+% which says nothing about why the solve failed even though the solver had put
+% the reason in TR.msg.
+    if isstruct(TR) && isfield(TR, 'phat') && ~isempty(TR.phat), return; end
+    m = '(the solver returned no message)';
+    if isstruct(TR) && isfield(TR, 'msg') && ~isempty(TR.msg), m = TR.msg; end
+    error('transition:failed', ...
+        ['the %s transition produced no price path.\n  solver message: %s\n' ...
+         '  A "no sign change on [0.5, 1.3]" here usually means pgc.beta is ' ...
+         'the DEFAULT rather than the calibrated value -- see ' ...
+         'legacy_transition_setup.'], name, m);
+end
+
+function s = getmsg(TR)
+    s = '(no message)';
+    if isstruct(TR) && isfield(TR,'msg') && ~isempty(TR.msg), s = TR.msg; end
+end
+
 function [WS, wmsg, wid] = run_ownership_isolated(FAST, REGRID)
 % Run main_twoasset_ownership_kv in a PRIVATE workspace and hand back what it
 % produced, as a struct.

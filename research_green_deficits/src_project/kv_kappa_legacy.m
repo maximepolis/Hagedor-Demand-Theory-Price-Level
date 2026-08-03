@@ -39,12 +39,32 @@ function K = kv_kappa_legacy(pgc, T, rho_bar, verbose)
 %        K.provenance             formula, role, and the prohibition above
 
     if nargin < 4, verbose = false; end
-    o = struct('T', T, 'regime', 'indexed', 'financing', 'deficit', ...
-               'rho_d', rho_bar, 'verbose', verbose);
-    TRd = solve_hank_dtpl_transition(pgc, o);
 
-    ob = o; ob.financing = 'lumpsum'; ob.regime = 'indexed'; ob.rho_d = 0;
+    % THE SETUP MUST BE THE LEGACY ONE. This function previously took whatever
+    % pgc the caller happened to build -- typically a bare
+    % setup_params_green() -- and passed it straight to the solver. With the
+    % DEFAULT beta the baseline steady state does not exist: asset demand
+    % exceeds debt supply at every price in the solver's [0.5, 1.3] bracket,
+    % and the solve fails with "regime TR-BASE: no sign change". Any kappa it
+    % had returned would not have been the manuscript's legacy dilution.
+    %
+    % kv_legacy_transition_setup reproduces main_transition_deficit's
+    % construction: calibrated beta, climate_version, D0, Gg_nom, and the FAST
+    % asset grid. The pgc ARGUMENT is now used only for its FAST flag and for
+    % fields the caller may legitimately override.
+    FASTFLAG = isfield(pgc, 'na') && isfield(pgc, 'na_fast') && pgc.na == pgc.na_fast;
+    [pgc, opts, calinfo] = kv_legacy_transition_setup(FASTFLAG);
+    opts.T = T; opts.verbose = verbose;
+
+    o = opts; o.regime = 'indexed'; o.financing = 'deficit'; o.rho_d = rho_bar;
+    TRd = solve_hank_dtpl_transition(pgc, o);
+    assert(isstruct(TRd) && isfield(TRd,'phat') && ~isempty(TRd.phat), ...
+        'kv_kappa_legacy: the deficit transition produced no path (%s)', msgof(TRd));
+
+    ob = opts; ob.regime = 'indexed'; ob.financing = 'lumpsum'; ob.rho_d = 0;
     TRb = solve_hank_dtpl_transition(pgc, ob);
+    assert(isstruct(TRb) && isfield(TRb,'phat') && ~isempty(TRb.phat), ...
+        'kv_kappa_legacy: the baseline transition produced no path (%s)', msgof(TRb));
 
     Binf_l = kappa_terminal(TRd);
     Binf_b = kappa_terminal(TRb);
@@ -85,7 +105,12 @@ function K = kv_kappa_legacy(pgc, T, rho_bar, verbose)
             'prohibited', ['must not be passed to a solver as a terminal ' ...
                            'condition; that was the withdrawn C3/C4 target ' ...
                            'design, and C3 is infeasible'], ...
-            'rho_bar', rho_bar, 'T', T));
+            'rho_bar', rho_bar, 'T', T, 'calinfo', calinfo));
+end
+
+function s = msgof(TR)
+    s = '(no message)';
+    if isstruct(TR) && isfield(TR,'msg') && ~isempty(TR.msg), s = TR.msg; end
 end
 
 function k = kappa_terminal(TR)
