@@ -205,7 +205,7 @@ Replace the lead-in with:
 
 ## F. Added by referee report R12 (verified against the source)
 
-### F1 — Proposition 5 internal inconsistency (R12 Minor 4), **line 1243**
+### F1 — Proposition 5 internal inconsistency (R12 Minor 4), **line 1243** — **APPLIED**
 
 The analytical-status overview describes Proposition 5 (`prop:financingdesign`,
 the 5th `\begin{proposition}`, line 1640) as resting on approximate
@@ -228,7 +228,7 @@ Replace with:
 *This strengthens the paper's claim rather than weakening it, and removes a
 contradiction a referee has already caught.*
 
-### F2 — the Prop 6 decomposition sentence is out of date, **line 1712**
+### F2 — the Prop 6 decomposition sentence is out of date, **line 1712** — **APPLIED (interim wording)**
 
 Currently:
 
@@ -247,6 +247,16 @@ two-asset grid certification. Proposed:
 > solved central difference; the quantification is reported only for
 > discretizations that clear the certification protocol.
 
-**Do not apply F2 until certification actually passes** — otherwise the
-sentence promises a report that does not yet exist. Until then the honest
-interim wording is "implemented, pending certification".
+**Applied in the interim form**, which promises nothing that does not exist:
+the routine is described as computing the components and checking them against
+a solved central difference, with the quantification "reported only for
+discretizations that clear the numerical certification protocol, which is in
+progress". The reference is to `app:numerics` — `check_tex.py` caught an
+invented `app:numerical` label on the first attempt, which is what that rule
+is for.
+
+Both F1 and F2 are corrections of statements that are **false about the
+paper's own content**: F1 describes a superseded version of its own
+proposition, F2 understates what the repository contains. They are the same
+category as the p.29 broken-reference repair and are applied on that basis.
+Everything in sections A–E remains held.
