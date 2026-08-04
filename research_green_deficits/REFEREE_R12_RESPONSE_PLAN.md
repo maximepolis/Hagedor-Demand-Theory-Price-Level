@@ -80,6 +80,7 @@ code exists; certification does not. Different remedy, different timeline.
 | `solve_hank_dtpl_transition.m` (`opts.xi_index`) | Major 5 | partial indexation $G_{g,t}=\bar G_g (P_t/\bar P)^\xi$ |
 | `main_partial_indexation.m` | Major 5 | ξ sweep with the ordering tested at each ξ |
 | `kv_wealth_mobility.m` | **Major 1** | liquid-wealth transition matrices, bin-level accumulation, half-life of the redistribution |
+| `main_identification_ledger.m` | **Major 2, items 1–3** | parameter ledger, order condition, untargeted-moment census (§2.3) |
 
 ### 2.1 Partial indexation nests both existing regimes exactly
 
@@ -128,6 +129,60 @@ at all.
 **This is not validation.** It fetches no external data. Nothing from it may be
 called disciplined until it is compared against actual panel series.
 
+### 2.3 The identification ledger — and what it settles without a run
+
+`main_identification_ledger` is read-only over the stored calibrations and
+solves nothing, which is the point: it audits the calibration the paper
+actually uses rather than reporting a fresh solve. It runs in seconds.
+
+Five things it establishes that do **not** depend on Gate 11, because they are
+statements about targets rather than about resolution:
+
+1. **The order condition fails.** Five internally solved parameters — β
+   (one-asset), β and χ_b (two-asset), and the superstar pair (mult, p_in) —
+   against **three** distinct targeted moments: debt/income = 1.10, the direct
+   liquid holding S_b = 0.30, and the top-1% wealth share. Under-identified,
+   independent of any discretization.
+
+2. **ι_H is not a second moment.** It is 0.30/1.10 by construction — an
+   algebraic consequence of two targets already counted. Classing it as a
+   calibrated parameter would manufacture identification out of arithmetic.
+
+3. **β and χ_b chase the same moment in two different economies.** χ_b is
+   fitted in the *frictionless* companion (λ = 1) to S_b = 0.30 and then
+   transplanted into the infrequent-adjustment economy, where β is refitted to
+   S_b = 0.30. The transplant has a stated reason — the friction roughly
+   doubles precautionary wealth, putting the level out of χ's reach — but it is
+   a modelling choice, not an identification, and the moment is counted once.
+
+4. **The superstar state is 2 parameters against 1 moment**, with p_out held
+   fixed and (mult, p_in) selected off a 3×3 grid by proximity to a single
+   top-1% target. A one-dimensional family reproduces any given top-1% share.
+   The fix is nearly free: `wealth_concentration_fit` already computes the
+   top-10% share and the wealth Gini, so adding a second concentration moment
+   costs no extra solve. **This is the cheapest identification improvement
+   anywhere in the project.**
+
+5. **The two parameters with no external target are the two that govern the
+   moment the model cannot reproduce.** φ (`div_payout` = 1) and `bbar_liq`
+   both carry the DECL class, and between them they force WHtM ≡ 0 — a
+   *structural* zero, not a calibration outcome, so it fails against any
+   positive external value without needing the number transcribed. R12's Major
+   2 names φ as quantitatively decisive; the ledger shows why that is not a
+   coincidence.
+
+The untargeted-moment census (section C of the ledger) carries the model column
+filled from `twoasset_ownership_kv.mat` and a **deliberately empty data
+column**, with the source named in each slot — the same rule as
+`main_validation_mobility`. Every row is stamped UNCERTIFIED, because the model
+column comes from the two-asset block.
+
+**Where this leaves Major 2.** Item 4 (the Schur decomposition) is implemented
+and blocked on Gate 11. Items 1–3 are now answered, and the answer is *adverse*:
+the preferred calibration is under-identified and its worst-fitting moment is
+governed by its least-identified parameters. That is worth stating in the paper
+in the ledger's own terms rather than waiting to be told again.
+
 ---
 
 ## 3. Triage of the eleven major comments
@@ -135,7 +190,7 @@ called disciplined until it is compared against actual panel series.
 | # | comment | verdict | disposition |
 |---|---|---|---|
 | 1 | nominal-liability demand not externally identified | **accept in full** | machinery built; external comparison outstanding — the gating item |
-| 2 | two-asset sign restoration is fragile | **accept, with one correction** | Schur decomposition exists; certification blocked. Identification ledger owed |
+| 2 | two-asset sign restoration is fragile | **accept, with one correction** | Schur decomposition exists; certification blocked. Ledger **built** (§2.3); items 1–3 answered, adversely |
 | 3 | price-level regime needs institutional justification | **accept** | large; regime menu is a separate paper-scale exercise |
 | 4 | ordering, not "green disinflation", is the result | **accept** | already the R11 safety patch; makes it the organizing claim |
 | 5 | nominal appropriation creates the feedback mechanically | **accept** | **built** (§2.1) |
@@ -206,7 +261,8 @@ noise produces a decomposition of noise.
 1. **Now (running):** D10/D11 parity → Track A/B certification → Gate 11.
 2. **Unblocked, no MATLAB:** Prop 5 line-1243 correction; the line-1712
    correction; the safety patch.
-3. **Unblocked, needs a run:** partial indexation; wealth mobility.
+3. **Unblocked, needs a run:** the identification ledger (seconds, read-only);
+   partial indexation; wealth mobility.
 4. **Blocked on Gate 11:** Prop 6 decomposition certification; the full
    two-asset transition with damages moving (Major 7).
 5. **Paper-scale, needs a decision:** regime menu (Major 3), distortionary

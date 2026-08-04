@@ -4,10 +4,16 @@ Minimal changes so that no uncertified two-asset claim stands as unqualified
 in the compiled PDF. **This is a safety patch, not the paper reconstruction.**
 The abstract, introduction and Section 6 are not restructured.
 
-**Status: located and drafted. Manuscript NOT edited.** Figure *code* changes
-are applied (they are unblocked); every `.tex` change below is held for your
-word, with exact line numbers and replacement text so it can be applied
-mechanically.
+**Status: sections A–E located and drafted, manuscript NOT edited. Section F
+APPLIED.** Figure *code* changes are applied (they are unblocked); every `.tex`
+change in A–E is held for your word, with exact line numbers and replacement
+text so it can be applied mechanically.
+
+The two items in **section F are already in the manuscript**. They are not
+rescoping or requalification — they are corrections of statements that are
+*false about the paper's own content*: F1 described a superseded version of the
+paper's own proposition, F2 understated what the repository contains. Same
+category as the p.29 broken-reference repair, applied on the same basis.
 
 Line numbers are for `paper/green_deficits_price_level.tex` at commit
 `a3578ee` unless stated. `\appendix` is at **line 3325**, so every site below
@@ -205,7 +211,7 @@ Replace the lead-in with:
 
 ## F. Added by referee report R12 (verified against the source)
 
-### F1 — Proposition 5 internal inconsistency (R12 Minor 4), **line 1243**
+### F1 — Proposition 5 internal inconsistency (R12 Minor 4), **line 1243** — **APPLIED**
 
 The analytical-status overview describes Proposition 5 (`prop:financingdesign`,
 the 5th `\begin{proposition}`, line 1640) as resting on approximate
@@ -228,7 +234,7 @@ Replace with:
 *This strengthens the paper's claim rather than weakening it, and removes a
 contradiction a referee has already caught.*
 
-### F2 — the Prop 6 decomposition sentence is out of date, **line 1712**
+### F2 — the Prop 6 decomposition sentence is out of date, **line 1712** — **APPLIED (interim wording)**
 
 Currently:
 
@@ -247,6 +253,16 @@ two-asset grid certification. Proposed:
 > solved central difference; the quantification is reported only for
 > discretizations that clear the certification protocol.
 
-**Do not apply F2 until certification actually passes** — otherwise the
-sentence promises a report that does not yet exist. Until then the honest
-interim wording is "implemented, pending certification".
+**Applied in the interim form**, which promises nothing that does not exist:
+the routine is described as computing the components and checking them against
+a solved central difference, with the quantification "reported only for
+discretizations that clear the numerical certification protocol, which is in
+progress". The reference is to `app:numerics` — `check_tex.py` caught an
+invented `app:numerical` label on the first attempt, which is what that rule
+is for.
+
+Both F1 and F2 are corrections of statements that are **false about the
+paper's own content**: F1 describes a superseded version of its own
+proposition, F2 understates what the repository contains. They are the same
+category as the p.29 broken-reference repair and are applied on that basis.
+Everything in sections A–E remains held.

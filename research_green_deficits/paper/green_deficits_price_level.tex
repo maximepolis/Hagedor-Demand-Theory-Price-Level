@@ -1239,8 +1239,10 @@ Anchor insulation (Proposition~\ref{prop:insulation}) rests on a
 \textbf{numerically verified} elasticity bound. Optimal accommodation
 (Proposition~\ref{prop:optimalmu}) is an analytic \emph{reduction} to a
 real-rate problem plus a \textbf{numerically located} interior optimum.
-Financing design (Proposition~\ref{prop:financingdesign}) uses an
-\textbf{approximate} homogeneity (exact only in the homothetic limit). Each
+Financing design (Proposition~\ref{prop:financingdesign}) is an
+\textbf{exact} local comparative static at a differentiable stationary
+equilibrium; an earlier version imposed a homotheticity-based tax rule and
+was corrected. Each
 statement carries a pointer to its proof in Appendix~\ref{app:proofs}, and the
 qualifier is repeated at the statement so it is not lost.
 
@@ -1707,9 +1709,12 @@ two-market equilibrium; proof in Appendix~\ref{app:proofs}. It identifies
 what the one-asset theorem cannot: the restored level sign of
 Section~\ref{subsec:twoassetnl} operates through $F_{bq}F_{k\alpha}/F_{kq}$
 --- the cross-market term --- and not only through the direct incidence
-term $F_{b\alpha}$. Quantifying the two Schur components separately in the
-preferred calibration, and checking \eqref{eq:twomarket} against a solved
-central difference, is the natural next step and is not yet done.
+term $F_{b\alpha}$. The two Schur components are computed separately, and
+\eqref{eq:twomarket} is checked against a solved central difference over a
+step-size ladder, by the decomposition routine described in
+Appendix~\ref{app:numerics}; the quantification is reported only for
+discretizations that clear the numerical certification protocol, which is in
+progress.
 
 The scaling argument is only the operational route to the sign of
 $\Sfun_\vartheta$; the exact statement of \emph{direct} incidence is a
