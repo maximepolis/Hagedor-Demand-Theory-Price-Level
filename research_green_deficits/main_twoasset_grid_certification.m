@@ -47,7 +47,7 @@
 %
 % Everything it writes is QUARANTINED until the gate passes.
 
-clearvars -except TRACK FAST PARALLEL NWORKERS NB_LIST NK_LIST; close all; clc;
+clearvars -except TRACK FAST PARALLEL NWORKERS NB_LIST NK_LIST WIDEN NB_SCALED; close all; clc;
 rng(20260731,'twister'); t0 = tic;
 
 projdir = fileparts(mfilename('fullpath'));
@@ -97,6 +97,77 @@ Bnom = pg.Bnom; Kbar = 1.0; g_real = Gg / eq0.P;
 
 [blo,bhi,gb] = kv_grid_curv(p0.bGrid);
 [klo,khi,gk] = kv_grid_curv(p0.kGrid);
+
+% ---- WIDEN THE FROZEN FAMILY (authorised 2026-08-04) --------------------
+% Gates 7-9 measure distance from the grid CEILING and the calibration grid
+% fails them before any refinement, so the matrix was certifying nothing.
+% Widening the extent is the fix that keeps Track A's meaning: parameters
+% stay frozen, only the discretization moves, which is what discretization
+% error means. The factors are the ones the residual scan verified, read
+% from that scan so the widening and the diagnosis share one source.
+%
+% WHAT THIS COSTS, STATED PLAINLY. The frozen (beta, chi_b) were calibrated
+% on the NARROW family to S_b = 0.30. Widening moves the wealth moments, so
+% on the wide family the frozen economy will NOT sit at its targets. That is
+% not a defect of Track A -- Track A asks how much the answer moves when only
+% the grid moves, and re-fitting parameters at each grid would let a
+% calibration movement offset a discretization error. But it does mean the
+% widened Track A economy is not the calibrated economy, and its dP may
+% differ from the paper's for a reason that is not discretization. The
+% distance is measured and reported below rather than assumed small.
+if ~exist('WIDEN','var') || isempty(WIDEN), WIDEN = true; end
+KFACC = []; BFACC = [];
+if WIDEN
+    scf = fullfile(projdir,'output','kv_residual_scan.mat');
+    if exist(scf,'file') == 2
+        Sc = load(scf, 'kfac', 'bfac');
+        if isfield(Sc,'kfac'), KFACC = Sc.kfac; end
+        if isfield(Sc,'bfac'), BFACC = Sc.bfac; end
+    end
+    if isempty(KFACC), KFACC = 6; end        % the ownership driver's defaults
+    if isempty(BFACC), BFACC = 8; end
+    bhi0 = bhi; khi0 = khi;
+    bhi = bhi * BFACC; khi = khi * KFACC;
+    tee('*** FAMILY WIDENED for Track A: bmax %.4g -> %.4g (x%g), ', ...
+        bhi0, bhi, BFACC);
+    tee('kmax %.4g -> %.4g (x%g)\n', khi0, khi, KFACC);
+    tee('*** Parameters stay FROZEN, so this remains a discretization\n');
+    tee('*** measurement -- but the frozen calibration was fitted on the\n');
+    tee('*** NARROW family and will not sit at its targets here. The\n');
+    tee('*** distance is reported per cell as target_drift, not assumed.\n');
+    tee('*** Set WIDEN = false to reproduce the pre-widening matrix.\n');
+
+    % NODE COUNTS MUST SCALE WITH THE EXTENT, or widening is a downgrade.
+    % On a curvature-g grid, node i sits at (i/n)^g * xmax, so the count of
+    % nodes below a FIXED level x* is n*(x*/xmax)^(1/g). Multiplying xmax by
+    % F therefore divides the density below x* by F^(1/g). Keeping the same
+    % resolution where the mass actually lives -- near the constraint, which
+    % is the whole reason for the curvature -- requires multiplying n by
+    % F^(1/g). At bfac 8 and curvature 2.4 that is 8^(1/2.4) = 2.4x; at kfac
+    % 6 it is 2.1x.
+    %
+    % Not doing this would widen the grid and coarsen it at the same time,
+    % then report the combination as a discretization study. The counts are
+    % scaled by default. An explicit NB_LIST/NK_LIST in the workspace is
+    % respected and left alone, so the scaling can be overridden knowingly.
+    sb_ = BFACC^(1/max(gb,1e-6));
+    sk_ = KFACC^(1/max(gk,1e-6));
+    if exist('NB_SCALED','var') && ~isempty(NB_SCALED) && ~NB_SCALED
+        tee('*** node counts NOT scaled (NB_SCALED = false). The widened\n');
+        tee('*** family is COARSER than the narrow one near the constraint.\n');
+    else
+        NB0 = NB_LIST; NK0 = NK_LIST;
+        NB_LIST = unique(ceil(NB_LIST * sb_));
+        NK_LIST = unique(ceil(NK_LIST * sk_));
+        tee('*** node counts scaled to hold density below a fixed level:\n');
+        tee('***   nb %s -> %s  (x%.2f)\n', mat2str(NB0), mat2str(NB_LIST), sb_);
+        tee('***   nk %s -> %s  (x%.2f)\n', mat2str(NK0), mat2str(NK_LIST), sk_);
+        tee('*** This is why a widened FAST run is not fast. Set\n');
+        tee('*** NB_SCALED = false to keep the small counts, knowing what it\n');
+        tee('*** costs, or pass NB_LIST / NK_LIST explicitly.\n');
+    end
+    tee('\n');
+end
 tee('frozen calibration: beta=%.6f chi_b=%.6f lambda=%.3f iota_H=%.4f\n', ...
     p0.beta, p0.chi_b, p0.lambda_adj, iota);
 tee('grid family: b in [%.4g, %.4g] curvature %.3f; k in [%.4g, %.4g] curvature %.3f\n', ...
@@ -121,7 +192,11 @@ if isfield(eq0, 'dist') && ~isempty(eq0.dist)
     Tf = struct('boundary', 1e-4, 'occupancy', 0.90);
     famfail = (bs0 >= Tf.boundary) || (ks0 >= Tf.boundary) || ...
               (bo0 >= Tf.occupancy) || (ko0 >= Tf.occupancy);
-    tee('pre-flight, FAMILY gates on the frozen benchmark distribution:\n');
+    tee('pre-flight, FAMILY gates on the frozen benchmark distribution.\n');
+    tee('These are measured on the NARROW family the benchmark was solved on;\n');
+    tee('they are what motivated the widening above, and they cannot be\n');
+    tee('re-evaluated on the wide family without solving it, which the cells\n');
+    tee('below do. Read them as the reason for widening, not as its result.\n');
     tee('  gate 7  liquid top-two-node mass   %.5f  (need <%.0e)\n', bs0, Tf.boundary);
     tee('  gate 8  illiquid top-two-node mass %.5f  (need <%.0e)\n', ks0, Tf.boundary);
     tee('  gate 9  occupied support, liquid   %.4f  (need <%.2f)\n', bo0, Tf.occupancy);
@@ -324,6 +399,16 @@ function C = solve_cell(CTX, eq0, prev, tee)
     C.dP  = E1.P - E0.P;
     C.dlnP = log(E1.P/E0.P);
     C.Sb0 = E0.Sb; C.Sb1 = E1.Sb; C.Sk0 = E0.Sk; C.Sk1 = E1.Sk;
+    % TARGET DRIFT. The frozen (beta, chi_b) hit S_b = 0.30 on the narrow
+    % family. On a widened family they will not, and the size of the miss
+    % says how far the Track A economy has moved from the calibrated one.
+    % Reported, never gated: Track A is entitled to be off its targets --
+    % that is what holding parameters fixed MEANS -- but a reader comparing
+    % this dP with the paper's is entitled to know how far apart the two
+    % economies are.
+    C.target_drift = E0.Sb - 0.30;
+    tee('    S_b at alpha=0 = %.4f (calibration target 0.30, drift %+0.4f)\n', ...
+        E0.Sb, C.target_drift);
     tee('    P^LS=%.6f  P^LEV=%.6f  dP=%+0.6f  dlnP=%+0.6f  cell %s\n', ...
         C.P0, C.P1, C.dP, C.dlnP, ternstr(C.ok,'PASS','FAIL'));
 end

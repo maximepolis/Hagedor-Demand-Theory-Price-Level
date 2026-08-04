@@ -27,7 +27,7 @@ function out = kv_stationary_block(rb, q, dvd, tau, pe, V0, distIn)
     out = struct('ok', false, 'msg', '', 'Sb', NaN, 'Sk', NaN, ...
                  'sol', [], 'dist', [], 'bch', [], 'kch', [], ...
                  'dV', NaN, 'ddist', NaN, 'dist_loose', false, ...
-                 'churn', NaN, 'churn_non', NaN);
+                 'churn', NaN, 'churn_non', NaN, 'vfi_soft', true);
     if nargin < 6, V0 = []; end
     if nargin < 7, distIn = []; end
 
@@ -42,6 +42,10 @@ function out = kv_stationary_block(rb, q, dvd, tau, pe, V0, distIn)
     % the two have opposite polarity and the gate is "<= 0".
     if isfield(dg, 'churn_adj'), out.churn = dg.churn_adj; end
     if isfield(dg, 'churn_non'), out.churn_non = dg.churn_non; end
+    % Did the VFI reach its own HARD tolerance, or did it soft-accept a
+    % grid-limited fixed point? Gate 4.1 turns on this: a lowered gate-4
+    % threshold must not be passable by the solver's own fallback.
+    out.vfi_soft = isfield(dg, 'soft') && ~isempty(dg.soft) && dg.soft;
 
     if isempty(distIn)
         [dist, dd] = stationary_distribution_twoasset_kv(sol, rb, q, dvd, tau, pe);

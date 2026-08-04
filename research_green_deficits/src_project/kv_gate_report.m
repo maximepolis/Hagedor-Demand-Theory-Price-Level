@@ -56,6 +56,11 @@ function G = kv_gate_report(E, CTX, opts)
     m.ddist     = getf(E, 'ddist', NaN);
     m.distloose = getf(E, 'dist_loose', false);
     m.polstable = getdef(opts, 'polstable', NaN);
+    % Default TRUE, the conservative direction: an equilibrium that does not
+    % say whether its VFI soft-accepted is treated as though it did. The
+    % mirror-image default on dist_loose (false) is what let gate 5.1 pass on
+    % the absence of the flag it checks.
+    m.vfisoft   = getf(E, 'vfi_soft', true);
 
     % ---- gates 7-10: distribution health ---------------------------------
     [m.ksat, m.bsat, m.kocc, m.bocc] = ...
@@ -77,6 +82,7 @@ function G = kv_gate_report(E, CTX, opts)
     R = add(R, 3,  'max residual / tax revenue', max(m.res_b_rev, m.res_k_rev), T.res_fiscal, '<');
     R = add(R, 3.1,'max residual / debt service',max(m.res_b_ds,  m.res_k_ds),  T.res_fiscal, '<');
     R = add(R, 4,  'VFI sup-norm',               m.dV,         T.dV,        '<');
+    R = add(R, 4.1,'VFI not soft-accepted',      double(~m.vfisoft),   0.5, '>');
     R = add(R, 5,  'distribution sup-norm',      m.ddist,      T.ddist,     '<');
     R = add(R, 5.1,'distribution not loose',     double(~m.distloose), 0.5, '>');
     R = add(R, 6,  'adjuster policy churn',      m.polstable,  T.polstable, '<=');
@@ -103,7 +109,33 @@ function T = thresholds()
     T = struct( ...
         'res_rel',    1e-6, ...   % gates 1-2
         'res_fiscal', 1e-5, ...   % gate 3
-        'dV',         1e-8, ...   % gate 4
+        ...
+        % GATE 4 AMENDED 2026-08-04, on authority of the project lead, with
+        % the reason recorded here as the protocol requires.
+        %
+        % The original 1e-8 was unattainable BY CONSTRUCTION, not by accident.
+        % solve_household_twoasset_kv states in its own header that the
+        % relative sup-norm "floors above tol_vfi and never reaches it"
+        % because the adjuster's choice is an argmax over a DISCRETE candidate
+        % set: near a fixed point the value function stops changing smoothly
+        % and starts flipping between neighbouring candidates, so the sup-norm
+        % settles at grid granularity instead of going to zero. The solver
+        % accordingly accepts a grid-limited fixed point at tol_soft = 3e-3.
+        % A gate at 1e-8 and a solver that stops at 3e-3 cannot both stand;
+        % five orders separate them and every cell fails on the difference.
+        %
+        % The new value is p.tol_vfi = 1e-6, the solver's own HARD tolerance.
+        % The gate now asks a question the solver can answer: did the VFI
+        % reach the tolerance it was asked for? It is NOT set to tol_soft,
+        % which would make the gate vacuous -- passing exactly whenever the
+        % solver decided to stop.
+        %
+        % Companion gate 4.1 closes the remaining hole: a soft-accepted solve
+        % can have dV anywhere below 3e-3, which would sometimes slip under
+        % 1e-6 by luck. 4.1 fails any equilibrium whose VFI soft-accepted,
+        % whatever its sup-norm, so the pair means "reached the hard tolerance
+        % by converging, not by giving up".
+        'dV',         1e-6, ...   % gate 4 (was 1e-8; see above)
         'ddist',      1e-11, ...  % gate 5
         'polstable',  0, ...      % gate 6, exact
         'boundary',   1e-4, ...   % gates 7-8
