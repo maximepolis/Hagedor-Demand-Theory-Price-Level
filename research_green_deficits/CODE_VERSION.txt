@@ -1,4 +1,4 @@
-R11.14
+R11.15
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,28 @@ R11.14
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.15 TRACK A COULD NOT HAVE PRODUCED GATE 11. Three defects, found in
+#        the first two cells of the first real run:
+#        (a) kv_solve_alpha assembled its output struct WITHOUT dV, ddist or
+#            dist_loose, one hop after kv_solve_bond_given_q had carried them
+#            up from kv_stationary_block. kv_gate_report read them as
+#            missing, scored gates 4 and 5 NaN, and by its own "unmeasured is
+#            never passed" rule failed every cell -- so Gate 11, which
+#            accumulates only certified cells, could never be computed. Gate
+#            5.1 was worse: defaulting dist_loose to false made ~false = true,
+#            so it PASSED on the absence of the flag it checks.
+#        (b) gate 6 (adjuster policy churn) was never supplied at all. The
+#            household solver recorded pol_stable -- a count of consecutive
+#            unchanged sweeps, LARGER when better -- which is not what a
+#            "<= 0" gate wants. It now records churn_adj as the FRACTION of
+#            adjuster (aIdx, sIdx) pairs that moved on the final sweep, and
+#            the driver passes it under the name the gate expects.
+#        (c) gates 7-9 are properties of the grid EXTENT, which Track A holds
+#            frozen while varying only node counts, so they fail identically
+#            in all nine cells. A pre-flight now evaluates them on the frozen
+#            benchmark distribution and says so before any solving. NO
+#            THRESHOLD AND NO PASS RULE IS CHANGED -- that is a protocol
+#            decision, not a code fix.
 # R11.14 the ledger's V1 diagnostic came back AGAINST the verdict it was
 #        written to support: 3 configs tie on the top-1% target and their
 #        untargeted moments agree to within the tie band, so the superstar

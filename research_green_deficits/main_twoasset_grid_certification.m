@@ -103,6 +103,47 @@ tee('grid family: b in [%.4g, %.4g] curvature %.3f; k in [%.4g, %.4g] curvature 
     blo, bhi, gb, klo, khi, gk);
 tee('matrix: nb %s x nk %s\n\n', mat2str(NB_LIST), mat2str(NK_LIST));
 
+% ---- PRE-FLIGHT: can this grid FAMILY clear the boundary gates at all? ----
+% Gates 7-9 measure where the distribution sits relative to the grid CEILING:
+% top-two-node mass, and the highest occupied node as a fraction of the top.
+% Track A varies only the NODE COUNTS nb and nk; the extent [blo,bhi] x
+% [klo,khi] is frozen with the calibration. Refining a grid whose ceiling is
+% too low moves neither diagnostic -- the mass is at the wall either way --
+% so if the frozen benchmark fails these, every cell in the matrix will fail
+% them identically, for a reason that has nothing to do with the
+% discretization error Track A exists to measure.
+%
+% That is worth knowing in the first second rather than after nine cells.
+% This costs nothing: the benchmark distribution is already in the .mat.
+% It does NOT change any threshold or any pass rule -- it reports.
+if isfield(eq0, 'dist') && ~isempty(eq0.dist)
+    [ks0, bs0, ko0, bo0] = kv_boundary_mass(eq0.dist, p0.kGrid, p0.bGrid);
+    Tf = struct('boundary', 1e-4, 'occupancy', 0.90);
+    famfail = (bs0 >= Tf.boundary) || (ks0 >= Tf.boundary) || ...
+              (bo0 >= Tf.occupancy) || (ko0 >= Tf.occupancy);
+    tee('pre-flight, FAMILY gates on the frozen benchmark distribution:\n');
+    tee('  gate 7  liquid top-two-node mass   %.5f  (need <%.0e)\n', bs0, Tf.boundary);
+    tee('  gate 8  illiquid top-two-node mass %.5f  (need <%.0e)\n', ks0, Tf.boundary);
+    tee('  gate 9  occupied support, liquid   %.4f  (need <%.2f)\n', bo0, Tf.occupancy);
+    tee('  gate 9.1 occupied support, illiquid %.4f  (need <%.2f)\n', ko0, Tf.occupancy);
+    if famfail
+        tee('  *** THE GRID FAMILY FAILS THESE BEFORE ANY REFINEMENT.\n');
+        tee('  *** Gates 7-9 are properties of the grid EXTENT (bhi, khi), which\n');
+        tee('  *** Track A holds FIXED. Every cell below will fail them with the\n');
+        tee('  *** same values, and no cell can be certified, so Gate 11 will\n');
+        tee('  *** report "fewer than two certified cells" regardless of how\n');
+        tee('  *** well the residuals and the convergence norms behave.\n');
+        tee('  *** This is a PROTOCOL question, not a solver failure: either the\n');
+        tee('  *** frozen family is widened (and the calibration re-validated on\n');
+        tee('  *** it, which is Track B), or gates 7-9 are scored once for the\n');
+        tee('  *** family rather than per cell. Neither is decided here, and no\n');
+        tee('  *** threshold is changed here.\n');
+    else
+        tee('  family clears the boundary gates; per-cell failures are genuine.\n');
+    end
+    tee('\n');
+end
+
 nw = kv_parpool(PARALLEL, NWORKERS, true, tee, ...
                 {fullfile(rootdir,'src'), fullfile(projdir,'src_project')});
 
@@ -249,8 +290,15 @@ function C = solve_cell(CTX, eq0, prev, tee)
     % --- per-equilibrium gates on the retained (continued) solve ---------
     Trev = CTX.r_b*(CTX.Bnom/E0.P) + CTX.g_real;      % real revenue, alpha=0
     DS   = CTX.r_b*(CTX.Bnom/E0.P);
-    g0 = kv_gate_report(E0, CTX, struct('Trev',Trev,'DS',DS));
-    g1 = kv_gate_report(E1, CTX, struct('Trev',Trev,'DS',DS));
+    % Gate 6 reads opts.polstable -- the FRACTION of adjuster candidates that
+    % moved between the last two sweeps. It was never supplied, so the gate
+    % scored NaN and, by the report's own "unmeasured is never passed" rule,
+    % failed every cell. kv_solve_alpha now carries E.churn up from the
+    % household solver; pass it through under the name the gate expects.
+    g0 = kv_gate_report(E0, CTX, struct('Trev',Trev,'DS',DS, ...
+                                        'polstable', getfd(E0,'churn',NaN)));
+    g1 = kv_gate_report(E1, CTX, struct('Trev',Trev,'DS',DS, ...
+                                        'polstable', getfd(E1,'churn',NaN)));
     print_gates(tee, 'alpha=0', g0);
     print_gates(tee, 'alpha=1', g1);
 
@@ -387,4 +435,10 @@ end
 
 function s = ternstr(c,a,b)
     if c, s = a; else, s = b; end
+end
+
+function v = getfd(S, f, dv)
+% Field with a default, so a worker running an older kv_solve_alpha yields an
+% UNMEASURED gate rather than an error inside a parfor body.
+    if isstruct(S) && isfield(S, f) && ~isempty(S.(f)), v = S.(f); else, v = dv; end
 end

@@ -105,6 +105,8 @@ function [sol, diag] = solve_household_twoasset_kv(rb, q, d, tau, p, V0)
     % well before the value plateaus, so "policies unchanged for N sweeps" is
     % the sharp accuracy statement for the soft-accepted fixed point.
     prevIdxN = []; polStable = 0;
+    prevIdxA = []; prevSIdx = [];              % adjuster indices, gate 6
+    diag.churn_adj = NaN; diag.churn_non = NaN;
 
     polBa = zeros(nx, ne); polKa = zeros(nx, ne); polCa = zeros(nx, ne);
     polBn = zeros(nb, nk, ne); polCn = zeros(nb, nk, ne);
@@ -126,6 +128,7 @@ function [sol, diag] = solve_household_twoasset_kv(rb, q, d, tau, p, V0)
 
         Va = zeros(nx, ne);
         Vn = zeros(nb, nk, ne);
+        polAIdx = zeros(nx, ne); polSIdx = zeros(nac, ne);   % gate-6 churn
         for ie = 1:ne
             Ee = EV(:,:,ie);
             % ---- adjuster: candidate values once, then one matrix max ----
@@ -139,6 +142,8 @@ function [sol, diag] = solve_household_twoasset_kv(rb, q, d, tau, p, V0)
             sb = sS(sIdx(aIdx))';                  % chosen share per x-node
             polBa(:,ie) = aC(aIdx) .* sb;
             polKa(:,ie) = aC(aIdx) .* (1 - sb) / q;
+            polAIdx(:,ie) = aIdx;                  % gate-6 churn, adjuster
+            polSIdx(:,ie) = sIdx;
             % ---- non-adjuster: outer difference + row max per k slice ----
             for ik = 1:nk
                 % LIQUID income carries only the paid-out share phi of the
@@ -200,7 +205,32 @@ function [sol, diag] = solve_household_twoasset_kv(rb, q, d, tau, p, V0)
         else
             polStable = 0;
         end
-        prevIdxN = polBnIdx;
+        % POLICY CHURN, as a FRACTION rather than as a run length. Gate 6 of
+        % the acceptance protocol asks for "the fraction of adjuster
+        % candidates that moved between the last two outer iterations" and
+        % requires it to be exactly zero. pol_stable below answers a
+        % different question -- how many consecutive sweeps have been
+        % unchanged -- and is LARGER when the solve is better, so feeding it
+        % to a "<= 0" gate would inverted-sign the test and pass whenever the
+        % policy had just moved. The two are recorded separately.
+        %
+        % The adjuster's choice is the (aIdx, sIdx) pair: the savings level
+        % on acGrid and the liquid/illiquid split. That is the object whose
+        % discreteness makes S_k(q) a step function, so it is the churn the
+        % gate is about; polBnIdx is the NON-adjuster's b choice and is
+        % reported alongside rather than instead.
+        if isempty(prevIdxA)
+            diag.churn_adj = NaN;              % no previous sweep to compare
+        else
+            ch = (polAIdx ~= prevIdxA) | (polSIdx ~= prevSIdx);
+            diag.churn_adj = sum(ch(:)) / max(numel(ch), 1);
+        end
+        if isempty(prevIdxN)
+            diag.churn_non = NaN;
+        else
+            diag.churn_non = sum(polBnIdx(:) ~= prevIdxN(:)) / max(numel(polBnIdx), 1);
+        end
+        prevIdxN = polBnIdx; prevIdxA = polAIdx; prevSIdx = polSIdx;
         diag.iters = it; diag.supnorm = dV;
         if dV < p.tol_vfi, diag.converged = true; break; end
         % plateau early-stop: once dV stops improving for stall_cap sweeps
