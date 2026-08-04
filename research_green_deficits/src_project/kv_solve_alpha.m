@@ -100,6 +100,26 @@ function E = kv_solve_alpha(alpha, CTX, q_guess, verbose, tee)
     end
     E.ok = true; E.q = m; E.P = st.P; E.Sb = st.Sb; E.Sk = st.Sk;
     E.sol = st.sol; E.dist = st.dist; E.tau = st.tau; E.dvd = st.dvd; E.pe = pe;
+    % CONVERGENCE DIAGNOSTICS -- these were computed all the way down the
+    % chain and then dropped HERE, one hop short of the gates that read them.
+    % kv_stationary_block records the VFI sup-norm, the distribution sup-norm
+    % and the loose-distribution flag; kv_solve_bond_given_q carries them onto
+    % st; this function assembled E without them. kv_gate_report then read
+    % E.dV and E.ddist as missing, scored gates 4, 5 and 6 as NaN, and -- by
+    % its own rule that unmeasured is never passed -- failed every cell of the
+    % certification matrix. Gate 11 accumulates only certified cells, so the
+    % whole protocol reported "fewer than two certified cells" no matter how
+    % good the solve was. Nothing numerical was wrong; three gates were
+    % reading fields nobody assigned.
+    %
+    % Gate 5.1 ("distribution not loose") was worse than blocked: its default
+    % of false made ~false = true, so it PASSED on the absence of the flag it
+    % was written to check.
+    E.dV         = getst(st, 'dV',         NaN);
+    E.ddist      = getst(st, 'ddist',      NaN);
+    E.dist_loose = getst(st, 'dist_loose', false);
+    E.churn      = getst(st, 'churn',      NaN);   % gate 6, adjuster
+    E.churn_non  = getst(st, 'churn_non',  NaN);
     % canonical residuals, computed from THIS state and nothing else
     E.Fk = st.Sk - CTX.Kbar;                       % tree market
     E.Fb = st.Sb - CTX.iota*CTX.Bnom/st.P;         % bond market
@@ -131,4 +151,13 @@ end
 
 function [F, code] = fq_code(fq, qq)
     [F, ~, code] = fq(qq);
+end
+
+function v = getst(S, f, dv)
+% Read a field if present. The propagation chain is long (household solver ->
+% kv_stationary_block -> kv_solve_bond_given_q -> here) and an older .mat or a
+% partially updated worker can arrive without the newer fields; a missing
+% diagnostic must degrade to NaN, which the gates score as UNMEASURED, rather
+% than to an error that kills a certification cell for a reporting reason.
+    if isstruct(S) && isfield(S, f) && ~isempty(S.(f)), v = S.(f); else, v = dv; end
 end

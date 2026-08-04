@@ -26,7 +26,8 @@ function out = kv_stationary_block(rb, q, dvd, tau, pe, V0, distIn)
 
     out = struct('ok', false, 'msg', '', 'Sb', NaN, 'Sk', NaN, ...
                  'sol', [], 'dist', [], 'bch', [], 'kch', [], ...
-                 'dV', NaN, 'ddist', NaN, 'dist_loose', false);
+                 'dV', NaN, 'ddist', NaN, 'dist_loose', false, ...
+                 'churn', NaN, 'churn_non', NaN);
     if nargin < 6, V0 = []; end
     if nargin < 7, distIn = []; end
 
@@ -36,6 +37,11 @@ function out = kv_stationary_block(rb, q, dvd, tau, pe, V0, distIn)
         return;
     end
     out.sol = sol; out.dV = dg.supnorm;
+    % Gate 6 of the acceptance protocol. Carried as a FRACTION that moved on
+    % the final sweep, not as the consecutive-stable-sweep count also in dg:
+    % the two have opposite polarity and the gate is "<= 0".
+    if isfield(dg, 'churn_adj'), out.churn = dg.churn_adj; end
+    if isfield(dg, 'churn_non'), out.churn_non = dg.churn_non; end
 
     if isempty(distIn)
         [dist, dd] = stationary_distribution_twoasset_kv(sol, rb, q, dvd, tau, pe);

@@ -38,6 +38,7 @@ function st = kv_solve_bond_given_q(q, al, CTX, W, toptol, Pseed)
     steptol = 1e-3;   % largest relative bond residual callable "cleared to a step"
     st = struct('ok',false,'code','POLICY_NONCONV','P',NaN,'Sb',NaN,'Sk',NaN, ...
                 'sol',[],'dist',[],'dV',NaN,'ddist',NaN,'min_c',NaN, ...
+                'churn',NaN,'churn_non',NaN, ...
                 'ksat',NaN,'bsat',NaN,'Pits',0,'Pgap',NaN,'Pjump',NaN, ...
                 'tau',NaN,'dvd',NaN,'dist_loose',false,'stepped',false, ...
                 'edge_lo',false,'edge_hi',false,'edge_code','','seed_rungs',0);
@@ -200,6 +201,8 @@ function st = kv_solve_bond_given_q(q, al, CTX, W, toptol, Pseed)
     st.code = code;
     st.P = P; st.Sb = o.Sb; st.Sk = o.Sk; st.sol = o.sol; st.dist = o.dist;
     st.dV = o.dV; st.ddist = o.ddist;
+    if isfield(o, 'churn'),     st.churn     = o.churn;     end
+    if isfield(o, 'churn_non'), st.churn_non = o.churn_non; end
     if isfield(o,'dist_loose'), st.dist_loose = o.dist_loose; end
     st.min_c = D.min_c; st.ksat = D.ksat; st.bsat = D.bsat;
     st.tau = kv_tau_of(al, P, CTX); st.dvd = kv_div_of(P, CTX);
