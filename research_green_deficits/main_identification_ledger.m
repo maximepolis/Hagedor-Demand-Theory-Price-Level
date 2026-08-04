@@ -86,7 +86,10 @@ DATA.whtm_share           = NaN;
 %       Treasury Debt", JPE 2012: convenience yield in percentage points,
 %       and the supply elasticity d(spread)/d(log debt/GDP).
 DATA.convenience_pp       = NaN;
-DATA.convenience_elast_pp = NaN;
+% The KVJ log-elasticity slot is filled automatically from
+% calibrate_convenience_kvj's own transcription when that .mat carries it;
+% see the model-side note in section C. Left here so the field always exists.
+DATA.convenience_logel    = NaN;
 % Real returns, annual, matched to the model's frequency. Cite the series.
 DATA.real_safe_rate       = NaN;
 DATA.equity_premium       = NaN;
@@ -95,8 +98,7 @@ BAND = struct('liquid_wealth_inc', 0.25, 'total_wealth_inc', 1.00, ...
               'top10_share', 0.10, 'direct_debt_share', 0.10, ...
               'adjust_spell_years', 2.00, 'htm_share', 0.10, ...
               'whtm_share', 0.07, 'convenience_pp', 0.75, ...
-              'convenience_elast_pp', 0.55, 'real_safe_rate', 0.01, ...
-              'equity_premium', 0.02);
+              'real_safe_rate', 0.01, 'equity_premium', 0.02);
 
 % =====================================================================
 % Load the shipped calibrations. Nothing is solved here.
@@ -350,7 +352,10 @@ if ncal_tot > nmom_tot
     tee('targeted moments. The calibration is UNDER-IDENTIFIED: a family of\n');
     tee('parameter vectors reproduces the same targets, and which point on it\n');
     tee('the driver selects is a property of the search, not of the data.\n');
-    tee('Verdict V1 names where the slack sits.\n');
+    tee('This is the A-PRIORI count. Section D asks, per block, whether the\n');
+    tee('slack is real: V1 measures it for the superstar pair, V6 for the\n');
+    tee('(beta, chi) pair. A count can overstate the slack; it cannot\n');
+    tee('understate it, so a failing count still has to be answered.\n');
 elseif ncal_tot == nmom_tot
     tee('ORDER CONDITION: exactly identified (%d = %d). This is necessary,\n', ...
         ncal_tot, nmom_tot);
@@ -387,8 +392,30 @@ if isfinite(qq) && isfinite(d_base)
 end
 lam = local_get(kvp, 'lambda_adj');
 adj_spell = NaN; if isfinite(lam) && lam > 0, adj_spell = 1/lam; end
-kvj_el = NaN;
-if ~isempty(KVJ) && isfield(KVJ, 'kvj_logel'), kvj_el = KVJ.kvj_logel; end
+% CONVENIENCE-YIELD ELASTICITY. An earlier version of this file put
+% KVJ.kvj_logel in the MODEL column. That variable is the KVJ *target*
+% (-0.75/0.73, transcribed in calibrate_convenience_kvj), so the row was
+% reporting a data quantity as a model quantity and would have compared it
+% against itself the moment the data slot was filled. The model counterpart
+% is the demand-curve log-elasticity implied by the liquid FOC,
+%   dln(spread)/dln(b) = -zeta * b/(b + bbar),
+% evaluated at the calibrated liquid position -- which is the object the KVJ
+% regression coefficient is comparable to, and the one verdict V3 is about.
+% The GE ratio dspr/dlnS_b computed by calibrate_convenience_kvj is NOT
+% comparable; that driver says so itself and the reason is recorded there.
+logel_model = NaN;
+zb = local_get(kvp, 'zeta_b'); bb = local_get(kvp, 'bbar_liq');
+if isfinite(zb) && isfinite(bb) && isfinite(Sb) && (Sb + bb) > 0
+    logel_model = -zb * Sb / (Sb + bb);
+end
+% The KVJ figure is transcribed in this repository already, so it is read
+% from that .mat rather than restated here. Absent (an older .mat), the slot
+% stays empty like every other data slot.
+kvj_data = NaN;
+if ~isempty(KVJ) && isfield(KVJ, 'kvj_logel'), kvj_data = KVJ.kvj_logel; end
+if isfinite(kvj_data), DATA.convenience_logel = kvj_data; end
+if ~isfield(DATA, 'convenience_logel'), DATA.convenience_logel = NaN; end
+BAND.convenience_logel = 0.75;   % half the KVJ log-elasticity range
 
 % key | label | model value | note
 mrows = { ...
@@ -414,8 +441,8 @@ mrows = { ...
    'untargeted; see verdict V2'; ...
  'convenience_pp',      'convenience yield (pp)',          spr, ...
    'equity-bond spread (q+d)/q - (1+r_b); untargeted'; ...
- 'convenience_elast_pp','convenience supply elasticity',   kvj_el, ...
-   'from calibrate_convenience_kvj; read its GE-ratio caveat first'; ...
+ 'convenience_logel',   'demand-curve log-elasticity',     logel_model, ...
+   '-zeta*b/(b+bbar) at the calibrated position; KVJ-comparable'; ...
  'real_safe_rate',      'real safe rate',                  r_b, ...
    'implied by the Fisher identity at i and mu; not free'; ...
  'equity_premium',      'tree yield d/q minus r_b',        tree_yield - r_b, ...
@@ -462,22 +489,25 @@ tee('restating it, so there is exactly one place to fill in.\n\n');
 % =====================================================================
 tee('===== D. STRUCTURAL VERDICTS =====\n\n');
 
-tee('V1  THE SUPERSTAR STATE IS UNDER-IDENTIFIED.\n');
+% V1 is stated as a QUESTION and answered by the measurement, not asserted
+% and then decorated with one. An earlier version of this file asserted the
+% superstar block was under-identified and appended the diagnostic
+% underneath; the diagnostic came back the other way. A verdict that can
+% only be confirmed by its own evidence is not a verdict.
+tee('V1  IS THE SUPERSTAR STATE IDENTIFIED BY ITS SINGLE MOMENT?\n');
 tee('    wealth_concentration_fit searches (mult, p_in) over a 3 x 3 grid\n');
 tee('    with p_out held fixed at %s and selects the cell whose top-1 pct\n', ...
     local_num(sso));
 tee('    share is closest to a SINGLE target (%s). Two free parameters\n', ...
     local_num(top1_targ));
-tee('    against one moment: a one-dimensional family of (mult, p_in)\n');
-tee('    reproduces any given top-1 pct share, so the selected point is\n');
-tee('    determined by the grid rather than by the data. A second\n');
-tee('    concentration moment -- the top-10 pct share or the wealth Gini,\n');
-tee('    both already computed by that driver -- would close the gap at no\n');
-tee('    additional computational cost. That is the cheapest identification\n');
-tee('    improvement available anywhere in this ledger.\n');
+tee('    against one moment is an a-priori count, and section B counts it\n');
+tee('    that way. Whether the direction is actually FLAT is a different\n');
+tee('    question, and it is measurable: beta is recalibrated to the debt\n');
+tee('    target inside every config, which constrains the pair, so the\n');
+tee('    counting argument alone does not settle it.\n');
 if ~isempty(FITW) && isfield(FITW, 'IDENT') && isstruct(FITW.IDENT)
     ID = FITW.IDENT;
-    tee('    MEASURED, from that driver rather than argued here:\n');
+    tee('    MEASURED by that driver:\n');
     tee('      %d configs solved; %d tie on the top-1 pct target within %s.\n', ...
         ID.n_ok, ID.n_ties, local_num(ID.top1_band));
     if ID.n_ties >= 2
@@ -485,16 +515,26 @@ if ~isempty(FITW) && isfield(FITW, 'IDENT') && isstruct(FITW.IDENT)
             local_num(ID.top10_spread));
         tee('      gini spans %s.\n', local_num(ID.gini_spread));
         if ID.underidentified
-            tee('      => UNDER-IDENTIFIED as arithmetic, not as opinion.\n');
+            tee('      => UNDER-IDENTIFIED as arithmetic, not as opinion. The\n');
+            tee('         tied configs disagree about an untargeted moment by\n');
+            tee('         more than the tie band, so the winner is chosen by\n');
+            tee('         the search grid. Transcribe TOP10_TARGET.\n');
         else
-            tee('      => the ties agree on the untargeted moments, so the\n');
-            tee('         single moment is locally sufficient ON THIS GRID.\n');
+            tee('      => NOT the binding problem. The tied configs agree on\n');
+            tee('         the untargeted moments to within the tie band, so on\n');
+            tee('         this grid the single moment is locally sufficient and\n');
+            tee('         the a-priori count OVERSTATES the slack here.\n');
+            tee('         Two limits, both real: a 3 x 3 grid is coarse enough\n');
+            tee('         that ties are scarce, and local sufficiency at one\n');
+            tee('         point is not global identification. It does mean the\n');
+            tee('         slack in section B sits elsewhere -- see V6 and V2.\n');
         end
     end
     if isfield(ID, 'rule'), tee('      selection rule in force: %s\n', ID.rule); end
 else
-    tee('    The measured version of this verdict requires a re-run of\n');
-    tee('    wealth_concentration_fit, which now emits the diagnostic.\n');
+    tee('    NOT YET MEASURED. Re-run wealth_concentration_fit, which now\n');
+    tee('    emits the diagnostic; until then this verdict is a count, not\n');
+    tee('    a finding.\n');
 end
 tee('\n');
 
@@ -514,10 +554,23 @@ tee('    the parameters nothing external pins down.\n\n');
 tee('V3  ZETA IS DISCIPLINED AT THE EDGE OF ITS RANGE, NOT AT ITS CENTRE.\n');
 tee('    The KVJ mapping dln(spr)/dln(b) ~ -zeta puts the point estimate\n');
 tee('    near zeta = 1 and the range near [0.55, 2.05]. The benchmark uses\n');
-tee('    zeta = %s: inside the range, at its steep edge. The paper should\n', ...
+tee('    zeta = %s. What matters is not zeta itself but the elasticity it\n', ...
     local_num(local_get(kvp, 'zeta_b')));
-tee('    therefore report the ZETA = 1.0 rerun alongside the benchmark, not\n');
-tee('    instead of it, and say which it prefers and why.\n\n');
+tee('    implies AT the calibrated liquid position, which is damped by the\n');
+tee('    Stone-Geary shift: -zeta*b/(b+bbar) = %s.\n', local_num(logel_model));
+if isfinite(kvj_data)
+    tee('    KVJ counterpart, as transcribed in calibrate_convenience_kvj: %s.\n', ...
+        local_num(kvj_data));
+    if isfinite(logel_model)
+        tee('    Model minus KVJ point estimate: %s.\n', ...
+            local_num(logel_model - kvj_data));
+    end
+else
+    tee('    The KVJ counterpart is not in the stored convenience .mat --\n');
+    tee('    that file predates the variable. Re-run the driver.\n');
+end
+tee('    The paper should therefore report the ZETA = 1.0 rerun alongside\n');
+tee('    the benchmark, not instead of it, and say which it prefers and why.\n\n');
 
 tee('V4  THE CLIMATE BLOCK IS ENTIRELY DECLARED.\n');
 tee('    Only D0 is tied to an external source, and then only as a\n');

@@ -155,13 +155,26 @@ statements about targets rather than about resolution:
    doubles precautionary wealth, putting the level out of χ's reach — but it is
    a modelling choice, not an identification, and the moment is counted once.
 
-4. **The superstar state is 2 parameters against 1 moment**, with p_out held
-   fixed and (mult, p_in) selected off a 3×3 grid by proximity to a single
-   top-1% target. A one-dimensional family reproduces any given top-1% share.
-   The fix is nearly free: `wealth_concentration_fit` already computes the
-   top-10% share and the wealth Gini, so adding a second concentration moment
-   costs no extra solve. **This is the cheapest identification improvement
-   anywhere in the project.**
+4. **The superstar state is 2 parameters against 1 moment** a priori — but
+   the measurement says the slack is not there. `wealth_concentration_fit`
+   now reports how far the *untargeted* moments spread among configs that fit
+   the top-1% target equally well. Run 2026-08-04: **9 configs solved, 3 tie
+   within 0.02 of the target, and among the ties the top-10% share spans only
+   0.0137 and the Gini 0.0065** — both inside the tie band. On this grid the
+   single moment is locally sufficient, and the counting argument overstates
+   the problem. The mechanism is visible once stated: β is recalibrated to the
+   debt target inside every config, which ties the pair.
+
+   Two limits keep this from being a clean bill: a 3×3 search grid produces
+   few ties, and local sufficiency at one point is not global identification.
+   But it does relocate the slack — see items 3 and 5, which are *not*
+   measured away.
+
+   **This corrects an earlier claim in this file and in the ledger**, both of
+   which asserted the superstar block was under-identified before the
+   diagnostic existed. The diagnostic was written to test the claim and came
+   back against it. The ledger's V1 is now posed as a question and answered by
+   the measurement rather than asserted and decorated with one.
 
 5. **The two parameters with no external target are the two that govern the
    moment the model cannot reproduce.** φ (`div_payout` = 1) and `bbar_liq`
@@ -178,10 +191,34 @@ column**, with the source named in each slot — the same rule as
 column comes from the two-asset block.
 
 **Where this leaves Major 2.** Item 4 (the Schur decomposition) is implemented
-and blocked on Gate 11. Items 1–3 are now answered, and the answer is *adverse*:
-the preferred calibration is under-identified and its worst-fitting moment is
-governed by its least-identified parameters. That is worth stating in the paper
-in the ledger's own terms rather than waiting to be told again.
+and blocked on Gate 11. Items 1–3 are now answered, and the answer is *adverse
+but more precisely so than first stated*: the a-priori count fails 5-against-3,
+and the moment the model most conspicuously misses (WHtM) is governed by the
+two parameters nothing external pins down — while the superstar block, which
+the count implicates, measures as locally identified. The paper should report
+the count, the diagnostic and the disagreement between them; a referee who is
+told only the count will ask for the diagnostic, and a referee who is told only
+the diagnostic will do the count.
+
+### 2.4 Output staleness — a separate audit
+
+`paper/check_output_staleness.py` compares every stored artifact against the
+last-commit date of the driver that *writes* it (readers excluded — an earlier
+version took the max over every file naming the artifact and flagged almost
+everything, because `calibrated_results.mat` is read by thirty drivers).
+
+Result on the current tree: **16 of 84 artifacts are older than their writer.**
+Every one of the driver diffs responsible is a **figure label or a console
+banner** — verified line by line — with the sole exception of
+`wealth_fit_*`, which is stale because of the diagnostic added above and has
+already been regenerated. So no stored *number* is invalidated; what is out of
+date is the checked-in figure PDFs, which was already known and already owed.
+
+The checker states its own limits: git dates are day-granular (44 artifacts
+share a date with their writer and are reported UNVERIFIABLE rather than
+passed), commit date is not run date, and it cannot distinguish a changed label
+from a changed equation. A STALE verdict is a prompt to read the diff, not a
+verdict that the numbers are wrong.
 
 ---
 
