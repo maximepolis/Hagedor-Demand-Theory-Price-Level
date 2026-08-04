@@ -147,6 +147,28 @@ if any(~[SRC.found])
     tee('\n*** at least one calibration is MISSING. Rows that depend on it\n');
     tee('*** print as "-" rather than as a number; run the named driver.\n');
 end
+
+% IS THE TWO-ASSET INPUT A FAST ARTIFACT? A FAST run of the ownership driver
+% writes to the SAME output file as the benchmark, so a shakeout or a FAST
+% parity run can leave a coarse-grid economy sitting where the benchmark
+% should be. Nothing in the file says so; the grid sizes do. The production
+% grid is nb=60, nk=34, nx=150 (main_twoasset_ownership_kv); FAST is
+% 40 / 22 / 100. Report the sizes always and shout when they are short.
+if ~isempty(KV) && isfield(KV, 'p')
+    nb_in = local_len(KV.p, 'bGrid');
+    nk_in = local_len(KV.p, 'kGrid');
+    nx_in = local_len(KV.p, 'xGridA');
+    tee('\ntwo-asset input grid: nb=%d nk=%d nx=%d', nb_in, nk_in, nx_in);
+    if nb_in < 60 || nk_in < 34 || nx_in < 150
+        tee('   *** BELOW PRODUCTION (60/34/150)\n');
+        tee('*** The two-asset .mat looks like a FAST artifact. Every model\n');
+        tee('*** value in section C is then a coarse-grid number and none of\n');
+        tee('*** it may be quoted. Re-run main_twoasset_ownership_kv WITHOUT\n');
+        tee('*** FAST, then re-run this ledger.\n');
+    else
+        tee('   (production sizes)\n');
+    end
+end
 tee('\n');
 
 % =====================================================================
@@ -452,7 +474,29 @@ tee('    determined by the grid rather than by the data. A second\n');
 tee('    concentration moment -- the top-10 pct share or the wealth Gini,\n');
 tee('    both already computed by that driver -- would close the gap at no\n');
 tee('    additional computational cost. That is the cheapest identification\n');
-tee('    improvement available anywhere in this ledger.\n\n');
+tee('    improvement available anywhere in this ledger.\n');
+if ~isempty(FITW) && isfield(FITW, 'IDENT') && isstruct(FITW.IDENT)
+    ID = FITW.IDENT;
+    tee('    MEASURED, from that driver rather than argued here:\n');
+    tee('      %d configs solved; %d tie on the top-1 pct target within %s.\n', ...
+        ID.n_ok, ID.n_ties, local_num(ID.top1_band));
+    if ID.n_ties >= 2
+        tee('      among the ties, the top-10 pct share spans %s and the\n', ...
+            local_num(ID.top10_spread));
+        tee('      gini spans %s.\n', local_num(ID.gini_spread));
+        if ID.underidentified
+            tee('      => UNDER-IDENTIFIED as arithmetic, not as opinion.\n');
+        else
+            tee('      => the ties agree on the untargeted moments, so the\n');
+            tee('         single moment is locally sufficient ON THIS GRID.\n');
+        end
+    end
+    if isfield(ID, 'rule'), tee('      selection rule in force: %s\n', ID.rule); end
+else
+    tee('    The measured version of this verdict requires a re-run of\n');
+    tee('    wealth_concentration_fit, which now emits the diagnostic.\n');
+end
+tee('\n');
 
 whtm = local_get(kvH, 'whtm');
 tee('V2  THE WEALTHY-HAND-TO-MOUTH SHARE IS A STRUCTURAL ZERO.\n');
@@ -524,6 +568,15 @@ function v = local_get(s, f)
     if ~isempty(s) && isstruct(s) && isfield(s, f)
         x = s.(f);
         if isnumeric(x) && isscalar(x), v = double(x); end
+    end
+end
+
+function n = local_len(s, f)
+% Length of a grid field, 0 when absent, so the FAST guard degrades to a
+% loud "below production" rather than to an error on an older .mat.
+    n = 0;
+    if ~isempty(s) && isstruct(s) && isfield(s, f) && isnumeric(s.(f))
+        n = numel(s.(f));
     end
 end
 

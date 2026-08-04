@@ -234,9 +234,8 @@ three parity legs are now settled, which narrows what is actually in question.
 
 | test | result |
 |---|---|
-| **D10 comparison A** — pre-refactor `bf0a4e8` vs current script | **PASS: 40 fields exact, 0 FAIL** |
+| **D10 comparisons A/B/C** — calibration, all three legs | **PASS: 40 / 32 / 32 fields exact, 0 FAIL. D10 PARITY ESTABLISHED** |
 | **D11 comparisons A/B/C** — transition solver, all three legs | **PASS: 48 fields exact**, `neutrality_gap` exactly 0 |
-| D10 comparisons B/C — script vs callable | driver defect, fixed in R11.11 (leg 3 was given the script's outputs as its inputs) |
 
 So the **refactor is not a source of numerical doubt**, and the transition
 solver reproduces the pre-refactor commit bit-for-bit including its residual
@@ -250,6 +249,18 @@ economics. The FAST transition paths are NOT CONVERGED (T=60, maxit=80), and
 the two-asset grid noise still exceeds the financing signal. Major 11 stands
 in full. What is now excluded is the possibility that the refactor introduced
 the problem.
+
+**What the D10 run measured in passing.** Its FAST leg re-solved the financing
+experiment on a coarser grid, giving the first paired grid-sensitivity number
+for the two-asset economy: the **ordering survives** (levy above lump-sum on
+both grids) while the **ordering gap moves 38%** and the lump-sum level moves
+52%, against Gate 11's 0.10. At the coarse grid the tree price is *identical to
+four decimals* across α = 0 and α = 1 — the financing effect on $q$ falls below
+the grid's resolution entirely, which bears on Proposition 6 directly, since
+$F_{k\alpha}$ is one of the Schur components. Recorded in
+`TWO_ASSET_FAILURE_FALLBACK_MEMO.md` §1.1 with its caveats: it varies five grid
+dimensions at once and recalibrates β on each, so it is a Track-B-style
+datapoint and does not replace Track A.
 
 ## 4. Ordering
 

@@ -170,15 +170,52 @@ tee(' these is a real defect, not a numerical difference)\n');
 % both exercised.
 % =====================================================================
 tee('\nLEG 2: current script entry point (main_twoasset_ownership_kv) ...\n');
+
+% PROTECT THE BENCHMARK ARTIFACTS. Leg 2 runs the production script, which
+% saves to output/twoasset_ownership_kv.{mat,txt} -- the SAME files the
+% paper's two-asset numbers are read from. A FAST parity run therefore
+% overwrites the benchmark economy with a coarse-grid one, silently, and
+% every downstream reader (main_identification_ledger among them) then
+% reports FAST numbers as if they were the benchmark. That is precisely the
+% class of defect this whole parity apparatus exists to catch, so it must
+% not be introduced by the apparatus itself.
+%
+% The parity comparison needs the file only long enough to load it, so the
+% originals are moved aside and put back afterwards. Restoration also runs
+% on the error path: a parity run that dies midway must not leave the
+% project holding a coarse-grid benchmark.
+prot = {fullfile(projdir, 'output', 'twoasset_ownership_kv.mat'), ...
+        fullfile(projdir, 'output', 'tables', 'twoasset_ownership_kv.txt')};
+saved = cell(size(prot));
+for ip = 1:numel(prot)
+    saved{ip} = '';
+    if exist(prot{ip}, 'file') == 2
+        saved{ip} = [prot{ip} '.parity_backup'];
+        copyfile(prot{ip}, saved{ip}, 'f');
+    end
+end
+if any(~cellfun(@isempty, saved))
+    tee('  benchmark artifacts backed up; they are restored after the load.\n');
+end
+
 % Isolated, so the script's `clearvars -except FAST KMV ...` cannot delete
 % this workspace. Inline, it would have wiped pg (needed at pg.Bnom below),
 % the timer t2, and the stash path itself.
 t2 = tic;
-[WS2, ~, ~] = run_ownership_isolated(FAST, false); % current script, extracted fns
-t_script = toc(t2);
-% fid and tee survive now, so the log file is NOT reopened: doing so would
-% leave a second handle on an already-open file.
-SCRIPT = capture_current(fullfile(projdir,'output','twoasset_ownership_kv.mat'));
+try
+    [WS2, ~, ~] = run_ownership_isolated(FAST, false); % current script, extracted fns
+    t_script = toc(t2);
+    % fid and tee survive now, so the log file is NOT reopened: doing so would
+    % leave a second handle on an already-open file.
+    SCRIPT = capture_current(fullfile(projdir,'output','twoasset_ownership_kv.mat'));
+catch ME
+    restore_protected(prot, saved);
+    rethrow(ME);
+end
+restore_protected(prot, saved);
+if any(~cellfun(@isempty, saved))
+    tee('  benchmark artifacts restored (leg 2 was captured in memory first).\n');
+end
 tee('  done (%.1f s)\n', t_script);
 
 % =====================================================================
@@ -465,6 +502,19 @@ end
 
 function s = ternstr(c,a,b)
     if c, s = a; else, s = b; end
+end
+
+function restore_protected(prot, saved)
+% Put the benchmark artifacts back and delete the backups. Idempotent, so it
+% is safe to call from both the success path and the error path; whichever
+% runs first leaves nothing for the second to do.
+    for i = 1:numel(prot)
+        if isempty(saved{i}), continue; end
+        if exist(saved{i}, 'file') == 2
+            copyfile(saved{i}, prot{i}, 'f');
+            delete(saved{i});
+        end
+    end
 end
 
 function tee2(fid, varargin)

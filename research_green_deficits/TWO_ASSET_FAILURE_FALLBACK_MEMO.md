@@ -26,6 +26,52 @@ not encouraging and it is worth stating precisely rather than softly:
 | b-boundary top-two-node mass vs target | 4.6e-4 vs 1e-4 |
 | tree-market residual at the root | 1e-2 – 1e-3 |
 
+### 1.1 A second, independent measurement — from the D10 parity run
+
+The FAST leg of the D10 parity run (2026-08-04) solved the identical
+experiment on a coarser grid, with β recalibrated to the same target on each
+grid. That makes it a **Track-B-style** comparison — calibration robustness,
+not frozen-Θ̄ discretization error — but it is a clean paired measurement of
+the same object Gate 11 is defined on, and it is the first one available.
+
+| | benchmark 60/34/150 | FAST 40/22/100 |
+|---|---|---|
+| β (recalibrated to S_b = 0.30) | 0.87396 | 0.87404 |
+| lump-sum $d\ln P$ | −0.0226 | −0.0108 |
+| levy $d\ln P$ | +0.0137 | +0.0116 |
+| **ordering gap $\Delta\ln P = $ levy − lump-sum** | **0.0363** | **0.0224** |
+| $q$ under lump-sum | 1.5370 | 1.5878 |
+| $q$ under levy | 1.5133 | 1.5878 |
+| **$\Delta q$ across the financing experiment** | **−0.0237** | **0.0000** |
+
+Two things follow, and they point in opposite directions.
+
+**The ordering survives both grids.** The sign contrast holds at 60/34/150 and
+at 40/22/100: the levy is more inflationary than the lump-sum tax on each. This
+is the first evidence that the *ordering* is robust to a discretization change
+that moves the levels substantially — which is the asymmetry §2 relies on and
+which had not previously been measured.
+
+**The magnitude does not.** Grid-induced movement in the ordering gap is
+|0.0363 − 0.0224| / 0.0363 = **0.38**, against Gate 11's threshold of 0.10. The
+lump-sum level alone moves by **52%**. On this pair the level is not resolved,
+and the gap is resolved only in sign.
+
+**And the tree market is not resolved at all on the coarse grid.** At FAST,
+$q$ is *identical to four decimals* under α = 0 and α = 1, while at the
+benchmark it differs by 0.0237. The financing instrument's effect on the tree
+price is entirely below the coarse grid's resolution. That is not a magnitude
+problem — it is a zero where the benchmark finds a nonzero. It bears directly
+on Proposition 6: $F_{k\alpha}$ is one of the Schur components, and a grid on
+which it is numerically zero cannot support the decomposition at all.
+
+**Caveats, stated so this is not over-read.** This is FAST-vs-benchmark, not
+the certification ladder: the two runs differ in `nb`, `nk`, `nx`, `nac` and
+`nsh` simultaneously, so it attributes nothing to a single axis, and β was
+recalibrated on each grid. It does not replace Track A. It does establish that
+the concern is not confined to the `bmax` axis, and it puts a second number
+next to the 7.7% one.
+
 One axis of discretization moves the answer an order of magnitude more than the
 economics does. Gate 11 was designed to make that disqualifying rather than
 discussable.
@@ -39,7 +85,9 @@ the calibration. Both can be true; only the second is settled by a gate.
 **Not triggered by:** the ordering. Nothing above bears on whether the levy is
 more inflationary than the lump-sum tax; the ordering is a comparison of two
 solves on the *same* grid, where the common discretization error differences
-out. That asymmetry is what makes Option A viable.
+out. That asymmetry is what makes Option A viable — and §1.1 now shows the
+ordering surviving a grid change that moves the levels by half, which is the
+first direct evidence for it rather than an argument from structure.
 
 ---
 
@@ -203,6 +251,7 @@ after — and the natural candidate is the WHtM share it currently sets to zero.
 |---|---|
 | memo written | this file |
 | Gate 11 evidence | preliminary; Track A not yet run |
-| ordering signal-to-noise | **not measured — the decision variable** |
+| ordering signal-to-noise | first paired measurement in §1.1: **sign survives, magnitude does not** |
+| level signal-to-noise | 0.38 on the FAST/benchmark pair, against a 0.10 gate |
 | identification ledger | built; verdict adverse and independent of Gate 11 |
 | option chosen | **none.** Not mine to choose, and premature regardless |
