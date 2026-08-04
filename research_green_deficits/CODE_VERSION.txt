@@ -1,4 +1,4 @@
-R11.13
+R11.14
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,17 @@ R11.13
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.14 the ledger's V1 diagnostic came back AGAINST the verdict it was
+#        written to support: 3 configs tie on the top-1% target and their
+#        untargeted moments agree to within the tie band, so the superstar
+#        block measures as locally identified and the a-priori count
+#        overstates the slack there. V1 is now posed as a question and
+#        answered by the measurement. Also fixed: section C was reporting
+#        KVJ's TARGET (kvj_logel = -0.75/0.73) in the MODEL column, so that
+#        row would have compared a number against itself once the data slot
+#        was filled; the model side is now -zeta*b/(b+bbar) at the calibrated
+#        position, which is what the KVJ coefficient is comparable to.
+#        New: paper/check_output_staleness.py.
 # R11.13 D10 PARITY ESTABLISHED (A/B/C all PASS: 40/32/32 fields exact).
 #        Three changes it exposed: (1) leg 2 of main_parity_d10_calibration
 #        runs the production script, which SAVES to the same output files
