@@ -4,10 +4,16 @@ Minimal changes so that no uncertified two-asset claim stands as unqualified
 in the compiled PDF. **This is a safety patch, not the paper reconstruction.**
 The abstract, introduction and Section 6 are not restructured.
 
-**Status: located and drafted. Manuscript NOT edited.** Figure *code* changes
-are applied (they are unblocked); every `.tex` change below is held for your
-word, with exact line numbers and replacement text so it can be applied
-mechanically.
+**Status: sections A–E located and drafted, manuscript NOT edited. Section F
+APPLIED.** Figure *code* changes are applied (they are unblocked); every `.tex`
+change in A–E is held for your word, with exact line numbers and replacement
+text so it can be applied mechanically.
+
+The two items in **section F are already in the manuscript**. They are not
+rescoping or requalification — they are corrections of statements that are
+*false about the paper's own content*: F1 described a superseded version of the
+paper's own proposition, F2 understated what the repository contains. Same
+category as the p.29 broken-reference repair, applied on the same basis.
 
 Line numbers are for `paper/green_deficits_price_level.tex` at commit
 `a3578ee` unless stated. `\appendix` is at **line 3325**, so every site below
