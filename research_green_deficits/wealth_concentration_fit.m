@@ -38,6 +38,29 @@ addpath(genpath(fullfile(projdir, 'src_project')));
 TOP1_TARGET = 0.33;      % SCF-style top-1% net-worth share
 B_TARGET    = 1.10;      % debt target of the calibrated pass (main_project_calibrated)
 
+% SECOND CONCENTRATION MOMENT (referee R12 Major 2; ledger verdict V1).
+% (mult, p_in) are TWO free parameters and were selected on ONE moment, so a
+% one-dimensional family of configs reproduces any given top-1% share and the
+% selected point is a property of the search grid rather than of the data.
+% The fix is nearly free: top10 and gini are already computed for every
+% config below, so a second target costs no additional solve.
+%
+% Left as a NaN SLOT on purpose. Filling it with a number from memory would
+% be worse than leaving the fit under-identified, because a wrong target
+% silently moves every downstream result instead of announcing itself.
+% Transcribe from the SCF summary tables (record the vintage and the
+% net-worth definition alongside TOP1_TARGET's own source), then re-run.
+%
+% While it is NaN the selection rule is BIT-IDENTICAL to the previous
+% single-moment rule, so nothing downstream changes and no dependent result
+% needs regenerating. What DOES run either way is the identification
+% diagnostic below, which measures the flat direction instead of asserting
+% it: it reports how much top10 and gini vary among the configs that match
+% the top-1% target equally well. If that spread is wide, the fit is
+% under-identified as a matter of arithmetic, not of opinion.
+TOP10_TARGET = NaN;      % [SCF] top-10% net-worth share -- TRANSCRIBE
+TOP1_BAND    = 0.02;     % configs within this of TOP1_TARGET count as ties
+
 calf = fullfile(projdir, 'output', 'calibrated_results.mat');
 assert(exist(calf, 'file') == 2, 'wealth_concentration_fit: run main_project_calibrated first.');
 L = load(calf, 'RCAL', 'pgc');
@@ -124,10 +147,62 @@ if isempty(okF)
     fprintf('Wrote NO-FIT diagnostic. Elapsed %.1f s\n', toc(t0));
     return;
 end
-[~, ib] = min(abs([okF.top1] - TOP1_TARGET));
+% ---- Stage 1b: the identification diagnostic, then the selection ----
+% This runs before the selection on purpose. It measures whether the moment
+% actually discriminates among the configs, which is a property of the fit
+% and not of whichever config happens to win.
+d1   = abs([okF.top1] - TOP1_TARGET);
+ties = d1 <= TOP1_BAND;
+IDENT = struct('n_ok', numel(okF), 'n_ties', sum(ties), ...
+               'top1_band', TOP1_BAND, 'top10_spread', NaN, ...
+               'gini_spread', NaN, 'underidentified', false, ...
+               'rule', '', 'top10_target', TOP10_TARGET);
+fprintf('--- identification diagnostic (ledger V1) ---\n');
+fprintf('  %d configs solved; %d within %.2f of the top-1%% target.\n', ...
+        numel(okF), sum(ties), TOP1_BAND);
+if sum(ties) >= 2
+    t10 = [okF(ties).top10]; gg = [okF(ties).gini];
+    IDENT.top10_spread = max(t10) - min(t10);
+    IDENT.gini_spread  = max(gg)  - min(gg);
+    IDENT.underidentified = IDENT.top10_spread > TOP1_BAND;
+    fprintf('  among those ties: top-10%% share spans %.3f, gini spans %.3f.\n', ...
+            IDENT.top10_spread, IDENT.gini_spread);
+    if IDENT.underidentified
+        fprintf(['  => UNDER-IDENTIFIED. Configs that fit the top-1%% share\n' ...
+                 '     equally well disagree about the top-10%% share by more\n' ...
+                 '     than the tie band, so the single moment does not pin\n' ...
+                 '     the distribution and the winner is chosen by the grid.\n']);
+    else
+        fprintf(['  => the tied configs agree on the untargeted moments, so\n' ...
+                 '     the single moment happens to be locally sufficient HERE.\n' ...
+                 '     That is a property of this grid, not a general result.\n']);
+    end
+else
+    fprintf(['  fewer than two ties: the diagnostic cannot separate a\n' ...
+             '  well-identified fit from a coarse search grid. Refine the\n' ...
+             '  (mult, p_in) grid before reading this as identification.\n']);
+end
+
+if isfinite(TOP10_TARGET)
+    % Equal RELATIVE weight, so the larger share does not dominate the
+    % criterion merely by being larger.
+    crit = (([okF.top1]  - TOP1_TARGET)  / TOP1_TARGET ).^2 + ...
+           (([okF.top10] - TOP10_TARGET) / TOP10_TARGET).^2;
+    [~, ib] = min(crit);
+    IDENT.rule = 'two-moment (top-1% and top-10%), equal relative weight';
+else
+    [~, ib] = min(d1);
+    IDENT.rule = 'single-moment (top-1% only) -- TOP10_TARGET not transcribed';
+end
 best = okF(ib);
-fprintf('Selected: mult %.0f, p_in %.0e (top1 %.1f%% vs target %.0f%%).\n', ...
+fprintf('Selection rule: %s\n', IDENT.rule);
+fprintf('Selected: mult %.0f, p_in %.0e (top1 %.1f%% vs target %.0f%%, ', ...
         best.mult, best.p_in, 100*best.top1, 100*TOP1_TARGET);
+if isfinite(TOP10_TARGET)
+    fprintf('top10 %.1f%% vs target %.1f%%).\n', 100*best.top10, 100*TOP10_TARGET);
+else
+    fprintf('top10 %.1f%% UNTARGETED).\n', 100*best.top10);
+end
 
 % ---- Stage 2: medium-column incidence under the fitted concentration ----
 fprintf('=== Stage 2: medium-column decomposition + decile incidence ===\n');
@@ -143,7 +218,8 @@ assert(dec.ok, 'wealth_concentration_fit: decomposition failed under the fit.');
 wd = welfare_by_decile(r_cal, dec.base, dec.prog, pgb);
 
 save(fullfile(projdir, 'output', 'wealth_fit_results.mat'), ...
-     'FIT', 'best', 'dec', 'wd', 'r_cal', 'TOP1_TARGET', 'B_TARGET');
+     'FIT', 'best', 'dec', 'wd', 'r_cal', 'TOP1_TARGET', 'B_TARGET', ...
+     'TOP10_TARGET', 'IDENT');
 
 tabdir = fullfile(projdir, 'output', 'tables');
 if ~isfolder(tabdir), mkdir(tabdir); end
@@ -161,6 +237,31 @@ for k = 1:numel(FIT)
 end
 fprintf(fid, '\nSELECTED: mult %.0f, p_in %.0e -> top1 %.1f%%, beta %.5f\n', ...
         best.mult, best.p_in, 100*best.top1, best.beta);
+fprintf(fid, 'Selection rule: %s\n', IDENT.rule);
+fprintf(fid, ['IDENTIFICATION (ledger V1): %d configs solved, %d within ' ...
+    '%.2f of the\ntop-1%% target.\n'], IDENT.n_ok, IDENT.n_ties, IDENT.top1_band);
+if IDENT.n_ties >= 2
+    fprintf(fid, ['Among the tied configs the top-10%% share spans %.3f and ' ...
+        'the gini spans\n%.3f. '], IDENT.top10_spread, IDENT.gini_spread);
+    if IDENT.underidentified
+        fprintf(fid, ['UNDER-IDENTIFIED: one moment does not pin the ' ...
+            'distribution, so\nthe selected config is a property of the ' ...
+            'search grid rather than of the\ndata. Transcribe TOP10_TARGET ' ...
+            'to close this at no additional solve cost.\n']);
+    else
+        fprintf(fid, ['The tied configs agree on the untargeted moments, so ' ...
+            'the single\nmoment is locally sufficient on THIS grid. That is ' ...
+            'not a general result.\n']);
+    end
+else
+    fprintf(fid, ['Fewer than two ties: the diagnostic cannot separate a ' ...
+        'well-identified\nfit from a coarse search grid.\n']);
+end
+if ~isfinite(TOP10_TARGET)
+    fprintf(fid, ['The top-10%% share is therefore an UNTARGETED prediction ' ...
+        'of this fit\nand belongs in the validation census, not in the ' ...
+        'targeted-moment count.\n']);
+end
 fprintf(fid, ['\nMedium-column decomposition under the fit:\n' ...
     '  nu %.3f = nu_reval %+.3f + nu_damage %.3f   (P0 %.4f -> P1 %.4f)\n'], ...
     dec.nu, dec.nu_reval, dec.nu_damage, dec.base.P, dec.prog.P);
