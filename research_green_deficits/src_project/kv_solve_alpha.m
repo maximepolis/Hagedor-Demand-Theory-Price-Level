@@ -120,6 +120,8 @@ function E = kv_solve_alpha(alpha, CTX, q_guess, verbose, tee)
     E.dist_loose = getst(st, 'dist_loose', false);
     E.churn      = getst(st, 'churn',      NaN);   % gate 6, adjuster
     E.churn_non  = getst(st, 'churn_non',  NaN);
+    E.vfi_soft   = getst(st, 'vfi_soft',   true);  % gate 4.1; default is the
+                                                   % conservative direction
     % canonical residuals, computed from THIS state and nothing else
     E.Fk = st.Sk - CTX.Kbar;                       % tree market
     E.Fb = st.Sb - CTX.iota*CTX.Bnom/st.P;         % bond market

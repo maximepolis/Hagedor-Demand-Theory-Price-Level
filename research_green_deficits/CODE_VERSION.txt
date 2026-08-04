@@ -1,4 +1,4 @@
-R11.15
+R11.16
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,24 @@ R11.15
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.16 my churn measure was a size error: aIdx is nx x ne and sIdx is
+#        nac x ne, so the elementwise OR between them could not broadcast and
+#        every cell died in the household solver. The two arrays are now
+#        counted separately and pooled over the combined denominator.
+#        TWO PROTOCOL AMENDMENTS, authorised by the project lead, reasons
+#        recorded in kv_gate_report's threshold block:
+#        (1) the Track A family is WIDENED (bmax x8, kmax x6 from the residual
+#            scan) with node counts scaled by F^(1/curvature), so widening is
+#            not also coarsening. Parameters stay frozen; the resulting miss
+#            against the S_b = 0.30 target is reported per cell as
+#            target_drift rather than assumed small. WIDEN = false restores
+#            the old matrix; NB_SCALED = false keeps the small node counts.
+#        (2) gate 4 lowered 1e-8 -> 1e-6 (= p.tol_vfi, the solver's own hard
+#            tolerance), with NEW gate 4.1 failing any equilibrium whose VFI
+#            soft-accepted a grid-limited fixed point. 1e-8 was unattainable
+#            by construction on a discrete-choice grid; 3e-3 would have been
+#            vacuous. The pair asks: did the VFI reach the tolerance it was
+#            asked for, by converging rather than by giving up.
 # R11.15 TRACK A COULD NOT HAVE PRODUCED GATE 11. Three defects, found in
 #        the first two cells of the first real run:
 #        (a) kv_solve_alpha assembled its output struct WITHOUT dV, ddist or

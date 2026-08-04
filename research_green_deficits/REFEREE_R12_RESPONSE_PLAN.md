@@ -238,6 +238,57 @@ verdict that the numbers are wrong.
 | 10 | extensions should not be coequal | **accept** | demotion map exists |
 | 11 | numerical accuracy not shown for sign-sensitive transitions | **accept** | Track A/B + Gate 11; transition Euler errors are a genuine gap |
 
+### 3b. What the first certification run established, before solving anything
+
+The Track A pre-flight evaluates the boundary gates on the benchmark
+distribution already stored in the `.mat`. On the paper's own preferred grid
+family:
+
+| gate | value | threshold |
+|---|---|---|
+| 7 liquid top-two-node mass | 0.00275 | < 1e-4 |
+| 8 illiquid top-two-node mass | 0.00143 | < 1e-4 |
+| 9 occupied support, liquid | **1.0000** | < 0.90 |
+| 9.1 occupied support, illiquid | **1.0000** | < 0.90 |
+
+Occupancy of exactly 1 means the distribution carries mass at the very top
+node of both grids. **The preferred two-asset economy is solved on a grid its
+own distribution has outgrown**, and it fails the boundary criteria by 1–2
+orders of magnitude before any refinement is attempted. This is not a
+convergence rate that could improve with more nodes; gates 7–9 are properties
+of the grid *extent*, which the original Track A held fixed.
+
+This is squarely R12's Major 11, and it is worse than the report supposes: the
+report asks for numerical uncertainty to be *reported* alongside each price
+movement, on the assumption that the underlying solves are sound. The
+measurement says the preferred specification does not currently clear the
+project's own pre-registered admissibility criteria, independently of how large
+the uncertainty turns out to be.
+
+**Two protocol amendments were authorised on 2026-08-04**, both recorded in
+`CODE_VERSION.txt` and in `kv_gate_report`'s threshold block with their reasons:
+
+1. **The frozen family is widened** (bmax ×8, kmax ×6, from the residual scan),
+   with node counts scaled by F^(1/curvature) so the widening is not also a
+   coarsening. Parameters stay frozen, so this remains a discretization
+   measurement — but the frozen calibration was fitted on the *narrow* family
+   and will not sit at its targets on the wide one. The miss is reported per
+   cell as `target_drift` rather than assumed small, because a reader comparing
+   the widened dP against the paper's is comparing two different economies.
+2. **Gate 4 is lowered from 1e-8 to 1e-6** = the solver's own hard tolerance,
+   with a new gate 4.1 failing any equilibrium whose VFI *soft-accepted* a
+   grid-limited fixed point. The original 1e-8 was unattainable by
+   construction: the adjuster's discrete argmax makes the value function flip
+   between neighbouring candidates near the fixed point, so the sup-norm floors
+   at grid granularity, and the solver settles at 3e-3. A gate five orders
+   below what the solver can deliver fails every cell on the difference. Gate 4
+   was **not** set to 3e-3, which would make it vacuous — passing exactly
+   whenever the solver chose to stop.
+
+Neither amendment weakens the protocol's conclusion; both make it capable of
+reaching one. The honest statement for the paper is unchanged: **on the
+discretizations solved so far, the two-asset level response is not resolved.**
+
 ### The one place the report understates the problem
 
 Major 11 asks for numerical uncertainty relative to each price movement. Our

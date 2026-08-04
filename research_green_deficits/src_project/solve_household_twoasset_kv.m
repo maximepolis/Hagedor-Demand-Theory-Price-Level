@@ -222,8 +222,16 @@ function [sol, diag] = solve_household_twoasset_kv(rb, q, d, tau, p, V0)
         if isempty(prevIdxA)
             diag.churn_adj = NaN;              % no previous sweep to compare
         else
-            ch = (polAIdx ~= prevIdxA) | (polSIdx ~= prevSIdx);
-            diag.churn_adj = sum(ch(:)) / max(numel(ch), 1);
+            % The two index arrays have DIFFERENT shapes: aIdx is one entry
+            % per x-node (nx x ne) and sIdx one per savings candidate
+            % (nac x ne). An elementwise OR between them is a size error, not
+            % a churn measure -- which is exactly how the first version of
+            % this failed. Count each array's movers and pool them over the
+            % combined denominator, so the fraction is over all adjuster
+            % choices rather than over one arbitrarily chosen array.
+            nA = sum(polAIdx(:) ~= prevIdxA(:));
+            nS = sum(polSIdx(:) ~= prevSIdx(:));
+            diag.churn_adj = (nA + nS) / max(numel(polAIdx) + numel(polSIdx), 1);
         end
         if isempty(prevIdxN)
             diag.churn_non = NaN;
