@@ -175,8 +175,25 @@ Two things that should happen regardless of the branch:
   precision it does not have.
 - The **wealth-mobility validation** (R12 Major 1) is required under every
   option, because it disciplines the one-asset mechanism that all three retain.
-  It is the only item here that is unblocked, unambiguous, and load-bearing in
-  every branch.
+- The **identification ledger** (R12 Major 2 items 1–3, now built) is required
+  under every option for the same reason, and it has already returned an
+  adverse verdict that does not wait on Gate 11: five internally solved
+  parameters against three targeted moments, and the two parameters with no
+  external target at all — φ and `bbar_liq` — are exactly the two that force
+  WHtM ≡ 0.
+
+These two are the only items here that are unblocked, unambiguous, and
+load-bearing in every branch.
+
+**The ledger sharpens Option B specifically.** §3 already noted that changing φ
+or the adjustment technology is not a purely numerical refinement. The ledger
+adds the reason it is worse than that: φ has *no external target*, so a
+re-engineering pass that moves φ until the grids decouple is choosing an
+unidentified parameter to make a numerical problem go away. Whatever comes out
+would be a different economy selected by its numerical convenience, and a
+referee who has already named φ as decisive would say so. If Option B is taken,
+φ must be pinned by a stated external moment **before** the re-engineering, not
+after — and the natural candidate is the WHtM share it currently sets to zero.
 
 ---
 
@@ -187,4 +204,5 @@ Two things that should happen regardless of the branch:
 | memo written | this file |
 | Gate 11 evidence | preliminary; Track A not yet run |
 | ordering signal-to-noise | **not measured — the decision variable** |
+| identification ledger | built; verdict adverse and independent of Gate 11 |
 | option chosen | **none.** Not mine to choose, and premature regardless |

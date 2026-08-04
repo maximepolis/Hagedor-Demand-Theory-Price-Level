@@ -1,4 +1,4 @@
-R11.11
+R11.12
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,11 @@ R11.11
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.12 new driver main_identification_ledger (referee R12, Major 2 items
+#        1-3). It is READ-ONLY over stored calibrations and solves nothing,
+#        so it changes no numerical result: no existing driver's interface
+#        moved and the D10/D11 parity legs are unaffected. The revision is
+#        bumped only so a pasted ledger log identifies itself.
 # R11.11 D10 comparison A PASSED (40 exact, 0 FAIL): the calibration refactor
 #        is behaviour-preserving. B/C failed because leg 3 was handed the
 #        script's OUTPUTS as inputs -- p_base = SCRIPT.p and q_ref =
