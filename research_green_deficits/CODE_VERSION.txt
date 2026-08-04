@@ -1,4 +1,4 @@
-R11.16
+R11.17
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,22 @@ R11.16
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.17 the widened FAST matrix runs for hours per cell, so the run is now
+#        SURVIVABLE: after every cell (failed ones included -- a failure is a
+#        result) the partial CELL array is checkpointed to
+#        output/quarantine/cert_<TRACK>_checkpoint.mat, written to a .tmp and
+#        renamed so an interrupt during the save cannot leave a truncated
+#        file that the next run would trust. Resume is accepted ONLY when a
+#        SIGNATURE matches -- frozen parameters, grid extents, curvatures,
+#        node lists, track -- because splicing cells from two experiments
+#        would make Gate 11 a spread over whatever else changed. RESUME =
+#        false forces a clean start.
+#        Also: no parallel pool for Track A. Nothing in its call chain has a
+#        parfor (the cell loop is serial by protocol, kv_solve_alpha is
+#        serial by design, the household solver uses implicit
+#        multithreading), so the pool started four idle workers and then
+#        announced "IdleTimeout has been reached" mid-cell, which reads as a
+#        fault and is not one. PARALLEL now defaults to false.
 # R11.16 my churn measure was a size error: aIdx is nx x ne and sIdx is
 #        nac x ne, so the elementwise OR between them could not broadcast and
 #        every cell died in the household solver. The two arrays are now
