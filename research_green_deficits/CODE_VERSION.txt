@@ -1,4 +1,4 @@
-R11.10
+R11.11
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,12 @@ R11.10
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.11 D10 comparison A PASSED (40 exact, 0 FAIL): the calibration refactor
+#        is behaviour-preserving. B/C failed because leg 3 was handed the
+#        script's OUTPUTS as inputs -- p_base = SCRIPT.p and q_ref =
+#        SCRIPT.eq_q -- so the callable started AT the solution while the
+#        script started from RCAL.beta_star. Leg 3 now recovers beta0, q_ref
+#        and chi_ref from the script's own workspace.
 # R11.10 syntax fix in kv_code_version (adjacent string literals across a
 #        continuation are not concatenated by MATLAB; they need [ ]), plus a
 #        static check for that class in paper/check_matlab_blocks.py with

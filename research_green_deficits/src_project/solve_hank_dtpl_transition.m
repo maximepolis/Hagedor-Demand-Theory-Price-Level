@@ -257,10 +257,37 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
     best = struct('resnorm', Inf);   % best iterate found (returned at pack)
     for it = 1:maxit
         % ---- climate + fiscal paths implied by the trial price path ----
-        if strcmpi(regime, 'indexed')
-            g_path = (Gg / eq1.P) * ones(1, T);   % real mandate
+        % PARTIAL INDEXATION (referee R12, Major 5). The binary
+        % nominal/indexed comparison is a limiting case of
+        %
+        %     G_{g,t} = Gbar * (P_t / Pbar)^xi,   xi in [0,1],
+        %
+        % so the real program is g_t = G_{g,t}/P_t = (Gbar/Pbar) *
+        % (P_t/Pbar)^(xi-1). Appropriations are revised, indexed imperfectly,
+        % and renegotiated; a permanent nominal amount held fixed forever and a
+        % fully indexed mandate are the two ends of that interval, not the only
+        % possibilities. Since the climate feedback P -> g -> D -> damages runs
+        % entirely through this line, the multiplicity and anchor-insulation
+        % results depend on where in [0,1] appropriations actually sit.
+        %
+        % Taking Pbar = eq1.P makes the rule NEST BOTH LEGACY BRANCHES EXACTLY:
+        %   xi = 1 : g_t = Gbar/eq1.P                (the real mandate)
+        %   xi = 0 : g_t = (Gbar/Pbar)*(Pbar/P_t) = Gbar/P_t   (nominal)
+        % so this is a generalization, not a replacement. The legacy branch is
+        % left untouched and is taken whenever xi_index is absent, which is
+        % what keeps the D11 parity test meaningful.
+        xi_index = getopt(opts, 'xi_index', []);
+        if isempty(xi_index)
+            if strcmpi(regime, 'indexed')
+                g_path = (Gg / eq1.P) * ones(1, T);   % real mandate
+            else
+                g_path = Gg ./ phat;                  % nominal appropriation
+            end
         else
-            g_path = Gg ./ phat;                  % nominal appropriation
+            assert(isscalar(xi_index) && xi_index >= 0 && xi_index <= 1, ...
+                'opts.xi_index must be a scalar in [0,1]');
+            Pbar   = eq1.P;
+            g_path = (Gg / Pbar) * (phat / Pbar) .^ (xi_index - 1);
         end
         Kg = zeros(1, T);
         for t = 1:T
@@ -432,7 +459,8 @@ function TR = solve_hank_dtpl_transition(pgc, opts)
     TR.pi_path = (1 + pgc.mu) * phat ./ [eq0.P, phat(1:T-1)] - 1;  % actual inflation
     TR.r_path = r_path; TR.tau_path = tau_path; TR.D_path = D_path;
     TR.Kg_path = Kg;    TR.S_path = S_path;     TR.b_path = b_path;
-    TR.g_path = g_path; TR.vart_path = vart_path; TR.financing = financing;
+    TR.g_path = g_path;
+    TR.xi_index = getopt(opts, 'xi_index', []); TR.vart_path = vart_path; TR.financing = financing;
     TR.phi_path = best.phi_path;  TR.kappa_path = best.kappa_path;
     TR.xi_path = zeros(1, T);
     if have_fs && isfield(fs,'consolidation_path') && ~isempty(fs.consolidation_path)

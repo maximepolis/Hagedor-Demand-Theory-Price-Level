@@ -200,3 +200,53 @@ Replace the lead-in with:
 - A7, A8 and D4 are **flagged as unlocated**, not quietly dropped. Each needs
   the macro traced or the compiled-PDF string confirmed before an edit is
   proposed; inventing a near-match would be worse than leaving it open.
+
+---
+
+## F. Added by referee report R12 (verified against the source)
+
+### F1 — Proposition 5 internal inconsistency (R12 Minor 4), **line 1243**
+
+The analytical-status overview describes Proposition 5 (`prop:financingdesign`,
+the 5th `\begin{proposition}`, line 1640) as resting on approximate
+homogeneity, while the proposition's own status line at 1666 says the
+comparative static is **exact** and that "no homotheticity approximation is
+used, an earlier version having imposed $d\tau_{ls}=-(1-D)d\vartheta$".
+
+Line 1243 therefore describes a **superseded** version. Currently:
+
+> Financing design (Proposition~\ref{prop:financingdesign}) uses an
+> \textbf{approximate} homogeneity (exact only in the homothetic limit).
+
+Replace with:
+
+> Financing design (Proposition~\ref{prop:financingdesign}) is an
+> \textbf{exact} local comparative static at a differentiable stationary
+> equilibrium; an earlier version imposed a homotheticity-based tax rule and
+> was corrected.
+
+*This strengthens the paper's claim rather than weakening it, and removes a
+contradiction a referee has already caught.*
+
+### F2 — the Prop 6 decomposition sentence is out of date, **line 1712**
+
+Currently:
+
+> Quantifying the two Schur components separately in the preferred
+> calibration, and checking \eqref{eq:twomarket} against a solved central
+> difference, is the natural next step and is not yet done.
+
+`main_preferred_decomposition.m` (lines 583–660) computes $F_{bP}$, $F_{bq}$,
+$F_{b\alpha}$, $F_{kq}$, the Schur numerator and denominator, and $-N/M$ over a
+step-size ladder, with a gate against the solved finite difference. The
+decomposition is **implemented but not certified** — it sits downstream of the
+two-asset grid certification. Proposed:
+
+> The two Schur components are computed separately in
+> Appendix~\ref{app:numerical} over a step-size ladder and checked against a
+> solved central difference; the quantification is reported only for
+> discretizations that clear the certification protocol.
+
+**Do not apply F2 until certification actually passes** — otherwise the
+sentence promises a report that does not yet exist. Until then the honest
+interim wording is "implemented, pending certification".
