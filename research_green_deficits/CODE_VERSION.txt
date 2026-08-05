@@ -1,4 +1,4 @@
-R11.17
+R11.18
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,22 @@ R11.17
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.18 my gate-4 amendment put its rationale INSIDE the continued
+#        struct( ... ) call. MATLAB cannot parse a comment-only line within a
+#        `...` continuation -- the error is "Invalid expression" pointing at a
+#        column in the middle of the construct, which reads like a delimiter
+#        problem. Comment moved above the statement, and
+#        paper/check_matlab_blocks.py now checks for this class with six new
+#        controls (a trailing comment after `...` is fine; a comment inside
+#        [ ] WITHOUT a continuation is fine, since there the newline is a row
+#        separator). The project-wide rescan found ONE OTHER instance:
+#        src_project/calib_beta_chi.m had its whole header comment between
+#        the two lines of its continued signature, so the file could not be
+#        parsed at all. It went unnoticed because the shipped benchmark
+#        leaves W_targ empty and never calls it -- which means the
+#        two-instrument calibration of referee item M3, the one the
+#        identification ledger's V6 recommends, would have failed on its
+#        first invocation.
 # R11.17 the widened FAST matrix runs for hours per cell, so the run is now
 #        SURVIVABLE: after every cell (failed ones included -- a failure is a
 #        result) the partial CELL array is checkpointed to

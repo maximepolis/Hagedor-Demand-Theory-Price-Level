@@ -106,36 +106,38 @@ end
 % =====================================================================
 function T = thresholds()
 % The round-10 protocol, written once. NaN is never a pass.
+%
+% GATE 4 AMENDED 2026-08-04, on authority of the project lead, with the reason
+% recorded here as the protocol requires.
+%
+% The original 1e-8 was unattainable BY CONSTRUCTION, not by accident.
+% solve_household_twoasset_kv states in its own header that the relative
+% sup-norm "floors above tol_vfi and never reaches it" because the adjuster's
+% choice is an argmax over a DISCRETE candidate set: near a fixed point the
+% value function stops changing smoothly and starts flipping between
+% neighbouring candidates, so the sup-norm settles at grid granularity instead
+% of going to zero. The solver accordingly accepts a grid-limited fixed point
+% at tol_soft = 3e-3. A gate at 1e-8 and a solver that stops at 3e-3 cannot
+% both stand; five orders separate them and every cell fails on the difference.
+%
+% The new value is p.tol_vfi = 1e-6, the solver's own HARD tolerance. The gate
+% now asks a question the solver can answer: did the VFI reach the tolerance it
+% was asked for? It is NOT set to tol_soft, which would make the gate vacuous
+% -- passing exactly whenever the solver decided to stop.
+%
+% Companion gate 4.1 closes the remaining hole: a soft-accepted solve can have
+% dV anywhere below 3e-3, which would sometimes slip under 1e-6 by luck. 4.1
+% fails any equilibrium whose VFI soft-accepted, whatever its sup-norm, so the
+% pair means "reached the hard tolerance by converging, not by giving up".
+%
+% THIS COMMENT LIVES ABOVE THE STATEMENT, NOT INSIDE IT. MATLAB does not allow
+% comment-only lines within a continued expression: a `...` followed by a `%`
+% line inside struct( ... ) is a parse error, which is exactly how the first
+% version of this amendment failed.
     T = struct( ...
         'res_rel',    1e-6, ...   % gates 1-2
         'res_fiscal', 1e-5, ...   % gate 3
-        ...
-        % GATE 4 AMENDED 2026-08-04, on authority of the project lead, with
-        % the reason recorded here as the protocol requires.
-        %
-        % The original 1e-8 was unattainable BY CONSTRUCTION, not by accident.
-        % solve_household_twoasset_kv states in its own header that the
-        % relative sup-norm "floors above tol_vfi and never reaches it"
-        % because the adjuster's choice is an argmax over a DISCRETE candidate
-        % set: near a fixed point the value function stops changing smoothly
-        % and starts flipping between neighbouring candidates, so the sup-norm
-        % settles at grid granularity instead of going to zero. The solver
-        % accordingly accepts a grid-limited fixed point at tol_soft = 3e-3.
-        % A gate at 1e-8 and a solver that stops at 3e-3 cannot both stand;
-        % five orders separate them and every cell fails on the difference.
-        %
-        % The new value is p.tol_vfi = 1e-6, the solver's own HARD tolerance.
-        % The gate now asks a question the solver can answer: did the VFI
-        % reach the tolerance it was asked for? It is NOT set to tol_soft,
-        % which would make the gate vacuous -- passing exactly whenever the
-        % solver decided to stop.
-        %
-        % Companion gate 4.1 closes the remaining hole: a soft-accepted solve
-        % can have dV anywhere below 3e-3, which would sometimes slip under
-        % 1e-6 by luck. 4.1 fails any equilibrium whose VFI soft-accepted,
-        % whatever its sup-norm, so the pair means "reached the hard tolerance
-        % by converging, not by giving up".
-        'dV',         1e-6, ...   % gate 4 (was 1e-8; see above)
+        'dV',         1e-6, ...   % gate 4 (was 1e-8; see the note above)
         'ddist',      1e-11, ...  % gate 5
         'polstable',  0, ...      % gate 6, exact
         'boundary',   1e-4, ...   % gates 7-8
