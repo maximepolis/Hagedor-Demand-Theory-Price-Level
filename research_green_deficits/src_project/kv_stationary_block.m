@@ -27,7 +27,8 @@ function out = kv_stationary_block(rb, q, dvd, tau, pe, V0, distIn)
     out = struct('ok', false, 'msg', '', 'Sb', NaN, 'Sk', NaN, ...
                  'sol', [], 'dist', [], 'bch', [], 'kch', [], ...
                  'dV', NaN, 'ddist', NaN, 'dist_loose', false, ...
-                 'churn', NaN, 'churn_non', NaN, 'vfi_soft', true);
+                 'churn', NaN, 'churn_non', NaN, 'vfi_soft', true, ...
+                 'vfi_iters', 0);
     if nargin < 6, V0 = []; end
     if nargin < 7, distIn = []; end
 
@@ -46,6 +47,11 @@ function out = kv_stationary_block(rb, q, dvd, tau, pe, V0, distIn)
     % grid-limited fixed point? Gate 4.1 turns on this: a lowered gate-4
     % threshold must not be passable by the solver's own fallback.
     out.vfi_soft = isfield(dg, 'soft') && ~isempty(dg.soft) && dg.soft;
+    % Sweep count, because gate 6 is only ANSWERABLE when at least two sweeps
+    % ran: churn is a comparison between the last two, and a warm start that
+    % is already at the fixed point converges on sweep 1 with nothing to
+    % compare against. See the not-applicable branch in kv_gate_report.
+    if isfield(dg, 'iters'), out.vfi_iters = dg.iters; end
 
     if isempty(distIn)
         [dist, dd] = stationary_distribution_twoasset_kv(sol, rb, q, dvd, tau, pe);
