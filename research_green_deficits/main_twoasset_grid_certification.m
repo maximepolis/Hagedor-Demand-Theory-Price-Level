@@ -47,7 +47,7 @@
 %
 % Everything it writes is QUARANTINED until the gate passes.
 
-clearvars -except TRACK FAST PARALLEL NWORKERS NB_LIST NK_LIST WIDEN NB_SCALED; close all; clc;
+clearvars -except TRACK FAST PARALLEL NWORKERS NB_LIST NK_LIST WIDEN NB_SCALED RESUME; close all; clc;
 rng(20260731,'twister'); t0 = tic;
 
 projdir = fileparts(mfilename('fullpath'));
@@ -59,7 +59,7 @@ addpath(genpath(fullfile(projdir,'src_project')));
 
 if ~exist('TRACK','var') || isempty(TRACK), TRACK = 'A'; end
 if ~exist('FAST','var'), FAST = false; end
-if ~exist('PARALLEL','var') || isempty(PARALLEL), PARALLEL = true; end
+if ~exist('PARALLEL','var') || isempty(PARALLEL), PARALLEL = false; end
 if ~exist('NWORKERS','var'), NWORKERS = []; end
 assert(any(strcmpi(TRACK,{'A','B'})), 'TRACK must be A (fixed) or B (recalibrated)');
 TRACK = upper(TRACK);
@@ -219,8 +219,24 @@ if isfield(eq0, 'dist') && ~isempty(eq0.dist)
     tee('\n');
 end
 
-nw = kv_parpool(PARALLEL, NWORKERS, true, tee, ...
-                {fullfile(rootdir,'src'), fullfile(projdir,'src_project')});
+% NO POOL FOR TRACK A. Nothing in this driver's call chain contains a parfor:
+% the cell loop is serial by protocol (each cell continues from its coarser
+% neighbour), kv_solve_alpha states in its own header that it is serial and
+% stays serial, and the household solver relies on MATLAB's implicit
+% multithreading rather than on workers. A pool therefore starts four
+% processes that sit idle for the whole run and then announce "IdleTimeout has
+% been reached" in the middle of a cell, which reads like a fault and is not
+% one. Track B's recalibration path may use workers, so the pool is kept
+% there and PARALLEL = true still forces one.
+if TRACK == 'A' && (~exist('PARALLEL','var') || isempty(PARALLEL) || ~PARALLEL)
+    nw = 0;
+    tee(['no parallel pool: nothing in the Track A chain uses parfor, so a ' ...
+         'pool\nwould idle for the whole run. Implicit multithreading is ' ...
+         'unaffected.\n\n']);
+else
+    nw = kv_parpool(PARALLEL, NWORKERS, true, tee, ...
+                    {fullfile(rootdir,'src'), fullfile(projdir,'src_project')});
+end
 
 % =====================================================================
 % The cells. Solved in a deterministic order so continuation always has a
@@ -230,9 +246,54 @@ nB = numel(NB_LIST); nK = numel(NK_LIST);
 CELL = cell(nB, nK);
 prev = [];                                   % the coarser neighbour's solution
 
+% ---- CHECKPOINT / RESUME ------------------------------------------------
+% A widened cell takes hours and the matrix has nine of them, so an
+% interrupted run must not throw away the cells it finished. After every
+% cell the partial CELL array is written to a checkpoint keyed by a SIGNATURE
+% of everything that defines the experiment: the frozen parameters, the grid
+% extents and curvatures, the node lists and the track. A resume is accepted
+% only when that signature matches exactly.
+%
+% The signature is the point. Resuming across a changed threshold, a changed
+% widening factor or a changed calibration would silently splice cells from
+% two different experiments into one Gate 11 statistic, and the spread it
+% reported would be part discretization and part whatever else moved. On a
+% mismatch the checkpoint is ignored and the run starts clean, loudly.
+sig = struct('track', TRACK, 'beta', p0.beta, 'chi_b', p0.chi_b, ...
+             'lambda', p0.lambda_adj, 'iota', iota, 'div_payout', ...
+             getfd(p0,'div_payout',NaN), 'bbar', getfd(p0,'bbar_liq',NaN), ...
+             'zeta', getfd(p0,'zeta_b',NaN), ...
+             'blo', blo, 'bhi', bhi, 'gb', gb, 'klo', klo, 'khi', khi, ...
+             'gk', gk, 'nb_list', NB_LIST(:)', 'nk_list', NK_LIST(:)', ...
+             'g_real', g_real, 'D0', D0, 'r_b', r_b, 'd_base', d_base);
+ckf = fullfile(qdir, sprintf('cert_%s_checkpoint.mat', TRACK));
+ndone0 = 0;
+if ~exist('RESUME','var') || isempty(RESUME), RESUME = true; end
+if RESUME && exist(ckf,'file') == 2
+    CK = load(ckf);
+    if isfield(CK,'sig') && isequaln(CK.sig, sig) && isfield(CK,'CELL') ...
+            && isequal(size(CK.CELL), [nB nK])
+        CELL = CK.CELL;
+        if isfield(CK,'prev'), prev = CK.prev; end
+        ndone0 = sum(cellfun(@(c) ~isempty(c), CELL(:)));
+        tee('RESUMED from checkpoint: %d of %d cells already solved.\n', ...
+            ndone0, nB*nK);
+        tee('  signature matched (parameters, extents, curvatures, node lists).\n\n');
+    else
+        tee('checkpoint present but its SIGNATURE DOES NOT MATCH this run.\n');
+        tee('  Ignoring it and starting clean. Splicing cells from two\n');
+        tee('  different experiments would make Gate 11 a spread over\n');
+        tee('  whatever else changed, not over the discretization.\n\n');
+    end
+end
+
 for ib = 1:nB
     for ik = 1:nK
         nb = NB_LIST(ib); nk = NK_LIST(ik);
+        if ~isempty(CELL{ib,ik})
+            tee('--- cell nb=%d nk=%d : from checkpoint ---\n', nb, nk);
+            continue;
+        end
         tee('--- cell nb=%d nk=%d ---\n', nb, nk);
 
         p = p0;
@@ -264,6 +325,20 @@ for ib = 1:nB
         C.nb = nb; C.nk = nk; C.targets = tgt;
         CELL{ib,ik} = C;
         if C.ok, prev = C; end               % continuation source for the next
+        % Checkpoint AFTER every cell, including failed ones: a cell that
+        % failed is a result, and re-solving it on resume would cost the same
+        % hours to learn the same thing. Written to a temporary file and
+        % renamed, so an interrupt DURING the save cannot leave a truncated
+        % checkpoint that the next run would then trust.
+        try
+            tmpck = [ckf '.tmp'];
+            save(tmpck, 'CELL', 'prev', 'sig', '-v7.3');
+            movefile(tmpck, ckf, 'f');
+            tee('    [checkpoint] %d of %d cells stored\n', ...
+                sum(cellfun(@(c) ~isempty(c), CELL(:))), nB*nK);
+        catch cerr
+            tee('    [checkpoint FAILED: %s -- the run continues]\n', cerr.message);
+        end
         tee('\n');
     end
 end
