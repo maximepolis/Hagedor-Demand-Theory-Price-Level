@@ -1,4 +1,5 @@
 function [beta_star, chi_star, eq0] = calib_beta_chi(rb, d, D, g, lv, Bnom, Kbar, ...
+                                          btH, Wt, iota, p, q_ref, t0)
 % MOVED, NOT COPIED, round 10 (decision D10).
 %
 % This function was a local function of main_twoasset_ownership_kv.m. Track B
@@ -10,7 +11,13 @@ function [beta_star, chi_star, eq0] = calib_beta_chi(rb, d, D, g, lv, Bnom, Kbar
 %
 % The body below is the original, moved verbatim. The calling script now calls
 % this file. Any change here changes the paper's calibration.
-                                          btH, Wt, iota, p, q_ref, t0)
+% NOTE: this header sits BELOW the complete signature on purpose. It used
+% to sit between the two lines of the continued argument list, which is a
+% MATLAB parse error -- a `...` promises the statement continues, and a
+% comment-only line is not a continuation. The file could not be parsed at
+% all, so the two-instrument calibration was unreachable; nothing caught it
+% because the shipped benchmark leaves W_targ empty and never calls it.
+% paper/check_matlab_blocks.py now checks for this class.
     % TWO-INSTRUMENT calibration (referee item M3): beta and chi_b jointly
     % target total household wealth W and the liquid share omega.
     %

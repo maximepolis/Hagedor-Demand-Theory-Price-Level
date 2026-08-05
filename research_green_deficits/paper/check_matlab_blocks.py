@@ -266,9 +266,56 @@ def strip_line_keep_strings(line, in_block_comment):
     return "".join(out), False
 
 
+def check_comment_in_continuation(path):
+    """Flag a comment-only line that sits INSIDE an explicit `...` continuation.
+
+    MATLAB will not parse
+
+        T = struct( ...
+            'a', 1, ...
+            % explanation
+            'b', 2);
+
+    The `...` promises the statement continues on the next line, and a
+    comment-only line is not a continuation of an expression, so the parser
+    reports "Invalid expression" at a column in the middle of the construct --
+    which points nowhere useful and reads like a delimiter problem.
+
+    This is NOT the same as a comment inside brackets without a continuation:
+
+        x = [1, 2
+             % this is fine: the newline is a row separator, not a continuation
+             3, 4];
+
+    so the rule keys strictly on a preceding line whose code part ends in
+    `...`. Blank lines between the continuation and the comment do not rescue
+    it; a blank line inside a continuation is itself already a break.
+    """
+    with open(path, encoding="utf-8", errors="replace") as fh:
+        raw = fh.read().split("\n")
+    errs, in_bc, pending = [], False, None
+    for ln, line in enumerate(raw, 1):
+        code, in_bc = strip_line_keep_strings(line, in_bc)
+        stripped_src = line.strip()
+        if pending is not None and stripped_src.startswith("%"):
+            errs.append(
+                "line %d: comment-only line inside a `...` continuation "
+                "started at line %d -- MATLAB cannot parse this; move the "
+                "comment above the statement" % (ln, pending))
+            pending = None
+            continue
+        if code.rstrip().endswith("..."):
+            if pending is None:
+                pending = ln
+        else:
+            pending = None
+    return errs
+
+
 def check(path):
     depth, events, errors = scan(path)
     errors = errors + check_adjacent_strings(path)
+    errors = errors + check_comment_in_continuation(path)
     if depth > 0:
         opens = [e for e in events if e[1] == "open"]
         tail = ", ".join("%s@%d" % (e[2], e[0]) for e in opens[-3:])
@@ -309,6 +356,18 @@ SELFTEST = [
      "function f(A)\ny = [A' 'lit'];\ndisp(y);\nend\n", True),
     ("two args are fine",
      "function f()\nfprintf('%s', 'b');\nend\n", True),
+    ("comment inside a continuation",
+     "function f()\nx = struct( ...\n  'a', 1, ...\n  % note\n  'b', 2);\ndisp(x);\nend\n", False),
+    ("comment above the statement is fine",
+     "function f()\n% note\nx = struct('a', 1, ...\n  'b', 2);\ndisp(x);\nend\n", True),
+    ("trailing comment after ... is fine",
+     "function f()\nx = struct('a', 1, ...   % note\n  'b', 2);\ndisp(x);\nend\n", True),
+    ("comment in brackets without ... is fine",
+     "function f()\nx = [1, 2\n  % row note\n  3, 4];\ndisp(x);\nend\n", True),
+    ("comment after a normal line is fine",
+     "function f()\nx = 1;\n% note\ny = 2;\ndisp(x+y);\nend\n", True),
+    ("two comment lines in a continuation",
+     "function f()\nx = [1, ...\n  % a\n  % b\n  2];\ndisp(x);\nend\n", False),
     ("MISSING end", "function f()\nif true\ndisp(1);\nend\n", False),
     ("EXTRA end", "function f()\ndisp(1);\nend\nend\n", False),
     ("unclosed for", "function f()\nfor i=1:3\ndisp(i);\nend\n", False),
