@@ -367,7 +367,16 @@ noise produces a decomposition of noise.
 5. **Paper-scale, needs a decision:** regime menu (Major 3), distortionary
    instruments (Major 4), credibility (Major 6).
 
-**If Gate 11 fails**, items 2 and 7 cannot be answered in this model at this
+**GATE 11 HAS NOW FAILED, and the ordering has passed.** Track A ran the full
+3x3 on 2026-08-05: nine cells, all solved, none certified. dP is positive in
+**9 of 9** cells, so the financing ORDERING is robust to discretization; the
+Gate 11 magnitude statistic is **0.75 against a 0.10 threshold**, and — the
+sharper point — the dispersion does not fall as the grid refines (35%, 31%, 34%
+within the three nb rows). This is not "not yet refined enough"; it is the
+adjuster's discrete argmax putting a floor under the residual. Details and
+caveats in `TWO_ASSET_FAILURE_FALLBACK_MEMO.md` §1.2.
+
+So items 2 and 7 cannot be answered in this model at this
 resolution, and the honest response to the report is the narrower paper it
 proposes — built on the certified one-asset economy and the ordering — rather
 than a defence of the two-asset level sign. That branch is the subject of

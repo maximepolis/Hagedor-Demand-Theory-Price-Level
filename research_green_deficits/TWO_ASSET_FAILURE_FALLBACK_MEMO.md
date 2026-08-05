@@ -91,6 +91,94 @@ first direct evidence for it rather than an argument from structure.
 
 ---
 
+## 1.2 TRACK A HAS NOW RUN. The decision variable is measured.
+
+Full 3x3 matrix, narrow family, frozen parameters, 4.4 hours, 2026-08-05.
+All nine cells solved and produced a dP. **No cell certified** — every one fails
+the residual gates (1, 2, 3, 3.1) and the boundary gates (7, 8, 9, 9.1).
+
+| | nk=17 | nk=22 | nk=28 |
+|---|---|---|---|
+| **nb=30** | +0.027451 | +0.025260 | +0.034802 |
+| **nb=38** | +0.025042 | +0.020961 | +0.028821 |
+| **nb=48** | +0.042625 | +0.037195 | +0.029845 |
+
+**ORDERING: certified in the only sense available. 9 of 9 cells give dP > 0.**
+The levy is more inflationary than the lump-sum tax on every discretization
+solved, across a 2.3x spread in the magnitude. This is the number
+§6 said did not exist and called the decision variable.
+
+**MAGNITUDE: fails Gate 11 by a factor of 7.5.**
+
+| statistic | value | gate |
+|---|---|---|
+| range / \|median\| | **0.752** | < 0.10 required, < 0.05 preferred |
+| s.d. / \|mean\| | 0.225 | — |
+| median dP | 0.028821 | — |
+
+### The sharper finding: refinement does not tighten it
+
+A failing gate could mean "not yet refined enough". This matrix says otherwise.
+Spread of dP **within each nb row**, as the b-grid refines:
+
+| nb | spread as % of that row's median |
+|---|---|
+| 30 | 35% |
+| 38 | 31% |
+| 48 | **34%** |
+
+Refining the liquid grid by 60% does not reduce the dispersion at all. The
+sequence is also **non-monotone in both dimensions** — dP falls then rises in
+nk at every nb, and falls then rises in nb at every nk. There is no convergent
+sequence here to extrapolate.
+
+The k dimension is where the action is: the spread across nb is 64% at nk=17,
+64% at nk=22, and 20% at nk=28. That is consistent with the tree market being
+the binding block, as the FAST diagnostic in §1.1 already suggested when q was
+identical to four decimals across the financing experiment.
+
+**But the finest cell is not usable.** At (48, 28), alpha = 1 returns a tree
+residual of 0.0902 relative to Kbar — 9% — and a residual **4.14 times debt
+service**. That is a solver breakdown at the finest grid, not a refinement of
+it, so the one cell that makes the nk=28 column look tight is the one whose
+levy solve failed. Excluding it moves range/|median| to 0.770; the verdict does
+not depend on it either way.
+
+### Two further diagnostics worth recording
+
+**Target drift, on a matrix where parameters are FROZEN.** S_b at alpha = 0
+ranges 0.2988 to 0.3137 against a 0.30 target — up to **4.6% off**. Freezing
+parameters does not freeze the moments, because the node count moves them. The
+largest dP (0.042625) sits in the cell with the largest drift (+0.0137), so
+part of the dP spread is calibration drift, not discretization alone, even
+inside Track A.
+
+**MULTIPLE_ROOTS in all nine cells.** Most spreads are tiny (1e-6 to 1e-4), but
+at (38, 17) the P spread across starts is 2.69e-03 — roughly a tenth of dP
+itself. Root selection is therefore not negligible relative to the signal in at
+least one cell. Three cells additionally lost the cold_lo start to
+SOLVER_SCATTERED.
+
+### What this settles
+
+§6 said: *"The decision turns on one number that does not exist yet: whether
+the ordering certifies when the level sign does not."* It now exists.
+
+- The **ordering** is robust: 9/9, across grids that disagree about the
+  magnitude by a factor of 2.3. This is exactly the asymmetry §2 predicted —
+  the ordering compares two solves on the same grid and the common
+  discretization error differences out.
+- The **level** is not resolved and, on this evidence, will not be resolved by
+  refining the current discretization. That is Option B item 2 — the adjuster's
+  discrete argmax putting a floor under the residual — and it makes Option B
+  **necessary rather than optional** if the level is ever to be reported.
+
+**Option A is now supported by measurement rather than by argument.** The
+narrow paper reports the financing ordering and declines the level. Nothing
+here forces that choice, but it is no longer a choice made in ignorance.
+
+---
+
 ## 2. Option A — narrow to the certified one-asset economy
 
 **The paper becomes:** financing incidence in a one-asset DTPL economy, with
@@ -251,7 +339,7 @@ after — and the natural candidate is the WHtM share it currently sets to zero.
 |---|---|
 | memo written | this file |
 | Gate 11 evidence | preliminary; Track A not yet run |
-| ordering signal-to-noise | first paired measurement in §1.1: **sign survives, magnitude does not** |
-| level signal-to-noise | 0.38 on the FAST/benchmark pair, against a 0.10 gate |
+| ordering signal-to-noise | **MEASURED, §1.2: 9/9 cells same sign. Ordering robust.** |
+| level signal-to-noise | **MEASURED, §1.2: Gate 11 = 0.75 against a 0.10 gate, and refinement does not tighten it** |
 | identification ledger | built; verdict adverse and independent of Gate 11 |
-| option chosen | **none.** Not mine to choose, and premature regardless |
+| option chosen | **none.** Still not mine to choose — but no longer premature: the decision variable has reported |
