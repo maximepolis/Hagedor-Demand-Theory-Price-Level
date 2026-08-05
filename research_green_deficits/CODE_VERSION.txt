@@ -1,4 +1,4 @@
-R11.18
+R11.19
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,24 @@ R11.18
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.19 the run was on course to DISCARD its own answer. Gate 11 proper is
+#        computed only over CERTIFIED cells and no cell certifies, so a full
+#        matrix would have reported "not computable" while holding nine
+#        perfectly good dP values. contrast_gates now also reports a
+#        PROVISIONAL block over every cell that produced a finite dP, split
+#        into the two questions that are genuinely different: MAGNITUDE
+#        (spread in dP relative to dP -- what Gate 11 asks) and ORDERING
+#        (does dP keep its sign across every discretization). The ordering is
+#        the weaker and more robust claim because it compares two solves on
+#        the SAME grid, where common discretization error differences out.
+#        Every line is labelled provisional and uncertified.
+#        Also: gate 6 was failing the BEST case. Churn compares the adjuster
+#        index arrays across the last two VFI sweeps, so a warm start already
+#        at the fixed point converges on sweep 1 with nothing to compare
+#        against, reports NaN, and is failed as unmeasured. Now scored
+#        not-applicable -- but only when the VFI reached the HARD tolerance
+#        and did not soft-accept, so a solve that gave up cannot reach the
+#        exemption. vfi_iters is propagated for this.
 # R11.18 my gate-4 amendment put its rationale INSIDE the continued
 #        struct( ... ) call. MATLAB cannot parse a comment-only line within a
 #        `...` continuation -- the error is "Invalid expression" pointing at a

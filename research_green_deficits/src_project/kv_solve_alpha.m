@@ -120,6 +120,7 @@ function E = kv_solve_alpha(alpha, CTX, q_guess, verbose, tee)
     E.dist_loose = getst(st, 'dist_loose', false);
     E.churn      = getst(st, 'churn',      NaN);   % gate 6, adjuster
     E.churn_non  = getst(st, 'churn_non',  NaN);
+    E.vfi_iters  = getst(st, 'vfi_iters',  0);     % gate 6 applicability
     E.vfi_soft   = getst(st, 'vfi_soft',   true);  % gate 4.1; default is the
                                                    % conservative direction
     % canonical residuals, computed from THIS state and nothing else

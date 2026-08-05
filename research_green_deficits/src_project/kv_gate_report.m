@@ -61,6 +61,7 @@ function G = kv_gate_report(E, CTX, opts)
     % mirror-image default on dist_loose (false) is what let gate 5.1 pass on
     % the absence of the flag it checks.
     m.vfisoft   = getf(E, 'vfi_soft', true);
+    m.vfi_iters = getf(E, 'vfi_iters', 0);
 
     % ---- gates 7-10: distribution health ---------------------------------
     [m.ksat, m.bsat, m.kocc, m.bocc] = ...
@@ -85,7 +86,23 @@ function G = kv_gate_report(E, CTX, opts)
     R = add(R, 4.1,'VFI not soft-accepted',      double(~m.vfisoft),   0.5, '>');
     R = add(R, 5,  'distribution sup-norm',      m.ddist,      T.ddist,     '<');
     R = add(R, 5.1,'distribution not loose',     double(~m.distloose), 0.5, '>');
-    R = add(R, 6,  'adjuster policy churn',      m.polstable,  T.polstable, '<=');
+    % GATE 6 IS ONLY ANSWERABLE WHEN AT LEAST TWO SWEEPS RAN. Churn compares
+    % the adjuster's index arrays between the last two VFI sweeps. A warm
+    % start that is already at the fixed point converges on sweep 1, so there
+    % is no earlier sweep and the fraction is undefined -- reported as NaN,
+    % which the "unmeasured is never passed" rule then FAILS. That penalises
+    % the best case: the solve converged immediately because the seed was
+    % excellent. Scored not-applicable instead, but only when the VFI both
+    % converged to the HARD tolerance (gate 4) and did not soft-accept (gate
+    % 4.1), so the exemption cannot be reached by a solve that gave up.
+    if isnan(m.polstable) && m.vfi_iters >= 1 && m.vfi_iters <= 1 && ...
+            ~m.vfisoft && isfinite(m.dV) && m.dV < T.dV
+        m.churn_na = true;
+        R = add(R, 6, 'adjuster policy churn (n/a, 1 sweep)', 0, T.polstable, '<=');
+    else
+        m.churn_na = false;
+        R = add(R, 6,  'adjuster policy churn',  m.polstable,  T.polstable, '<=');
+    end
     R = add(R, 7,  'liquid top-two-node mass',   m.bsat,       T.boundary,  '<');
     R = add(R, 8,  'illiquid top-two-node mass', m.ksat,       T.boundary,  '<');
     R = add(R, 9,  'occupied support, liquid',   m.bocc,       T.occupancy, '<');

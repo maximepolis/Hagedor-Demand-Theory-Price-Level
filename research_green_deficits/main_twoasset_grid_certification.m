@@ -503,9 +503,69 @@ function [G, tab] = contrast_gates(CELL, TRACK, tee)
     end
     tab = struct('dP', v, 'label', {lab});
     G.n = numel(v);
+
+    % ---- PROVISIONAL statistic over cells that SOLVED but did not certify --
+    % Gate 11 proper is computed only over certified cells, and that rule
+    % stands. But a cell that solved and produced a dP carries information
+    % even when it fails a gate, and discarding it means a run that fails
+    % certification reports nothing at all -- which is how the project could
+    % spend a day of compute and learn only that it had spent a day.
+    %
+    % The two questions are genuinely different and are reported separately:
+    %   MAGNITUDE  is the spread in dP small relative to dP? (Gate 11)
+    %   ORDERING   does dP keep its SIGN across every discretization?
+    % The ordering is the weaker claim and the more robust one: it compares
+    % two solves on the SAME grid, so the common discretization error
+    % differences out. A run can fail the first and pass the second, and that
+    % combination is exactly the paper's decision point -- report the
+    % financing ordering, decline the level.
+    %
+    % NOTHING HERE IS CERTIFIED. It is labelled provisional in every line and
+    % may not enter the manuscript on the strength of this block alone.
+    vp = []; labp = {};
+    for i = 1:numel(CELL)
+        c = CELL{i};
+        if isempty(c) || ~isstruct(c) || ~isfield(c,'dP') || ~isfinite(c.dP)
+            continue;
+        end
+        vp(end+1) = c.dP; %#ok<AGROW>
+        labp{end+1} = sprintf('nb%d,nk%d', c.nb, c.nk); %#ok<AGROW>
+    end
+    G.provisional = struct('n', numel(vp), 'dP', vp, 'label', {labp}, ...
+                           'ratio', NaN, 'sign_stable', false, 'sd_ratio', NaN);
+    if numel(vp) >= 2
+        medp = median(vp);
+        G.provisional.ratio    = (max(vp) - min(vp)) / max(abs(medp), eps);
+        G.provisional.sd_ratio = std(vp) / max(abs(mean(vp)), eps);
+        G.provisional.sign_stable = numel(unique(sign(vp))) == 1;
+        tee('\n  --- PROVISIONAL, over cells that SOLVED (certified or not) ---\n');
+        tee('  cells with a finite dP     : %d of %d\n', numel(vp), numel(CELL));
+        tee('  dP                         : [%+0.6f, %+0.6f], median %+0.6f\n', ...
+            min(vp), max(vp), medp);
+        tee('  spread / |median|          : %.4f   (Gate 11 would need <0.10)\n', ...
+            G.provisional.ratio);
+        tee('  s.d. / |mean|              : %.4f\n', G.provisional.sd_ratio);
+        if G.provisional.sign_stable
+            tee('  ORDERING                   : STABLE -- dP keeps one sign in\n');
+            tee('                               all %d cells. The levy and the\n', numel(vp));
+            tee('                               lump-sum tax are ranked the same\n');
+            tee('                               way at every discretization.\n');
+        else
+            tee('  ORDERING                   : NOT STABLE -- dP changes sign\n');
+            tee('                               across the matrix. Neither the\n');
+            tee('                               level nor the ordering may be\n');
+            tee('                               quoted at this resolution.\n');
+        end
+        tee('  These numbers are PROVISIONAL and uncertified. They bound what\n');
+        tee('  the discretization can support; they do not license a claim.\n\n');
+    end
+
     if G.n < 2
         tee('  fewer than two certified cells: Gate 11 not computable.\n');
         tee('  This is a FAILURE of the protocol, not an absence of evidence.\n');
+        if numel(vp) >= 2
+            tee('  The provisional block above is what the run DID establish.\n');
+        end
         return;
     end
     med = median(v);
