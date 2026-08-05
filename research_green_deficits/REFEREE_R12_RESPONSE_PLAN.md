@@ -393,3 +393,73 @@ this report arrived. The disagreement is narrower than the recommendation
 suggests: it is about whether the ordering plus a certified one-asset economy
 is a field-journal paper or a general-interest one, not about whether the
 current draft supports its headline.
+
+
+---
+
+## 6. Credibility and reversal risk — RUN, 2026-08-05 (R11.20)
+
+`main_credibility_reversal`, benchmark grid (na=500, T=80), reference path
+converged and horizon-adequate, and reproducing the archived transition to
+`max|d phat| = 0.000e+00`. The identity gate passed exactly: p=1, h=0 gives
+`max|d phat| = max|d g| = max|d tau| = max|d D| = 0`.
+
+**Front-loading share F_P**, 15 of 16 cells resolved at snr ≥ 10:
+
+| p \ h | 0.000 | 0.002 | 0.005 | 0.008 |
+|---|---|---|---|---|
+| 0.25 | 0.6310 | 0.5622 | 0.5269 | (snr 9.8) |
+| 0.50 | 0.6902 | 0.6608 | 0.6684 | 0.6644 |
+| 0.75 | 0.7159 | 0.7486 | 0.7425 | 0.7006 |
+| 1.00 | **0.7667** | 0.7451 | 0.7053 | 0.7557 |
+
+**The answer to the charge.** Front-loading does not collapse. Against 0.767
+at perfect credibility, the resolved range is **0.527 to 0.767**, and every
+cell with p ≥ 0.5 sits in 0.66–0.76. A programme believed with probability
+one-half and reversed at a hazard implying a 119-year expected life still
+prices two-thirds of its long-run move at announcement.
+
+**The impact response is sub-proportional to the expected programme.** The
+linearity ratio `dlnP1 / [s · dlnP1(1,0)]` runs 0.580 to 1.000 with median
+0.879, and falls monotonically with p at h = 0: 0.766, 0.883, 0.908, 1.000.
+So a quarter-sized expected programme delivers only ~77% of a quarter of the
+impact response. Capitalization is concave in programme size; the naive
+scaling argument overstates what credibility buys.
+
+**Two caveats that must travel with the table, both stated by the driver.**
+
+1. *F_P's near-constancy is largely mechanical here.* The PV-matched surrogate
+   changes (p,h) by RESCALING a fixed-shape programme, and F_P is a ratio of
+   two responses to that same shape. Near-invariance is the expected outcome
+   and is **not** evidence that reversal risk leaves timing alone.
+2. *The risk is not priced.* There is no state-contingent price jump, no bond
+   risk premium, and no precautionary demand arising from policy uncertainty
+   itself. In a model whose mechanism IS precautionary asset demand, priced
+   policy risk would raise asset demand and push the price level DOWN,
+   partially offsetting the smaller expected programme by an amount this run
+   cannot measure. No net sign is claimed.
+
+### What would remove caveat 2 — and why it was not attempted blind
+
+Removing the flat-path approximation needs `solve_hank_dtpl_transition` to
+accept a time-varying multiplier on `g_path`. That is additively cheap and
+has an exact precedent: `opts.xi_index` was added the same way and D11 parity
+survived, because the legacy branches are still taken when the option is
+absent.
+
+But a declining programme also moves the TERMINAL condition. The solver pins
+`phat(T)` at the steady state of a programme of size `Gg` (`eq1`). If the
+expected programme decays toward zero, the terminal steady state is the
+NO-programme one (`eq0`), not `eq1`, so a second option is required to
+redirect the terminal pin — and getting that wrong produces a path that
+looks converged and is anchored to the wrong economy.
+
+Two coupled additive options in a parity-critical solver, written without an
+interpreter to run them, is precisely the pattern that has cost this project
+repeatedly. Specified here; not implemented blind.
+
+**Disposition for the paper.** This supports reporting announcement
+capitalization as a perfect-foresight benchmark whose SHARE is robust to
+PV-matched credibility rescaling over 0.53–0.77, with the priced-risk economy
+named as the open question. It does not support the stronger claim that
+timing is invariant to reversal risk.
