@@ -146,6 +146,43 @@ assert(any(abs(PGRID - 1) < 1e-15) && any(HGRID == 0), ...
 % exist -- see kv_legacy_transition_setup.
 [pgc, opts_base, calinfo] = kv_legacy_transition_setup(FAST);
 rbar   = (1 + pgc.i_ss)/(1 + pgc.mu) - 1;   % same expression as the solver
+
+% ---- SWEEP THE PV WEIGHT s, NOT THE RAW HAZARD h ------------------------
+% The first run of this driver swept h in {0, 0.05, 0.10} and returned NOTHING
+% USABLE: 9 of 12 cells fell below the solver's clearing residual and the
+% front-loading grid printed as all dots. The cause is not the solver. It is
+% that the map h -> s is violently convex when rbar is small:
+%
+%   s = rbar/(rbar+h),   rbar = 1.96%
+%     h = 0.02  ->  s = 0.50     the program is HALVED
+%     h = 0.05  ->  s = 0.28
+%     h = 0.10  ->  s = 0.16
+%
+% A hazard of 5% a year -- an expected program life of 20 years, which is a
+% mild assumption in words -- removes 72% of the program's present value,
+% because at a 2% real rate a perpetual program's PV is dominated by the far
+% future. The response then scales down with it and disappears under the
+% residual floor. Reading that as "front-loading collapses under imperfect
+% credibility" would be reading the noise floor.
+%
+% THIS IS ITSELF THE SUBSTANTIVE ANSWER to the request for "at least two
+% reversal hazards": at rbar = 2% there is no graded middle ground in h. To
+% hold s >= 0.9 needs h <= 0.22% a year, an expected life of 459 years -- i.e.
+% indistinguishable from perfect credibility. Anything a reader would call a
+% real reversal risk already halves the program. The experiment is therefore
+% posed in s, which is well-scaled and resolvable, with the implied hazard
+% REPORTED beside it so the reader sees what each s costs in years.
+%
+% Set HGRID explicitly to sweep raw hazards instead; SGRID then has no effect.
+if ~exist('HGRID_EXPLICIT','var'), HGRID_EXPLICIT = false; end
+if ~exist('SGRID','var') || isempty(SGRID), SGRID = [1.00 0.90 0.80 0.70]; end
+if ~HGRID_EXPLICIT
+    SGRID = SGRID(:).';
+    assert(all(SGRID > 0 & SGRID <= 1), 'SGRID entries must lie in (0,1]');
+    assert(any(abs(SGRID - 1) < 1e-15), 'SGRID must contain s = 1 (the identity check)');
+    HGRID = rbar * (1 - SGRID) ./ SGRID;      % invert s = rbar/(rbar+h)
+    HGRID(abs(SGRID - 1) < 1e-15) = 0;        % exact, not 2e-19
+end
 Gg_cal = calinfo.Gg_cal;
 T      = opts_base.T;
 
@@ -191,6 +228,22 @@ tee('flattening for h>0. Green capital accumulates, so flattening moves the\n');
 tee('TIMING of damages even at matched spending PV.\n\n');
 tee('The hazards h and probabilities p are ILLUSTRATIVE, not estimated. This\n');
 tee('driver reports sensitivity, not identification.\n\n');
+tee('SWEEP IS IN THE PV WEIGHT s, NOT THE RAW HAZARD h. At rbar = %.4f the map\n', rbar);
+tee('h -> s = rbar/(rbar+h) is violently convex: h = 0.05 (a 20-year expected\n');
+tee('life) already removes %.0f%% of the program PV, which drives the price\n', ...
+    100*(1 - rbar/(rbar+0.05)));
+tee('response under the solver residual and returns an unresolved grid. There\n');
+tee('is no graded middle ground in h at this real rate -- holding s >= 0.9\n');
+tee('needs h <= %.4f, an expected life of %.0f years. Implied hazards:\n', ...
+    rbar*(1-0.9)/0.9, 0.9/(rbar*0.1));
+for jj = 1:numel(HGRID)
+    if HGRID(jj) > 0
+        tee('    s = %.2f  ->  h = %.5f   (expected life %6.0f yr)\n', ...
+            rbar/(rbar+HGRID(jj)), HGRID(jj), 1/HGRID(jj));
+    else
+        tee('    s = %.2f  ->  h = 0         (permanent)\n', 1.0);
+    end
+end
 
 % ===========================================================================
 % IDENTITY CHECK, BEFORE THE SWEEP.

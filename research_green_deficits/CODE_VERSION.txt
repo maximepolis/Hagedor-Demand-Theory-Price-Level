@@ -1,4 +1,4 @@
-R11.19
+R11.20
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,21 @@ R11.19
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.20 main_credibility_reversal's first run returned NOTHING USABLE: 9 of
+#        12 cells fell under the solver's clearing residual and the
+#        front-loading grid printed as all dots. The cause was the sweep
+#        design, not the solver. With rbar = 1.96% the map h -> s =
+#        rbar/(rbar+h) is violently convex: h = 0.05, an expected program life
+#        of 20 years and a mild assumption in words, removes 72% of the
+#        program's PV, so the price response scales down with it and vanishes.
+#        The sweep is now posed in the PV WEIGHT s (default [1 .9 .8 .7]) with
+#        the implied hazard reported beside it; HGRID_EXPLICIT = true restores
+#        raw-hazard sweeping. This is itself the answer to the referee's "at
+#        least two reversal hazards": at a 2% real rate there is no graded
+#        middle ground in h -- holding s >= 0.9 needs an expected life of 459
+#        years, i.e. indistinguishable from perfect credibility, while
+#        anything a reader would call real reversal risk already halves the
+#        program.
 # R11.19 the run was on course to DISCARD its own answer. Gate 11 proper is
 #        computed only over CERTIFIED cells and no cell certifies, so a full
 #        matrix would have reported "not computable" while holding nine
