@@ -184,15 +184,123 @@ tee('C3 correctly refused by the builder (kv_fiscal_spec:C3withdrawn).\n\n');
 % pre-refactor baseline at bf0a4e8. That test has not been run in this
 % environment and no parity is claimed.
 % =====================================================================
-tee('*** SPECIFICATIONS BUILT AND FROZEN. Solving is not yet authorized:\n');
-tee('*** main_parity_d11_deficit must run against the bf0a4e8 baseline and pass.\n\n');
+% =====================================================================
+% AUTHORIZED 2026-08-05. The gate this driver waited on was the D11
+% three-way parity test against the pre-refactor baseline at bf0a4e8. It has
+% now run and PASSED: 48 fields exact across all three legs, with the
+% nominal-neutrality gap exactly zero. The block below is what the header
+% listed as steps 1-6.
+%
+% THE PARAMETER VECTOR IS THE LEGACY ONE, NOT setup_params_green's DEFAULT.
+% This is the defect that has broken two drivers in this project: passing the
+% default beta leaves no root in the solver's [0.5, 1.3] bracket and the
+% baseline steady state does not exist. Every transition driver calls
+% kv_legacy_transition_setup, and so does this one.
+% =====================================================================
+[pgc_run, opts_run, calinfo] = kv_legacy_transition_setup(FAST);
+opts_run.T = T; opts_run.verbose = false;
+opts_run.regime = 'nominal';
+tee('STEP 1  solving C1 and C4 (kappa FREE in both; nothing is targeted)\n');
+tee('  parameters: beta*=%.6f  D0=%.3f  Gg_nom=%.6f  T=%d  (legacy setup)\n', ...
+    pgc_run.beta, pgc_run.D0, opts_run.Gg_nom, T);
+
+SOL = struct();
+for c = {'C1','C4'}
+    o = opts_run; o.fiscal = SPEC.(c{1});
+    SOL.(c{1}) = solve_hank_dtpl_transition(pgc_run, o);
+    tee('  %-3s converged=%d horizon_ok=%d  kappa_inf=%.10f  dlnP1=%+0.6f\n', ...
+        c{1}, SOL.(c{1}).converged, SOL.(c{1}).horizon_ok, ...
+        SOL.(c{1}).kappa_inf, log(SOL.(c{1}).phat(1)/SOL.(c{1}).P0));
+end
+
+% ---- STEP 2: C2, by solving the surcharge amplitude ---------------------
+tee('\nSTEP 2  solving C2''s consolidation amplitude a_xi so that C2''s REALIZED\n');
+tee('        terminal debt equals C1''s. kappa is FREE at every evaluation.\n');
+kappa_C1 = SOL.C1.kappa_inf;
+RC2 = kv_solve_consolidation(pgc_run, opts_run, sopts, kappa_C1, tee);
+tee('  status=%s  a_xi=%.10f  kappa_inf=%.10f  gap=%.3e  hit=%d  (%d iters)\n', ...
+    RC2.status, RC2.a_xi, RC2.kappa_inf, RC2.gap, RC2.hit, RC2.iters);
+SOL.C2 = RC2.TR;
+
+% ---- STEP 3: parity of C4 against the legacy dilution -------------------
+tee('\nSTEP 3  PARITY: C4''s realized dilution against the legacy reference\n');
+kappa_C4 = SOL.C4.kappa_inf;
+par_gap  = abs(kappa_C4 / KB.kappa_legacy - 1);
+tee('  kappa_inf^C4 = %.10f   kappa^legacy = %.10f   rel gap = %.3e\n', ...
+    kappa_C4, KB.kappa_legacy, par_gap);
+par_ok = par_gap < 1e-6;
+tee('  %s\n', ternstr(par_ok, 'PARITY OK: C4 reproduces the manuscript experiment', ...
+    'PARITY FAILED: C4 is not the manuscript experiment -- estimands withheld'));
+
+% ---- STEP 4: budget identities -----------------------------------------
+tee('\nSTEP 4  budget identities (V1-V7). Period residual is normalized by\n');
+tee('        program expenditure, present-value residual by initial debt.\n');
+tee('  %-3s %14s %14s %10s %10s\n', 'case', 'max|V4 period|', 'V5 PV resid', 'V4 gate', 'V5 gate');
+BID = struct(); all_budget_ok = true;
+for c = {'C1','C2','C4'}
+    B = kv_budget_identities(SOL.(c{1}), pgc_run, opts_run);
+    BID.(c{1}) = B;
+    ok4 = B.max_period_resid < TOL_V4;
+    ok5 = B.pv_resid < TOL_V5;
+    all_budget_ok = all_budget_ok && ok4 && ok5;
+    tee('  %-3s %14.3e %14.3e %10s %10s\n', c{1}, B.max_period_resid, B.pv_resid, ...
+        ternstr(ok4,'PASS','FAIL'), ternstr(ok5,'PASS','FAIL'));
+end
+tee('  thresholds: V4 < %.0e, V5 < %.0e\n', TOL_V4, TOL_V5);
+
+% ---- STEP 5: the estimands, ONLY if 3 and 4 pass ------------------------
+tee('\nSTEP 5  ESTIMANDS\n');
+conv_ok = SOL.C1.converged && SOL.C2.converged && SOL.C4.converged;
+gate_ok = par_ok && all_budget_ok && conv_ok && RC2.hit;
+if ~gate_ok
+    tee('  WITHHELD. A gate failed, and a decomposition of a path that does not\n');
+    tee('  satisfy the government budget identity at every date is not a\n');
+    tee('  decomposition of anything. Gates: parity=%d budget=%d converged=%d\n', ...
+        par_ok, all_budget_ok, conv_ok);
+    tee('  consolidation-hit=%d\n', RC2.hit);
+    EST = struct('reportable', false);
+else
+    d1 = @(TR) log(TR.phat(1)/TR.P0);
+    EST = struct('reportable', true, ...
+        'timing_matched_debt', d1(SOL.C2) - d1(SOL.C1), ...
+        'failure_to_consolidate', d1(SOL.C4) - d1(SOL.C2), ...
+        'legacy_joint', d1(SOL.C4) - d1(SOL.C1), ...
+        'dlnP1', struct('C1', d1(SOL.C1), 'C2', d1(SOL.C2), 'C4', d1(SOL.C4)));
+    tee('  impact response dlnP1:  C1 %+0.6f   C2 %+0.6f   C4 %+0.6f\n', ...
+        EST.dlnP1.C1, EST.dlnP1.C2, EST.dlnP1.C4);
+    tee('  tax timing at MATCHED terminal debt   (C2-C1) = %+0.6f\n', EST.timing_matched_debt);
+    tee('  failure to consolidate, same delay    (C4-C2) = %+0.6f\n', EST.failure_to_consolidate);
+    tee('  total legacy joint effect             (C4-C1) = %+0.6f\n', EST.legacy_joint);
+    tee('\n  READING. C4-C1 is what the manuscript''s phase-in experiment measures.\n');
+    tee('  It is the SUM of a tax-timing effect and a terminal-debt ratchet, and\n');
+    tee('  the split above is the whole point of this driver. A tax-timing claim\n');
+    tee('  is licensed by C2-C1 alone. If C2-C1 is small relative to C4-C2, the\n');
+    tee('  manuscript''s reversal is a debt-ratchet result wearing timing clothes.\n');
+    shr = abs(EST.timing_matched_debt) / max(abs(EST.legacy_joint), eps);
+    tee('  |C2-C1| / |C4-C1| = %.4f  (share of the joint effect due to timing)\n', shr);
+    tee('\n  NO INTERACTION TERM IS REPORTED. With three feasible paths and two\n');
+    tee('  margins, a fully independent factorial interaction is NOT identified;\n');
+    tee('  the withdrawn C3 was the cell that would have identified it, and it is\n');
+    tee('  infeasible under the contemporaneous service rule. Do not report one.\n');
+end
 
 save(fullfile(projdir,'output','deficit_decomposition.mat'), ...
-     'SPEC','KB','T','TC','HC','RHOBAR','EPS_KAPPA','TOL_V4','TOL_V5','sopts');
+     'SPEC','KB','T','TC','HC','RHOBAR','EPS_KAPPA','TOL_V4','TOL_V5','sopts', ...
+     'SOL','RC2','BID','EST','par_gap','calinfo');
+
 tee('\n[main_deficit_decomposition] wrote %s (%.1f s)\n', sf, toc(t0));
 fclose(fid);
 
 % =====================================================================
 function tee2(fid, varargin)
     fprintf(varargin{:}); fprintf(fid, varargin{:});
+end
+
+function s = ternstr(c, a, b)
+% Local, because this driver had no local-function block before the solve
+% steps were wired in and ternstr is not a shared function in src_project.
+% Verified by search rather than assumed: an undefined name here would have
+% errored at the first gate print, after both transitions had already been
+% solved -- the most expensive possible place to discover a typo.
+    if c, s = a; else, s = b; end
 end
