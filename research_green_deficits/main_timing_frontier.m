@@ -31,9 +31,11 @@
 % sweep would be a fifth of the run spent recomputing one number, and worse,
 % would invite a reader to think the benchmark moves with the experiment.
 %
-% COST. Each speed needs one C4 transition plus a full C2 consolidation
-% bisection, and the bisection is roughly forty transitions. Budget about an
-% hour per grid point at the benchmark horizon. The run CHECKPOINTS after
+% COST, MEASURED. Each speed needs one C4 transition plus a C2 consolidation
+% bisection. With the bisection stopping on eta against the ratchet rather
+% than on an unattainable kappa_tol, the pilot took 4529 s for C1 plus two
+% speeds at T = 80 -- so roughly half an hour per speed, not the hour this
+% comment first budgeted. The run CHECKPOINTS after
 % every speed, keyed BY SPEED rather than by the grid, so a small pilot grid
 % seeds a larger production grid and only the new speeds are paid for.
 %
@@ -63,12 +65,15 @@ if ~exist('FAST','var'), FAST = false; end
 if ~exist('TC','var') || isempty(TC), TC = 10; end
 if ~exist('HC','var') || isempty(HC), HC = 10; end
 if ~exist('RESUME','var') || isempty(RESUME), RESUME = true; end
-% The manuscript's reported frontier is a 1.4-year half-life, i.e. rho = 0.61.
-% The decomposition ran at rho = 0.90. The grid must bracket BOTH crossings,
-% so it spans from well below the reported joint frontier to well above the
-% speed at which C2 is already positive.
+% GRID CHOSEN FROM MEASUREMENT, NOT FROM GUESSWORK. The pilot run at
+% rho = 0.65 and 0.90 located the timing crossing at rho* = 0.7476 and showed
+% C4 still POSITIVE at 0.65 (+0.0066), so the joint crossing lies below 0.65 --
+% consistent with the manuscript's 1.4-year half-life, rho = 0.61. The grid is
+% therefore dense between 0.55 and 0.80, where both crossings are, and stops at
+% 0.90: a point at 0.95 costs a full speed to add shape in a region where both
+% responses are large and positive and neither frontier can be.
 if ~exist('RHOGRID','var') || isempty(RHOGRID)
-    RHOGRID = [0.55 0.65 0.75 0.85 0.90 0.95];
+    RHOGRID = [0.55 0.60 0.65 0.70 0.80 0.90];
 end
 RHOGRID = sort(RHOGRID(:).');
 EPS_KAPPA = 1e-8; ETA_TOL = 1e-3;
@@ -273,18 +278,57 @@ rr  = cellfun(@(x) x.rho,   R(ok));
 c2  = cellfun(@(x) x.dP_C2, R(ok));
 c4  = cellfun(@(x) x.dP_C4, R(ok));
 good2 = cellfun(@(x) strcmp(x.status,'ok'), R(ok));
-[r2, ok2] = kv_zero_cross(rr(good2), c2(good2));
-[r4, ok4] = kv_zero_cross(rr, c4);
+[r2, ok2, why2] = kv_zero_cross(rr(good2), c2(good2));
+[r4, ok4, why4] = kv_zero_cross(rr, c4);
 if ok4
     tee('  JOINT  frontier (C4): rho* = %.4f  ->  tax half-life %.2f yr\n', r4, hl(r4));
 else
     tee('  JOINT  frontier (C4): NOT BRACKETED by this grid\n');
 end
+tee('      %s\n', why4);
 if ok2
     tee('  TIMING frontier (C2): rho* = %.4f  ->  tax half-life %.2f yr\n', r2, hl(r2));
 else
     tee('  TIMING frontier (C2): NOT BRACKETED by this grid\n');
 end
+tee('      %s\n', why2);
+% ---- cross-check against the decomposition -------------------------------
+% This sweep and main_deficit_decomposition solve the SAME three experiments
+% at rho = 0.90, by different routes: the decomposition's consolidation
+% bisection chased kappa_tol = 1e-8 and stopped on its iteration cap, while
+% this one stops on eta against the ratchet. If the two agree, the cheaper
+% stopping rule is validated on a case that was already certified; if they
+% do not, one of them is wrong and the frontier is not reportable. Free --
+% the decomposition's answer is already on disk.
+dcf = fullfile(projdir, 'output', 'deficit_decomposition.mat');
+i90 = find(abs(RHOGRID - 0.90) < 1e-12, 1, 'first');
+if exist(dcf, 'file') == 2 && ~isempty(i90) && ~isempty(R{i90})
+    DC = load(dcf);
+    if isfield(DC,'SOL') && isfield(DC,'RHOBAR') && abs(DC.RHOBAR - 0.90) < 1e-12 ...
+            && all(isfield(DC.SOL, {'C1','C2','C4'}))
+        dd = @(S) log(S.phat(1)/S.P0);
+        ref = [dd(DC.SOL.C1), dd(DC.SOL.C2), dd(DC.SOL.C4)];
+        got = [dP_C1,         R{i90}.dP_C2,  R{i90}.dP_C4];
+        tee('\nCROSS-CHECK against main_deficit_decomposition at rho = 0.90\n');
+        tee('%6s %13s %13s %11s\n', 'case', 'this sweep', 'decomposition', 'difference');
+        nm = {'C1','C2','C4'};
+        for i = 1:3
+            tee('%6s %13.6f %13.6f %11.2e\n', nm{i}, got(i), ref(i), got(i)-ref(i));
+        end
+        dmax = max(abs(got - ref));
+        if dmax < 1e-3
+            tee(['  Agreement to %.1e. The ratchet-normalized stopping rule\n' ...
+                 '  reproduces the certified run, so the speeds solved here on\n' ...
+                 '  that rule can be read as the same experiment.\n'], dmax);
+        else
+            tee(['  *** DISAGREEMENT of %.2e. These are meant to be the same\n' ...
+                 '  *** three numbers. Do not report a frontier until this is\n' ...
+                 '  *** explained: one of the two runs is not solving what it\n' ...
+                 '  *** says it is.\n'], dmax);
+        end
+    end
+end
+
 if ok2 && ok4
     tee('\n  The timing frontier sits at a %.2f-year half-life against %.2f for\n', ...
         hl(r2), hl(r4));
