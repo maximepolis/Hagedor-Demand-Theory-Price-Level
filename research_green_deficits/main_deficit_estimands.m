@@ -50,7 +50,7 @@ fid = fopen(sf,'w'); assert(fid>0);
 tee = @(varargin) tee2(fid, varargin{:});
 
 tee('TAX TIMING vs TERMINAL DEBT -- ESTIMANDS FROM THE SAVED RUN\n');
-tee('pipeline %s\n', kv_code_version(mfilename('fullpath')));
+tee('%s\n', kv_code_version(mfilename('fullpath')));
 tee('read-only over %s; nothing is solved here.\n\n', 'output/deficit_decomposition.mat');
 
 C1 = L.SOL.C1; C2 = L.SOL.C2; C4 = L.SOL.C4;
@@ -127,6 +127,51 @@ if isfield(L,'KB') && isfield(L.KB,'dlnP0')
         abs(joint - L.KB.dlnP0));
 end
 
+% ---- THE SIGN TEST, WHICH IS THE ACTUAL DECISION RULE -------------------
+% An earlier version of this block read only the MAGNITUDE shares and, on the
+% first real run, reported "both channels are material" -- true but beside the
+% point. The referee's decision rule is about the SIGN:
+%
+%   "If C2 - C1 preserves the sign reversal, the paper may make a tax-timing
+%    claim. If only C4 - C1 reverses the sign, the empirical prediction must
+%    be framed as a joint tax-delay and terminal-debt result."
+%
+% So what settles it is whether C1 and C2 sit on OPPOSITE SIDES OF ZERO, not
+% how large C2 - C1 is relative to C4 - C1. A timing channel that is only a
+% third of the magnitude can still carry the whole sign reversal, and that is
+% a licensed tax-timing claim; a timing channel that is most of the magnitude
+% but leaves the impact response on the same side of zero is not.
+tee('\nSIGN TEST (the referee''s decision rule for Major Comment 6)\n');
+rev_C2 = (sign(E.C1) ~= sign(E.C2)) && E.C1 ~= 0 && E.C2 ~= 0;
+rev_C4 = (sign(E.C1) ~= sign(E.C4)) && E.C1 ~= 0 && E.C4 ~= 0;
+tee('  C1 %+0.6f   C2 %+0.6f   C4 %+0.6f\n', E.C1, E.C2, E.C4);
+tee('  sign reverses C1 -> C2 (timing at MATCHED terminal debt) : %s\n', ...
+    ternstr(rev_C2, 'YES', 'no'));
+tee('  sign reverses C1 -> C4 (the joint manuscript experiment) : %s\n', ...
+    ternstr(rev_C4, 'YES', 'no'));
+if rev_C2
+    tee('  => A TAX-TIMING CLAIM IS LICENSED. Holding terminal debt at C1''s,\n');
+    tee('     delaying the tax alone flips the impact price response from\n');
+    tee('     %+0.4f to %+0.4f. The reversal is not an artifact of the\n', E.C1, E.C2);
+    tee('     unrecovered revenue: it survives full consolidation.\n');
+    tee('     BUT the MAGNITUDE remains predominantly the ratchet (see the\n');
+    tee('     shares above), so the manuscript''s reported joint number\n');
+    tee('     overstates the timing effect by roughly %.1fx.\n', ...
+        abs(joint)/max(abs(timing), eps));
+elseif rev_C4
+    tee('  => NO TAX-TIMING CLAIM. Only the JOINT experiment reverses the sign,\n');
+    tee('     so the reversal requires the terminal-debt ratchet and the\n');
+    tee('     empirical prediction must be framed as joint: the tax schedule\n');
+    tee('     AND the consolidation or terminal-debt rule.\n');
+else
+    tee('  => NO REVERSAL in either comparison at this phase-in speed.\n');
+end
+tee('\n  WHAT THIS DOES NOT ESTABLISH. This is one phase-in speed\n');
+tee('  (rho_bar as set in the run), not a frontier. The manuscript reports a\n');
+tee('  CRITICAL SPEED, and that object is still the joint one: re-locating it\n');
+tee('  as a timing threshold requires sweeping rho under the C2 rule, with the\n');
+tee('  consolidation amplitude re-solved at each speed.\n');
+
 tee('\nREADING\n');
 if abs(timing) < 0.2 * abs(joint)
     tee('  The TIMING channel is a small part of the joint effect. The\n');
@@ -147,7 +192,8 @@ tee('  independent factorial interaction is NOT identified. C3 -- the cell that\
 tee('  would identify it -- is infeasible under the contemporaneous service\n');
 tee('  rule, which permits no primary deficit at any date.\n');
 
-EST = struct('reportable', true, 'timing_matched_debt', timing, ...
+EST = struct('reportable', true, 'sign_reverses_C1_C2', rev_C2, ...
+             'sign_reverses_C1_C4', rev_C4, 'timing_matched_debt', timing, ...
              'failure_to_consolidate', noncons, 'legacy_joint', joint, ...
              'dlnP1', E, 'eta_consolidation', eta, 'ratchet', ratchet);
 save(fullfile(projdir,'output','deficit_estimands.mat'), 'EST');

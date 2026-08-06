@@ -1,4 +1,4 @@
-R11.26
+R11.27
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,19 @@ R11.26
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.27 the estimands driver reported the magnitude shares and MISSED the
+#        decision rule. The referee's test for Major 6 is whether the SIGN
+#        reverses between C1 and C2, not how large C2-C1 is relative to
+#        C4-C1: a timing channel that is only a third of the magnitude can
+#        still carry the whole sign reversal, and that is a licensed
+#        tax-timing claim. On the real run C1 = -0.0396 and C2 = +0.0221 --
+#        opposite sides of zero -- and the driver said only "both channels
+#        are material". The sign test is now explicit, with the
+#        one-phase-in-speed caveat: the manuscript reports a critical SPEED,
+#        which is still a joint frontier until rho is swept under C2.
+#        Also fixed a doubled prefix: kv_code_version already returns a
+#        string beginning "pipeline", so two drivers printed "pipeline
+#        pipeline R11.xx".
 # R11.26 the benchmark C1/C2/C4 run PASSED every substantive gate -- both
 #        paths converged, C4 reproduced kappa_legacy to 2.5e-05, and the
 #        budget identities came in at 4.2e-14 (period) and 2.0e-15 (PV)
