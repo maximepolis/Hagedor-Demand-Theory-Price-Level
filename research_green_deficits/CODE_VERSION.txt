@@ -1,4 +1,4 @@
-R11.31
+R11.32
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,27 @@ R11.31
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.32 the pilot run located the TIMING frontier and, just as usefully,
+#        failed to bracket the JOINT one. C2 crosses zero at rho* = 0.7476,
+#        a 2.38-year tax half-life; C4 is still POSITIVE at rho = 0.65
+#        (+0.0066), so its crossing lies below the grid -- consistent with the
+#        manuscript's 1.4-year figure, rho = 0.61. The gap is the finding the
+#        decomposition could not produce: the manuscript quotes the JOINT
+#        frontier, and flipping the sign on TIMING ALONE takes a delay about
+#        1.7x longer.
+#        kv_zero_cross now returns WHY, and specifically which side the
+#        crossing must lie on -- "every value is positive, extend downward" is
+#        what the next run needs; "not bracketed" leaves the reader to derive
+#        it. The default grid is rebuilt from the pilot: dense on [0.55, 0.80]
+#        where both crossings are, stopping at 0.90 rather than spending a
+#        speed at 0.95 where neither frontier can be.
+#        New cross-check against main_deficit_decomposition at rho = 0.90.
+#        The two runs solve the same three experiments by different routes --
+#        the decomposition's bisection stopped on its iteration cap chasing
+#        kappa_tol = 1e-8, this one stops on eta against the ratchet -- and
+#        the pilot already agrees to 3.5e-05 on C2 and exactly on C1 and C4.
+#        That validates the cheaper stopping rule on a case that was already
+#        certified, and it costs nothing: the answer is on disk.
 # R11.31 the FAST frontier run died on `assert(TR1.converged)`, which reports
 #        a solver outcome as though it were a driver bug. It is neither:
 #        main_deficit_decomposition already established that these transition
