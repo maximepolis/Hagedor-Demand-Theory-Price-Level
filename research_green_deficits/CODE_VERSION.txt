@@ -1,4 +1,4 @@
-R11.23
+R11.24
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,16 @@ R11.23
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.24 I set regime='nominal' in the wired C1/C2/C4 block. Supplying
+#        opts.fiscal makes the solver treat the run as deficit financing, and
+#        it then asserts regime='indexed'. The assertion is economics: the
+#        experiment holds the REAL program fixed so ONLY tax timing differs
+#        across cases, and under a nominal appropriation the terminal dilution
+#        would shrink the real program, so C4's higher terminal debt would buy
+#        a SMALLER programme than C1's and C4-C1 would mix timing, the ratchet
+#        and a change in the size of the thing being financed. Set to
+#        'indexed', with the reason recorded at the line so it is not tidied
+#        back. The assert caught it before a single transition was solved.
 # R11.23 main_deficit_decomposition was a SCAFFOLD: it built and froze the
 #        C1/C2/C4 specifications, verified C3 is refused by the builder, and
 #        then stopped with "Solving is not yet authorized: main_parity_d11
