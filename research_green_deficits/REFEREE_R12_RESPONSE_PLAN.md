@@ -463,3 +463,60 @@ capitalization as a perfect-foresight benchmark whose SHARE is robust to
 PV-matched credibility rescaling over 0.53–0.77, with the priced-risk economy
 named as the open question. It does not support the stronger claim that
 timing is invariant to reversal risk.
+
+
+---
+
+## 7. The C1/C2/C4 decomposition — RUN, 2026-08-06. Major 6 is answered.
+
+Benchmark horizon, all three paths converged and horizon-adequate, **every
+gate passed**: parity of C4 against the legacy reference at 2.5e-05, budget
+identities at 4.2e-14 (period) and 2.0e-15 (present value) against thresholds
+of 1e-9 and 1e-7, and the consolidation miss at 1.2e-04 of the ratchet being
+decomposed.
+
+| case | rule | impact response $d\ln P_1$ |
+|---|---|---|
+| **C1** | contemporaneous service rule | **−0.039622** |
+| **C2** | delayed tax, consolidated back to C1's terminal debt | **+0.022093** |
+| **C4** | delayed tax, no recovery (the manuscript's experiment) | **+0.142100** |
+
+### The sign reverses at MATCHED terminal debt
+
+This is the referee's own decision rule, and it comes out **in the paper's
+favour**. C1 is negative and C2 is positive: holding terminal debt exactly at
+C1's, delaying the tax alone flips the impact price response from −4.0% to
++2.2%. **The reversal is not an artifact of unrecovered revenue — it survives
+full consolidation.** A tax-timing claim is licensed.
+
+### But the magnitude is mostly the ratchet
+
+| estimand | value | share |
+|---|---|---|
+| tax timing at matched terminal debt (C2−C1) | +0.061715 | **34.0%** |
+| failure to consolidate, same delay (C4−C2) | +0.120007 | **66.0%** |
+| total legacy joint effect (C4−C1) | +0.181722 | 100% |
+
+The manuscript reports the joint object. It therefore **overstates the timing
+effect by roughly a factor of three**. Both statements must travel together:
+the sign is timing, the magnitude is mostly the ratchet.
+
+**Cross-check.** C4−C1 = +0.181722 from the transition paths against
++0.182088 computed independently by `kv_kappa_legacy` — two separate routes to
+the same object agreeing to 3.7e-04.
+
+### What is still owed on this comment
+
+The manuscript reports a **critical phase-in speed**, not a single-speed
+comparison. This run is at one $\bar\rho$. Re-locating that frontier as a
+*timing* threshold requires sweeping $\rho$ under the **C2** rule with the
+consolidation amplitude re-solved at each speed — the machinery now exists
+(`kv_solve_consolidation` inside the sweep), and it is the natural follow-up.
+
+Until that sweep runs, the defensible statements are:
+
+1. at the reported phase-in speed, tax timing alone reverses the sign of the
+   impact response, so a timing claim is licensed in kind;
+2. the reported *magnitude* is a joint object, roughly two-thirds ratchet;
+3. the 1.4-year **frontier** remains a joint frontier and must keep the label
+   the safety patch already gives it.

@@ -138,7 +138,7 @@ fid = fopen(sf, 'w'); assert(fid > 0, 'cannot open %s', sf);
 tee = @(varargin) tee2(fid, varargin{:});
 
 tee('PARAMETER-IDENTIFICATION LEDGER (referee R12, Major 2, items 1-3)\n');
-tee('pipeline %s\n', kv_code_version(thisfile));
+tee('%s\n', kv_code_version(thisfile));
 tee('read-only over stored calibrations; nothing is solved here.\n\n');
 tee('%-24s %-9s %-18s %s\n', 'source', 'state', 'file stamp', 'written by');
 for i = 1:numel(SRC)
