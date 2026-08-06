@@ -128,12 +128,24 @@ for i = 1:numel(RHOGRID)
     o4 = opts; o4.fiscal = kv_fiscal_spec('C4', so);
     TR4 = solve_hank_dtpl_transition(pgc, o4);
     % C2: delayed, consolidated back to C1's REALIZED terminal debt.
-    RC = kv_solve_consolidation(pgc, opts, so, k_C1, @(varargin) []);
+    %
+    % STOP THE BISECTION ON THE STATISTIC THAT GRADES IT. The acceptance test
+    % three lines below is eta, the residual dilution as a fraction of the
+    % ratchet the delay opened -- not kappa_tol, which at 1e-8 is below the
+    % transition solver's own fixed point and so is never reached. Handing the
+    % ratchet to the solver makes its internal stopping rule the same one, so
+    % each speed costs roughly a dozen transitions instead of the full sixty
+    % it would burn chasing an unattainable target. The ratchet is available
+    % because C4 is solved first, which is also the reason C4 comes first.
+    so2 = so;
+    so2.kappa_ratchet = abs(TR4.kappa_inf - k_C1);
+    so2.eta_tol       = ETA_TOL;
+    RC = kv_solve_consolidation(pgc, opts, so2, k_C1, @(varargin) []);
     okC2 = ~isempty(RC.TR) && isstruct(RC.TR) && isfield(RC.TR,'converged') ...
            && RC.TR.converged;
     eta = NaN; dP_C2 = NaN; a_xi = NaN;
     if okC2
-        ratchet = abs(TR4.kappa_inf - k_C1);
+        ratchet = so2.kappa_ratchet;
         eta   = abs(RC.kappa_inf - k_C1) / max(ratchet, eps);
         dP_C2 = d1(RC.TR); a_xi = RC.a_xi;
     end
@@ -144,9 +156,17 @@ for i = 1:numel(RHOGRID)
     end
     R{i} = struct('rho',rho,'hl',hl(rho),'dP_C2',dP_C2,'dP_C4',d1(TR4), ...
                   'a_xi',a_xi,'eta',eta,'status',st, ...
-                  'kappa_C4',TR4.kappa_inf,'conv_C4',TR4.converged);
+                  'kappa_C4',TR4.kappa_inf,'conv_C4',TR4.converged, ...
+                  'c2_status',RC.status,'c2_iters',RC.iters,'c2_gap',RC.gap);
     tee('%7.3f %9.2f %11.6f %11.6f %11.6f %9.2e %8s\n', ...
         rho, hl(rho), R{i}.dP_C2, R{i}.dP_C4, a_xi, eta, st);
+    if ~strcmp(st, 'ok')
+        % A silent tee was passed to the consolidation solver so the sweep
+        % table stays readable; when a speed fails, its diagnosis has to
+        % surface somewhere or the row is a dead end.
+        tee('        consolidation returned %s after %d transitions (gap %.2e)\n', ...
+            RC.status, RC.iters, RC.gap);
+    end
     try
         tmp = [ckf '.tmp']; save(tmp,'R','sig','dP_C1','k_C1','-v7.3');
         movefile(tmp, ckf, 'f');

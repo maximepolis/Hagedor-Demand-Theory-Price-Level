@@ -108,11 +108,28 @@ f_kv  = fullfile(projdir, 'output', 'twoasset_ownership_kv.mat');
 f_fit = fullfile(projdir, 'output', 'wealth_fit_results.mat');
 f_kvj = fullfile(projdir, 'output', 'convenience_kvj.mat');
 
-srcspec = { 'one-asset calibration',  f_cal, 'main_project_calibrated'; ...
-            'two-asset ownership+KV', f_kv,  'main_twoasset_ownership_kv'; ...
-            'superstar wealth fit',   f_fit, 'wealth_concentration_fit'; ...
-            'convenience curvature',  f_kvj, 'calibrate_convenience_kvj' };
-SRC = struct('name', {}, 'file', {}, 'driver', {}, 'found', {}, 'stamp', {});
+pg = setup_params_green();
+CAL = []; KV = []; FITW = []; KVJ = [];
+if exist(f_cal, 'file') == 2, CAL  = load(f_cal);  end
+if exist(f_kv,  'file') == 2, KV   = load(f_kv);   end
+if exist(f_fit, 'file') == 2, FITW = load(f_fit);  end
+if exist(f_kvj, 'file') == 2, KVJ  = load(f_kvj);  end
+
+% A FILE THAT LOADS IS NOT THE SAME AS A FILE THAT IS CURRENT. Every driver
+% here writes to a fixed path, so an .mat produced before a variable was added
+% still loads cleanly and simply lacks that variable. The verdict that needs it
+% then prints "NOT YET MEASURED", which reads like a finding about the economy
+% when it is a finding about the extract. The fourth column below lists the
+% variables a downstream verdict dereferences; a loaded file that is short of
+% any of them is reported STALE in the header, next to the driver that fixes
+% it, instead of only in the prose four hundred lines down.
+srcspec = { 'one-asset calibration',  f_cal, 'main_project_calibrated', {'RCAL'}; ...
+            'two-asset ownership+KV', f_kv,  'main_twoasset_ownership_kv', {'p','eq0','ss'}; ...
+            'superstar wealth fit',   f_fit, 'wealth_concentration_fit', {'TOP1_TARGET','IDENT'}; ...
+            'convenience curvature',  f_kvj, 'calibrate_convenience_kvj', {'kvj_logel'} };
+loaded = {CAL, KV, FITW, KVJ};
+SRC = struct('name', {}, 'file', {}, 'driver', {}, 'found', {}, 'stamp', {}, ...
+             'short', {});
 for i = 1:size(srcspec, 1)
     fn = srcspec{i, 2};
     ok = exist(fn, 'file') == 2;
@@ -121,16 +138,18 @@ for i = 1:size(srcspec, 1)
     else
         st = 'MISSING';
     end
+    want = srcspec{i, 4};
+    S    = loaded{i};
+    shrt = {};
+    if ok && ~isempty(S)
+        for j = 1:numel(want)
+            if ~isfield(S, want{j}), shrt{end+1} = want{j}; end %#ok<SAGROW>
+        end
+    end
     SRC(end+1) = struct('name', srcspec{i,1}, 'file', fn, ...
-                        'driver', srcspec{i,3}, 'found', ok, 'stamp', st); %#ok<SAGROW>
+                        'driver', srcspec{i,3}, 'found', ok, 'stamp', st, ...
+                        'short', {shrt}); %#ok<SAGROW>
 end
-
-pg = setup_params_green();
-CAL = []; KV = []; FITW = []; KVJ = [];
-if exist(f_cal, 'file') == 2, CAL  = load(f_cal);  end
-if exist(f_kv,  'file') == 2, KV   = load(f_kv);   end
-if exist(f_fit, 'file') == 2, FITW = load(f_fit);  end
-if exist(f_kvj, 'file') == 2, KVJ  = load(f_kvj);  end
 
 if ~isfolder(pg.tabdir), mkdir(pg.tabdir); end
 sf  = fullfile(pg.tabdir, 'identification_ledger.txt');
@@ -141,13 +160,34 @@ tee('PARAMETER-IDENTIFICATION LEDGER (referee R12, Major 2, items 1-3)\n');
 tee('%s\n', kv_code_version(thisfile));
 tee('read-only over stored calibrations; nothing is solved here.\n\n');
 tee('%-24s %-9s %-18s %s\n', 'source', 'state', 'file stamp', 'written by');
+n_stale = 0;
 for i = 1:numel(SRC)
-    if SRC(i).found, st = 'loaded'; else, st = 'MISSING'; end
+    if ~SRC(i).found
+        st = 'MISSING';
+    elseif ~isempty(SRC(i).short)
+        st = 'STALE'; n_stale = n_stale + 1;
+    else
+        st = 'loaded';
+    end
     tee('%-24s %-9s %-18s %s\n', SRC(i).name, st, SRC(i).stamp, SRC(i).driver);
+    if strcmp(st, 'STALE')
+        tee('%-24s %-9s missing: %s\n', '', '', strjoin(SRC(i).short, ', '));
+    end
 end
 if any(~[SRC.found])
     tee('\n*** at least one calibration is MISSING. Rows that depend on it\n');
     tee('*** print as "-" rather than as a number; run the named driver.\n');
+end
+if n_stale > 0
+    tee('\n*** %d calibration(s) STALE: the file loads but predates a variable\n', n_stale);
+    tee('*** a verdict below needs. Those verdicts report NOT YET MEASURED,\n');
+    tee('*** which is a statement about the extract and not about the model.\n');
+    tee('*** Re-run the driver named on the row, then re-run this ledger:\n');
+    for i = 1:numel(SRC)
+        if SRC(i).found && ~isempty(SRC(i).short)
+            tee('***     clear; %s\n', SRC(i).driver);
+        end
+    end
 end
 
 % IS THE TWO-ASSET INPUT A FAST ARTIFACT? A FAST run of the ownership driver

@@ -52,8 +52,36 @@ function R = kv_solve_consolidation(pgc, base_opts, sopts, kappa_target, tee)
     amax  = getdef(sopts, 'consolidation_amax', 4.0);   % surcharge cap, units of g
     maxit = getdef(sopts, 'consolidation_maxit', 60);
 
+    % WHICH GAP COUNTS AS CLOSED. The default rule is a RELATIVE gap in kappa
+    % against a tolerance of 1e-8, and that tolerance is not attainable: the
+    % transition solver's own fixed point is looser than that, so the bisection
+    % spends all sixty iterations chasing a target it cannot reach, then
+    % returns NOT_CONVERGED with a perfectly usable answer. The decomposition
+    % driver already learned this and judges the result by a DIFFERENT and
+    % attainable statistic -- the residual dilution as a fraction of the
+    % ratchet the delay opened, eta = |kappa - target| / |kappa_C4 - target|,
+    % which is what "consolidated back to C1" actually means. Caller supplies
+    % that ratchet in sopts.kappa_ratchet and the stopping rule becomes the
+    % same statistic the caller will grade with, so the bisection stops when
+    % it has succeeded instead of when it runs out of iterations.
+    %
+    % OPT-IN ON PURPOSE. Without kappa_ratchet the rule is unchanged, so every
+    % existing caller -- main_deficit_decomposition above all -- reproduces
+    % bit-for-bit. Do not make this the default without re-running that driver.
+    ratch   = getdef(sopts, 'kappa_ratchet', NaN);
+    eta_tol = getdef(sopts, 'eta_tol', 1e-3);
+    use_eta = isscalar(ratch) && isfinite(ratch) && ratch > 0;
+    if use_eta
+        gapf = @(k) abs(k - kappa_target) / ratch;   acc = eta_tol;
+        rule = sprintf('eta = |kappa-target|/ratchet(%.3e) < %.1e', ratch, eta_tol);
+    else
+        gapf = @(k) abs(k / kappa_target - 1);       acc = tol;
+        rule = sprintf('relative |kappa/target - 1| < %.1e', tol);
+    end
+
     R = struct('a_xi', NaN, 'kappa_inf', NaN, 'gap', NaN, 'hit', false, ...
                'TR', [], 'iters', 0, 'status', 'INFEASIBLE', ...
+               'gap_rule', rule, ...
                'trace', struct('a', {{}}, 'kappa', {{}}, 'ok', {{}}));
     A = []; K = []; OKV = [];
 
@@ -82,7 +110,7 @@ function R = kv_solve_consolidation(pgc, base_opts, sopts, kappa_target, tee)
         % negative amplitude, which would be a TAX CUT and a different
         % experiment from the one the case is named for.
         R.a_xi = 0; R.kappa_inf = k0; R.TR = TR0;
-        R.gap = abs(k0/kappa_target - 1); R.hit = R.gap < tol;
+        R.gap = gapf(k0); R.hit = R.gap < acc;
         R.status = 'OK';
         tee(['  consolidation: kappa(a=0) = %.10f <= target %.10f; no surcharge\n' ...
              '    is required. NOT solving for a negative a_xi -- that would be a\n' ...
@@ -124,9 +152,9 @@ function R = kv_solve_consolidation(pgc, base_opts, sopts, kappa_target, tee)
             % side known to solve rather than treating NaN as a value.
             ahi = am; continue;
         end
-        if abs(km/kappa_target - 1) < tol
+        if gapf(km) < acc
             R.a_xi = am; R.kappa_inf = km; R.TR = TRm;
-            R.gap = abs(km/kappa_target - 1); R.hit = true; R.status = 'OK';
+            R.gap = gapf(km); R.hit = true; R.status = 'OK';
             R = finish(R, A, K, OKV); return;
         end
         if km > kappa_target, alo = am; klo = km; else, ahi = am; khi = km; TRhi = TRm; end
@@ -134,10 +162,11 @@ function R = kv_solve_consolidation(pgc, base_opts, sopts, kappa_target, tee)
     end
 
     R.a_xi = ahi; R.kappa_inf = khi; R.TR = TRhi;
-    R.gap = abs(khi/kappa_target - 1); R.hit = R.gap < tol;
+    R.gap = gapf(khi); R.hit = R.gap < acc;
     R.status = ternstr(R.hit, 'OK', 'NOT_CONVERGED');
     tee('  consolidation: a_xi = %.10g, kappa_inf = %.10f, gap %.2e (%s)\n', ...
         R.a_xi, R.kappa_inf, R.gap, R.status);
+    tee('    stopping rule: %s\n', R.gap_rule);
     R = finish(R, A, K, OKV);
 end
 
