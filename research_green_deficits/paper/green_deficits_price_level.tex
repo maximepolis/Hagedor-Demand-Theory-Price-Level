@@ -1834,6 +1834,113 @@ deliver; its horizon profile is verified numerically
 
 % ==========================================================================
 \FloatBarrier
+% ==========================================================================
+\section{Calibration and identification}\label{sec:identification}
+% ==========================================================================
+
+This section states what the calibration targets, what it leaves free, and
+which of the paper's quantitative claims are therefore disciplined by
+evidence rather than by the model. It precedes the results deliberately. The
+paper's pivotal object is the response of nominal-liability demand to the tax
+instrument, and that object's dominant component is not the one the usual
+household evidence speaks to; a reader is entitled to know that before
+reading a number that depends on it.
+
+\paragraph{Parameters, by evidentiary status.} Every parameter falls into
+exactly one of five classes, and the classification is machine-generated from
+the calibration files rather than asserted here.\footnote{The ledger is
+produced by \texttt{main\_identification\_ledger}, which is read-only over the
+stored calibrations and solves nothing: it audits the calibration the paper
+actually uses rather than reporting a fresh solve.} \emph{Normalizations}
+carry no economic content ($B^{\text{nom}}$, $\bar a=0$, $\mathbb{E}[e]=1$,
+the tree supply and dividend). \emph{Externally set} parameters come from a
+citable estimate or convention and are not re-estimated ($\sigma$, the income
+persistence and innovation variance, $i^{ss}$, $\mu$). \emph{Calibrated}
+parameters are solved internally so the model reproduces a stated target.
+\emph{Declared} parameters are chosen by us with no external target at all.
+\emph{Numerical} parameters are discretization choices.
+
+\paragraph{The order condition.} Counting distinct targeted moments rather
+than instruments --- counting instruments would make any calibration look
+exactly identified by construction --- the preferred specification solves
+\textbf{five} parameters internally against \textbf{three} targeted moments.
+The parameters are $\beta$ in the one-asset economy; $\beta$ and $\chi_b$ in
+the two-asset economy; and the superstar pair (multiple, entry probability).
+The moments are debt-to-income of $1.10$, the direct liquid holding
+$S_b=0.30$, and the top-$1\%$ wealth share. The calibration is therefore
+\emph{under-identified as counted}, and we say so rather than let a reader
+infer otherwise from a table of matched targets.
+
+Two clarifications keep that count honest in both directions. The
+intermediation wedge $\iota_H$ is \emph{not} a fourth moment: it equals
+$0.30/1.10$ by construction, an algebraic consequence of two targets already
+counted, and treating it as a calibrated parameter would manufacture
+identification out of arithmetic. Conversely, $\beta$ and $\chi_b$ chase the
+\emph{same} moment in two different economies --- $\chi_b$ is fitted in the
+frictionless companion and transplanted into the infrequent-adjustment
+economy, where $\beta$ is refitted to $S_b=0.30$ --- so that moment is
+counted once, not twice.
+
+\paragraph{Where the slack is, and where it is not.} A failing count can
+overstate the problem, so we measure it. For the superstar block the
+diagnostic reports how far the \emph{untargeted} moments spread among the
+configurations that fit the top-$1\%$ target equally well. They agree to
+within the tie band, so on this search grid the single moment is locally
+sufficient and the a-priori count overstates the slack there --- $\beta$ is
+recalibrated to the debt target inside every configuration, which ties the
+pair. Two limits keep that from being a clean bill: a coarse search grid
+yields few ties, and local sufficiency at one point is not global
+identification. The slack that survives measurement sits in the
+$(\beta,\chi_b)$ pair and in the two parameters described next.
+
+\paragraph{The two parameters nothing external pins down.} The dividend
+payout convention $\phi$ and the Stone--Geary liquidity shift $\bar b$ carry
+no external target. Between them they force the wealthy-hand-to-mouth share
+to be identically zero: with full payout the whole dividend arrives as liquid
+income, so a household rich in the illiquid asset never runs its liquid
+buffer down, at any $\beta$, adjustment probability or $\bar b$. That share is
+zero \emph{by construction} rather than by calibration, so any positive
+external value rejects it. We record this rather than reporting the moment as
+a near miss: the margin the specification cannot reproduce is governed by the
+parameters nothing external pins down, and that is not a coincidence.
+
+\paragraph{The dominant channel is not the disciplined one.} The finite
+stationary response of nominal-liability demand to a permanent tax change
+decomposes into a direct term, evaluated at the initial distribution, and a
+distributional term arising from the movement of the stationary distribution
+itself. The distributional term carries roughly nine-tenths of the total, and
+the \emph{marginal} direct covariance carries the opposite sign to the total.
+The evidence usually invoked for this class of model --- constrained shares
+and impact marginal propensities to consume --- disciplines the small direct
+term. It does not identify the dominant one. We therefore describe the
+permanent-tax elasticity as \textbf{model-implied}, and the financing
+ordering as disciplined by the mechanism rather than estimated from response
+moments. The longitudinal moments that would discipline it --- wealth
+mobility over five, ten and twenty years, persistence of direct bond
+ownership, rebalancing frequency, and the response of liquid saving to
+persistent rather than transitory income --- are computed on the model side
+and reported against empty data columns, because we have not transcribed the
+external series and will not report a comparison we have not made.
+
+\paragraph{Convenience demand.} The curvature $\zeta$ is mapped from the
+aggregate Treasury supply--spread elasticity through the liquid first-order
+condition, which gives a demand-curve log-elasticity of
+$-\zeta\,b/(b+\bar b)$ at the calibrated liquid position. This is an
+\emph{indirect} calibration mapping and not direct discipline: the aggregate
+elasticity is an equilibrium object and the household curvature is a
+preference parameter, and the step between them is model-dependent. The
+benchmark sits inside the implied range but at its steep edge, which is why
+the alternative curvature is reported alongside rather than instead.
+
+\paragraph{Climate parameters.} Only the no-abatement damage level $D_0$ is
+tied to an external source, and then only as a three-point sweep across
+damage literatures rather than as a point estimate. The abatement
+effectiveness, green-capital depreciation, risk-channel loading, incidence
+gradient and damage floor have no external target. Every
+resource benefit--cost number in this paper is therefore a \emph{scenario}
+result conditional on abatement effectiveness, and the paper's financing
+conclusions are stated so as not to depend on whether that ratio exceeds one.
+
 \section{Quantitative analysis}\label{sec:quant}
 % ==========================================================================
 
@@ -3239,9 +3346,18 @@ but modeling that attenuation requires a belief block the flexible-price
 economy does not have, so we state it as the boundary of what the
 transition results claim rather than asserting robustness to it.
 
-\paragraph{When does the instrument ordering become operative?} The
-paper's most robust result is a \emph{ranking} of financing instruments,
-but the ranking is stated across steady states, and a ranking that emerged
+\paragraph{What the ranking is, and what it is conditional on.} The robust
+analytical result is a ranking conditional on the response of
+nominal-liability demand: shifting financing toward an instrument that lowers
+such demand raises the equilibrium price level. The calibrated one-asset
+economy and the portfolio specifications examined to date produce the same
+levy-versus-lump-sum ordering, but the quantitative two-asset claim remains
+conditional on numerical certification and on the portfolio structure used to
+discipline ownership and rebalancing. The level sign of either instrument is
+not structural.
+
+\paragraph{When does the instrument ordering become operative?} The ranking
+is stated across steady states, and a ranking that emerged
 only after decades would be a poor guide to the choice a government
 actually faces. The two converged paths answer this directly, with no
 further computation: let
@@ -3265,9 +3381,21 @@ $\DefCD$ times its terminal value. Each is capitalized immediately and
 each slightly \emph{overshoots} before settling back. This is what it
 means for the price level to be an asset price: it moves on news, by the
 present value of the news, and the subsequent path is the unwinding of an
-overshoot rather than the gradual arrival of an effect. A Phillips-curve
-economy generates the opposite time profile, in which the price level
-responds as the spending and the output gap actually materialize. The
+overshoot rather than the gradual arrival of an effect.
+
+Two qualifications travel with these numbers. First, they are
+\emph{perfect-foresight} magnitudes. A credibility sweep in which the
+program is implemented with probability $p$ and then abandoned at hazard
+$h$, matched in present value, leaves the announcement-year share in a band
+of roughly $0.53$ to $0.77$ against $0.77$ under full credibility, so the
+timing result is not an artifact of certainty; but that exercise rescales
+the program rather than pricing the risk, and a priced-risk economy --- in
+which policy uncertainty itself raises precautionary demand --- is not
+solved here. Second, the comparison we draw is with the \emph{particular}
+sticky-price economies we match in Appendix~\ref{app:nkmodel}, not with
+Phillips-curve models generically: those comparisons differ in policy
+object, persistence and fiscal closure as well as in price determination,
+so they are diagnostics rather than a controlled horse race. The
 announcement window, not the accumulation decades, is where the two views
 separate.\footnote{The year-by-year \emph{flow} comparison (which design
 has higher inflation in a given year) is not reported: after the

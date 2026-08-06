@@ -47,7 +47,7 @@
 %
 % Everything it writes is QUARANTINED until the gate passes.
 
-clearvars -except TRACK FAST PARALLEL NWORKERS NB_LIST NK_LIST WIDEN NB_SCALED RESUME; close all; clc;
+clearvars -except TRACK FAST PARALLEL NWORKERS NB_LIST NK_LIST WIDEN NB_SCALED RESUME TRACKB_WTARGET; close all; clc;
 rng(20260731,'twister'); t0 = tic;
 
 projdir = fileparts(mfilename('fullpath'));
@@ -306,9 +306,32 @@ for ib = 1:nB
             % targets. Deliberately not implemented inline: it must call the
             % same calibration routine the paper uses, or it is a different
             % calibration. See the decision list in R10_EXECUTION_PLAN.
+            % TRACK B RE-FITS ONE INSTRUMENT, NOT TWO -- SAY SO.
+            % W_targ empty sends kv_calibrate_on_grid down the ONE-instrument
+            % path (calib_beta), so beta is re-fitted per grid and chi_b is
+            % transplanted unchanged from the frictionless companion. Track B
+            % is billed as "recalibrated to the same targets"; with an empty
+            % wealth target it recalibrates ONE of the two internally solved
+            % parameters, and the identification ledger counts both.
+            %
+            % Not silently switched on. The two-instrument path targets total
+            % household wealth W, and this project has no external target for
+            % W -- the ledger's verdict V6 is precisely that (beta, chi) chase
+            % a single moment. Supplying a W here would invent the target the
+            % ledger says is missing. Set TRACKB_WTARGET in the workspace to
+            % opt in deliberately, with the value recorded.
+            Wt_b = [];
+            if exist('TRACKB_WTARGET','var') && ~isempty(TRACKB_WTARGET)
+                Wt_b = TRACKB_WTARGET;
+                tee('    Track B: TWO-instrument recalibration, W target %.3f\n', Wt_b);
+            else
+                tee(['    Track B: ONE-instrument recalibration (beta only); ' ...
+                     'chi_b is\n           transplanted, not re-fitted. Set ' ...
+                     'TRACKB_WTARGET to re-fit both.\n']);
+            end
             ctxo = struct('r_b',r_b,'d_base',d_base,'D0',D0,'Bnom',Bnom, ...
                           'Kbar',Kbar,'iota',iota,'b_targ_H',0.30, ...
-                          'q_ref',eq0.q,'W_targ',[]);
+                          'q_ref',eq0.q,'W_targ',Wt_b);
             [p, tgt] = recalibrate_on_grid(p, ctxo, nb, nk, tee);
             if ~tgt.ok
                 tee('    recalibration unavailable: %s\n', tgt.msg);
