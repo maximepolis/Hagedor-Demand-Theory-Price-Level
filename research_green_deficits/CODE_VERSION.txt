@@ -1,4 +1,4 @@
-R11.29
+R11.30
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,28 @@ R11.29
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.30 the ledger printed one model number twice under two names. Section C
+#        carried a "convenience yield (pp)" row, 100*[(q+d)/q - (1+r_b)], and a
+#        "tree yield d/q minus r_b" row keyed as the equity premium. Those are
+#        the same quantity identically, and the duplication is not a
+#        bookkeeping slip: the liquid FOC chi_b v'(b') = u'(c)[1-(1+r_b)q/(q+d)]
+#        makes the convenience yield and the tree's excess return the SAME
+#        object, because the tree is the only alternative asset. So one number
+#        must answer to two literatures that differ by an order of magnitude.
+#        The rows are collapsed to one and the tension is promoted to verdict
+#        V7, which states the identity, prints both algebraic forms so they can
+#        be seen to agree, and grades the single number against each data slot
+#        in turn. Like V2 it binds without an external number; transcription
+#        sizes it and cannot rescue it.
+#        Second: the demand-curve log-elasticity was graded against HALF THE
+#        WIDTH of the KVJ range centred on the point estimate, and reported
+#        FLAG at -1.8174 against -1.0274. The KVJ range is asymmetric, roughly
+#        [-2.05, -0.55], and the model value sits inside it -- 16% up from the
+#        elastic end. The symmetric approximation manufactured the rejection.
+#        Section C now grades against a published RANGE when the source .mat
+#        carries one, and V3 reports where in the range the model sits. The
+#        recommendation is unchanged and is now unconditional: report the
+#        zeta = 1.0 rerun alongside the benchmark.
 # R11.29 a stored .mat that LOADS is not the same as one that is CURRENT. The
 #        ledger run of 2026-08-06 reported V1 as "NOT YET MEASURED" and the
 #        KVJ counterpart in V3 as absent, and both readings were correct about

@@ -100,6 +100,16 @@ BAND = struct('liquid_wealth_inc', 0.25, 'total_wealth_inc', 1.00, ...
               'whtm_share', 0.07, 'convenience_pp', 0.75, ...
               'real_safe_rate', 0.01, 'equity_premium', 0.02);
 
+% INTERVALS BEAT SYMMETRIC BANDS WHEN THE SOURCE REPORTS ONE. A band is a
+% half-width around a point estimate and so is symmetric by construction; a
+% published range usually is not. The KVJ log-elasticity range maps to
+% roughly [-2.05, -0.55] around a point estimate of -1.03, which is not its
+% midpoint. Grading the model against half that range's WIDTH reported FLAG
+% for a value sitting comfortably inside the range itself -- a rejection
+% manufactured by the approximation rather than by the evidence. Any key
+% present here is graded against the interval and the band is ignored.
+IVAL = struct();
+
 % =====================================================================
 % Load the shipped calibrations. Nothing is solved here.
 % =====================================================================
@@ -451,12 +461,40 @@ end
 % The KVJ figure is transcribed in this repository already, so it is read
 % from that .mat rather than restated here. Absent (an older .mat), the slot
 % stays empty like every other data slot.
-kvj_data = NaN;
-if ~isempty(KVJ) && isfield(KVJ, 'kvj_logel'), kvj_data = KVJ.kvj_logel; end
+kvj_data = NaN; kvj_lo = NaN; kvj_hi = NaN;
+if ~isempty(KVJ)
+    if isfield(KVJ, 'kvj_logel'),  kvj_data = KVJ.kvj_logel;  end
+    if isfield(KVJ, 'kvj_log_lo'), kvj_lo   = KVJ.kvj_log_lo; end
+    if isfield(KVJ, 'kvj_log_hi'), kvj_hi   = KVJ.kvj_log_hi; end
+end
 if isfinite(kvj_data), DATA.convenience_logel = kvj_data; end
 if ~isfield(DATA, 'convenience_logel'), DATA.convenience_logel = NaN; end
-BAND.convenience_logel = 0.75;   % half the KVJ log-elasticity range
+% The same .mat that transcribes the point estimate transcribes the range.
+% Use the range when it is there; fall back on the symmetric half-width only
+% when it is not, and say which rule was applied.
+if isfinite(kvj_lo) && isfinite(kvj_hi)
+    IVAL.convenience_logel = sort([kvj_lo, kvj_hi]);
+else
+    BAND.convenience_logel = 0.75;   % half the KVJ log-elasticity range
+end
 
+% ONE NUMBER, NOT TWO ROWS. An earlier version of this table carried both a
+% "convenience yield (pp)" row, 100*((q+d)/q - (1+r_b)), and a "tree yield
+% d/q minus r_b" row keyed as the equity premium. Those are the same number:
+% (q+d)/q - (1+r_b) = d/q - r_b identically. The table printed it twice under
+% two names and invited the reader to grade it against two different
+% literatures whose objects differ by an order of magnitude.
+%
+% That is not a bookkeeping slip in the ledger; it is a property of the model,
+% and the manuscript states it -- the liquid FOC
+%   chi_b v'(b') = u'(c) [1 - (1+r_b) q/(q+d)]
+% makes the convenience yield and the tree-bond excess return the SAME object,
+% because the tree is the only alternative asset and its return gap over bonds
+% is entirely the liquidity wedge. So the row is collapsed to one and the
+% tension is promoted to a structural verdict, V7, where it belongs. Both data
+% slots are kept: the single model number is graded against each in turn, and
+% the point of V7 is that it cannot satisfy both.
+%
 % key | label | model value | note
 mrows = { ...
  'liquid_wealth_inc',   'liquid wealth / income',          Sb, ...
@@ -479,14 +517,12 @@ mrows = { ...
    'untargeted'; ...
  'whtm_share',          'WEALTHY hand-to-mouth share',     local_get(kvH, 'whtm'), ...
    'untargeted; see verdict V2'; ...
- 'convenience_pp',      'convenience yield (pp)',          spr, ...
-   'equity-bond spread (q+d)/q - (1+r_b); untargeted'; ...
+ 'convenience_pp',      'tree-bond spread (pp)',           spr, ...
+   'IS the convenience yield AND the equity premium at once; see V7'; ...
  'convenience_logel',   'demand-curve log-elasticity',     logel_model, ...
    '-zeta*b/(b+bbar) at the calibrated position; KVJ-comparable'; ...
  'real_safe_rate',      'real safe rate',                  r_b, ...
-   'implied by the Fisher identity at i and mu; not free'; ...
- 'equity_premium',      'tree yield d/q minus r_b',        tree_yield - r_b, ...
-   'untargeted' };
+   'implied by the Fisher identity at i and mu; not free' };
 
 MOM = struct('key', mrows(:,1), 'label', mrows(:,2), 'model', mrows(:,3), ...
              'note', mrows(:,4));
@@ -498,15 +534,30 @@ tee('source; an empty slot reports PENDING and never a pass.\n\n');
 tee('%-33s %10s %10s %10s %8s  %s\n', 'moment', 'model', 'data', 'gap', ...
     'verdict', 'note');
 tee('%s\n', repmat('-', 1, 140));
-nflag = 0; npend = 0; npass = 0; nomodel = 0;
+nflag = 0; npend = 0; npass = 0; nomodel = 0; ivrows = {};
 for i = 1:numel(MOM)
     k = MOM(i).key;
-    dv = NaN; bd = NaN;
+    dv = NaN; bd = NaN; iv = [];
     if isfield(DATA, k), dv = DATA.(k); end
     if isfield(BAND, k), bd = BAND.(k); end
+    if isfield(IVAL, k), iv = IVAL.(k); end
     gap = MOM(i).model - dv;
     if ~isfinite(MOM(i).model)
         vd = 'NO MODEL'; nomodel = nomodel + 1;
+    elseif ~isempty(iv) && all(isfinite(iv))
+        % Graded against the published range, not against a half-width. The
+        % data column still shows the point estimate and the gap column the
+        % distance to it, because both are worth seeing; they just do not
+        % decide the verdict.
+        mv = MOM(i).model;
+        if mv >= iv(1) && mv <= iv(2)
+            vd = 'ok';   npass = npass + 1;
+        else
+            vd = 'FLAG'; nflag = nflag + 1;
+        end
+        ivrows{end+1} = sprintf(['  %s: model %s against the published range ' ...
+            '[%s, %s] -> %s\n'], MOM(i).label, local_num(mv), ...
+            local_num(iv(1)), local_num(iv(2)), vd); %#ok<SAGROW>
     elseif ~isfinite(dv)
         vd = 'PENDING';  npend = npend + 1;
     elseif isfinite(bd) && abs(gap) <= bd
@@ -517,8 +568,13 @@ for i = 1:numel(MOM)
     tee('%-33s %10s %10s %10s %8s  %s\n', MOM(i).label, ...
         local_num(MOM(i).model), local_num(dv), local_num(gap), vd, MOM(i).note);
 end
-tee('\n%d ok, %d flagged, %d pending transcription, %d with no model value.\n\n', ...
+tee('\n%d ok, %d flagged, %d pending transcription, %d with no model value.\n', ...
     npass, nflag, npend, nomodel);
+if ~isempty(ivrows)
+    tee('\nrows graded against a published RANGE rather than a symmetric band:\n');
+    for i = 1:numel(ivrows), tee('%s', ivrows{i}); end
+end
+tee('\n');
 tee('Wealth-mobility moments are NOT duplicated here. main_validation_mobility\n');
 tee('computes them with its own data slots and four definition-robust\n');
 tee('stylized-fact gates; this ledger points at that table rather than\n');
@@ -609,8 +665,33 @@ else
     tee('    The KVJ counterpart is not in the stored convenience .mat --\n');
     tee('    that file predates the variable. Re-run the driver.\n');
 end
-tee('    The paper should therefore report the ZETA = 1.0 rerun alongside\n');
-tee('    the benchmark, not instead of it, and say which it prefers and why.\n\n');
+% THE POINT ESTIMATE IS NOT THE EVIDENCE. KVJ report a range, and the range
+% is not symmetric about the point estimate, so the distance printed above
+% does not settle whether the model is consistent with the paper it cites.
+% Say where the model sits in the interval and let the reader see it.
+if isfinite(logel_model) && isfinite(kvj_lo) && isfinite(kvj_hi)
+    iv = sort([kvj_lo, kvj_hi]);
+    tee('    KVJ RANGE, from the same transcription: [%s, %s].\n', ...
+        local_num(iv(1)), local_num(iv(2)));
+    if logel_model >= iv(1) && logel_model <= iv(2)
+        pos = (logel_model - iv(1)) / max(iv(2) - iv(1), eps);
+        tee(['    The model elasticity is INSIDE that range, %.0f%% of the way\n' ...
+             '    up from the elastic end. So the benchmark is not rejected by\n' ...
+             '    the KVJ evidence; it is disciplined at the ELASTIC edge of it,\n' ...
+             '    which is a claim about where in the range the paper sits and\n' ...
+             '    not a claim that the paper is outside it. Note that the point\n' ...
+             '    estimate alone, graded against half the range WIDTH, would\n' ...
+             '    have called this a failure -- the range is asymmetric and the\n' ...
+             '    symmetric approximation manufactures the rejection.\n'], 100*pos);
+    else
+        tee(['    The model elasticity is OUTSIDE that range. This is not a\n' ...
+             '    matter of which summary statistic is used: no reading of the\n' ...
+             '    cited evidence supports the benchmark curvature.\n']);
+    end
+end
+tee('    Either way the paper should report the ZETA = 1.0 rerun alongside\n');
+tee('    the benchmark, not instead of it, and say which it prefers and why:\n');
+tee('    the sensitivity is what a reader needs, and it is cheap.\n\n');
 
 tee('V4  THE CLIMATE BLOCK IS ENTIRELY DECLARED.\n');
 tee('    Only D0 is tied to an external source, and then only as a\n');
@@ -640,7 +721,52 @@ tee('    The WTARGET option adds total wealth as a second moment and makes\n');
 tee('    the pair (beta, chi) genuinely two-instrument; it is not what the\n');
 tee('    shipped benchmark runs, and the paper should say which it reports.\n\n');
 
-R = struct('LED', LED, 'MOM', MOM, 'DATA', DATA, 'BAND', BAND, 'SRC', SRC, ...
+% V7 is a structural verdict in the same sense as V2: it does not need an
+% external number in order to bind. What it needs the numbers for is the
+% MAGNITUDE of the tension, and those slots are empty by design, so the
+% verdict states the identity and reports whichever comparison is available.
+tee('V7  THE CONVENIENCE YIELD AND THE EQUITY PREMIUM ARE ONE NUMBER.\n');
+tee('    The liquid FOC in this economy is\n');
+tee('        chi_b v''(b'') = u''(c) [1 - (1+r_b) q/(q+d)],\n');
+tee('    so the tree''s excess return over bonds IS the convenience yield:\n');
+tee('    the tree is the only alternative asset, and nothing else can absorb\n');
+tee('    a return gap. The manuscript says as much in the two-asset section.\n');
+tee('    Model value: %s pp -- the same number under both names. The two\n', local_num(spr));
+tee('    ways of writing it agree to the digit, which is the point:\n');
+tee('      100*[(q+d)/q - (1+r_b)] = %s      (called a convenience yield)\n', local_num(spr));
+tee('      100*[ d/q  -  r_b     ] = %s      (called an equity premium)\n', ...
+    local_num(100*(tree_yield - r_b)));
+tee('    The consequence is a restriction, not a calibration choice. The\n');
+tee('    Treasury-premium literature and the equity-premium literature\n');
+tee('    measure objects that differ by roughly an order of magnitude, and\n');
+tee('    this model has ONE number to offer both. It cannot sit in both\n');
+tee('    ranges, so a reader is entitled to know which one the paper is\n');
+tee('    claiming to match and to see the other named as a cost.\n');
+dpp = NaN; if isfield(DATA,'convenience_pp'), dpp = DATA.convenience_pp; end
+dep = NaN; if isfield(DATA,'equity_premium'), dep = DATA.equity_premium; end
+if isfinite(spr) && (isfinite(dpp) || isfinite(dep))
+    tee('    Graded against each transcribed slot in turn:\n');
+    if isfinite(dpp)
+        tee('      vs the convenience-yield slot %s pp: gap %s pp\n', ...
+            local_num(dpp), local_num(spr - dpp));
+    end
+    if isfinite(dep)
+        tee('      vs the equity-premium slot %s pp: gap %s pp\n', ...
+            local_num(100*dep), local_num(spr - 100*dep));
+    end
+    tee('    A model that passes one of these two is failing the other by\n');
+    tee('    construction. Report both gaps; do not quote the smaller.\n');
+else
+    tee('    Neither data slot is transcribed yet, so the SIZE of the tension\n');
+    tee('    is not measured here. The identity above holds regardless, and\n');
+    tee('    it is the identity -- not the gap -- that the paper must own.\n');
+    tee('    Transcribing DATA.convenience_pp and DATA.equity_premium turns\n');
+    tee('    this verdict into a number; it will not turn it into a pass.\n');
+end
+tee('\n');
+
+R = struct('LED', LED, 'MOM', MOM, 'DATA', DATA, 'BAND', BAND, 'IVAL', IVAL, ...
+           'SRC', SRC, ...
            'n_cal', ncal_tot, 'n_mom', nmom_tot, 'n_flag', nflag, ...
            'n_pending', npend, 'n_ok', npass, 'n_nomodel', nomodel);
 save(fullfile(projdir, 'output', 'identification_ledger.mat'), 'R');
