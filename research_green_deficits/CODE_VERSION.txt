@@ -1,4 +1,4 @@
-R11.20
+R11.21
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,23 @@ R11.20
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.21 the provenance audit ran for the first time and its verdict was a
+#        FALSE ALARM. The rule demanded that every shadowed name resolve
+#        inside src_project; `rouwenhorst` lives in the ROOT package's src/
+#        and has no src_project copy, so it could never satisfy the test
+#        however correctly it resolved, and the run printed "DO NOT RUN
+#        PARITY" on an installation that was in fact safe on both counts.
+#        The verdict is now three-way and tests what matters: (a) is the
+#        WINNER a project file at all -- a winner outside the repository is
+#        disqualifying; (b) for an internal same-name pair, does the SAFE
+#        arity polarity win. The two shadows are now classified rather than
+#        lumped: solve_household_egm is an INTERNAL collision (fix by
+#        renaming) currently resolving the safe way, and rouwenhorst is
+#        EXTERNAL contamination from a Dynare 7 MEX on the user's path (fix
+#        by path hygiene) which the project .m currently wins. An external
+#        shadow that loses today can win tomorrow -- path order decides it and
+#        adding a toolchain in the same session reorders it -- so that case
+#        now prints its own standing warning.
 # R11.20 main_credibility_reversal's first run returned NOTHING USABLE: 9 of
 #        12 cells fell under the solver's clearing residual and the
 #        front-loading grid printed as all dots. The cause was the sweep

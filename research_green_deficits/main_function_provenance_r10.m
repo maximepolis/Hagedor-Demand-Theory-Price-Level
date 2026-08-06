@@ -127,6 +127,10 @@ if isempty(sh), tee('  none\n'); end
 % by SIGNATURE, not just by count: the danger is not that two files exist, it
 % is that they return different numbers of outputs.
 tee('\nsolve_household_egm ARITY CHECK\n');
+% Set by the branch below and consumed by the verdict. Default TRUE only when
+% there is no collision to be unsafe about; any live collision must prove its
+% own safety rather than inherit it.
+egm_safe_polarity = true;
 E = REC(strcmp({REC.name}, 'solve_household_egm'));
 if isempty(E) || E.n < 2
     tee('  only one definition on the path; collision resolved or absent.\n');
@@ -141,6 +145,21 @@ else
          '  Grid INDICES would be used as asset LEVELS, with no error raised.\n' ...
          '  If the FOUR-output file wins, src/aggregate_asset_demand.m:136 asks for\n' ...
          '  five and MATLAB errors immediately. Only the second is safe.\n']);
+    % Decide it here rather than leaving the reader to. The safe polarity is
+    % the FOUR-output file winning: its failure mode is a loud error in a
+    % caller that wants five, whereas the other polarity binds grid INDICES
+    % into an asset-LEVEL variable and returns a plausible wrong number.
+    [nowin, ~] = out_arity(E.all{1});
+    egm_safe_polarity = (nowin == 4);
+    if egm_safe_polarity
+        tee('  => SAFE POLARITY: the four-output file wins. A caller wanting five\n');
+        tee('     errors loudly; nothing silently reinterprets indices as levels.\n');
+    else
+        tee('  => UNSAFE POLARITY: the five-output file wins. S_green would bind\n');
+        tee('     polA_idx into polA and use grid INDICES as asset LEVELS, with no\n');
+        tee('     error. Every number downstream of S_green is void until the path\n');
+        tee('     is reordered or the file renamed.\n');
+    end
 end
 
 % ---------------------------------------------------------------- exclusions
@@ -158,11 +177,51 @@ tee('  none. download_data.m parses cleanly under paper/check_matlab_blocks.py;\
 tee('  the earlier failure was a parser defect, not a file defect, and the data\n');
 tee('  pipeline was not modified. See FUNCTION_NAMESPACE_PLAN_R11.md section 3.\n');
 
-allok = isempty(sh) || all(arrayfun(@(r) endsWith(r.winner, ...
-            fullfile('src_project', [r.name '.m'])), sh));
+% ---- VERDICT, THREE-WAY -------------------------------------------------
+% The previous rule demanded that EVERY shadowed name resolve inside
+% src_project. That is too narrow and it fired a false alarm on its first
+% real run: `rouwenhorst` lives in the ROOT package's src/ and has no
+% src_project copy, so it could never satisfy the test however correctly it
+% resolved. The run then printed "DO NOT RUN PARITY" on an installation whose
+% resolution was in fact safe on both counts.
+%
+% The distinction that actually matters is not which project folder wins, but
+% whether the winner is a PROJECT FILE AT ALL, and whether a same-name pair
+% inside the project resolves to the safe polarity:
+%
+%   INTERNAL collision   two files in this repository share a name. Fixable
+%                        only by renaming; whether it is dangerous depends on
+%                        the arity check below.
+%   EXTERNAL contamination  the shadow comes from outside the repository --
+%                        another toolchain on the user's MATLAB path. Fixable
+%                        by path hygiene (restoredefaultpath), and dangerous
+%                        precisely because it varies by machine and by what
+%                        else the user ran in the same session.
+inproj = @(f) startsWith(f, rootdir);
+n_ext_win = 0; n_int = 0; n_ext_shadow = 0;
+for i = 1:numel(sh)
+    if ~inproj(sh(i).winner), n_ext_win = n_ext_win + 1; end
+    others = sh(i).all;
+    for j = 1:numel(others)
+        if strcmp(others{j}, sh(i).winner), continue; end
+        if inproj(others{j}), n_int = n_int + 1; else, n_ext_shadow = n_ext_shadow + 1; end
+    end
+end
+allok = (n_ext_win == 0) && egm_safe_polarity;
+tee('\nSHADOW CLASSIFICATION\n');
+tee('  winners outside the repository        : %d  (any is disqualifying)\n', n_ext_win);
+tee('  internal name collisions (rename)     : %d\n', n_int);
+tee('  external shadows, project file wins   : %d  (path hygiene; machine-dependent)\n', n_ext_shadow);
+if n_ext_shadow > 0
+    tee('  NOTE: an external shadow that loses TODAY can win TOMORROW. Path\n');
+    tee('  order decides, and adding another toolchain in the same MATLAB\n');
+    tee('  session can reorder it. Always restoredefaultpath first.\n');
+end
 tee('\nRESULT: %s\n', ternstr(allok, ...
-    'every shadowed name resolves to src_project (safe polarity)', ...
-    'AT LEAST ONE NAME RESOLVES OUTSIDE src_project -- DO NOT RUN PARITY'));
+    ['every shadowed name resolves to a PROJECT file and the arity polarity ' ...
+     'is safe -- parity may run'], ...
+    ['a name resolves OUTSIDE the repository, or the unsafe arity polarity ' ...
+     'wins -- DO NOT RUN PARITY']));
 
 save(fullfile(projdir, 'output', 'function_provenance_r10.mat'), ...
      'REC', 'PATHINFO', 'NAMES');
