@@ -1,4 +1,4 @@
-R11.27
+R11.29
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,35 @@ R11.27
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.29 a stored .mat that LOADS is not the same as one that is CURRENT. The
+#        ledger run of 2026-08-06 reported V1 as "NOT YET MEASURED" and the
+#        KVJ counterpart in V3 as absent, and both readings were correct about
+#        the file and wrong about the economy: wealth_fit_results.mat and
+#        convenience_kvj.mat both predate the variables those verdicts read,
+#        so they loaded cleanly and were simply short. "NOT YET MEASURED"
+#        reads as a finding; it was a property of the extract. The ledger's
+#        source table now carries the list of variables each downstream
+#        verdict dereferences and reports a loaded-but-short file as STALE,
+#        names the missing variables, and prints the re-run line, in the
+#        header -- not four hundred lines down in prose.
+#        The same run showed the second half of the failure: the banner read
+#        "pipeline R11.19" while the driver itself was stamped that afternoon,
+#        i.e. an extract that refreshed the sources and left CODE_VERSION.txt
+#        behind. kv_code_version now compares the running driver's date with
+#        the version file's and flags a gap of more than a day, so the banner
+#        that exists to catch version mismatch can catch its own.
+# R11.28 new main_timing_frontier: the decomposition licensed a tax-timing
+#        claim in KIND (C1 negative, C2 positive at one speed) but the
+#        manuscript reports a critical SPEED, and that frontier was located
+#        on C4, which carries the ratchet as well as the delay. This sweeps
+#        rho and locates both crossings: rho*_timing on C2 and rho*_joint on
+#        C4. C1 is solved ONCE -- under the contemporaneous rule phi_t = 1 at
+#        every date, so it does not depend on rho. Checkpoints per speed on a
+#        signature, since each speed costs a full consolidation bisection.
+#        The default grid spans 0.55 to 0.95 because the manuscript's 1.4-year
+#        frontier is rho = 0.61 while the decomposition ran at 0.90, and the
+#        grid must bracket both. New kv_zero_cross refuses to report a
+#        frontier the data do not bracket.
 # R11.27 the estimands driver reported the magnitude shares and MISSED the
 #        decision rule. The referee's test for Major 6 is whether the SIGN
 #        reverses between C1 and C2, not how large C2-C1 is relative to

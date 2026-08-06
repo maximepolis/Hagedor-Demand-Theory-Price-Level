@@ -56,6 +56,7 @@ function s = kv_code_version(callerpath)
     end
 
     fpart = '';
+    mix   = '';
     if ~isempty(callerpath)
         f = callerpath;
         if exist([f '.m'], 'file') == 2, f = [f '.m']; end
@@ -63,12 +64,31 @@ function s = kv_code_version(callerpath)
         if ~isempty(d)
             fpart = sprintf('  |  %s  (modified %s)', d(1).name, ...
                             datestr(d(1).datenum, 'yyyy-mm-dd HH:MM'));
+
+            % A MIXED EXTRACT REPORTS AN OLD REVISION FOR NEW CODE. The project
+            % is delivered as a downloaded archive unpacked over the existing
+            % folder, so a partial or older extract can refresh the drivers
+            % while leaving CODE_VERSION.txt behind -- the banner then names a
+            % revision that is not the one executing, which is the exact
+            % confusion this line exists to prevent. The version file is bumped
+            % only on interface changes, so a driver being somewhat newer is
+            % normal; a full day newer is not. Report it as a suspicion, not as
+            % a verdict, and name the fix.
+            if exist(vf, 'file') == 2
+                dv = dir(vf);
+                if ~isempty(dv) && d(1).datenum > dv(1).datenum + 1
+                    mix = sprintf(['  [!! CODE_VERSION.txt is %.1f days older ' ...
+                                   'than this driver -- the revision above may ' ...
+                                   'not be the code that is running; re-extract ' ...
+                                   'the project]'], d(1).datenum - dv(1).datenum);
+                end
+            end
         else
             fpart = sprintf('  |  %s', callerpath);
         end
     end
 
-    s = sprintf('pipeline %s%s%s', tag, fpart, sib);
+    s = sprintf('pipeline %s%s%s%s', tag, fpart, sib, mix);
 end
 
 function s = norm_(p)
