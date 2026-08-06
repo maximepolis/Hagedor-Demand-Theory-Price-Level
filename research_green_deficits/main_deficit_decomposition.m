@@ -199,7 +199,17 @@ tee('C3 correctly refused by the builder (kv_fiscal_spec:C3withdrawn).\n\n');
 % =====================================================================
 [pgc_run, opts_run, calinfo] = kv_legacy_transition_setup(FAST);
 opts_run.T = T; opts_run.verbose = false;
-opts_run.regime = 'nominal';
+% REGIME IS NOT A FREE CHOICE HERE, AND MUST NOT BE "TIDIED" TO 'nominal'.
+% Supplying opts.fiscal sets deficit = true inside the solver, and the solver
+% then asserts regime = 'indexed'. The assertion is economics, not
+% bookkeeping: this experiment holds the REAL program fixed so that ONLY the
+% tax timing differs between C1, C2 and C4. Under a nominal appropriation the
+% terminal dilution would shrink the real program, so C4's higher terminal
+% debt would buy a SMALLER programme than C1's -- and the difference C4 - C1
+% would then mix tax timing, the debt ratchet, and a change in the size of the
+% thing being financed. An earlier version of this block set 'nominal' and the
+% assertion caught it before a single transition had been solved.
+opts_run.regime = 'indexed';
 tee('STEP 1  solving C1 and C4 (kappa FREE in both; nothing is targeted)\n');
 tee('  parameters: beta*=%.6f  D0=%.3f  Gg_nom=%.6f  T=%d  (legacy setup)\n', ...
     pgc_run.beta, pgc_run.D0, opts_run.Gg_nom, T);
