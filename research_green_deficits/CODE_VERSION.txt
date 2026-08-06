@@ -1,4 +1,4 @@
-R11.24
+R11.25
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,24 @@ R11.24
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.25 the first C1/C2/C4 run produced three misleading diagnostics from
+#        ONE cause: neither C1 nor C4 converged at FAST, and the block carried
+#        on regardless. The consolidation then failed at its first evaluation
+#        (a_xi = 0 IS C4, and kv_solve_consolidation rightly refuses to
+#        bracket through a non-converged point); the parity check compared a
+#        non-converged kappa against the legacy reference and called 1.4e-3 a
+#        failure; and the budget checker crashed dot-indexing the empty TR
+#        that INFEASIBLE returns. Convergence is now a PRECONDITION with an
+#        early stop that names FAST as the expected cause.
+#        My kv_budget_identities was also simply wrong, which the 2.1
+#        residuals were reporting honestly. It assumed b_{t+1} = (b_t + pg_t)/
+#        (1+rbar). The solver carries the lagged stock at the REALIZED path
+#        rate r_t, not rbar, and starts from b_0 = B0/P_0, the PRE-
+#        ANNOUNCEMENT stock -- b_path(1) is already post-revaluation, so using
+#        it as the initial condition drops the announcement-date revaluation
+#        from the identity, i.e. exactly the object this paper is about.
+#        Rewritten against the solver's loop rather than from memory, with
+#        both the per-date and the accumulated form carrying r_t.
 # R11.24 I set regime='nominal' in the wired C1/C2/C4 block. Supplying
 #        opts.fiscal makes the solver treat the run as deficit financing, and
 #        it then asserts regime='indexed'. The assertion is economics: the
