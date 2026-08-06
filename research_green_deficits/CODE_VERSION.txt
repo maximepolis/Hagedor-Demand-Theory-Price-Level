@@ -1,4 +1,4 @@
-R11.22
+R11.23
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,22 @@ R11.22
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.23 main_deficit_decomposition was a SCAFFOLD: it built and froze the
+#        C1/C2/C4 specifications, verified C3 is refused by the builder, and
+#        then stopped with "Solving is not yet authorized: main_parity_d11
+#        _deficit must run against the bf0a4e8 baseline and pass". That gate
+#        HAS now passed (48 fields exact, all three legs), so steps 1-6 from
+#        its own header are wired: solve C1 and C4 with kappa free; solve C2's
+#        surcharge amplitude by kv_solve_consolidation against C1's realized
+#        terminal debt; PARITY-check C4 against kappa_legacy; budget
+#        identities V4 (period, normalized by program expenditure) and V5
+#        (present value, normalized by initial debt) via the new
+#        kv_budget_identities; then the three estimands, WITHHELD unless every
+#        gate passes. It uses kv_legacy_transition_setup rather than
+#        setup_params_green's default beta -- the defect that has broken two
+#        drivers here. No interaction term is reported: with three feasible
+#        paths and two margins it is not identified, and C3 (the cell that
+#        would identify it) is infeasible under the contemporaneous rule.
 # R11.22 Track B was billed as "recalibrated to the same targets" but passed
 #        W_targ = [], which sends kv_calibrate_on_grid down the ONE-instrument
 #        path: beta is re-fitted per grid and chi_b is transplanted unchanged.
