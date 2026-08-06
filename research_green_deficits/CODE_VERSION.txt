@@ -1,4 +1,4 @@
-R11.30
+R11.31
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,37 @@ R11.30
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.31 the FAST frontier run died on `assert(TR1.converged)`, which reports
+#        a solver outcome as though it were a driver bug. It is neither:
+#        main_deficit_decomposition already established that these transition
+#        paths do not converge at the shakeout horizon, and stops there with
+#        that named as the expected cause. main_timing_frontier now does the
+#        same -- prints the residuals, names FAST, writes the file, returns.
+#        Three further fixes the crash exposed, all of which would have cost
+#        real time on the overnight run:
+#        (a) the checkpoint signature included RHOGRID, so a two-point pilot
+#            and the six-point production run had different signatures and the
+#            pilot's speeds were discarded. Speeds are independent solves;
+#            the signature now covers the ECONOMY and solved speeds are stored
+#            and matched one at a time, in a CELL so that adding a diagnostic
+#            field cannot make an old checkpoint throw on append. A pilot now
+#            seeds the full run. C1 is cached too, and checkpointed before the
+#            first speed rather than after it.
+#        (b) C1's rho_bar was read from RHOGRID(1). C1 does not depend on rho
+#            -- phi_t = 1 at every date -- but taking it from the grid made
+#            the cached C1 depend on the grid it was solved under. Fixed at
+#            0.90.
+#        (c) a non-converged C4 no longer starts a consolidation bisection.
+#            a_xi = 0 IS C4, so the first evaluation is the path that just
+#            failed and the solver refuses to bracket through it -- after
+#            paying for the solve.
+#        Finally, the extract problem is now provable rather than suspected.
+#        Three extractions delivered R11.26, R11.28 and R11.30 drivers while
+#        every banner read "pipeline R11.19": the unpacker refreshes the .m
+#        files and leaves the text file alone. kv_code_version now carries the
+#        revision as a constant and reports a MIXED EXTRACT when it disagrees
+#        with CODE_VERSION.txt, treating the .m files as authoritative. New
+#        paper/check_code_version.py fails if a bump lands in only one place.
 # R11.30 the ledger printed one model number twice under two names. Section C
 #        carried a "convenience yield (pp)" row, 100*[(q+d)/q - (1+r_b)], and a
 #        "tree yield d/q minus r_b" row keyed as the equity premium. Those are

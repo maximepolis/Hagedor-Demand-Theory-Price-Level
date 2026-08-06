@@ -17,6 +17,20 @@ function s = kv_code_version(callerpath)
 % INPUT   callerpath  normally mfilename('fullpath') from the calling driver
 % OUTPUT  s           a single line, no trailing newline
 
+    % THE REVISION THIS SOURCE TREE BELIEVES IT IS. Keep in step with line 1
+    % of CODE_VERSION.txt; paper/check_code_version.py fails if they diverge.
+    %
+    % WHY A SECOND COPY. Three consecutive extractions delivered drivers from
+    % R11.26, R11.28 and R11.30 while every banner still read "pipeline
+    % R11.19" -- the archive was refreshing the .m files and leaving the text
+    % file alone. The date comparison further down can only call that
+    % SUSPICIOUS, because a driver may legitimately be newer than the last
+    % interface bump. A revision constant carried inside a .m file cannot:
+    % the .m files are the ones the extraction updates, so if this string and
+    % the text file disagree, they came from different revisions. That is a
+    % fact, not an inference, and it is worth the two-line bump discipline.
+    EXPECTED = 'R11.31';
+
     if nargin < 1 || isempty(callerpath), callerpath = ''; end
 
     here = fileparts(mfilename('fullpath'));       % .../src_project
@@ -88,7 +102,21 @@ function s = kv_code_version(callerpath)
         end
     end
 
-    s = sprintf('pipeline %s%s%s%s', tag, fpart, sib, mix);
+    % The source tree's own claim wins the headline when the two disagree,
+    % because it travels with the code that is actually executing.
+    disagree = '';
+    if ~strcmp(tag, EXPECTED)
+        disagree = sprintf(['  [!! MIXED EXTRACT: the .m files are %s but ' ...
+                            'CODE_VERSION.txt says %s. The .m files are ' ...
+                            'authoritative -- your unpacker is not ' ...
+                            'overwriting the text file. Delete ' ...
+                            'CODE_VERSION.txt and extract again.]'], ...
+                           EXPECTED, tag);
+        tag = EXPECTED;
+        mix = '';   % the date heuristic is redundant once this has fired
+    end
+
+    s = sprintf('pipeline %s%s%s%s%s', tag, fpart, sib, mix, disagree);
 end
 
 function s = norm_(p)

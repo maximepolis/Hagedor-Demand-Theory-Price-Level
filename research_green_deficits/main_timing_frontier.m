@@ -34,12 +34,19 @@
 % COST. Each speed needs one C4 transition plus a full C2 consolidation
 % bisection, and the bisection is roughly forty transitions. Budget about an
 % hour per grid point at the benchmark horizon. The run CHECKPOINTS after
-% every speed and resumes on a matching signature, so it survives being
-% interrupted.
+% every speed, keyed BY SPEED rather than by the grid, so a small pilot grid
+% seeds a larger production grid and only the new speeds are paid for.
 %
-% USAGE   >> clear; main_timing_frontier                  (benchmark)
-%         >> clear; RHOGRID = [0.6 0.8 0.9]; main_timing_frontier
-%         >> clear; FAST = true; main_timing_frontier     (shakeout only)
+% FAST DOES NOT SOLVE THIS. At the shakeout horizon the transition paths for
+% this fiscal spec are known not to converge -- main_deficit_decomposition
+% established that and stops on the same precondition. FAST here validates
+% the plumbing up to the C1 solve and then stops, by design and with the
+% reason printed. The cheap real check is a two-point grid at BENCHMARK
+% settings, which the by-speed checkpoint then feeds into the full run.
+%
+% USAGE   >> clear; RHOGRID = [0.65 0.90]; main_timing_frontier   (pilot)
+%         >> clear; main_timing_frontier                  (benchmark, full)
+%         >> clear; FAST = true; main_timing_frontier     (plumbing only)
 % OUTPUT  output/tables/timing_frontier.txt
 %         output/timing_frontier.mat
 %         output/timing_frontier_checkpoint.mat
@@ -87,30 +94,101 @@ opts.T = T; opts.verbose = false;
 opts.regime = 'indexed';   % REQUIRED with opts.fiscal; see main_deficit_decomposition
 d1 = @(TR) log(TR.phat(1)/TR.P0);
 
-% ---- C1, once ------------------------------------------------------------
-s1 = struct('T',T,'rho_bar',RHOGRID(1),'consolidation_start',TC, ...
-            'consolidation_half_life',HC,'kappa_tol',EPS_KAPPA,'kappa_target',1);
-o1 = opts; o1.fiscal = kv_fiscal_spec('C1', s1);
-TR1 = solve_hank_dtpl_transition(pgc, o1);
-assert(TR1.converged, 'C1 did not converge; nothing downstream is meaningful');
-dP_C1 = d1(TR1); k_C1 = TR1.kappa_inf;
-tee('C1  converged=%d  kappa_inf=%.10f  dlnP1=%+0.6f\n\n', ...
-    TR1.converged, k_C1, dP_C1);
-
-% ---- checkpoint ----------------------------------------------------------
+% ---- the checkpoint is keyed BY SPEED, not by the grid --------------------
+% An earlier version put RHOGRID in the signature, so a two-point pilot run
+% and the six-point production run had different signatures and the pilot's
+% solved speeds were discarded. Each speed is an independent solve; nothing
+% about rho = 0.65 depends on which other speeds are in the grid. The
+% signature therefore covers the ECONOMY -- preferences, damages, program
+% size, horizon, consolidation shape, regime -- and solved speeds are stored
+% in a list and matched one at a time. A pilot now seeds the production run,
+% and extending the grid costs only the new speeds.
 sig = struct('beta',pgc.beta,'D0',pgc.D0,'Gg',opts.Gg_nom,'T',T,'TC',TC, ...
-             'HC',HC,'rho',RHOGRID,'regime',opts.regime);
+             'HC',HC,'regime',opts.regime);
 ckf = fullfile(projdir,'output','timing_frontier_checkpoint.mat');
-R = cell(1, numel(RHOGRID));
+% A CELL, not a struct array. A struct array demands identical fields in
+% identical order, so a checkpoint written before a diagnostic field was added
+% would throw on the first append -- killing a run at hour six to complain
+% about a field name. A cell holds whatever each entry has.
+SPD = {};                         % every speed ever solved under this sig
+C1CK = [];                        % cached C1, which no speed depends on
 if RESUME && exist(ckf,'file')==2
     CK = load(ckf);
-    if isfield(CK,'sig') && isequaln(CK.sig, sig) && numel(CK.R)==numel(R)
-        R = CK.R;
-        tee('RESUMED: %d of %d speeds already solved.\n\n', ...
-            sum(~cellfun(@isempty,R)), numel(R));
+    if isfield(CK,'sig') && isequaln(CK.sig, sig)
+        if isfield(CK,'SPD') && iscell(CK.SPD), SPD = CK.SPD; end
+        if isfield(CK,'C1CK'), C1CK = CK.C1CK; end
+        tee('RESUMED: %d speed(s) already solved under this signature.\n\n', numel(SPD));
     else
-        tee('checkpoint signature does not match; starting clean.\n\n');
+        tee('checkpoint signature does not match the economy; starting clean.\n\n');
     end
+end
+
+% ---- C1, once ------------------------------------------------------------
+% rho is FIXED at 0.90 here and is not read from the grid. Under C1 phi_t = 1
+% at every date, so the path does not depend on rho at all; taking it from
+% RHOGRID(1) would have made the cached C1 depend on the grid it was solved
+% under, which is exactly the coupling the checkpoint above removes.
+if ~isempty(C1CK)
+    dP_C1 = C1CK.dP; k_C1 = C1CK.kappa;
+    tee('C1  (cached)  kappa_inf=%.10f  dlnP1=%+0.6f\n\n', k_C1, dP_C1);
+else
+    s1 = struct('T',T,'rho_bar',0.90,'consolidation_start',TC, ...
+                'consolidation_half_life',HC,'kappa_tol',EPS_KAPPA,'kappa_target',1);
+    o1 = opts; o1.fiscal = kv_fiscal_spec('C1', s1);
+    TR1 = solve_hank_dtpl_transition(pgc, o1);
+
+    % CONVERGENCE IS A PRECONDITION, NOT AN ASSERT. This used to be a bare
+    % assert, which reports a solver outcome as though it were a bug in the
+    % driver -- and at FAST it is neither: main_deficit_decomposition already
+    % established that these transition paths are KNOWN not to converge at the
+    % shakeout horizon, and stops with that named as the expected cause. The
+    % same is true here, so say so, write the file, and return.
+    if ~TR1.converged
+        tee('\n*** STOPPING: C1 did not converge.\n');
+        tee('*** Every speed below needs C1: it supplies the consolidation\n');
+        tee('*** target for C2 and the benchmark both frontiers are measured\n');
+        tee('*** against. A frontier located off an unsolved C1 would report\n');
+        tee('*** the solver''s stopping rule, not a critical tax speed.\n');
+        if FAST
+            tee('*** This is the EXPECTED outcome under FAST (T=%d). The\n', T);
+            tee('*** shakeout horizon does not converge for this fiscal spec --\n');
+            tee('*** main_deficit_decomposition stops the same way, for the same\n');
+            tee('*** reason. FAST validates the plumbing only, and the plumbing\n');
+            tee('*** up to this line has just been validated.\n');
+            tee('*** For a cheap REAL check, run a two-point grid at benchmark\n');
+            tee('*** settings instead -- it is checkpointed per speed and seeds\n');
+            tee('*** the full run:\n');
+            tee('***     clear; RHOGRID = [0.65 0.90]; main_timing_frontier\n');
+        else
+            tee('*** This is NOT expected at the benchmark horizon. Check the\n');
+            tee('*** residuals below against opts.tol before changing anything.\n');
+        end
+        if isfield(TR1,'resid_interior') && isfield(TR1,'resid_terminal')
+            tee('*** interior residual %.3e   terminal residual %.3e\n', ...
+                TR1.resid_interior, TR1.resid_terminal);
+        end
+        save(fullfile(projdir,'output','timing_frontier.mat'), ...
+             'RHOGRID','sig','T','TC','HC','calinfo');
+        tee('\n[main_timing_frontier] stopped at the C1 precondition (%.1f s)\n', toc(t0));
+        fclose(fid); return;
+    end
+    dP_C1 = d1(TR1); k_C1 = TR1.kappa_inf;
+    C1CK = struct('dP', dP_C1, 'kappa', k_C1);
+    tee('C1  converged=%d  kappa_inf=%.10f  dlnP1=%+0.6f\n\n', ...
+        TR1.converged, k_C1, dP_C1);
+    % Checkpoint C1 before the first speed. An interrupt during speed one
+    % would otherwise throw away the benchmark solve that every speed needs.
+    try
+        tmp = [ckf '.tmp']; save(tmp,'SPD','sig','C1CK','-v7.3');
+        movefile(tmp, ckf, 'f');
+    catch, end
+end
+
+% Match each requested speed against what the checkpoint already holds.
+R = cell(1, numel(RHOGRID));
+for i = 1:numel(RHOGRID)
+    j = local_find_rho(SPD, RHOGRID(i));
+    if j > 0, R{i} = SPD{j}; end
 end
 
 tee('%7s %9s %11s %11s %11s %9s %8s\n', 'rho', 'half-life', ...
@@ -137,10 +215,20 @@ for i = 1:numel(RHOGRID)
     % each speed costs roughly a dozen transitions instead of the full sixty
     % it would burn chasing an unattainable target. The ratchet is available
     % because C4 is solved first, which is also the reason C4 comes first.
+    %
+    % A NON-CONVERGED C4 IS A REASON NOT TO START. a_xi = 0 IS C4, so the
+    % bisection's first evaluation is the path that just failed and
+    % kv_solve_consolidation will correctly refuse to bracket through it --
+    % after paying for the solve. Skip it and record the real cause.
     so2 = so;
     so2.kappa_ratchet = abs(TR4.kappa_inf - k_C1);
     so2.eta_tol       = ETA_TOL;
-    RC = kv_solve_consolidation(pgc, opts, so2, k_C1, @(varargin) []);
+    if TR4.converged
+        RC = kv_solve_consolidation(pgc, opts, so2, k_C1, @(varargin) []);
+    else
+        RC = struct('a_xi',NaN,'kappa_inf',NaN,'gap',NaN,'hit',false,'TR',[], ...
+                    'iters',0,'status','C4_NOT_CONVERGED');
+    end
     okC2 = ~isempty(RC.TR) && isstruct(RC.TR) && isfield(RC.TR,'converged') ...
            && RC.TR.converged;
     eta = NaN; dP_C2 = NaN; a_xi = NaN;
@@ -167,8 +255,13 @@ for i = 1:numel(RHOGRID)
         tee('        consolidation returned %s after %d transitions (gap %.2e)\n', ...
             RC.status, RC.iters, RC.gap);
     end
+    % Accumulate into the by-speed store, replacing any earlier entry for the
+    % same rho rather than appending a duplicate the matcher would then have
+    % to choose between.
+    j = local_find_rho(SPD, rho);
+    if j > 0, SPD{j} = R{i}; else, SPD{end+1} = R{i}; end %#ok<SAGROW>
     try
-        tmp = [ckf '.tmp']; save(tmp,'R','sig','dP_C1','k_C1','-v7.3');
+        tmp = [ckf '.tmp']; save(tmp,'SPD','sig','C1CK','-v7.3');
         movefile(tmp, ckf, 'f');
     catch, end
 end
@@ -202,11 +295,25 @@ if ok2 && ok4
 end
 
 save(fullfile(projdir,'output','timing_frontier.mat'), ...
-     'R','RHOGRID','dP_C1','k_C1','sig','T','TC','HC','calinfo');
+     'R','SPD','RHOGRID','dP_C1','k_C1','sig','T','TC','HC','calinfo');
 tee('\n[main_timing_frontier] wrote %s (%.1f s)\n', sf, toc(t0));
 fclose(fid);
 
 % =========================================================================
 function tee2(fid, varargin)
     fprintf(varargin{:}); fprintf(fid, varargin{:});
+end
+
+function j = local_find_rho(SPD, rho)
+% Index of the stored speed equal to rho, 0 if absent. Exact comparison on a
+% grid value the caller supplied, with a tolerance only against round-trip
+% error through the .mat -- these are the same literals, not two computations
+% that ought to agree.
+    j = 0;
+    for i = 1:numel(SPD)
+        if isstruct(SPD{i}) && isfield(SPD{i},'rho') ...
+                && abs(SPD{i}.rho - rho) < 1e-12
+            j = i; return;
+        end
+    end
 end
