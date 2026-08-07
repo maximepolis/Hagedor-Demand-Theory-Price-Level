@@ -61,7 +61,7 @@ Listing these is not point-scoring; it determines what is *new* work.
 | Major 8 — separate ν_reval, ν_dam, ν, L | already the accounting; the report endorses it |
 | Major 9 — deficit experiment confounds timing with debt supply | agreed internally in R10; C1/C2/C4 built and **run** 2026-08-06 — sign reverses at matched terminal debt; 34/66 timing/ratchet split (§7) |
 | Major 9 — consolidation surcharge to match terminal debt | **built and run**: ξ_t = a_ξ h_t, amplitude solved by `kv_solve_consolidation`; consolidation miss 1.2e-04 of the ratchet decomposed (§7) |
-| Minor 18 — no "timing threshold" until terminal debt matched | in `PAPER_SAFETY_PATCH_R11.md` §C; terminal debt now matched (C2) and the frontier swept (§7): 1.4 years is validated as the *joint* threshold (ρ* = 0.6121 → 1.41 y); the timing threshold sits above ρ = 0.77 (~2.6–4 y half-life), provisional pending one re-run |
+| Minor 18 — no "timing threshold" until terminal debt matched | in `PAPER_SAFETY_PATCH_R11.md` §C; terminal debt now matched (C2) and the frontier swept (§7): 1.4 years is validated as the *joint* threshold (ρ* = 0.6121 → 1.41 y); the timing threshold is measured: ρ* = 0.7977 → 3.07 y, 2.2× the joint figure (re-run 2026-08-07) |
 | Major 4 — ordering is the robust claim, not the level sign | in `PAPER_SAFETY_PATCH_R11.md` §A |
 | Major 10 — demote multiplicity, insulation, optimal-μ, NK | overlaps the R9 demotion map |
 | Major 11 — sign certification vs residual floor | Gate 11 + Track A/B |
@@ -234,7 +234,7 @@ verdict that the numbers are wrong.
 | 6 | capitalization rests on extreme credibility | **accept** | needs Markov reversal + finite duration; not built |
 | 7 | preferred model does not answer the title | **accept** | requires two-asset transition with damages moving; blocked on certification |
 | 8 | accounting still easy to misinterpret | **partly accept** | ν terminology done in code; foreign/central-bank in the core block is new |
-| 9 | deficit experiment confounds timing and debt | **accept; already agreed** | C1/C2/C4 + surcharge **run** (§7): sign reverses at matched terminal debt, 34/66 timing/ratchet split; joint frontier validated at 1.41 y, timing frontier provisional (> ρ = 0.77, ρ = 0.80 re-running); equal-PV and equal-terminal-real cases still to add |
+| 9 | deficit experiment confounds timing and debt | **accept; already agreed** | C1/C2/C4 + surcharge **run** (§7): sign reverses at matched terminal debt, 34/66 timing/ratchet split; joint frontier validated at 1.41 y, timing frontier measured at 3.07 y (2.2×, re-run 2026-08-07); equal-PV and equal-terminal-real cases still to add |
 | 10 | extensions should not be coequal | **accept** | demotion map exists |
 | 11 | numerical accuracy not shown for sign-sensitive transitions | **accept** | Track A/B + Gate 11; transition Euler errors are a genuine gap |
 
@@ -520,13 +520,13 @@ ratchet-normalized consolidation stopping rule against the certified run).
 - **Joint frontier (C4 crossing): $\rho^*=0.6121$, tax half-life 1.41
   years, tightly bracketed on [0.60, 0.65].** The manuscript's quoted 1.4
   years is thereby *validated — as the joint frontier*.
-- **Timing frontier (C2 crossing): PROVISIONAL.** The $\rho=0.80$ speed
-  failed (consolidation bracketing aborted on an oversized first probe;
-  fixed R11.31–R11.33) and the wide [0.70, 0.90] interpolation printed
-  2.62 y — biased downward, since the C2 curve is convex. The local slopes
-  put the true crossing above $\rho=0.80$, half-life likely 3–4 y. The
-  re-run (grid now carries 0.80 and 0.85; checkpoint reuses all solved
-  speeds) closes the bracket.
+- **Timing frontier (C2 crossing): $\rho^*=0.7977$, tax half-life 3.07
+  years, bracketed on [0.70, 0.80] with no gap** (re-run 2026-08-07; the
+  repaired $\rho=0.80$ speed solved in 9 transitions off the warm start,
+  C2 = +0.000260). The provisional 2.62 y from the gapped bracket was
+  indeed biased downward, as the convexity argument predicted. Delaying
+  the tax must be **2.2×** slower to flip the sign once the revenue is
+  actually paid back.
 
 With the sweep run, the defensible statements are:
 
@@ -536,7 +536,7 @@ With the sweep run, the defensible statements are:
 3. the 1.4-year **frontier** is *measured* as the joint frontier
    ($\rho^*=0.6121\to1.41$ y) — the safety patch's label is now a
    validated result, not only a caution;
-4. the timing-alone frontier is provisional: above $\rho=0.77$, roughly a
-   factor of 2 or more beyond the joint frontier; it is exporter-gated so
-   it cannot reach the manuscript as a number until its bracket is
-   gap-free.
+4. the timing-alone frontier is measured: $\rho^*=0.7977\to3.07$ y,
+   2.2× the joint frontier. The exporter's gap-free gate passed and the
+   macros (\DefRhoStarTiming, \DefHalfStarTiming, \DefTimingJointRatio)
+   are live in numbers_auto.tex as of the 2026-08-07 export.

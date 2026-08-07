@@ -1,4 +1,4 @@
-R11.34
+R11.35
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,26 @@ R11.34
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.35 the re-run closed the timing bracket: rho* = 0.7977, a 3.07-year
+#        tax half-life, bracketed on [0.70, 0.80] with no gap -- 2.2x the
+#        joint frontier's 1.41 years. The repaired rho = 0.80 speed solved
+#        in 9 transitions off the warm start (C2 = +0.000260); 0.85 took 12.
+#        The provisional 2.62 y from the gapped bracket was biased downward
+#        exactly as the convexity argument predicted. Both frontier
+#        locations are now QV in the claim register.
+#        One export defect found by reading the emitted numbers_auto.tex:
+#        the frontier macros appeared but the \DefDec* decomposition macros
+#        did not. Cause: the exporter trusted EST.reportable inside
+#        deficit_decomposition.mat, which was frozen at FALSE by the
+#        pre-R11.26 gate -- the unattainable absolute eps_kappa -- while the
+#        run it stores passes the amended ratio gate. main_deficit_estimands
+#        is the driver that re-applies the amended gates to the saved run,
+#        and it writes its re-graded verdict to deficit_estimands.mat. The
+#        exporter now reads THAT file first and falls back to the
+#        decomposition's own EST only when the estimands file is absent.
+#        A verdict frozen at an old gate is the .mat-staleness lesson of
+#        R11.29 in a new place: the flag loaded cleanly and was simply
+#        wrong about the current acceptance rule.
 # R11.34 the R14 co-editor brief, triaged rather than re-run. Most of its
 #        sections are already standing practice (the identification ledger IS
 #        its section-N table; the C1/C2/C4 block and fixed-real-program run

@@ -324,10 +324,24 @@ if exist(wff, 'file') == 2
 end
 
 % ---- deficit decomposition C1/C2/C4 (main_deficit_decomposition) ----
-% Guarded twice: on the file, and on EST.reportable -- the driver itself
-% withholds the estimands when any budget or consolidation gate fails, and
-% a withheld estimand must not reach the paper through a side door here.
-ddf = fullfile(projdir, 'output', 'deficit_decomposition.mat');
+% Guarded twice: on the file, and on EST.reportable -- a withheld estimand
+% must not reach the paper through a side door here.
+%
+% WHICH FILE CARRIES THE VERDICT. The benchmark decomposition ran BEFORE the
+% consolidation gate was amended from the unattainable absolute eps_kappa to
+% the ratio-vs-ratchet form (R11.26), so deficit_decomposition.mat has
+% EST.reportable = false frozen at the OLD gate -- while the run it stores
+% passes the amended one. main_deficit_estimands is the driver that
+% re-applies the amended gates to the saved run, and it writes its re-graded
+% verdict to deficit_estimands.mat. That file is therefore the authority and
+% is read FIRST; the decomposition's own EST is only a fallback for a future
+% re-run whose stored verdict is current. The first export of this block
+% silently emitted nothing because it trusted the stale flag -- the macros
+% were \pendingnum while the estimands stood licensed in the run table.
+ddf = fullfile(projdir, 'output', 'deficit_estimands.mat');
+if exist(ddf, 'file') ~= 2
+    ddf = fullfile(projdir, 'output', 'deficit_decomposition.mat');
+end
 if exist(ddf, 'file') == 2
     DD = load(ddf, 'EST');
     if isfield(DD, 'EST') && isfield(DD.EST, 'reportable') && DD.EST.reportable
