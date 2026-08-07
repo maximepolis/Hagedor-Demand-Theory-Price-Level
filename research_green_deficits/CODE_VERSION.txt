@@ -1,4 +1,4 @@
-R11.33
+R11.34
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,29 @@ R11.33
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.34 the R14 co-editor brief, triaged rather than re-run. Most of its
+#        sections are already standing practice (the identification ledger IS
+#        its section-N table; the C1/C2/C4 block and fixed-real-program run
+#        ARE its section-O experiments 3-5; the demotion map IS its
+#        extension rule), and REFEREE_R14_COEDITOR_TRIAGE.md records the
+#        mapping, the author decisions it drafts but does not take (ten
+#        titles, three abstracts, an intro outline), and the two things it
+#        rejects with reasons (a one-asset resolution ladder that would
+#        reassure where the problem is not; a merged mega-figure that would
+#        blur what each panel holds fixed).
+#        Implemented now: the brief's one genuinely new mechanical
+#        requirement, colour-by-MEANING figures. style_figure.m standardizes
+#        typography but assigns palette by series position; six plot files
+#        declared private RGB constants, so a colour could change meaning
+#        between exhibits. New src/regime_style.m is the paper-wide semantic
+#        registry (benchmark grey, program green, lump-sum blue, levy
+#        vermillion, rebate purple, deficit amber, timing sky; supply blue /
+#        demand vermillion in the market diagrams), each meaning with a B/W
+#        line style, erroring on unknown names so no figure can invent an
+#        encoding. All six plot files now source their constants from it;
+#        plot calls untouched, so restyling cannot change what any figure
+#        reports. Main-text exhibit count verified at 5 figures + 5 tables,
+#        already inside the brief's budget.
 # R11.33 the full-grid frontier run came back: JOINT frontier rho* = 0.6121,
 #        a 1.41-year tax half-life, tightly bracketed on [0.60, 0.65] -- the
 #        manuscript's quoted 1.4 years is thereby VALIDATED, as the joint

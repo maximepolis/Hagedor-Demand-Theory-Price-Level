@@ -22,8 +22,8 @@ function fh = plot_asset_market(ad, ss, params)
 %
 % PAPER SECTION: Figure 1 (Section 3.1, Eq. 14).
 
-    BLUE = [0.10 0.30 0.75];
-    RED  = [0.85 0.20 0.15];
+    BLUE = regime_style('supply');   % bond supply, paper-wide encoding
+    RED  = regime_style('demand');   % household asset demand
 
     conv = ad.converged;
     r    = ad.rgrid(conv);

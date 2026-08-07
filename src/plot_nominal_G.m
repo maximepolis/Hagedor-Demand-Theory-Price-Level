@@ -28,7 +28,7 @@ function fh = plot_nominal_G(gout, params)
 %
 % PAPER SECTION: Figure 4 (Eq. 66-69, Result 1).
 
-    BLUE = [0.10 0.30 0.75];
+    BLUE = regime_style('supply');   % bond supply, paper-wide encoding
 
     fh = figure('Name','Figure 4: Nominal government expenditure', ...
                 'Color','w','Position',[100 100 1000 420]);

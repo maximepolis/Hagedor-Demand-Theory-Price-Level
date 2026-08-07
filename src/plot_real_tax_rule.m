@@ -25,8 +25,8 @@ function fh = plot_real_tax_rule(res_unique, res_multi, params)
 %
 % PAPER SECTION: Section 3.5.3, Figure 3 (Eq. 34-38).
 
-    BLUE = [0.10 0.30 0.75];
-    RED  = [0.85 0.20 0.15];
+    BLUE = regime_style('supply');   % bond supply, paper-wide encoding
+    RED  = regime_style('demand');   % household asset demand
 
     fh = figure('Name','Figure 3: Real tax rule (price-asset space)', ...
                 'Color','w','Position',[100 100 1000 420]);
