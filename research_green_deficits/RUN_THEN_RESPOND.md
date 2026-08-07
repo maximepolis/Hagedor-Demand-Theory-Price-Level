@@ -437,10 +437,14 @@ Expect PASS (medium->research changes below 1e-3 on aggregates, 5e-2 on the
 derivative). If FAIL, push the table — a grid-sensitive moment would need a
 denser grid before submission.
 
-## New tool (run locally anytime; no MATLAB needed)
+## Literal audit — MAINTAINER SIDE, do not run this yourself
+This machine has MATLAB and no Python, so the `paper/check_*.py` scripts are
+run where the repository is edited, never here. Nothing in your run list
+requires Python; if a driver ever prints a `python3 ...` next step, that is a
+bug — report it.
 ```bash
-cd research_green_deficits/paper
-python3 check_manuscript_numbers.py     # exit 1 while unapproved literals remain
+# maintainer only
+cd research_green_deficits/paper && python3 check_manuscript_numbers.py
 ```
 Scans the manuscript for numeric literals not sourced from numbers_auto.tex.
 approved_literals.txt whitelists calibration INPUTS and transcribed-and-
