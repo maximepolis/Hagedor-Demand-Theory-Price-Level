@@ -1,0 +1,39 @@
+FINITE-HORIZON OPERATIVENESS OF THE FINANCING ORDERING (MC2)
+paths: lump-sum vs rebate, nominal regime; na=500, T=80, tol=2e-03
+both paths reportable: converged AND horizon-adequate. no new solve.
+
+impact gap    Delta_1   = +0.1605 log points
+terminal gap  Delta_T   = +0.1506 (path end)
+long-run gap  Delta_inf = +0.1506 (terminal steady states)
+year-one share of the long-run gap: 106.6%
+
+CUMULATIVE ordering operative from year 1 (never reverses after).
+half of the long-run gap priced by year 1.
+largest gap +0.1605 at year 1 (107% of long-run: the ordering OVERSHOOTS then settles back).
+
+  h     Delta_h    share of long-run gap
+   1    +0.1605     106.6%
+   2    +0.1594     105.9%
+   5    +0.1554     103.2%
+  10    +0.1517     100.7%
+  20    +0.1507     100.1%
+  40    +0.1507     100.1%
+  80    +0.1506     100.0%
+
+FLOW clock (annual inflation ordering, rebate minus lump-sum):
+  pi_reb - pi_ls at impact: +17.06%/yr; years with pi_reb > pi_ls: 36 of 80
+  first such year 1, last 80
+  reading: the flow ordering can reverse after impact while the
+  cumulative ordering (the incidence-relevant clock) is already set.
+
+DEFICIT-TIMING addendum (indexed regime, rho_d=0.90):
+  gap vs balanced timing: impact +0.1821, terminal +0.1766, dilution ln kappa_inf +0.1766
+  share of the dilution priced at impact: 103.1%
+
+----- verdict (MC2) -----
+The levy-vs-lump-sum ordering is operative in cumulative terms from
+year 1, with 107% of the long-run gap priced in the announcement
+year: the steady-state ranking is a guide to the path from the start,
+not an asymptotic artifact.
+
+[main_transition_ordering] wrote C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\transition_ordering.txt (1.2 s)

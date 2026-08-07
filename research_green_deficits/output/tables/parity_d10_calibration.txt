@@ -1,0 +1,178 @@
+D10 THREE-WAY CALIBRATION PARITY
+============================================================
+
+pipeline R11.12  |  main_parity_d10_calibration.m  (modified 2026-08-04 08:18)
+
+provenance audit: 47 names checked, 1 shadowed
+baseline        C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\baseline\baseline_d10_fast.mat
+  commit        bf0a4e8a4444f9d5b2c9d865a39b7de2136f67ec
+  MATLAB        25.2.0.3042426 (R2025b) Update 1 on PCWIN64
+  FAST          1 (this run: 1)
+
+cached inputs (must match the baseline capture):
+  calibrated_results.mat       match
+  wealth_fit_results.mat       match
+  twoasset_ownership.mat       match
+  kv_residual_scan.mat         match
+
+tolerances: prices/aggregates 1e-10, distribution 1e-12, default 1e-12
+(the refactor MOVED code rather than reimplementing it, so anything above
+ these is a real defect, not a numerical difference)
+
+LEG 2: current script entry point (main_twoasset_ownership_kv) ...
+  done (724.5 s)
+
+LEG 3: kv_calibrate_on_grid with identical inputs ...
+  inputs recovered from the script's own workspace:
+    beta0  = 0.926699   (the value its calibration STARTED from)
+    q_ref  = 2.985973   (its tree-price bracket anchor)
+    chi_b  = 0.002234   (script) vs 0.002234 (chi_ref)   consistent
+    the script CONVERGED to beta = 0.874038, which is NOT the starting point
+  done (356.8 s)
+
+============================================================
+COMPARISON A -- BASELINE (bf0a4e8) vs CURRENT SCRIPT
+this is the leg that tests the refactor
+============================================================
+
+baseline vs script                 max|abs|      max rel       ulps  verdict
+----------------------------------------------------------------------------------
+EXK                              0.0000e+00   0.0000e+00          0  EXACT
+omega                            0.0000e+00   0.0000e+00          0  EXACT
+H_htm                            0.0000e+00   0.0000e+00          0  EXACT
+H_whtm                           0.0000e+00   0.0000e+00          0  EXACT
+H_phtm                           0.0000e+00   0.0000e+00          0  EXACT
+H_top10                          0.0000e+00   0.0000e+00          0  EXACT
+H_top1                           0.0000e+00   0.0000e+00          0  EXACT
+iota_H                           0.0000e+00   0.0000e+00          0  EXACT
+b_targ_H                         0.0000e+00   0.0000e+00          0  EXACT
+r_b                              0.0000e+00   0.0000e+00          0  EXACT
+d_base                           0.0000e+00   0.0000e+00          0  EXACT
+D0                               0.0000e+00   0.0000e+00          0  EXACT
+Gg                               0.0000e+00   0.0000e+00          0  EXACT
+eq_P                             0.0000e+00   0.0000e+00          0  EXACT
+eq_q                             0.0000e+00   0.0000e+00          0  EXACT
+eq_Sb                            0.0000e+00   0.0000e+00          0  EXACT
+eq_tau                           0.0000e+00   0.0000e+00          0  EXACT
+eq_ok                            0.0000e+00   0.0000e+00          0  EXACT
+eq_ksat                          0.0000e+00   0.0000e+00          0  EXACT
+eq_msg                           0.0000e+00   0.0000e+00          0  EXACT
+eq_div                           0.0000e+00   0.0000e+00          0  EXACT
+eq_min_c                         0.0000e+00   0.0000e+00          0  EXACT
+eq_n_infeas                      0.0000e+00   0.0000e+00          0  EXACT
+distribution                     0.0000e+00   0.0000e+00          0  EXACT
+theta_beta                       0.0000e+00   0.0000e+00          0  EXACT
+theta_chi_b                      0.0000e+00   0.0000e+00          0  EXACT
+theta_zeta_b                     0.0000e+00   0.0000e+00          0  EXACT
+theta_bbar_liq                   0.0000e+00   0.0000e+00          0  EXACT
+theta_lambda_adj                 0.0000e+00   0.0000e+00          0  EXACT
+theta_div_payout                 0.0000e+00   0.0000e+00          0  EXACT
+grid_bGrid                       0.0000e+00   0.0000e+00          0  EXACT
+grid_kGrid                       0.0000e+00   0.0000e+00          0  EXACT
+grid_xGridA                      0.0000e+00   0.0000e+00          0  EXACT
+grid_acGrid                      0.0000e+00   0.0000e+00          0  EXACT
+grid_sGrid                       0.0000e+00   0.0000e+00          0  EXACT
+grid_eGrid                       0.0000e+00   0.0000e+00          0  EXACT
+tol_tol_vfi                      0.0000e+00   0.0000e+00          0  EXACT
+tol_maxit_vfi                    0.0000e+00   0.0000e+00          0  EXACT
+tol_tol_dist                     0.0000e+00   0.0000e+00          0  EXACT
+tol_maxit_dist                   0.0000e+00   0.0000e+00          0  EXACT
+----------------------------------------------------------------------------------
+  40 exact, 0 within ulps, 0 within tolerance, 0 FAIL
+
+============================================================
+COMPARISON B -- CURRENT SCRIPT vs kv_calibrate_on_grid
+wrapper consistency; localises a failure once A has flagged one
+============================================================
+fields outside kv_calibrate_on_grid's contract, excluded from B and C:
+  EXK, H, omega, Gg  (compared in A, where both legs are the same entry point)
+
+
+script vs callable                 max|abs|      max rel       ulps  verdict
+----------------------------------------------------------------------------------
+iota_H                           0.0000e+00   0.0000e+00          0  EXACT
+b_targ_H                         0.0000e+00   0.0000e+00          0  EXACT
+r_b                              0.0000e+00   0.0000e+00          0  EXACT
+d_base                           0.0000e+00   0.0000e+00          0  EXACT
+D0                               0.0000e+00   0.0000e+00          0  EXACT
+eq_P                             0.0000e+00   0.0000e+00          0  EXACT
+eq_q                             0.0000e+00   0.0000e+00          0  EXACT
+eq_Sb                            0.0000e+00   0.0000e+00          0  EXACT
+eq_tau                           0.0000e+00   0.0000e+00          0  EXACT
+eq_ok                            0.0000e+00   0.0000e+00          0  EXACT
+eq_ksat                          0.0000e+00   0.0000e+00          0  EXACT
+eq_msg                           0.0000e+00   0.0000e+00          0  EXACT
+eq_div                           0.0000e+00   0.0000e+00          0  EXACT
+eq_min_c                         0.0000e+00   0.0000e+00          0  EXACT
+eq_n_infeas                      0.0000e+00   0.0000e+00          0  EXACT
+distribution                     0.0000e+00   0.0000e+00          0  EXACT
+theta_beta                       0.0000e+00   0.0000e+00          0  EXACT
+theta_chi_b                      0.0000e+00   0.0000e+00          0  EXACT
+theta_zeta_b                     0.0000e+00   0.0000e+00          0  EXACT
+theta_bbar_liq                   0.0000e+00   0.0000e+00          0  EXACT
+theta_lambda_adj                 0.0000e+00   0.0000e+00          0  EXACT
+theta_div_payout                 0.0000e+00   0.0000e+00          0  EXACT
+grid_bGrid                       0.0000e+00   0.0000e+00          0  EXACT
+grid_kGrid                       0.0000e+00   0.0000e+00          0  EXACT
+grid_xGridA                      0.0000e+00   0.0000e+00          0  EXACT
+grid_acGrid                      0.0000e+00   0.0000e+00          0  EXACT
+grid_sGrid                       0.0000e+00   0.0000e+00          0  EXACT
+grid_eGrid                       0.0000e+00   0.0000e+00          0  EXACT
+tol_tol_vfi                      0.0000e+00   0.0000e+00          0  EXACT
+tol_maxit_vfi                    0.0000e+00   0.0000e+00          0  EXACT
+tol_tol_dist                     0.0000e+00   0.0000e+00          0  EXACT
+tol_maxit_dist                   0.0000e+00   0.0000e+00          0  EXACT
+----------------------------------------------------------------------------------
+  32 exact, 0 within ulps, 0 within tolerance, 0 FAIL
+
+============================================================
+COMPARISON C -- BASELINE vs kv_calibrate_on_grid (end to end)
+============================================================
+
+baseline vs callable               max|abs|      max rel       ulps  verdict
+----------------------------------------------------------------------------------
+iota_H                           0.0000e+00   0.0000e+00          0  EXACT
+b_targ_H                         0.0000e+00   0.0000e+00          0  EXACT
+r_b                              0.0000e+00   0.0000e+00          0  EXACT
+d_base                           0.0000e+00   0.0000e+00          0  EXACT
+D0                               0.0000e+00   0.0000e+00          0  EXACT
+eq_P                             0.0000e+00   0.0000e+00          0  EXACT
+eq_q                             0.0000e+00   0.0000e+00          0  EXACT
+eq_Sb                            0.0000e+00   0.0000e+00          0  EXACT
+eq_tau                           0.0000e+00   0.0000e+00          0  EXACT
+eq_ok                            0.0000e+00   0.0000e+00          0  EXACT
+eq_ksat                          0.0000e+00   0.0000e+00          0  EXACT
+eq_msg                           0.0000e+00   0.0000e+00          0  EXACT
+eq_div                           0.0000e+00   0.0000e+00          0  EXACT
+eq_min_c                         0.0000e+00   0.0000e+00          0  EXACT
+eq_n_infeas                      0.0000e+00   0.0000e+00          0  EXACT
+distribution                     0.0000e+00   0.0000e+00          0  EXACT
+theta_beta                       0.0000e+00   0.0000e+00          0  EXACT
+theta_chi_b                      0.0000e+00   0.0000e+00          0  EXACT
+theta_zeta_b                     0.0000e+00   0.0000e+00          0  EXACT
+theta_bbar_liq                   0.0000e+00   0.0000e+00          0  EXACT
+theta_lambda_adj                 0.0000e+00   0.0000e+00          0  EXACT
+theta_div_payout                 0.0000e+00   0.0000e+00          0  EXACT
+grid_bGrid                       0.0000e+00   0.0000e+00          0  EXACT
+grid_kGrid                       0.0000e+00   0.0000e+00          0  EXACT
+grid_xGridA                      0.0000e+00   0.0000e+00          0  EXACT
+grid_acGrid                      0.0000e+00   0.0000e+00          0  EXACT
+grid_sGrid                       0.0000e+00   0.0000e+00          0  EXACT
+grid_eGrid                       0.0000e+00   0.0000e+00          0  EXACT
+tol_tol_vfi                      0.0000e+00   0.0000e+00          0  EXACT
+tol_maxit_vfi                    0.0000e+00   0.0000e+00          0  EXACT
+tol_tol_dist                     0.0000e+00   0.0000e+00          0  EXACT
+tol_maxit_dist                   0.0000e+00   0.0000e+00          0  EXACT
+----------------------------------------------------------------------------------
+  32 exact, 0 within ulps, 0 within tolerance, 0 FAIL
+
+============================================================
+VERDICT
+============================================================
+  A baseline vs script    : PASS
+  B script vs callable    : PASS
+  C baseline vs callable  : PASS
+
+  D10 PARITY: ESTABLISHED
+
+[main_parity_d10_calibration] wrote C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\parity_d10_calibration.txt

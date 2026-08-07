@@ -1,0 +1,64 @@
+TWO-ASSET CERTIFICATION, TRACK A  (fixed parameters: DISCRETIZATION error)
+QUARANTINED OUTPUT. Nothing here may enter the manuscript until the
+protocol passes in full.
+
+frozen calibration: beta=0.873963 chi_b=0.002234 lambda=0.150 iota_H=0.2727
+grid family: b in [0.0001, 12] curvature 2.400; k in [0, 60] curvature 2.400
+matrix: nb [30 38 48] x nk [17 22 28]
+
+pre-flight, FAMILY gates on the frozen benchmark distribution.
+These are measured on the NARROW family the benchmark was solved on;
+they are what motivated the widening above, and they cannot be
+re-evaluated on the wide family without solving it, which the cells
+below do. Read them as the reason for widening, not as its result.
+  gate 7  liquid top-two-node mass   0.00275  (need <1e-04)
+  gate 8  illiquid top-two-node mass 0.00143  (need <1e-04)
+  gate 9  occupied support, liquid   1.0000  (need <0.90)
+  gate 9.1 occupied support, illiquid 1.0000  (need <0.90)
+  *** THE GRID FAMILY FAILS THESE BEFORE ANY REFINEMENT.
+  *** Gates 7-9 are properties of the grid EXTENT (bhi, khi), which
+  *** Track A holds FIXED. Every cell below will fail them with the
+  *** same values, and no cell can be certified, so Gate 11 will
+  *** report "fewer than two certified cells" regardless of how
+  *** well the residuals and the convergence norms behave.
+  *** This is a PROTOCOL question, not a solver failure: either the
+  *** frozen family is widened (and the calibration re-validated on
+  *** it, which is Track B), or gates 7-9 are scored once for the
+  *** family rather than per cell. Neither is decided here, and no
+  *** threshold is changed here.
+
+no parallel pool: nothing in the Track A chain uses parfor, so a pool
+would idle for the whole run. Implicit multithreading is unaffected.
+
+RESUMED from checkpoint: 9 of 9 cells already solved.
+  signature matched (parameters, extents, curvatures, node lists).
+
+--- cell nb=30 nk=17 : from checkpoint ---
+--- cell nb=30 nk=22 : from checkpoint ---
+--- cell nb=30 nk=28 : from checkpoint ---
+--- cell nb=38 nk=17 : from checkpoint ---
+--- cell nb=38 nk=22 : from checkpoint ---
+--- cell nb=38 nk=28 : from checkpoint ---
+--- cell nb=48 nk=17 : from checkpoint ---
+--- cell nb=48 nk=22 : from checkpoint ---
+--- cell nb=48 nk=28 : from checkpoint ---
+===== ACROSS-MATRIX GATES =====
+
+  --- PROVISIONAL, over cells that SOLVED (certified or not) ---
+  cells with a finite dP     : 9 of 9
+  dP                         : [+0.020961, +0.042625], median +0.028821
+  spread / |median|          : 0.7517   (Gate 11 would need <0.10)
+  s.d. / |mean|              : 0.2252
+  ORDERING                   : STABLE -- dP keeps one sign in
+                               all 9 cells. The levy and the
+                               lump-sum tax are ranked the same
+                               way at every discretization.
+  These numbers are PROVISIONAL and uncertified. They bound what
+  the discretization can support; they do not license a claim.
+
+  fewer than two certified cells: Gate 11 not computable.
+  This is a FAILURE of the protocol, not an absence of evidence.
+  The provisional block above is what the run DID establish.
+
+[main_twoasset_grid_certification] wrote C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\twoasset_certification_A.txt (4.2 s)
+Output is QUARANTINED in C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\quarantine

@@ -1,0 +1,236 @@
+D11 THREE-WAY TRANSITION PARITY
+============================================================
+
+pipeline R11.6  |  main_parity_d11_deficit.m  (modified 2026-08-03 15:08)
+
+baseline   C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\baseline\baseline_d11_fast.mat
+  commit   bf0a4e8a4444f9d5b2c9d865a39b7de2136f67ec
+  MATLAB   25.2.0.3042426 (R2025b) Update 1 on PCWIN64
+  FAST     1 (this run: 1)
+  T        60, rho_bar 0.9000
+
+LEG 2: current solver, legacy branch (no opts.fiscal) ...
+  legacy setup from the baseline: na=100, T=60, beta*=0.928750, Gg=0.018182
+  done (10.6 s)
+
+LEG 3: current solver, legacy path passed explicitly ...
+  done (3.9 s)
+
+============================================================
+COMPARISON A -- BASELINE (bf0a4e8) vs CURRENT LEGACY BRANCH
+this is the leg that tests the refactor
+============================================================
+
+baseline vs legacy                 max|abs|      max rel       ulps  verdict
+----------------------------------------------------------------------------------
+d_phat                           0.0000e+00   0.0000e+00          0  EXACT
+d_P0                             0.0000e+00   0.0000e+00          0  EXACT
+d_pi_path                        0.0000e+00   0.0000e+00          0  EXACT
+d_r_path                         0.0000e+00   0.0000e+00          0  EXACT
+d_tau_path                       0.0000e+00   0.0000e+00          0  EXACT
+d_D_path                         0.0000e+00   0.0000e+00          0  EXACT
+d_Kg_path                        0.0000e+00   0.0000e+00          0  EXACT
+d_S_path                         0.0000e+00   0.0000e+00          0  EXACT
+d_b_path                         0.0000e+00   0.0000e+00          0  EXACT
+d_g_path                         0.0000e+00   0.0000e+00          0  EXACT
+d_vart_path                      0.0000e+00   0.0000e+00          0  EXACT
+d_phi_path                       0.0000e+00   0.0000e+00          0  EXACT
+d_kappa_path                     0.0000e+00   0.0000e+00          0  EXACT
+d_primary_gap                    0.0000e+00   0.0000e+00          0  EXACT
+d_kappa_inf                      0.0000e+00   0.0000e+00          0  EXACT
+d_rho_d                          0.0000e+00   0.0000e+00          0  EXACT
+d_resid                          0.0000e+00   0.0000e+00          0  EXACT
+d_iters                          0.0000e+00   0.0000e+00          0  EXACT
+d_best_iter                      0.0000e+00   0.0000e+00          0  EXACT
+d_financing                      0.0000e+00   0.0000e+00          0  EXACT
+d_converged                      0.0000e+00   0.0000e+00          0  EXACT
+b_phat                           0.0000e+00   0.0000e+00          0  EXACT
+b_P0                             0.0000e+00   0.0000e+00          0  EXACT
+b_pi_path                        0.0000e+00   0.0000e+00          0  EXACT
+b_r_path                         0.0000e+00   0.0000e+00          0  EXACT
+b_tau_path                       0.0000e+00   0.0000e+00          0  EXACT
+b_D_path                         0.0000e+00   0.0000e+00          0  EXACT
+b_Kg_path                        0.0000e+00   0.0000e+00          0  EXACT
+b_S_path                         0.0000e+00   0.0000e+00          0  EXACT
+b_b_path                         0.0000e+00   0.0000e+00          0  EXACT
+b_g_path                         0.0000e+00   0.0000e+00          0  EXACT
+b_vart_path                      0.0000e+00   0.0000e+00          0  EXACT
+b_phi_path                       0.0000e+00   0.0000e+00          0  EXACT
+b_kappa_path                     0.0000e+00   0.0000e+00          0  EXACT
+b_primary_gap                    0.0000e+00   0.0000e+00          0  EXACT
+b_kappa_inf                      0.0000e+00   0.0000e+00          0  EXACT
+b_rho_d                          0.0000e+00   0.0000e+00          0  EXACT
+b_resid                          0.0000e+00   0.0000e+00          0  EXACT
+b_iters                          0.0000e+00   0.0000e+00          0  EXACT
+b_best_iter                      0.0000e+00   0.0000e+00          0  EXACT
+b_financing                      0.0000e+00   0.0000e+00          0  EXACT
+b_converged                      0.0000e+00   0.0000e+00          0  EXACT
+dlnP0                            0.0000e+00   0.0000e+00          0  EXACT
+kappa_legacy                     0.0000e+00   0.0000e+00          0  EXACT
+front_loading_d                  0.0000e+00   0.0000e+00          0  EXACT
+front_loading_b                  0.0000e+00   0.0000e+00          0  EXACT
+overshoot_cross                  0.0000e+00   0.0000e+00          0  EXACT
+revaluation                      0.0000e+00   0.0000e+00          0  EXACT
+terminal_dilution                0.0000e+00   0.0000e+00          0  EXACT
+neutrality_gap                   0.0000e+00   0.0000e+00          0  EXACT
+----------------------------------------------------------------------------------
+  50 exact, 0 within ulps, 0 within tolerance, 0 FAIL
+
+============================================================
+COMPARISON B -- CURRENT LEGACY vs CURRENT EXPLICIT FISCAL
+is the explicit interface a faithful generalization of the internal rule
+============================================================
+
+legacy vs explicit                 max|abs|      max rel       ulps  verdict
+----------------------------------------------------------------------------------
+d_phat                           0.0000e+00   0.0000e+00          0  EXACT
+d_P0                             0.0000e+00   0.0000e+00          0  EXACT
+d_pi_path                        0.0000e+00   0.0000e+00          0  EXACT
+d_r_path                         0.0000e+00   0.0000e+00          0  EXACT
+d_tau_path                       0.0000e+00   0.0000e+00          0  EXACT
+d_D_path                         0.0000e+00   0.0000e+00          0  EXACT
+d_Kg_path                        0.0000e+00   0.0000e+00          0  EXACT
+d_S_path                         0.0000e+00   0.0000e+00          0  EXACT
+d_b_path                         0.0000e+00   0.0000e+00          0  EXACT
+d_g_path                         0.0000e+00   0.0000e+00          0  EXACT
+d_vart_path                      0.0000e+00   0.0000e+00          0  EXACT
+d_phi_path                       0.0000e+00   0.0000e+00          0  EXACT
+d_kappa_path                     0.0000e+00   0.0000e+00          0  EXACT
+d_xi_path                        0.0000e+00   0.0000e+00          0  EXACT
+d_primary_gap                    0.0000e+00   0.0000e+00          0  EXACT
+d_kappa_inf                      0.0000e+00   0.0000e+00          0  EXACT
+d_rho_d                          0.0000e+00   0.0000e+00          0  EXACT
+d_resid                          0.0000e+00   0.0000e+00          0  EXACT
+d_iters                          0.0000e+00   0.0000e+00          0  EXACT
+d_best_iter                      0.0000e+00   0.0000e+00          0  EXACT
+d_kappa_mode                     0.0000e+00   0.0000e+00          0  EXACT
+d_kappa_target                   0.0000e+00   0.0000e+00          0  EXACT
+d_kappa_gap                      0.0000e+00   0.0000e+00          0  EXACT
+d_kappa_hit                      0.0000e+00   0.0000e+00          0  EXACT
+d_financing                      0.0000e+00   0.0000e+00          0  EXACT
+d_converged                      0.0000e+00   0.0000e+00          0  EXACT
+b_phat                           0.0000e+00   0.0000e+00          0  EXACT
+b_P0                             0.0000e+00   0.0000e+00          0  EXACT
+b_pi_path                        0.0000e+00   0.0000e+00          0  EXACT
+b_r_path                         0.0000e+00   0.0000e+00          0  EXACT
+b_tau_path                       0.0000e+00   0.0000e+00          0  EXACT
+b_D_path                         0.0000e+00   0.0000e+00          0  EXACT
+b_Kg_path                        0.0000e+00   0.0000e+00          0  EXACT
+b_S_path                         0.0000e+00   0.0000e+00          0  EXACT
+b_b_path                         0.0000e+00   0.0000e+00          0  EXACT
+b_g_path                         0.0000e+00   0.0000e+00          0  EXACT
+b_vart_path                      0.0000e+00   0.0000e+00          0  EXACT
+b_phi_path                       0.0000e+00   0.0000e+00          0  EXACT
+b_kappa_path                     0.0000e+00   0.0000e+00          0  EXACT
+b_xi_path                        0.0000e+00   0.0000e+00          0  EXACT
+b_primary_gap                    0.0000e+00   0.0000e+00          0  EXACT
+b_kappa_inf                      0.0000e+00   0.0000e+00          0  EXACT
+b_rho_d                          0.0000e+00   0.0000e+00          0  EXACT
+b_resid                          0.0000e+00   0.0000e+00          0  EXACT
+b_iters                          0.0000e+00   0.0000e+00          0  EXACT
+b_best_iter                      0.0000e+00   0.0000e+00          0  EXACT
+b_kappa_mode                     0.0000e+00   0.0000e+00          0  EXACT
+b_kappa_target                   0.0000e+00   0.0000e+00          0  EXACT
+b_kappa_gap                      0.0000e+00   0.0000e+00          0  EXACT
+b_kappa_hit                      0.0000e+00   0.0000e+00          0  EXACT
+b_financing                      0.0000e+00   0.0000e+00          0  EXACT
+b_converged                      0.0000e+00   0.0000e+00          0  EXACT
+front_loading_d                  0.0000e+00   0.0000e+00          0  EXACT
+front_loading_b                  0.0000e+00   0.0000e+00          0  EXACT
+overshoot_cross                  0.0000e+00   0.0000e+00          0  EXACT
+revaluation                      0.0000e+00   0.0000e+00          0  EXACT
+dlnP0                            0.0000e+00   0.0000e+00          0  EXACT
+kappa_legacy                     0.0000e+00   0.0000e+00          0  EXACT
+terminal_dilution                0.0000e+00   0.0000e+00          0  EXACT
+neutrality_gap                   0.0000e+00   0.0000e+00          0  EXACT
+----------------------------------------------------------------------------------
+  60 exact, 0 within ulps, 0 within tolerance, 0 FAIL
+
+============================================================
+COMPARISON C -- BASELINE vs CURRENT EXPLICIT FISCAL (end to end)
+============================================================
+
+baseline vs explicit               max|abs|      max rel       ulps  verdict
+----------------------------------------------------------------------------------
+d_phat                           0.0000e+00   0.0000e+00          0  EXACT
+d_P0                             0.0000e+00   0.0000e+00          0  EXACT
+d_pi_path                        0.0000e+00   0.0000e+00          0  EXACT
+d_r_path                         0.0000e+00   0.0000e+00          0  EXACT
+d_tau_path                       0.0000e+00   0.0000e+00          0  EXACT
+d_D_path                         0.0000e+00   0.0000e+00          0  EXACT
+d_Kg_path                        0.0000e+00   0.0000e+00          0  EXACT
+d_S_path                         0.0000e+00   0.0000e+00          0  EXACT
+d_b_path                         0.0000e+00   0.0000e+00          0  EXACT
+d_g_path                         0.0000e+00   0.0000e+00          0  EXACT
+d_vart_path                      0.0000e+00   0.0000e+00          0  EXACT
+d_phi_path                       0.0000e+00   0.0000e+00          0  EXACT
+d_kappa_path                     0.0000e+00   0.0000e+00          0  EXACT
+d_primary_gap                    0.0000e+00   0.0000e+00          0  EXACT
+d_kappa_inf                      0.0000e+00   0.0000e+00          0  EXACT
+d_rho_d                          0.0000e+00   0.0000e+00          0  EXACT
+d_resid                          0.0000e+00   0.0000e+00          0  EXACT
+d_iters                          0.0000e+00   0.0000e+00          0  EXACT
+d_best_iter                      0.0000e+00   0.0000e+00          0  EXACT
+d_financing                      0.0000e+00   0.0000e+00          0  EXACT
+d_converged                      0.0000e+00   0.0000e+00          0  EXACT
+b_phat                           0.0000e+00   0.0000e+00          0  EXACT
+b_P0                             0.0000e+00   0.0000e+00          0  EXACT
+b_pi_path                        0.0000e+00   0.0000e+00          0  EXACT
+b_r_path                         0.0000e+00   0.0000e+00          0  EXACT
+b_tau_path                       0.0000e+00   0.0000e+00          0  EXACT
+b_D_path                         0.0000e+00   0.0000e+00          0  EXACT
+b_Kg_path                        0.0000e+00   0.0000e+00          0  EXACT
+b_S_path                         0.0000e+00   0.0000e+00          0  EXACT
+b_b_path                         0.0000e+00   0.0000e+00          0  EXACT
+b_g_path                         0.0000e+00   0.0000e+00          0  EXACT
+b_vart_path                      0.0000e+00   0.0000e+00          0  EXACT
+b_phi_path                       0.0000e+00   0.0000e+00          0  EXACT
+b_kappa_path                     0.0000e+00   0.0000e+00          0  EXACT
+b_primary_gap                    0.0000e+00   0.0000e+00          0  EXACT
+b_kappa_inf                      0.0000e+00   0.0000e+00          0  EXACT
+b_rho_d                          0.0000e+00   0.0000e+00          0  EXACT
+b_resid                          0.0000e+00   0.0000e+00          0  EXACT
+b_iters                          0.0000e+00   0.0000e+00          0  EXACT
+b_best_iter                      0.0000e+00   0.0000e+00          0  EXACT
+b_financing                      0.0000e+00   0.0000e+00          0  EXACT
+b_converged                      0.0000e+00   0.0000e+00          0  EXACT
+dlnP0                            0.0000e+00   0.0000e+00          0  EXACT
+kappa_legacy                     0.0000e+00   0.0000e+00          0  EXACT
+front_loading_d                  0.0000e+00   0.0000e+00          0  EXACT
+front_loading_b                  0.0000e+00   0.0000e+00          0  EXACT
+overshoot_cross                  0.0000e+00   0.0000e+00          0  EXACT
+revaluation                      0.0000e+00   0.0000e+00          0  EXACT
+terminal_dilution                0.0000e+00   0.0000e+00          0  EXACT
+neutrality_gap                   0.0000e+00   0.0000e+00          0  EXACT
+----------------------------------------------------------------------------------
+  50 exact, 0 within ulps, 0 within tolerance, 0 FAIL
+
+ITERATION COUNTS  baseline 80 / legacy 80 / explicit 80
+BEST ITER         baseline 65 / legacy 65 / explicit 65
+RESIDUAL sup-norm baseline 9.654e-03 / legacy 9.654e-03 / explicit 9.654e-03
+
+CONVERGENCE (a separate question from parity)
+  deficit path converged  : NO
+  balanced path converged : NO
+  deficit  : tier2 indexed/deficit: fixed point NOT CONVERGED (interior max 0.00965 @t=48), horizon OK (terminal resid 0.00398) in 80 iters; impact phat_1/P0 = 1.1432 (surprise inflation), terminal P = 1.0338
+  balanced : tier2 indexed/lumpsum: fixed point NOT CONVERGED (interior max 0.00418 @t=34), horizon TOO SHORT (raise T) (terminal resid 0.00685) in 80 iters; impact phat_1/P0 = 0.9639 (surprise DISINFLATION), terminal P = 0.8686
+
+  *** NOT CONVERGED. Parity may still be ESTABLISHED below and that
+  *** conclusion is valid -- the legs reproduce each other exactly. But
+  *** NO ECONOMIC NUMBER from this run may be quoted: not kappa, not
+  *** dlnP0, not the front-loading statistics. Re-run at the benchmark
+  *** setting (T=80, maxit=120) before reading anything off it.
+
+NOMINAL NEUTRALITY  P_inf^d / P_inf^b  vs  kappa_inf
+  relative gap +0.000e+00   consistent
+
+============================================================
+VERDICT
+============================================================
+  A baseline vs legacy    : PASS
+  B legacy vs explicit    : PASS
+  C baseline vs explicit  : PASS
+
+  D11 PARITY: ESTABLISHED
+
+[main_parity_d11_deficit] wrote C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\parity_d11_deficit.txt

@@ -1,0 +1,40 @@
+WEALTH-MOBILITY VALIDATION MOMENTS (model side). na=500 ne=7 beta=0.9267
+baseline: tau = r*1.10, D = 0.06; S = 1.1068 (annual model)
+
+wealth-quintile transition matrix, 2-year horizon (rows = origin):
+        to Q1     Q2     Q3     Q4     Q5
+  Q1    0.813  0.180  0.007  0.000  0.000
+  Q2    0.187  0.651  0.155  0.006  0.000
+  Q3    0.000  0.165  0.688  0.146  0.002
+  Q4    0.000  0.000  0.160  0.750  0.091
+  Q5    0.000  0.000  0.000  0.092  0.908
+Shorrocks trace index (2y): 0.298
+
+wealth-quintile transition matrix, 5-year horizon:
+        to Q1     Q2     Q3     Q4     Q5
+  Q1    0.633  0.284  0.073  0.010  0.001
+  Q2    0.299  0.402  0.237  0.056  0.006
+  Q3    0.067  0.280  0.382  0.231  0.041
+  Q4    0.000  0.028  0.321  0.481  0.170
+  Q5    0.000  0.000  0.006  0.212  0.782
+Shorrocks trace index (5y): 0.580
+
+constrained mass (a near the limit): 0.203
+P(constrained -> still constrained, 2y): 0.812
+P(escape within 2y): 0.188
+
+----- validation table (fill DATA in this file, re-run) -----
+moment              model     data      gap  status
+q1_stay_5y          0.633       --       --  data pending
+q5_stay_5y          0.782       --       --  data pending
+shorrocks_5y        0.580       --       --  data pending
+q1_stay_2y          0.813       --       --  data pending
+q5_stay_2y          0.908       --       --  data pending
+htm_stay_2y         0.812       --       --  data pending
+
+No data moments transcribed yet. The model column above is the
+deliverable of this run; the comparison activates once the cited
+moments are entered. Until then the paper must continue to state
+the distributional term as externally unvalidated.
+
+[main_validation_mobility] wrote C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\validation_mobility.txt (3.4 s)

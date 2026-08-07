@@ -1,0 +1,126 @@
+SIGN MAP OF THE STATIONARY TAX-DEMAND SEMI-ELASTICITY
+eps_ls = d ln S / d tau, one-asset (certified) economy.
+
+SETTINGS  na=100  ne=7  FAST=1  RECAL=0  modes: fixed-beta
+          r=0.019608  tau0=0.021569  D0=0.06  dtau=0.0100  dv=0.0100  hh=1.0e-03
+          beta at the calibrated node = 0.926699  [output/calibrated_results.mat (RCAL.beta_star)]
+          nodes planned 9; converged and usable 9; unusable 0
+
+----- AXES -----
+axis           status       values (calibrated value in brackets)
+rho            POPULATED    [0.85 0.9 0.95]   [0.900]
+sig_eps        POPULATED    [0.16 0.2 0.26]   [0.200]
+               the sig_eps axis is sig_eps0, the PRE-damage risk scale.
+               The risk channel is left ON (phi_D = 0.50, as in the
+               benchmark), so the realised innovation s.d. at a node is
+               sig_eps0*(1 + phi_D*D).  Switching phi_D off would change
+               the calibrated node and break the parity gate below.
+beta multiplier POPULATED    1   [1.000]  (fixed-beta mode)
+b_target       SKIPPED      recal-beta mode not run (RECAL=false)
+lambda_adj     UNPOPULATED  two-asset parameter; the two-asset economy is UNCERTIFIED, so this driver does not run it and reports no two-asset number.
+iota_H         UNPOPULATED  two-asset parameter (it is a share of a fund the one-asset economy does not have); same certification reason as lambda_adj.
+NOTE: a map over rho, sig_eps and patience/leverage is NOT a map over
+the referee's (lambda_adj, iota_H) plane.  The two planes are reported
+separately or not at all; they are not blended.
+
+----- EMPIRICAL RANGES (NaN SLOTS: transcribe by hand, then re-run) -----
+moment            horiz       lo       hi  source
+q1_stay               2       --       --  [SCF] Board of Governors, SCF 2007-2009 panel: two-year net-worth quintile transitions, P(bottom -> bottom).
+q5_stay               2       --       --  [SCF] Board of Governors, SCF 2007-2009 panel: two-year net-worth quintile transitions, P(top -> top).
+shorrocks             5       --       --  [HLS] Hurst, Luoh & Stafford, "The Wealth Dynamics of American Families, 1984-94", BPEA 1998(1): PSID wealth-quintile transition matrices, 1984->1989 and 1989->1994; Shorrocks trace index (5 - trace)/4 computed from the matrix.
+htm_stay              2       --       --  [KVW] Kaplan, Violante & Weidner, "The Wealthy Hand-to-Mouth", BPEA 2014(1): persistence of hand-to-mouth status over two years, POOR-HtM figure (the analogue of the model's near-the-limit set).
+debt_to_income       --       --       --  [DEBT] General-government debt / GDP for the calibration geography, from the OECD series the calibration appendix cites.  calibrate_beta.m's header states the target this project uses; the admissible RANGE must still be transcribed from the series, not from that comment.
+rho_income           --       --       --  [EARN] Annual persistence of log labour income, from the earnings-process estimate the calibration appendix cites.  make_income_process.m records rho = 0.90 as the replicator's benchmark choice, i.e. NOT itself an external estimate.
+MATCHING CAVEAT: the model asset is a single LIQUID asset with a
+borrowing limit, so it maps to net worth EXCLUDING illiquid housing and
+pensions more closely than to total net worth.  Prefer a financial-wealth
+definition where the source offers one, and record which was used.
+HORIZON: the model mobility column below is the ONE-STEP (annual) bin
+chain from kv_wealth_mobility.  The moments above are 2- and 5-year.  A
+two-year model moment is NOT the one-step bin matrix squared (the bin
+chain is not Markov).  main_validation_mobility.m builds horizon-matched
+moments correctly, at the calibrated point only.  MASK_HORIZON_OK=0.
+
+----- PER-NODE: ELASTICITY, SIGN, AND THE EXACT SPLIT -----
+columns: eps_ls is the lump-sum semi-elasticity (the sign mapped).
+dir_ls / dst_ls are the direct policy-flow and endogenous-distribution
+parts of the SAME lump-sum step, per unit tax and per unit S0; they add
+to eps_ls_lin (the level form) up to recon.  sh_dst is the
+distributional share of the response.  eps_tlt, dir_tlt, dst_tlt and
+cov_tlt are the mean-zero regressive-tilt experiment, per unit revenue;
+cov_tlt is the marginal direct covariance, the term the paper's MPC and
+constrained-share evidence actually disciplines.  A UNIFORM lump-sum tax
+has zero such covariance by construction, which is why it is reported on
+the tilt and not on eps_ls.
+mode           rho    sig    third      beta     eps_ls  sgn    dir_ls    dst_ls  sh_dst    eps_tlt   dir_tlt   dst_tlt   cov_tlt CAL
+fixed-beta   0.850  0.160   b*1.00    0.9267      2.599    +     0.368     2.265   0.860      3.569     0.470     3.160   -0.0808    
+fixed-beta   0.850  0.200   b*1.00    0.9267      2.389    +     0.283     2.135   0.883      3.362     0.369     3.046   -0.0597    
+fixed-beta   0.850  0.260   b*1.00    0.9267      2.222    +     0.218     2.029   0.903      3.203     0.292     2.960   -0.0421    
+fixed-beta   0.900  0.160   b*1.00    0.9267      3.037    +     0.357     2.726   0.884      3.985     0.438     3.623   -0.1003    
+fixed-beta   0.900  0.200   b*1.00    0.9267      2.750    +     0.268     2.520   0.904      3.713     0.338     3.440   -0.0705 <<<
+fixed-beta   0.900  0.260   b*1.00    0.9267      2.576    +     0.212     2.398   0.919      3.544     0.272     3.332   -0.0454    
+fixed-beta   0.950  0.160   b*1.00    0.9267      3.883    +     0.348     3.611   0.912      4.806     0.407     4.509   -0.1467    
+fixed-beta   0.950  0.200   b*1.00    0.9267      3.514    +     0.262     3.314   0.927      4.451     0.315     4.230   -0.0928    
+fixed-beta   0.950  0.260   b*1.00    0.9267      3.391    +     0.222     3.228   0.936      4.326     0.268     4.147   -0.0499    
+
+----- PER-NODE: CONVERGENCE, NUMERICAL QUALITY, AND MOBILITY -----
+fd_stab is |eps(dtau) - eps(dtau/2)| / |eps(dtau)|: flag above 1e-2, as
+audit_tax_incidence does.  recon is the BLOCK B reconstruction residual
+(identity check, not a result).  shorr / ret1 / retK / half are the
+ONE-STEP bin-chain Shorrocks index, bottom- and top-bin retention and
+the half-life of the bin-mass movement, from kv_wealth_mobility.
+mode           rho    sig    third        S0     cmass    fd_stab     recon    shorr    ret1    retK   half status                
+fixed-beta   0.850  0.160   b*1.00    0.3937    0.2455    2.9e-03  -5.7e-14    0.196   0.932   0.922     14 ok                    
+fixed-beta   0.850  0.200   b*1.00    0.7882    0.1700    3.5e-03   1.8e-13    0.228   0.863   0.932     17 ok                    
+fixed-beta   0.850  0.260   b*1.00    1.6058    0.0983    4.5e-03   1.0e-12    0.179   0.895   0.939     20 ok                    
+fixed-beta   0.900  0.160   b*1.00    0.5201    0.2573    6.8e-03   2.8e-13    0.150   0.954   0.946     19 ok                    
+fixed-beta   0.900  0.200   b*1.00    1.1122    0.1790    4.0e-03   8.0e-13    0.162   0.899   0.951     23 ok                    
+fixed-beta   0.900  0.260   b*1.00    2.3470    0.0501    5.8e-03  -3.2e-13    0.133   0.932   0.957     28 ok                    
+fixed-beta   0.950  0.160   b*1.00    0.8264    0.2754    5.1e-03   1.2e-13    0.091   0.976   0.967     34 ok                    
+fixed-beta   0.950  0.200   b*1.00    1.9437    0.1793    8.8e-03   5.4e-13    0.091   0.945   0.971     38 ok                    
+fixed-beta   0.950  0.260   b*1.00    4.1753    0.0387    1.7e-02   7.4e-12    0.076   0.959   0.973     41 ok                    
+
+nodes with fd_stab > 1e-2 (quote their elasticity only after a grid
+refinement): 1 of 9.
+
+----- PARITY GATE against the certified drivers -----
+The elasticity and its split are defined once, by S_green plus the
+BLOCK B identity.  This gate compares the calibrated node of THIS map to
+the values decompose_tax_elasticity.m and audit_tax_incidence.m have
+already written, so a silent divergence between the two implementations
+of one object shows up here rather than in the paper.
+  eps_ls vs decompose_tax_elast      this=      2.7495 stored=      2.7479 gap=  1.69e-03  agrees within tolerance
+  eps_tilt vs decompose_tax_elast    this=      3.7125 stored=      3.7140 gap= -1.50e-03  agrees within tolerance
+  cov_tilt vs decompose (LEVY base)  this=     -0.0705 stored=     -0.0708 gap=  3.33e-04  agrees within tolerance
+  dir_tilt vs audit BLOCK B          this=      0.3383 stored=      0.3383 gap=  0.00e+00  agrees within tolerance
+  dst_tilt vs audit BLOCK B          this=      3.4397 stored=      3.4397 gap=  0.00e+00  agrees within tolerance
+  cov_tilt vs audit BLOCK B          this=     -0.0705 stored=     -0.0705 gap=  0.00e+00  agrees within tolerance
+  eps_tilt vs audit BLOCK B          this=      3.7125 stored=      3.7125 gap=  0.00e+00  agrees within tolerance
+  grid of this run (na)              this=    100.0000 stored=          -- gap=        --  stored runs do not all record na; compare grids by hand
+
+----- SUMMARY: THE DELIVERABLE -----
+(A) SWEPT-BOX fraction with eps_ls > 0: 1.000   (over 9 converged nodes)
+    fixed-beta   frac(eps_ls>0)=1.000  frac(eps_tilt>0)=1.000  n=9  CONFOUNDED: debt target moves with the primitive
+    recal-beta mode was NOT run, so every fraction above is
+    CONFOUNDED with the debt target and must not be quoted as the
+    size of a sign region.  Re-run with RECAL = true.
+
+(B) ADMISSIBLE-REGION fraction with eps_ls > 0: --
+    PENDING.  The empirical ranges above are unfilled NaN slots (or
+    the horizon check is unsigned), so the admissible region is not
+    yet defined and its size cannot be reported.  This is the number
+    the referee asked for; (A) is not a substitute for it, because
+    (A) is a property of the box chosen in this file.  Until the
+    slots are filled the paper must report (A) with its label and
+    must not describe it as the measured size of the sign region.
+
+READING.  The sign mapped here is the sign of the LUMP-SUM
+semi-elasticity in the CERTIFIED ONE-ASSET economy.  It is not a
+statement about the two-asset economy, and the two axes the referee
+named that live only there (lambda_adj, iota_H) are declared unpopulated
+above rather than approximated.  Within each node the split shows where
+the response comes from: where sh_dst is near one, the paper's MPC and
+constrained-share discipline is speaking to a small part of the object,
+and cov_tlt is the part it speaks to.  A positive fraction close to one
+is evidence the sign is not a knife-edge in THESE dimensions; it is not
+evidence about the dimensions that were not swept.

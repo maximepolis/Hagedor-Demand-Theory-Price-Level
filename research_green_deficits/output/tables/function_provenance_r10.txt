@@ -1,0 +1,93 @@
+FUNCTION PROVENANCE AUDIT (R10/R11)
+======================================================================
+
+pipeline R11.19  |  main_function_provenance_r10.m  (modified 2026-08-05 15:44)
+MATLAB 25.2.0.3042426 (R2025b) Update 1 on PCWIN64
+root    C:\Users\up24706\Downloads\Hagedor Demand Theory Replication
+project C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits
+commit  (no git; project distributed as a ZIP)
+
+function                                 n  sha256(8)  resolves to
+----------------------------------------------------------------------------------------------------
+calib_beta                               1  a0ef8302  <root>\research_green_deficits\src_project\calib_beta.m
+calib_beta_chi                           1  f5fadc5a  <root>\research_green_deficits\src_project\calib_beta_chi.m
+calib_chi                                1  5ff355a2  <root>\research_green_deficits\src_project\calib_chi.m
+resid_of                                 1  720f678d  <root>\research_green_deficits\src_project\resid_of.m
+report2d                                 1  87e8657e  <root>\research_green_deficits\src_project\report2d.m
+eval_own                                 1  f6bd91de  <root>\research_green_deficits\src_project\eval_own.m
+solve_own_kv                             1  b40133df  <root>\research_green_deficits\src_project\solve_own_kv.m
+bracket_finite                           1  670e9789  <root>\research_green_deficits\src_project\bracket_finite.m
+kv_agg                                   1  75f98cc8  <root>\research_green_deficits\src_project\kv_agg.m
+htm_bk                                   1  6b79a872  <root>\research_green_deficits\src_project\htm_bk.m
+solve_household_egm                      2  a5b9d192  <root>\research_green_deficits\src_project\solve_household_egm.m
+                                                      SHADOWED: <root>\src\solve_household_egm.m
+solve_household_vfi                      1  596303b6  <root>\src\solve_household_vfi.m
+solve_household_twoasset_kv              1  9ac14873  <root>\research_green_deficits\src_project\solve_household_twoasset_kv.m
+kv_stationary_block                      1  4e304c13  <root>\research_green_deficits\src_project\kv_stationary_block.m
+stationary_distribution_twoasset_kv      1  a303ab88  <root>\research_green_deficits\src_project\stationary_distribution_twoasset_kv.m
+push_forward_twoasset_kv                 1  e3cbb737  <root>\research_green_deficits\src_project\push_forward_twoasset_kv.m
+twoasset_kv_bellman_step                 1  6eb6b5ac  <root>\research_green_deficits\src_project\twoasset_kv_bellman_step.m
+solve_hank_dtpl_transition               1  89aba270  <root>\research_green_deficits\src_project\solve_hank_dtpl_transition.m
+twoasset_kv_transition_residual          1  10d92272  <root>\research_green_deficits\src_project\twoasset_kv_transition_residual.m
+transition_residual_dtpl                 1  232c81bd  <root>\research_green_deficits\src_project\transition_residual_dtpl.m
+twoasset_fiscal_tax                      1  e4eae42b  <root>\research_green_deficits\src_project\twoasset_fiscal_tax.m
+S_green                                  1  9b4476ad  <root>\research_green_deficits\src_project\S_green.m
+kv_solve_alpha                           1  4abf8148  <root>\research_green_deficits\src_project\kv_solve_alpha.m
+kv_solve_bond_given_q                    1  e583beb6  <root>\research_green_deficits\src_project\kv_solve_bond_given_q.m
+kv_bracket_finite                        1  856837b9  <root>\research_green_deficits\src_project\kv_bracket_finite.m
+kv_node_status                           1  6c293efa  <root>\research_green_deficits\src_project\kv_node_status.m
+kv_is_admissible                         1  6f64dbbb  <root>\research_green_deficits\src_project\kv_is_admissible.m
+kv_boundary_mass                         1  9a2a7604  <root>\research_green_deficits\src_project\kv_boundary_mass.m
+kv_grid_curv                             1  c2e25adc  <root>\research_green_deficits\src_project\kv_grid_curv.m
+kv_grid_build                            1  28eb3a28  <root>\research_green_deficits\src_project\kv_grid_build.m
+kv_widen_grids                           1  7e293492  <root>\research_green_deficits\src_project\kv_widen_grids.m
+kv_ensure_widened                        1  f36adc98  <root>\research_green_deficits\src_project\kv_ensure_widened.m
+kv_grid_state                            1  e8723bed  <root>\research_green_deficits\src_project\kv_grid_state.m
+kv_grid_base                             1  5fc89b34  <root>\research_green_deficits\src_project\kv_grid_base.m
+kv_hash                                  1  73859a53  <root>\research_green_deficits\src_project\kv_hash.m
+kv_prices_to_pe                          1  f29ff2e7  <root>\research_green_deficits\src_project\kv_prices_to_pe.m
+kv_tau_of                                1  cf1c7c17  <root>\research_green_deficits\src_project\kv_tau_of.m
+kv_div_of                                1  eb9816ce  <root>\research_green_deficits\src_project\kv_div_of.m
+kv_calibrate_on_grid                     1  67b88b83  <root>\research_green_deficits\src_project\kv_calibrate_on_grid.m
+kv_fiscal_spec                           1  3b62cc3f  <root>\research_green_deficits\src_project\kv_fiscal_spec.m
+kv_kappa_legacy                          1  5d5376c9  <root>\research_green_deficits\src_project\kv_kappa_legacy.m
+kv_scan_node                             1  06786ceb  <root>\research_green_deficits\src_project\kv_scan_node.m
+kv_shapley_coalition                     1  d4395d6d  <root>\research_green_deficits\src_project\kv_shapley_coalition.m
+setup_params_green                       1  a6e06599  <root>\research_green_deficits\src_project\setup_params_green.m
+setup_params                             1  8e329a18  <root>\src\setup_params.m
+make_income_process                      1  b595c86c  <root>\src\make_income_process.m
+rouwenhorst                              2  93d8f827  <root>\src\rouwenhorst.m
+                                                      SHADOWED: C:\Workspace\Matlab\dynare-7-unstable-2026-01-23-1839-97dbbcff\mex\matlab\win64-9.8-25.2\rouwenhorst.mexw64
+
+======================================================================
+VERDICTS
+======================================================================
+
+SHADOWED NAMES: 2
+  ! solve_household_egm              2 files
+       WINS    <root>\research_green_deficits\src_project\solve_household_egm.m
+       shadow  <root>\src\solve_household_egm.m
+  ! rouwenhorst                      2 files
+       WINS    <root>\src\rouwenhorst.m
+       shadow  C:\Workspace\Matlab\dynare-7-unstable-2026-01-23-1839-97dbbcff\mex\matlab\win64-9.8-25.2\rouwenhorst.mexw64
+
+solve_household_egm ARITY CHECK
+  WINS   outputs=4  <root>\research_green_deficits\src_project\solve_household_egm.m
+        function [V, polA, polC, hhdiag] = solve_household_egm(r, tau, p)
+  shadow outputs=5  <root>\src\solve_household_egm.m
+        function [V, polA_idx, polA, polC, hhdiag] = solve_household_egm(r, tau, params)
+
+  If the FIVE-output file wins, src_project/S_green.m:108 asks for four
+  outputs and receives polA_idx, polA, polC bound to polA, polC, hhdiag.
+  Grid INDICES would be used as asset LEVELS, with no error raised.
+  If the FOUR-output file wins, src/aggregate_asset_demand.m:136 asks for
+  five and MATLAB errors immediately. Only the second is safe.
+
+DELIBERATE EXCLUSIONS
+  none. download_data.m parses cleanly under paper/check_matlab_blocks.py;
+  the earlier failure was a parser defect, not a file defect, and the data
+  pipeline was not modified. See FUNCTION_NAMESPACE_PLAN_R11.md section 3.
+
+RESULT: AT LEAST ONE NAME RESOLVES OUTSIDE src_project -- DO NOT RUN PARITY
+
+[main_function_provenance_r10] wrote C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\function_provenance_r10.txt (8.9 s)

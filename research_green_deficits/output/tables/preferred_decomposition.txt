@@ -1,0 +1,63 @@
+PREFERRED-CALIBRATION MECHANISM DECOMPOSITION  (DIAGNOSTIC)
+grids nb=60 nk=34 ne=8; lambda=0.15 iota_H=0.273; g_real=0.01990
+
+*** FAST: state grids coarsened to nb=30 nk=17 (DEBUG ONLY) ***
+
+===== solving the two financing equilibria =====
+  alpha=0.00: q=1.52516431 |Sk-K| 8.07e-04 (24 bisect + 18 polish steps)
+  alpha=1.00: q=1.50724688 |Sk-K| 1.98e-03 (24 bisect + 18 polish steps)
+  alpha=0 (lump-sum): P=0.889411 q=1.525164 Sb=0.306622 Sk=1.000197
+  alpha=1 (levy)    : P=0.916909 q=1.507247 Sb=0.297471 Sk=0.998023
+  dlnP = +0.03045 (solved, equilibrium-to-equilibrium)
+
+
+===== (A) exact finite-change decomposition of S_b =====
+total dS_b = -0.009151  (lump-sum -> levy)
+  two-way : policy -0.003511 | distribution -0.005611 | interaction -0.000030
+  Shapley split of the policy block by driver:
+    tau -0.002790 | q -0.000717 | div -0.000004  (sum -0.003511 vs -0.003511)
+  Shapley split of the DISTRIBUTION block by driver (reported,
+  not added -- it attributes the same mass movement):
+    tau -0.005821 | q +0.000799 | div -0.000478  (sum -0.005500 vs -0.005611)
+
+  FIVE-COMPONENT DECOMPOSITION (shares of |dS_b|):
+    direct policy (tau)    -0.002790  ( -30.5%)
+    distribution           -0.005611  ( -61.3%)
+    q-feedback             -0.000717  (  -7.8%)
+    intermediation (div)   -0.000004  (  -0.0%)
+    interaction            -0.000030  (  -0.3%)
+    SUM                    -0.009151
+
+  reading: the one-asset economy attributes the response almost
+  entirely to the distribution term. If "direct policy" or
+  "q-feedback" dominates here, the preferred model reproduces the
+  SIGN through different forces, and the mechanism sentence in the
+  abstract cannot be carried over to it.
+
+===== two-market Schur-complement validation (Prop 8) =====
+  evaluating at an interior alpha = 0.50 (central differences are
+  one-sided at a boundary, which halves every alpha-derivative)
+  interior base: P=0.898888 q=1.512837 |Sk-K|=1.02e-03
+    h=3.0e-03 : F_bP +3.467e-01 F_bq +1.631e-01 F_ba +5.583e-04 F_kq -2.879e+00 -> dP/da   -0.0006
+    h=1.0e-02 : F_bP +3.630e-01 F_bq +6.918e-02 F_ba +2.632e-03 F_kq -3.999e+00 -> dP/da   +0.0033
+    h=3.0e-02 : F_bP +3.533e-01 F_bq +6.734e-02 F_ba +1.249e-03 F_kq -2.504e+00 -> dP/da   +0.0024
+  step-dependence of dP/dalpha across h: spread 3.908e-03
+  chosen h = 3.0e-02 (most stable pair)
+  dP/dalpha  predicted +0.002450 | solved +0.000256 | rel err 8.570e+00
+  solved-difference tree clearing |Sk-K| = 1.22e-03
+  NOTE the sign check: the finite move alpha 0 -> 1 raises P, so a
+  local derivative of the opposite sign indicates the difference is
+  measuring solver noise rather than the envelope.
+
+===== gates =====
+G0 tree clearing   : |Sk-K| alpha=0 1.97e-04, alpha=1 1.98e-03  FAIL
+   the bisection converged on a discontinuity of S_k(q), not a zero;
+   derivatives taken around this point are not interpretable.
+G1 reconstruction  : residual 0.000e+00  PASS
+G2 shapley efficiency: max residual 4.337e-19  PASS
+G3 finite difference : rel err 8.570e+00 vs tol 5.0e-02  FAIL
+G4 grid            : skipped
+
+GATES FAIL. DO NOT interpret the components, and do not begin the full climate transition.
+
+[main_preferred_decomposition] wrote C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\preferred_decomposition.txt (1311.4 s)

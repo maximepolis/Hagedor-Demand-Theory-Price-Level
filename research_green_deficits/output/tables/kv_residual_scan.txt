@@ -1,0 +1,165 @@
+REDUCED TREE-MARKET RESIDUAL SCAN  F_k(q;alpha) = S_k(P(q,alpha),q,alpha) - Kbar
+
+*** FAST: state grids coarsened to nb=30 nk=17 (curvature 2.40 / 2.40 preserved) ***
+
+--- boundary probe: target top-two-node mass < 1e-04 on BOTH grids ---
+    kfac  12.0 bfac   8.0 | kmax   720.0 bmax  96.00 xmax  1526.6 -> ksat 7.12e-35 bsat 4.33e-04 (support 0.37/1.00 of the tops)
+    kfac   6.0 bfac   8.0 | kmax   360.0 bmax  96.00 xmax   828.6 -> ksat 1.48e-05 bsat 4.13e-04 (support 1.00/1.00 of the tops)
+    b-TAIL TEST: halving bmax 96.0 -> 48.0 raises b-top mass 4.13e-04 -> 1.39e-03
+      ratio 3.36  -> TRUNCATION (mass scales with the ceiling; widen further)
+    b-boundary is still bound (4.13e-04) but the bond grid is FROZEN by
+    BFACMAX=1: it moves only if the finite-domain scan confirms it,
+    and only with the k-grid held still.
+    k-boundary CLEAR at kfac=6 (1.48e-05). b-boundary 4.13e-04 is above 1e-04
+    but the bond grid was held fixed on purpose, so this is the expected
+    state of the controlled experiment, not a failure of the ladder.
+    kmax 60.0 -> 360.0, bmax 12.00 -> 96.00, xmax 420.0 -> 828.6
+    curvature k 2.40 -> 4.13 (nodes below k=5.0: 6 -> 6, held fixed)
+    max attainable adjuster k': 243.1 -> 479.5 (outlay ceiling)
+    NOTE beta and chi_b were calibrated on the OLD grids; recalibrate
+    main_twoasset_ownership_kv before any of this is final.
+
+grids nb=30 nk=17 ne=8; kmax=360.0 bmax=96.00 xmax=828.6; nq=61; coldstart=1
+
+cache key 659c0f8030a59a0b  ->  C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\scan_cache\659c0f8030a59a0b
+
+===== q-feasibility diagnostic (alpha-continuation, serial) =====
+  alpha 0.00  (centred on q = 1.51746, 13 evaluations, 0 window growths)
+    failures: 3 of 13 nodes  [NEG_CONSUMPTION]
+    first non-admissible q  : 1.13809
+    failure pattern         : TAIL_LOW
+    admissible q interval   : [1.32777, 1.89682]  (OK)
+    first sign change in F_k: 1.83359  (F_k 5.531e-02 -> -1.683e-01)
+  scanning 61 nodes over the admissible interval [1.32777, 1.89682]
+
+  FLOOR probe at q=1.847645 (+/-1.0e-03 relative, 21 nodes)
+    min |F_k| here 5.365e-03; largest step 5.597e-02 vs 2.587e-03 implied by the slope
+    monotone 0, crosses zero 1, step/smooth ratio 21.6 -> DISCRETIZATION floor (no q attains zero)
+  root q = 1.847645, |F_k| = 1.072e-02 (BOUNDARY_HIT)
+
+  alpha 0.50  (centred on q = 1.84765, 13 evaluations, 0 window growths)
+    failures: 1 of 13 nodes  [BOND_STEP]
+    first non-admissible q  : NaN
+    admissible q interval   : [1.38573, 2.30956]  (OK)
+    first sign change in F_k: 1.77066  (F_k 5.355e-01 -> -5.892e-02)
+  scanning 61 nodes over the admissible interval [1.38573, 2.30956]
+
+  FLOOR probe at q=1.843040 (+/-1.0e-03 relative, 21 nodes)
+    min |F_k| here 1.328e-03; largest step 1.466e-02 vs 9.805e-04 implied by the slope
+    monotone 0, crosses zero 1, step/smooth ratio 15.0 -> DISCRETIZATION floor (no q attains zero)
+  root q = 1.843040, |F_k| = 3.856e-03 (BOND_STEP)
+
+  alpha 1.00  (centred on q = 1.84304, 13 evaluations, 0 window growths)
+    failures: none in the window
+    admissible q interval   : [1.38228, 2.30380]  (OK)
+    first sign change in F_k: 1.76625  (F_k 5.427e-01 -> -2.509e-02)
+  scanning 61 nodes over the admissible interval [1.38228, 2.30380]
+
+  FLOOR probe at q=1.837655 (+/-1.0e-03 relative, 21 nodes)
+    min |F_k| here 1.479e-04; largest step 1.482e-02 vs 8.952e-04 implied by the slope
+    monotone 0, crosses zero 1, step/smooth ratio 16.6 -> DISCRETIZATION floor (no q attains zero)
+  root q = 1.837655, |F_k| = 1.820e-03 (BOND_STEP)
+
+
+scanning 183 nodes (3 alpha x 61 q) on 4 workers
+  0/183 nodes served from cache, 183 computed (1064.3 s so far)
+
+  |Fk| range          : [2.19e-02, 3.54e+00]
+  sign changes        : 1 (adjacent admissible nodes only)
+  step structure      : median |dFk| 6.73e-02, max |dFk| 3.78e-01, ratio 5.6
+  household dV        : max 7.20e-07   distribution dv: max 1.00e-11
+  mass error          : max 1.11e-15
+  bond-solve cost     : median 8, max 23 household solves per node
+  boundary mass AT ROOT (q=1.8399): k 1.11e-07 [PASS], b 4.56e-04 [FAIL]  (tol 1e-04)
+    over the whole sweep : k 1.28e-04, b 4.60e-04 (context, NOT the gate)
+  occupied support at root: k 0.77 of kmax, b 1.00 of bmax
+  k-policy index flips: mean 0.089 per q step = 0.151 per 1% of q
+  adjuster candidate switches: mean 0.091 of states per q step
+  STAIRCASE test      : median |dFk| on HIGH- vs LOW-switch q steps
+                        = 3.73  (30 vs 30 steps, detector: candidate switch)
+                        -> DISCRETE
+  status codes        : BOUNDARY_HIT x59, BOND_STEP x2
+    of which 2 cleared the BOND market only to within one jump of the
+    discrete portfolio choice (BOND_STEP): admissible, but the achieved
+    |F_b| is the floor on any derivative taken through P.
+
+  |Fk| range          : [4.44e-02, 3.38e+00]
+  sign changes        : 1 (adjacent admissible nodes only)
+  step structure      : median |dFk| 2.92e-02, max |dFk| 5.70e-01, ratio 19.5
+  household dV        : max 8.68e-07   distribution dv: max 1.00e-11
+  mass error          : max 6.66e-16
+  bond-solve cost     : median 8, max 21 household solves per node
+  boundary mass AT ROOT (q=1.8322): k 6.49e-08 [PASS], b 4.56e-04 [FAIL]  (tol 1e-04)
+    over the whole sweep : k 7.95e-05, b 5.15e-04 (context, NOT the gate)
+  occupied support at root: k 0.77 of kmax, b 1.00 of bmax
+  k-policy index flips: mean 0.143 per q step = 0.171 per 1% of q
+  adjuster candidate switches: mean 0.127 of states per q step
+  STAIRCASE test      : median |dFk| on HIGH- vs LOW-switch q steps
+                        = 4.75  (30 vs 30 steps, detector: candidate switch)
+                        -> DISCRETE
+  status codes        : BOUNDARY_HIT x56, BOND_STEP x5
+    of which 5 cleared the BOND market only to within one jump of the
+    discrete portfolio choice (BOND_STEP): admissible, but the achieved
+    |F_b| is the floor on any derivative taken through P.
+
+  |Fk| range          : [2.51e-02, 3.24e+00]
+  sign changes        : 1 (adjacent admissible nodes only)
+  step structure      : median |dFk| 3.45e-02, max |dFk| 5.39e-01, ratio 15.6
+  household dV        : max 9.86e-07   distribution dv: max 1.00e-11
+  mass error          : max 6.66e-16
+  bond-solve cost     : median 8, max 18 household solves per node
+  boundary mass AT ROOT (q=1.8430): k 5.59e-08 [PASS], b 4.56e-04 [FAIL]  (tol 1e-04)
+    over the whole sweep : k 6.96e-05, b 4.99e-04 (context, NOT the gate)
+  occupied support at root: k 0.77 of kmax, b 1.00 of bmax
+  k-policy index flips: mean 0.142 per q step = 0.170 per 1% of q
+  adjuster candidate switches: mean 0.126 of states per q step
+  STAIRCASE test      : median |dFk| on HIGH- vs LOW-switch q steps
+                        = 2.83  (28 vs 32 steps, detector: candidate switch)
+                        -> curvature, not discreteness
+  status codes        : BOUNDARY_HIT x58, BOND_STEP x3
+    of which 3 cleared the BOND market only to within one jump of the
+    discrete portfolio choice (BOND_STEP): admissible, but the achieved
+    |F_b| is the floor on any derivative taken through P.
+
+PARCHECK: 3 nodes re-solved on the client with the cache off;
+  max relative |dF_k| vs the worker values = 0.00e+00  PASS
+  (tolerance is 1e-10 rather than bitwise: multithreaded reductions
+   need not associate identically, and that is not a defect.)
+
+--- warm-start hysteresis probe (9 nodes per alpha, chained) ---
+    alpha 0.00: max |F_k(up)-F_k(down)| = 0.00e+00, median |dF_k| = 2.47e-01, ratio 0.0e+00
+    alpha 0.50: max |F_k(up)-F_k(down)| = 2.71e-08, median |dF_k| = 1.49e-01, ratio 1.8e-07
+    alpha 1.00: max |F_k(up)-F_k(down)| = 0.00e+00, median |dF_k| = 2.18e-01, ratio 0.0e+00
+    worst RELATIVE hysteresis = 1.82e-07 (gate 1e-3)
+
+
+===== ROOT PATH IN ALPHA =====
+  q(alpha) = 1.847645 1.843040 1.837655
+  monotone in alpha: 1;  total spread 5.42e-03 of q
+
+===== PER-ALPHA STATUS =====
+alpha      finite q interval   first NaN  first sign   bond resid   tree resid      hh dV      b-top      k-top  status
+ 0.00        [1.3278,1.8968]      1.1381      1.8336    1.007e-04    1.072e-02    7.2e-07   4.60e-04   1.28e-04  BOUNDARY_HIT
+ 0.50        [1.3857,2.3096]          --      1.7707    4.854e-04   -3.856e-03    8.7e-07   5.15e-04   7.95e-05  BOND_STEP
+ 1.00        [1.3823,2.3038]          --      1.7662    1.599e-04   -1.820e-03    9.9e-07   4.99e-04   6.96e-05  BOND_STEP
+  (boundary tolerance 1e-04; tree resid is at the SOLVED root, bond
+   resid is the worst over the scanned admissible interval)
+
+===== DIAGNOSIS =====
+  C2 path dependence  : warm-start probe, hysteresis / median |dFk| = 1.82e-07 -> absent
+                        (the COLD scan is order-free by construction,
+                         so it cannot test this and is not used to)
+  C3 grid boundaries  : AT THE ROOT, k 1.11e-07 [PASS], b 4.56e-04 [FAIL]  (tol 1e-04)
+       occupied support: k 0.77, b 1.00 of the grid tops at the root
+  C1 hh convergence   : max VFI dV = 9.86e-07                -> clear
+  C4 discrete k-choice: |dFk| on high-flip vs low-flip q steps = 4.75 -> PRESENT (staircase)
+       (raw max/median |dFk| = 19.5, reported only for continuity with
+        earlier rounds -- it cannot separate a staircase from curvature)
+  root bracketed      : 3 of 3 alphas show a sign change in F_k
+
+  VERDICT: THE k-BOUNDARY IS CLEAR; the b-boundary is not (4.56e-04 at the root).
+  That is exactly the condition under which the bond grid may move, and it
+  may now move with the k-grid HELD STILL -- the controlled experiment the
+  freeze was for. Rerun with BFAC = 8 and KFAC unchanged.
+
+[main_kv_residual_scan] wrote C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\kv_residual_scan.txt (1260.8 s)

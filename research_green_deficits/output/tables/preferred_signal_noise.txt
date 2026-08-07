@@ -1,0 +1,8 @@
+IS THE FINANCING RESULT A MEASUREMENT YET?  signal vs solver noise
+
+*** FAST: nb=28 nk=16 (DEBUG) ***
+grids: kmax 2160.0, bmax 768.00, xmax 4416.0 (kfac=6 bfac=8)
+nb=28 nk=16 ne=8
+
+===== SIGNAL: the alpha = 0 -> alpha = 1 move =====
+  alpha=1 failed: no admissible tree bracket (SOLVER_SCATTERED; feasible q in [1.0318, 1.3184])
