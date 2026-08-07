@@ -1,4 +1,4 @@
-R11.35
+R11.36
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,27 @@ R11.35
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.36 the collaborator's machine has MATLAB and NO Python, restated. Two
+#        places violated that: replot_stale_figures ENDED by printing
+#        "Then: python3 paper/check_output_staleness.py" as the next step --
+#        a driver instructing a MATLAB-only reader to run Python -- and
+#        RUN_THEN_RESPOND.md offered check_manuscript_numbers.py under the
+#        heading "run locally anytime; no MATLAB needed", which is precisely
+#        backwards for this machine. Both now say MAINTAINER SIDE, and the
+#        run doc states the standing rule: nothing in the run list requires
+#        Python, and a driver that prints a python3 next step is a bug.
+#        New check_output_staleness.m ports the audit so the one check that
+#        belongs in the RUN loop can actually be run there. It answers the
+#        same question by DIFFERENT evidence, which is stated in the file
+#        rather than glossed: the Python version dates files by last git
+#        commit, unavailable here because the project arrives as an extracted
+#        archive with no repository, so this one compares modification times.
+#        That carries a failure mode the file names and handles instead of
+#        hiding -- a fresh extract stamps every .m at once, so every earlier
+#        artifact would look stale. When the .m stamps are bunched within an
+#        hour the function DEMOTES its own stale verdict to "cannot tell"
+#        and says why. It also reports the timestamp-free half first: which
+#        required artifacts do not exist, with the driver that writes each.
 # R11.35 the re-run closed the timing bracket: rho* = 0.7977, a 3.07-year
 #        tax half-life, bracketed on [0.70, 0.80] with no gap -- 2.2x the
 #        joint frontier's 1.41 years. The repaired rho = 0.80 speed solved

@@ -297,4 +297,6 @@ end
 
 fprintf('\n%d figure(s) re-exported, %d skipped.\n', ndone, nskip);
 fprintf('Now run:  clear; replot_paper_figures   (PFig1-PFig4, PFig18)\n');
-fprintf('Then:     python3 paper/check_output_staleness.py\n');
+fprintf(['Then:     clear; check_output_staleness   (MATLAB; the audit\n' ...
+         '          used to be a python3 script, which is no use on a\n' ...
+         '          machine that has only MATLAB)\n']);

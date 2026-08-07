@@ -29,7 +29,7 @@ function s = kv_code_version(callerpath)
     % the .m files are the ones the extraction updates, so if this string and
     % the text file disagree, they came from different revisions. That is a
     % fact, not an inference, and it is worth the two-line bump discipline.
-    EXPECTED = 'R11.35';
+    EXPECTED = 'R11.36';
 
     if nargin < 1 || isempty(callerpath), callerpath = ''; end
 
