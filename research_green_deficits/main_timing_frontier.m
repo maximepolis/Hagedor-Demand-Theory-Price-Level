@@ -31,11 +31,14 @@
 % sweep would be a fifth of the run spent recomputing one number, and worse,
 % would invite a reader to think the benchmark moves with the experiment.
 %
-% COST, MEASURED. Each speed needs one C4 transition plus a C2 consolidation
-% bisection. With the bisection stopping on eta against the ratchet rather
-% than on an unattainable kappa_tol, the pilot took 4529 s for C1 plus two
-% speeds at T = 80 -- so roughly half an hour per speed, not the hour this
-% comment first budgeted. The run CHECKPOINTS after
+% COST, MEASURED TWICE AND VARIABLE. The pilot took 4529 s for C1 plus two
+% speeds; the full-grid pass took 34347 s for four -- 25 minutes per speed on
+% one occasion and nearer 2.4 hours on another, same machine, same horizon.
+% The spread is the bracketing: a cold start probes from a_xi = 0.05, far
+% above every measured root, and pays a dozen-plus transitions bisecting
+% down. Speeds now warm-start from the nearest solved neighbour's a_xi, and
+% each row prints its own transition count and wall time so the budget can
+% be read off the table instead of off this comment. The run CHECKPOINTS after
 % every speed, keyed BY SPEED rather than by the grid, so a small pilot grid
 % seeds a larger production grid and only the new speeds are paid for.
 %
@@ -65,17 +68,19 @@ if ~exist('FAST','var'), FAST = false; end
 if ~exist('TC','var') || isempty(TC), TC = 10; end
 if ~exist('HC','var') || isempty(HC), HC = 10; end
 if ~exist('RESUME','var') || isempty(RESUME), RESUME = true; end
-% GRID CHOSEN FROM MEASUREMENT, NOT FROM GUESSWORK. The pilot run at
-% rho = 0.65 and 0.90 located the timing crossing at rho* = 0.7476 and showed
-% C4 still POSITIVE at 0.65 (+0.0066), so the joint crossing lies below 0.65 --
-% consistent with the manuscript's 1.4-year half-life, rho = 0.61. The grid is
-% therefore dense between 0.55 and 0.80, where both crossings are, and stops at
-% 0.90: a point at 0.95 costs a full speed to add shape in a region where both
-% responses are large and positive and neither frontier can be.
+% GRID CHOSEN FROM MEASUREMENT, NOT FROM GUESSWORK. The full-grid run put the
+% JOINT crossing in [0.60, 0.65] (rho* = 0.6121, 1.41 yr -- the manuscript's
+% 1.4). The TIMING crossing is dimmer: the rho = 0.80 speed failed (fixed in
+% kv_solve_consolidation, R11.33) and the C2 column is convex, so the wide
+% [0.70, 0.90] interpolation is biased downward. The local C2 slope near 0.70
+% puts the true crossing ABOVE 0.80, so the grid now carries 0.80 AND 0.85 to
+% bracket it tightly. All other speeds are already in the checkpoint; a rerun
+% pays only for the speeds it is missing.
 if ~exist('RHOGRID','var') || isempty(RHOGRID)
-    RHOGRID = [0.55 0.60 0.65 0.70 0.80 0.90];
+    RHOGRID = [0.55 0.60 0.65 0.70 0.80 0.85 0.90];
 end
-RHOGRID = sort(RHOGRID(:).');
+RHOGRID = unique(RHOGRID(:).');   % unique also sorts; a duplicated speed
+                                  % would be solved once and printed twice
 EPS_KAPPA = 1e-8; ETA_TOL = 1e-3;
 
 T = 80; if FAST, T = 60; end
@@ -199,17 +204,38 @@ end
 tee('%7s %9s %11s %11s %11s %9s %8s\n', 'rho', 'half-life', ...
     'dlnP1 C2', 'dlnP1 C4', 'a_xi', 'eta', 'status');
 for i = 1:numel(RHOGRID)
-    if ~isempty(R{i})
+    % A cached FAILED row is a reason to retry the part that failed, not a
+    % license to repeat the failure without paying for it. The rho = 0.80 run
+    % stored status C2FAIL; replaying that from cache would have made the
+    % failure permanent -- resumable checkpointing must never checkpoint a
+    % refusal. Reuse only rows that SOLVED. A failed row with a converged C4
+    % still carries the expensive half (kappa_C4, dP_C4), so only the
+    % consolidation is redone.
+    cached = R{i}; R{i} = [];
+    reuse_C4 = false; kappa4 = NaN; dP4 = NaN;
+    if ~isempty(cached) && strcmp(cached.status, 'ok')
+        R{i} = cached;
         tee('%7.3f %9.2f %11.6f %11.6f %11.6f %9.2e %8s  (cached)\n', ...
-            R{i}.rho, R{i}.hl, R{i}.dP_C2, R{i}.dP_C4, R{i}.a_xi, R{i}.eta, R{i}.status);
+            cached.rho, cached.hl, cached.dP_C2, cached.dP_C4, ...
+            cached.a_xi, cached.eta, cached.status);
         continue;
+    elseif ~isempty(cached) && isfield(cached,'conv_C4') && cached.conv_C4 ...
+            && isfield(cached,'kappa_C4') && isfinite(cached.kappa_C4)
+        reuse_C4 = true; kappa4 = cached.kappa_C4; dP4 = cached.dP_C4;
+        tee('%7.3f  retrying: cached %s row, C4 half reused\n', ...
+            cached.rho, cached.status);
     end
-    rho = RHOGRID(i);
+    rho = RHOGRID(i); trow = tic;
     so = struct('T',T,'rho_bar',rho,'consolidation_start',TC, ...
                 'consolidation_half_life',HC,'kappa_tol',EPS_KAPPA,'kappa_target',1);
     % C4: delayed, no recovery. One transition, no bisection.
-    o4 = opts; o4.fiscal = kv_fiscal_spec('C4', so);
-    TR4 = solve_hank_dtpl_transition(pgc, o4);
+    if reuse_C4
+        conv4 = true;
+    else
+        o4 = opts; o4.fiscal = kv_fiscal_spec('C4', so);
+        TR4 = solve_hank_dtpl_transition(pgc, o4);
+        conv4 = TR4.converged; kappa4 = TR4.kappa_inf; dP4 = d1(TR4);
+    end
     % C2: delayed, consolidated back to C1's REALIZED terminal debt.
     %
     % STOP THE BISECTION ON THE STATISTIC THAT GRADES IT. The acceptance test
@@ -226,9 +252,26 @@ for i = 1:numel(RHOGRID)
     % kv_solve_consolidation will correctly refuse to bracket through it --
     % after paying for the solve. Skip it and record the real cause.
     so2 = so;
-    so2.kappa_ratchet = abs(TR4.kappa_inf - k_C1);
+    so2.kappa_ratchet = abs(kappa4 - k_C1);
     so2.eta_tol       = ETA_TOL;
-    if TR4.converged
+    % WARM-START THE BRACKETING. The default first probe, a_xi = 0.05, is
+    % 4x-28x above every root this sweep has measured, and at rho = 0.80 the
+    % transition at that oversized amplitude did not even converge. The roots
+    % move smoothly with rho (0.0018 at 0.55 up to 0.0132 at 0.90), so the
+    % nearest solved speed's a_xi is within a few bisections of this one's:
+    % start there. Either side works -- above the root it brackets on the
+    % first evaluation, below it the expansion continues upward.
+    aseed = NaN; dbest = Inf;
+    for jj = 1:numel(SPD)
+        E = SPD{jj};
+        if isstruct(E) && isfield(E,'status') && strcmp(E.status,'ok') ...
+                && isfield(E,'a_xi') && isfinite(E.a_xi) && E.a_xi > 0 ...
+                && abs(E.rho - rho) < dbest
+            dbest = abs(E.rho - rho); aseed = E.a_xi;
+        end
+    end
+    if isfinite(aseed), so2.consolidation_a0 = aseed; end
+    if conv4
         RC = kv_solve_consolidation(pgc, opts, so2, k_C1, @(varargin) []);
     else
         RC = struct('a_xi',NaN,'kappa_inf',NaN,'gap',NaN,'hit',false,'TR',[], ...
@@ -243,16 +286,18 @@ for i = 1:numel(RHOGRID)
         dP_C2 = d1(RC.TR); a_xi = RC.a_xi;
     end
     st = 'ok';
-    if ~TR4.converged,           st = 'C4NOCONV';
+    if ~conv4,                   st = 'C4NOCONV';
     elseif ~okC2,                st = 'C2FAIL';
     elseif ~(eta < ETA_TOL),     st = 'ETAFAIL';
     end
-    R{i} = struct('rho',rho,'hl',hl(rho),'dP_C2',dP_C2,'dP_C4',d1(TR4), ...
+    R{i} = struct('rho',rho,'hl',hl(rho),'dP_C2',dP_C2,'dP_C4',dP4, ...
                   'a_xi',a_xi,'eta',eta,'status',st, ...
-                  'kappa_C4',TR4.kappa_inf,'conv_C4',TR4.converged, ...
-                  'c2_status',RC.status,'c2_iters',RC.iters,'c2_gap',RC.gap);
-    tee('%7.3f %9.2f %11.6f %11.6f %11.6f %9.2e %8s\n', ...
-        rho, hl(rho), R{i}.dP_C2, R{i}.dP_C4, a_xi, eta, st);
+                  'kappa_C4',kappa4,'conv_C4',conv4, ...
+                  'c2_status',RC.status,'c2_iters',RC.iters,'c2_gap',RC.gap, ...
+                  'secs',toc(trow));
+    tee('%7.3f %9.2f %11.6f %11.6f %11.6f %9.2e %8s  (%d transitions, %.0f s)\n', ...
+        rho, hl(rho), R{i}.dP_C2, R{i}.dP_C4, a_xi, eta, st, ...
+        RC.iters + double(~reuse_C4), R{i}.secs);
     if ~strcmp(st, 'ok')
         % A silent tee was passed to the consolidation solver so the sweep
         % table stays readable; when a speed fails, its diagnosis has to
@@ -278,20 +323,54 @@ rr  = cellfun(@(x) x.rho,   R(ok));
 c2  = cellfun(@(x) x.dP_C2, R(ok));
 c4  = cellfun(@(x) x.dP_C4, R(ok));
 good2 = cellfun(@(x) strcmp(x.status,'ok'), R(ok));
-[r2, ok2, why2] = kv_zero_cross(rr(good2), c2(good2));
-[r4, ok4, why4] = kv_zero_cross(rr, c4);
+% dP_C4 is recorded even when the C4 transition did NOT converge -- it is a
+% finite number read off an unconverged path, so kv_zero_cross's isfinite
+% filter cannot drop it. Interpolating the joint frontier through such a
+% value would locate the crossing of a curve that was never solved. Filter
+% C4 on its own convergence flag, exactly as C2 is filtered on status.
+good4 = cellfun(@(x) isfield(x,'conv_C4') && x.conv_C4, R(ok));
+[r2, ok2, why2, br2] = kv_zero_cross(rr(good2), c2(good2));
+[r4, ok4, why4, br4] = kv_zero_cross(rr(good4), c4(good4));
+
+% A GAP INSIDE THE BRACKET DEMOTES THE FRONTIER TO PROVISIONAL. Linear
+% interpolation places a crossing correctly only when the curve is close to
+% linear across the bracket, and both dlnP1 columns are visibly CONVEX in
+% rho. The first full-grid run lost its rho = 0.80 speed to a consolidation
+% failure and interpolated the timing frontier across [0.70, 0.90], which
+% put rho* at 0.7673 when the local slopes say the true crossing sits above
+% 0.80. The test is NOT bracket width -- the default grid is deliberately
+% non-uniform, so a wide-but-intact bracket is a design choice -- but
+% whether a REQUESTED speed inside the bracket contributed no usable row:
+% that is the signature of a dropped point silently widening a bracket into
+% a different answer.
+[wide2, miss2] = local_gap(br2, RHOGRID, rr(good2));
+[wide4, miss4] = local_gap(br4, RHOGRID, rr(good4));
+
 if ok4
-    tee('  JOINT  frontier (C4): rho* = %.4f  ->  tax half-life %.2f yr\n', r4, hl(r4));
+    tee('  JOINT  frontier (C4): rho* = %.4f  ->  tax half-life %.2f yr%s\n', ...
+        r4, hl(r4), ternlab(wide4));
 else
     tee('  JOINT  frontier (C4): NOT BRACKETED by this grid\n');
 end
 tee('      %s\n', why4);
 if ok2
-    tee('  TIMING frontier (C2): rho* = %.4f  ->  tax half-life %.2f yr\n', r2, hl(r2));
+    tee('  TIMING frontier (C2): rho* = %.4f  ->  tax half-life %.2f yr%s\n', ...
+        r2, hl(r2), ternlab(wide2));
 else
     tee('  TIMING frontier (C2): NOT BRACKETED by this grid\n');
 end
 tee('      %s\n', why2);
+for pp = {{wide2, miss2, br2, 'C2'}, {wide4, miss4, br4, 'C4'}}
+    q = pp{1};
+    if q{1}
+        tee(['      *** the %s bracket [%.2f, %.2f] spans requested speed(s)' ...
+             ' %s with no\n      *** usable row: a speed inside it failed or' ...
+             ' was never run. Solve it\n      *** before quoting this number' ...
+             ' -- the curve is convex, so the wide\n      *** linear' ...
+             ' interpolation is biased DOWNWARD in rho.\n'], ...
+            q{4}, q{3}(1), q{3}(2), mat2str(q{2}, 3));
+    end
+end
 % ---- cross-check against the decomposition -------------------------------
 % This sweep and main_deficit_decomposition solve the SAME three experiments
 % at rho = 0.90, by different routes: the decomposition's consolidation
@@ -330,22 +409,57 @@ if exist(dcf, 'file') == 2 && ~isempty(i90) && ~isempty(R{i90})
 end
 
 if ok2 && ok4
+    tight2 = ~wide2; tight4 = ~wide4;
     tee('\n  The timing frontier sits at a %.2f-year half-life against %.2f for\n', ...
         hl(r2), hl(r4));
     tee('  the joint experiment: delaying the tax must be %.1fx slower to flip\n', ...
         hl(r2)/max(hl(r4),eps));
     tee('  the sign once the revenue is actually paid back. The manuscript\n');
     tee('  quotes the JOINT number, so any timing claim must quote %.2f yr.\n', hl(r2));
+    if ~(tight2 && tight4)
+        tee(['\n  *** AT LEAST ONE BRACKET IS PROVISIONAL (see above). The ratio\n' ...
+             '  *** and the half-lives in this paragraph are NOT yet quotable in\n' ...
+             '  *** the paper; close the bracket first.\n']);
+    end
 end
 
+% Exporter-ready summary. export_paper_numbers reads FR rather than
+% re-running the crossing logic, and it must be able to see the PROVISIONAL
+% state: the wide flags are saved so the exporter can refuse to emit a
+% timing macro whose bracket still has a hole in it. The .tex then renders
+% \pendingnum at those sites instead of a number that would later move.
+FR = struct('r_joint', r4, 'hl_joint', hl(r4), 'ok_joint', ok4, ...
+            'br_joint', br4, 'wide_joint', wide4, ...
+            'r_timing', r2, 'hl_timing', hl(r2), 'ok_timing', ok2, ...
+            'br_timing', br2, 'wide_timing', wide2);
 save(fullfile(projdir,'output','timing_frontier.mat'), ...
-     'R','SPD','RHOGRID','dP_C1','k_C1','sig','T','TC','HC','calinfo');
+     'R','SPD','RHOGRID','dP_C1','k_C1','sig','T','TC','HC','calinfo','FR');
 tee('\n[main_timing_frontier] wrote %s (%.1f s)\n', sf, toc(t0));
 fclose(fid);
 
 % =========================================================================
 function tee2(fid, varargin)
     fprintf(varargin{:}); fprintf(fid, varargin{:});
+end
+
+function s = ternlab(wide)
+    if wide, s = '   [PROVISIONAL: gap inside the bracket]'; else, s = ''; end
+end
+
+function [bad, miss] = local_gap(br, grid, used)
+% True when a REQUESTED grid speed lies strictly inside the bracket but
+% contributed no usable row to the curve the bracket came from. That -- not
+% raw width -- is the signature of a dropped point: the default grid is
+% deliberately non-uniform, so an intact wide bracket is a design choice
+% while a gapped one is a failure being papered over by interpolation.
+    bad = false; miss = [];
+    if isempty(br), return; end
+    inb = grid(grid > br(1) + 1e-12 & grid < br(2) - 1e-12);
+    for g = inb
+        if ~any(abs(used - g) < 1e-12)
+            miss(end+1) = g; bad = true; %#ok<AGROW>
+        end
+    end
 end
 
 function j = local_find_rho(SPD, rho)

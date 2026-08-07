@@ -120,30 +120,88 @@ function R = kv_solve_consolidation(pgc, base_opts, sopts, kappa_target, tee)
     end
 
     % ---- expand upward for a sign change --------------------------------
+    % AN INFEASIBLE AMPLITUDE IS NOT EVIDENCE ABOUT THE BRACKET. The timing
+    % frontier's rho = 0.80 speed failed here after TWO transitions: the first
+    % probe, a = 0.05, is 4x-28x larger than every root this project has
+    % measured (0.0018 to 0.0132), the transition at that oversized surcharge
+    % did not converge, and the expansion read "this amplitude failed" as "no
+    % bracket exists" -- aborting a search whose root sat far below the point
+    % that failed. Feasibility of these solves is not monotone in a (the same
+    % 0.05 converges at rho = 0.90), so a failed probe says nothing about
+    % amplitudes below it. On failure, SHRINK toward the feasible side alo
+    % instead of giving up; while expanding, never jump past a known-bad
+    % amplitude -- bisect toward it. Only two outcomes end the search early:
+    % the feasible interval below the failure collapses onto alo (the root
+    % sits at or beyond the feasibility edge -- genuinely NO_BRACKET), or the
+    % shrink budget is spent.
+    %
+    % The starting probe is unchanged at 0.05 by default, so a run that never
+    % hits an infeasible point -- the certified decomposition run included --
+    % replays the identical evaluation sequence. Callers that know roughly
+    % where the root is (the frontier sweep, whose neighbouring speed's a_xi
+    % is a few bisections away from this one's) pass sopts.consolidation_a0
+    % and skip most of the bracketing work.
     alo = 0; klo = k0; ahi = NaN; khi = NaN; TRhi = [];
-    a = max(1e-3, 0.05); found = false;
+    a0 = getdef(sopts, 'consolidation_a0', 0.05);
+    a  = min(max(a0, 1e-6), amax);
+    a_bad = Inf;                 % smallest amplitude known to fail
+    shrinks = 0;
+    max_shrink = getdef(sopts, 'consolidation_maxshrink', 8);
+    found = false;
     while a <= amax
         [k, TR, ok] = ev(a);
         if ~ok
-            tee('  consolidation: a_xi = %.6g INFEASIBLE; stopping the expansion.\n', a);
-            break;
+            a_bad = min(a_bad, a);
+            shrinks = shrinks + 1;
+            if shrinks > max_shrink
+                tee(['  consolidation: %d infeasible amplitudes without finding a\n' ...
+                     '    feasible one above a_xi = %.6g; giving up the expansion.\n'], ...
+                    shrinks, alo);
+                break;
+            end
+            if (a - alo) <= max(1e-10, 1e-6 * max(alo, 1))
+                tee(['  consolidation: the feasible interval above a_xi = %.6g has\n' ...
+                     '    collapsed against infeasibility at %.6g. The root sits at\n' ...
+                     '    or beyond the feasibility edge.\n'], alo, a_bad);
+                break;
+            end
+            a = 0.5 * (alo + a);            % toward the side known to solve
+            continue;
         end
         if k <= kappa_target
             ahi = a; khi = k; TRhi = TR; found = true; break;
         end
         alo = a; klo = k;
-        a = a * 2;
+        if isfinite(a_bad)
+            if (a_bad - alo) <= max(1e-10, 1e-6 * max(alo, 1))
+                tee(['  consolidation: kappa is still above target at a_xi = %.6g\n' ...
+                     '    and amplitudes from %.6g up are infeasible. No feasible\n' ...
+                     '    bracket exists.\n'], alo, a_bad);
+                break;
+            end
+            a = 0.5 * (alo + a_bad);        % expand, but not past a known failure
+        else
+            a = a * 2;
+        end
     end
     if ~found
         R.status = 'NO_BRACKET';
         tee(['  consolidation: no a_xi <= %.3g brings kappa down to %.10f\n' ...
              '    (best reached %.10f at a_xi = %.6g). The surcharge cap binds,\n' ...
-             '    or the shape starts too late to retire the accumulated stock.\n'], ...
+             '    the shape starts too late to retire the accumulated stock, or\n' ...
+             '    feasibility ends before the target is reached.\n'], ...
             amax, kappa_target, klo, alo);
         R = finish(R, A, K, OKV); return;
     end
 
     % ---- bisection on a decreasing residual ------------------------------
+    % ahi is the SEARCH bound; ahi_rep is the amplitude that actually
+    % produced (khi, TRhi). They separate at an infeasible interior point:
+    % that shrinks the search bound but must not relabel the stored solution
+    % with an amplitude that is known NOT to solve. Reporting R.a_xi = ahi
+    % after such a step would hand the caller a triple whose a_xi does not
+    % produce its own kappa_inf.
+    ahi_rep = ahi;
     for i = 1:maxit
         am = 0.5*(alo + ahi);
         [km, TRm, okm] = ev(am);
@@ -157,11 +215,15 @@ function R = kv_solve_consolidation(pgc, base_opts, sopts, kappa_target, tee)
             R.gap = gapf(km); R.hit = true; R.status = 'OK';
             R = finish(R, A, K, OKV); return;
         end
-        if km > kappa_target, alo = am; klo = km; else, ahi = am; khi = km; TRhi = TRm; end
+        if km > kappa_target
+            alo = am; klo = km;
+        else
+            ahi = am; khi = km; TRhi = TRm; ahi_rep = am;
+        end
         if (ahi - alo) < 1e-12 * max(1, ahi), break; end
     end
 
-    R.a_xi = ahi; R.kappa_inf = khi; R.TR = TRhi;
+    R.a_xi = ahi_rep; R.kappa_inf = khi; R.TR = TRhi;
     R.gap = gapf(khi); R.hit = R.gap < acc;
     R.status = ternstr(R.hit, 'OK', 'NOT_CONVERGED');
     tee('  consolidation: a_xi = %.10g, kappa_inf = %.10f, gap %.2e (%s)\n', ...

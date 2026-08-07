@@ -59,9 +59,9 @@ Listing these is not point-scoring; it determines what is *new* work.
 |---|---|
 | Major 8 — "self-financing" misused for a household object | done in figure code (R11.1); prose pending |
 | Major 8 — separate ν_reval, ν_dam, ν, L | already the accounting; the report endorses it |
-| Major 9 — deficit experiment confounds timing with debt supply | agreed internally in R10; C1/C2/C4 built |
-| Major 9 — consolidation surcharge to match terminal debt | **built**: ξ_t = a_ξ h_t, amplitude solved by `kv_solve_consolidation` |
-| Minor 18 — no "timing threshold" until terminal debt matched | in `PAPER_SAFETY_PATCH_R11.md` §C |
+| Major 9 — deficit experiment confounds timing with debt supply | agreed internally in R10; C1/C2/C4 built and **run** 2026-08-06 — sign reverses at matched terminal debt; 34/66 timing/ratchet split (§7) |
+| Major 9 — consolidation surcharge to match terminal debt | **built and run**: ξ_t = a_ξ h_t, amplitude solved by `kv_solve_consolidation`; consolidation miss 1.2e-04 of the ratchet decomposed (§7) |
+| Minor 18 — no "timing threshold" until terminal debt matched | in `PAPER_SAFETY_PATCH_R11.md` §C; terminal debt now matched (C2) and the frontier swept (§7): 1.4 years is validated as the *joint* threshold (ρ* = 0.6121 → 1.41 y); the timing threshold sits above ρ = 0.77 (~2.6–4 y half-life), provisional pending one re-run |
 | Major 4 — ordering is the robust claim, not the level sign | in `PAPER_SAFETY_PATCH_R11.md` §A |
 | Major 10 — demote multiplicity, insulation, optimal-μ, NK | overlaps the R9 demotion map |
 | Major 11 — sign certification vs residual floor | Gate 11 + Track A/B |
@@ -234,7 +234,7 @@ verdict that the numbers are wrong.
 | 6 | capitalization rests on extreme credibility | **accept** | needs Markov reversal + finite duration; not built |
 | 7 | preferred model does not answer the title | **accept** | requires two-asset transition with damages moving; blocked on certification |
 | 8 | accounting still easy to misinterpret | **partly accept** | ν terminology done in code; foreign/central-bank in the core block is new |
-| 9 | deficit experiment confounds timing and debt | **accept; already agreed** | C1/C2/C4 + surcharge built; equal-PV and equal-terminal-real cases to add |
+| 9 | deficit experiment confounds timing and debt | **accept; already agreed** | C1/C2/C4 + surcharge **run** (§7): sign reverses at matched terminal debt, 34/66 timing/ratchet split; joint frontier validated at 1.41 y, timing frontier provisional (> ρ = 0.77, ρ = 0.80 re-running); equal-PV and equal-terminal-real cases still to add |
 | 10 | extensions should not be coequal | **accept** | demotion map exists |
 | 11 | numerical accuracy not shown for sign-sensitive transitions | **accept** | Track A/B + Gate 11; transition Euler errors are a genuine gap |
 
@@ -508,15 +508,35 @@ the same object agreeing to 3.7e-04.
 ### What is still owed on this comment
 
 The manuscript reports a **critical phase-in speed**, not a single-speed
-comparison. This run is at one $\bar\rho$. Re-locating that frontier as a
-*timing* threshold requires sweeping $\rho$ under the **C2** rule with the
-consolidation amplitude re-solved at each speed — the machinery now exists
-(`kv_solve_consolidation` inside the sweep), and it is the natural follow-up.
+comparison. This run is at one $\bar\rho$; the follow-up sweep has now run.
 
-Until that sweep runs, the defensible statements are:
+### The frontier sweep — RUN (partial), 2026-08-07
+
+`main_timing_frontier` sweeps $\rho$ under both rules, checkpointed per
+speed, cross-checked against this decomposition at $\rho=0.90$ (agreement
+3.5e-05 on C2, exact on C1 and C4 — which also validates the sweep's
+ratchet-normalized consolidation stopping rule against the certified run).
+
+- **Joint frontier (C4 crossing): $\rho^*=0.6121$, tax half-life 1.41
+  years, tightly bracketed on [0.60, 0.65].** The manuscript's quoted 1.4
+  years is thereby *validated — as the joint frontier*.
+- **Timing frontier (C2 crossing): PROVISIONAL.** The $\rho=0.80$ speed
+  failed (consolidation bracketing aborted on an oversized first probe;
+  fixed R11.31–R11.33) and the wide [0.70, 0.90] interpolation printed
+  2.62 y — biased downward, since the C2 curve is convex. The local slopes
+  put the true crossing above $\rho=0.80$, half-life likely 3–4 y. The
+  re-run (grid now carries 0.80 and 0.85; checkpoint reuses all solved
+  speeds) closes the bracket.
+
+With the sweep run, the defensible statements are:
 
 1. at the reported phase-in speed, tax timing alone reverses the sign of the
    impact response, so a timing claim is licensed in kind;
 2. the reported *magnitude* is a joint object, roughly two-thirds ratchet;
-3. the 1.4-year **frontier** remains a joint frontier and must keep the label
-   the safety patch already gives it.
+3. the 1.4-year **frontier** is *measured* as the joint frontier
+   ($\rho^*=0.6121\to1.41$ y) — the safety patch's label is now a
+   validated result, not only a caution;
+4. the timing-alone frontier is provisional: above $\rho=0.77$, roughly a
+   factor of 2 or more beyond the joint frontier; it is exporter-gated so
+   it cannot reach the manuscript as a number until its bracket is
+   gap-free.

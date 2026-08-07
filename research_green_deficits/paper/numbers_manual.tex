@@ -85,8 +85,10 @@
 \newcommand{\OneTrShare}{77\%}
 
 % ---- Deficit-financed announcement path (table: transition_deficit) ----
-% Indexed real program held identical to the balanced benchmark, so only tax
-% TIMING differs: tau_t = rbar*b_t + (1-rho_d^t)*g. Real debt is the residual;
+% Indexed real program held identical to the balanced benchmark; only the tax
+% path differs, tau_t = rbar*b_t + (1-rho_d^t)*g, and under this no-recovery
+% rule the terminal nominal stock also ends kappa_inf higher -- a JOINT
+% timing-and-ratchet experiment, not pure timing. Real debt is the residual;
 % the terminal price floats at kappa_inf times the balanced terminal by
 % nominal neutrality. na=500, T=80, 61 iterations; interior residual 4.3e-4,
 % terminal (horizon) residual 1.1e-4; converged AND horizon-adequate.

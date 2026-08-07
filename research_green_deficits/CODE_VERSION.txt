@@ -1,4 +1,4 @@
-R11.32
+R11.33
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,51 @@ R11.32
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.33 the full-grid frontier run came back: JOINT frontier rho* = 0.6121,
+#        a 1.41-year tax half-life, tightly bracketed on [0.60, 0.65] -- the
+#        manuscript's quoted 1.4 years is thereby VALIDATED, as the joint
+#        frontier. The TIMING frontier is provisional: the rho = 0.80 speed
+#        failed and the printed 2.62 y interpolates a convex curve across
+#        [0.70, 0.90], biased downward; the true crossing sits above 0.80.
+#        Diagnosis of the failure: the consolidation expansion's first probe
+#        a_xi = 0.05 is 4x-28x above every measured root; the transition at
+#        that oversized surcharge did not converge, and the expansion read
+#        "this amplitude failed" as "no bracket exists". Feasibility is not
+#        monotone in a (0.05 solves at rho = 0.90), so a failed probe says
+#        nothing about amplitudes below it. kv_solve_consolidation now
+#        SHRINKS toward the feasible side on an infeasible probe, tracks the
+#        smallest known-bad amplitude and never expands past it, and accepts
+#        an opt-in consolidation_a0; the sweep warm-starts each speed from
+#        the nearest solved neighbour's a_xi. Default probe unchanged, so a
+#        run that never hits an infeasible point replays identically.
+#        An adversarial review of these fixes found four defects before the
+#        re-run could pay for them: (1) the joint frontier interpolated
+#        through dP_C4 values from rows whose C4 never converged -- finite
+#        numbers off unsolved paths; C4 now filters on conv_C4 exactly as C2
+#        filters on status; (2) the bisection could return an a_xi that is
+#        known-infeasible while kappa_inf came from a different amplitude --
+#        the reported triple is now kept consistent; (3) the PROVISIONAL
+#        rule compared bracket width to the tightest grid gap, so the
+#        deliberately non-uniform default grid would have false-alarmed --
+#        the rule is now the property it meant to detect, a REQUESTED speed
+#        inside the bracket with no usable row; (4) an exact zero at a grid
+#        point read as "no sign change". Cached FAILED rows are retried, not
+#        replayed: a checkpoint must never checkpoint a refusal, and a
+#        failed row's converged C4 half is reused so only the consolidation
+#        is repaid. Default grid now carries 0.80 AND 0.85.
+#        Integration: main_deficit_decomposition's estimands and the
+#        frontier flow into the paper through export_paper_numbers as
+#        \DefDec* / \DefRhoStarTiming / \DefHalfStarTiming /
+#        \DefTimingJointRatio / \DefHalfStarJointSweep, guarded on
+#        EST.reportable and on the sweep's own gap-free-bracket flags, so a
+#        provisional crossing renders \pendingnum and cannot reach the text
+#        as a number. The manuscript's "which we do not compute here" caveat
+#        now reports the computed decomposition; the intro's "defer" clause,
+#        the conclusion's "is not computed", the \emph{only timing} setup
+#        sentence, the ladder caption, and the numbers_manual comment are
+#        all reworded to the joint label. CLAIM_STATUS_R13 item 18, the
+#        response plan's Major 9 rows and section 7, and the architecture
+#        plan's intro/summary specs record the run and the licensed line.
 # R11.32 the pilot run located the TIMING frontier and, just as usefully,
 #        failed to bracket the JOINT one. C2 crosses zero at rho* = 0.7476,
 #        a 2.38-year tax half-life; C4 is still POSITIVE at rho = 0.65
