@@ -23,10 +23,14 @@ function plot_green_figures(RESP, pg)
 %          (.bench, .bench_eqs, .dec (with .out_base/.out_prog), .sun, .opt).
 %   pg   : project params (figdir used by save_all_figs).
 
-    BLUE  = [0.10 0.30 0.75];
-    RED   = [0.85 0.20 0.15];
-    GREEN = [0.20 0.55 0.25];
-    GRAY  = [0.45 0.45 0.45];
+    % Colours come from the paper-wide semantic registry, not from local
+    % constants: the same meaning gets the same colour in every figure, and
+    % regime_style errors on a meaning it does not know. The names below keep
+    % the roles these constants always had in this file.
+    BLUE  = regime_style('debt');       % B/P locus and the revaluation bar
+    RED   = regime_style('demand');     % household asset-demand curves
+    GREEN = regime_style('program');    % with-program objects
+    GRAY  = regime_style('benchmark');  % no-program benchmark
 
     % ================= PFig1: the demand-shift mechanism =================
     d  = RESP.dec;

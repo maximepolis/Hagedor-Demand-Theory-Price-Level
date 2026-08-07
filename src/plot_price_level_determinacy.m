@@ -27,8 +27,8 @@ function fh = plot_price_level_determinacy(ad, ss, cm, params)
 %
 % PAPER SECTION: Figure 2 (Sections 3.1, 3.4, Eq. 23-24).
 
-    BLUE = [0.10 0.30 0.75];
-    RED  = [0.85 0.20 0.15];
+    BLUE = regime_style('supply');   % bond supply, paper-wide encoding
+    RED  = regime_style('demand');   % household asset demand
 
     conv = ad.converged;
     r    = ad.rgrid(conv);

@@ -21,8 +21,11 @@ function plot_transition_fig(TRn, TRi, pgc, pg, TRr)
            isfield(TRr, 'reportable') && TRr.reportable;
     T  = numel(TRn.phat);
     tv = 1:T;
-    BLUE = [0.10 0.30 0.75]; GREEN = [0.20 0.55 0.25];
-    ORANGE = [0.85 0.55 0.10];
+    % Semantic registry (see src/regime_style.m): nominal appropriation is
+    % the baseline financing environment, the indexed mandate is the real
+    % program, and the reversal path belongs to the delayed-policy family.
+    BLUE = regime_style('nominal'); GREEN = regime_style('indexed');
+    ORANGE = regime_style('reversal');
 
     fh = figure('Name','PFig18: nonlinear HANK-DTPL transition','Color','w', ...
                 'Position',[60 60 1150 700]);
