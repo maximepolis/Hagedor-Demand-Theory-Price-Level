@@ -166,11 +166,47 @@ elseif rev_C4
 else
     tee('  => NO REVERSAL in either comparison at this phase-in speed.\n');
 end
+% WHAT THIS BLOCK USED TO SAY, AND WHY IT CHANGED. It used to close by
+% telling the reader that the critical speed "is still the joint one" and
+% that re-locating it as a timing threshold "requires sweeping rho under the
+% C2 rule". That sweep has since run (main_timing_frontier), so the driver
+% was demanding work that was already sitting on disk beside it -- the same
+% failure mode as a verdict frozen at an old gate, one file over. Report the
+% frontier when it is there; ask for it only when it is not.
 tee('\n  WHAT THIS DOES NOT ESTABLISH. This is one phase-in speed\n');
 tee('  (rho_bar as set in the run), not a frontier. The manuscript reports a\n');
-tee('  CRITICAL SPEED, and that object is still the joint one: re-locating it\n');
-tee('  as a timing threshold requires sweeping rho under the C2 rule, with the\n');
-tee('  consolidation amplitude re-solved at each speed.\n');
+tee('  CRITICAL SPEED, which is a different object.\n');
+tf = fullfile(projdir, 'output', 'timing_frontier.mat');
+FRdone = false;
+if exist(tf, 'file') == 2
+    TFL = load(tf, 'FR');
+    if isfield(TFL, 'FR') && isfield(TFL.FR, 'ok_timing')
+        F = TFL.FR;
+        tee('\n  THAT SWEEP HAS RUN (main_timing_frontier):\n');
+        if F.ok_joint && ~F.wide_joint
+            tee('    JOINT  frontier  rho* = %.4f   tax half-life %.2f yr\n', ...
+                F.r_joint, F.hl_joint);
+        end
+        if F.ok_timing && ~F.wide_timing
+            tee('    TIMING frontier  rho* = %.4f   tax half-life %.2f yr\n', ...
+                F.r_timing, F.hl_timing);
+            if F.ok_joint && ~F.wide_joint
+                tee(['    Flipping the sign on timing ALONE takes a delay %.1fx\n' ...
+                     '    slower. The manuscript quotes the joint number.\n'], ...
+                    F.hl_timing / max(F.hl_joint, eps));
+            end
+            FRdone = true;
+        else
+            tee('    the TIMING crossing is not yet tightly bracketed there;\n');
+            tee('    see that driver''s PROVISIONAL stamp before quoting it.\n');
+        end
+    end
+end
+if ~FRdone
+    tee('\n  Re-locating it as a timing threshold requires sweeping rho under\n');
+    tee('  the C2 rule with the consolidation amplitude re-solved at each\n');
+    tee('  speed:  clear; main_timing_frontier\n');
+end
 
 tee('\nREADING\n');
 if abs(timing) < 0.2 * abs(joint)

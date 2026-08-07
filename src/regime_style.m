@@ -62,7 +62,14 @@ function [col, ls, mk] = regime_style(name)
             col = [0.84 0.37 0.00]; ls = '-.'; mk = 'd';
         case {'rebate', 'progressive'}
             col = [0.80 0.47 0.65]; ls = ':';  mk = '^';
-        case {'deficit', 'delayed', 'joint', 'reversal'}
+        case {'deficit', 'delayed', 'joint'}
+            % 'reversal' was an alias here and is deliberately GONE. It was
+            % added for plot_transition_fig's third path on the assumption
+            % that the path was a policy reversal; the argument doc says it
+            % is the levy-plus-rebate design, so the alias silently drew the
+            % rebate regime amber in one figure and purple everywhere else.
+            % An alias invented to fit a call site, rather than to name a
+            % meaning, defeats the registry -- do not reintroduce one.
             col = [0.90 0.62 0.00]; ls = '--'; mk = 'v';
         case {'timing', 'consolidated'}
             col = [0.34 0.71 0.91]; ls = '-.'; mk = '>';

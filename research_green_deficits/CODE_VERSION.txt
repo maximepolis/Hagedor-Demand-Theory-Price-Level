@@ -1,4 +1,4 @@
-R11.36
+R11.37
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,31 @@ R11.36
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.37 the regenerated PFig18 exposed two defects, one of them mine.
+#        (a) I wired its third path to regime_style('reversal') on the
+#        assumption that it was a policy-reversal path. The argument doc one
+#        screen above says TRr is the LEVY-PLUS-REBATE design. So the alias
+#        drew the rebate regime amber here and purple in every financing
+#        figure -- precisely the drift the registry exists to prevent,
+#        introduced by guessing a series' meaning instead of reading it. The
+#        'reversal' alias is deleted, not repointed: an alias invented to fit
+#        a call site rather than to name a meaning defeats the registry.
+#        (b) The nominal and indexed price paths very nearly COINCIDE in
+#        panels (a) and (b) -- that near coincidence is a result -- so with
+#        both drawn solid the second painted over the first and the figure
+#        appeared to show two series while plotting three. regime_style has
+#        always returned a line style for exactly this; the plot calls were
+#        taking only the colour. They now take both, which also makes the
+#        overlap survive black-and-white printing. Panel (d) plots damages,
+#        not a financing regime, and now uses the damage colour so it cannot
+#        be misread as a fourth policy path.
+#        Separately, main_deficit_estimands closed by telling the reader that
+#        re-locating the critical speed "requires sweeping rho under the C2
+#        rule" -- work that had already run and was sitting in
+#        timing_frontier.mat beside it. It now READS that file and reports
+#        both frontiers, falling back to the request only when the sweep is
+#        genuinely absent. A driver demanding a run that has finished is the
+#        stale-verdict failure of R11.35 one file over.
 # R11.36 the collaborator's machine has MATLAB and NO Python, restated. Two
 #        places violated that: replot_stale_figures ENDED by printing
 #        "Then: python3 paper/check_output_staleness.py" as the next step --
