@@ -1,4 +1,4 @@
-R11.38
+R11.39
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,30 @@ R11.38
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.39 the ledger reported V1 and V3 STALE again, for the THIRD time, and
+#        the cause was never the ledger. output/ is tracked -- 205 files,
+#        every .mat among them -- and the committed copies are old:
+#        wealth_fit_results.mat and convenience_kvj.mat date from PR #155 and
+#        predate IDENT and kvj_logel. So unpacking the archive over the
+#        working folder OVERWRITES freshly computed results with stale
+#        committed ones. Run the fit, get IDENT, re-extract to pick up new
+#        drivers, lose IDENT, and the ledger correctly reports the file is
+#        short -- while the run that filled it happened yesterday. From
+#        inside MATLAB a clobbered file and a never-generated one are
+#        identical, which is why the detector kept being right about the
+#        state and silent about the cause. New EXTRACT_RULE.md states the
+#        one rule that prevents it: extract the CODE, never output/ or
+#        paper/numbers_auto.tex. Those flow the other way.
+#        Also fixed the false alarm that ran on every banner for two days:
+#        kv_code_version compared its not-found PLACEHOLDER against EXPECTED,
+#        declared MIXED EXTRACT, and advised deleting a file that was not
+#        there. Absent and disagreeing are different conditions -- absent
+#        means the .m constant is the only source, which is a complete
+#        answer and gets one quiet note; present-but-different is a real
+#        mixed extract and still shouts.
+#        Confirmed working in the same run: section C is 13 rows, the
+#        duplicated convenience-yield/equity-premium row is gone, and V7
+#        prints both algebraic forms agreeing at 5.9472 pp.
 # R11.38 check_output_staleness's extract guard was wrong, and its own first
 #        run disproved it. All fourteen flagged writers carried the identical
 #        stamp 2026-08-07 12:04 -- one unpack event, not fourteen edits --
