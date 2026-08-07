@@ -1,4 +1,4 @@
-R11.39
+R11.40
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,27 @@ R11.39
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.40 the ledger's one FLAG was manufactured by a field name I got wrong.
+#        Section C graded the demand-curve log-elasticity against a symmetric
+#        half-width and reported FLAG at -1.8174 vs -1.0274 -- while
+#        calibrate_convenience_kvj's own console prints "the benchmark
+#        zeta = 2 lies INSIDE the KVJ range (log-elasticity ~ -1.8 vs bound
+#        -2.05)". Both cannot be right. The driver COMPUTES kvj_log_lo and
+#        kvj_log_hi at line 134 and then omits them from its save list, which
+#        carries kvj_lo/kvj_hi -- the raw pp SEMI-elasticity bounds, which the
+#        driver's own comment says are not comparable to a model whose spread
+#        sits at equity scale. My ledger read the log field names; the writer
+#        never saved them; the interval branch never fired. The save list now
+#        persists what the console claims.
+#        The deeper defect was the SILENCE. Falling back from a published
+#        range to a symmetric band is a reasonable degradation, but here the
+#        two rules give OPPOSITE verdicts, and the ledger took the fallback
+#        without a word -- printing a rejection that contradicted the source
+#        driver. Both section C and V3 now announce the demotion and say the
+#        FLAG must not be read as a rejection until the range is restored.
+#        Confirmed in the same run: all four sources load, V1 is measured
+#        (9 configs, 3 ties, top-10 spread 0.0137), and the banner is quiet
+#        now that absent is distinguished from disagreeing.
 # R11.39 the ledger reported V1 and V3 STALE again, for the THIRD time, and
 #        the cause was never the ledger. output/ is tracked -- 205 files,
 #        every .mat among them -- and the committed copies are old:

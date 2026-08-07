@@ -1,21 +1,12 @@
 PARAMETER-IDENTIFICATION LEDGER (referee R12, Major 2, items 1-3)
-pipeline R11.38  |  main_identification_ledger.m  (modified 2026-08-07 12:04)  [!! MIXED EXTRACT: the .m files are R11.38 but CODE_VERSION.txt says (CODE_VERSION.txt not found). The .m files are authoritative -- your unpacker is not overwriting the text file. Delete CODE_VERSION.txt and extract again.]
+pipeline R11.39  |  main_identification_ledger.m  (modified 2026-08-07 12:04)  [CODE_VERSION.txt absent; revision read from the source]
 read-only over stored calibrations; nothing is solved here.
 
 source                   state     file stamp         written by
 one-asset calibration    loaded    2026-08-07 12:04   main_project_calibrated
 two-asset ownership+KV   loaded    2026-08-07 12:04   main_twoasset_ownership_kv
-superstar wealth fit     STALE     2026-08-07 12:05   wealth_concentration_fit
-                                   missing: IDENT
-convenience curvature    STALE     2026-08-07 12:04   calibrate_convenience_kvj
-                                   missing: kvj_logel
-
-*** 2 calibration(s) STALE: the file loads but predates a variable
-*** a verdict below needs. Those verdicts report NOT YET MEASURED,
-*** which is a statement about the extract and not about the model.
-*** Re-run the driver named on the row, then re-run this ledger:
-***     clear; wealth_concentration_fit
-***     clear; calibrate_convenience_kvj
+superstar wealth fit     loaded    2026-08-07 17:47   wealth_concentration_fit
+convenience curvature    loaded    2026-08-07 18:33   calibrate_convenience_kvj
 
 two-asset input grid: nb=60 nk=34 nx=150   (production sizes)
 
@@ -104,10 +95,10 @@ mean years between adjustments        6.6667          -          -  PENDING  SET
 hand-to-mouth share                   0.0670          -          -  PENDING  untargeted
 WEALTHY hand-to-mouth share           0.0000          -          -  PENDING  untargeted; see verdict V2
 tree-bond spread (pp)                 5.9472          -          -  PENDING  IS the convenience yield AND the equity premium at once; see V7
-demand-curve log-elasticity          -1.8174          -          -  PENDING  -zeta*b/(b+bbar) at the calibrated position; KVJ-comparable
+demand-curve log-elasticity          -1.8174    -1.0274    -0.7900     FLAG  -zeta*b/(b+bbar) at the calibrated position; KVJ-comparable
 real safe rate                        0.0196          -          -  PENDING  implied by the Fisher identity at i and mu; not free
 
-0 ok, 0 flagged, 13 pending transcription, 0 with no model value.
+0 ok, 1 flagged, 12 pending transcription, 0 with no model value.
 
 Wealth-mobility moments are NOT duplicated here. main_validation_mobility
 computes them with its own data slots and four definition-robust
@@ -125,9 +116,19 @@ V1  IS THE SUPERSTAR STATE IDENTIFIED BY ITS SINGLE MOMENT?
     question, and it is measurable: beta is recalibrated to the debt
     target inside every config, which constrains the pair, so the
     counting argument alone does not settle it.
-    NOT YET MEASURED. Re-run wealth_concentration_fit, which now
-    emits the diagnostic; until then this verdict is a count, not
-    a finding.
+    MEASURED by that driver:
+      9 configs solved; 3 tie on the top-1 pct target within 0.0200.
+      among the ties, the top-10 pct share spans 0.0137 and the
+      gini spans 0.0065.
+      => NOT the binding problem. The tied configs agree on
+         the untargeted moments to within the tie band, so on
+         this grid the single moment is locally sufficient and
+         the a-priori count OVERSTATES the slack here.
+         Two limits, both real: a 3 x 3 grid is coarse enough
+         that ties are scarce, and local sufficiency at one
+         point is not global identification. It does mean the
+         slack in section B sits elsewhere -- see V6 and V2.
+      selection rule in force: single-moment (top-1% only) -- TOP10_TARGET not transcribed
 
 V2  THE WEALTHY-HAND-TO-MOUTH SHARE IS A STRUCTURAL ZERO.
     Model value: 0.0000.
@@ -147,8 +148,8 @@ V3  ZETA IS DISCIPLINED AT THE EDGE OF ITS RANGE, NOT AT ITS CENTRE.
     zeta = 2.0000. What matters is not zeta itself but the elasticity it
     implies AT the calibrated liquid position, which is damped by the
     Stone-Geary shift: -zeta*b/(b+bbar) = -1.8174.
-    The KVJ counterpart is not in the stored convenience .mat --
-    that file predates the variable. Re-run the driver.
+    KVJ counterpart, as transcribed in calibrate_convenience_kvj: -1.0274.
+    Model minus KVJ point estimate: -0.7900.
     Either way the paper should report the ZETA = 1.0 rerun alongside
     the benchmark, not instead of it, and say which it prefers and why:
     the sensitivity is what a reader needs, and it is cheap.
