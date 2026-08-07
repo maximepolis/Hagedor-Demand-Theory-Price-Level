@@ -1,0 +1,206 @@
+PARAMETER-IDENTIFICATION LEDGER (referee R12, Major 2, items 1-3)
+pipeline R11.19  |  main_identification_ledger.m  (modified 2026-08-06 22:24)  [!! CODE_VERSION.txt is 1.3 days older than this driver -- the revision above may not be the code that is running; re-extract the project]
+read-only over stored calibrations; nothing is solved here.
+
+source                   state     file stamp         written by
+one-asset calibration    loaded    2026-08-05 15:45   main_project_calibrated
+two-asset ownership+KV   loaded    2026-08-05 15:45   main_twoasset_ownership_kv
+superstar wealth fit     loaded    2026-08-06 19:30   wealth_concentration_fit
+convenience curvature    loaded    2026-08-06 20:18   calibrate_convenience_kvj
+
+two-asset input grid: nb=60 nk=34 nx=150   (production sizes)
+
+===== A. PARAMETER LEDGER =====
+CLASS: NORM normalization | EXT external/cited | CAL calibrated to a
+target | DECL declared, NO external target | NUM discretization
+
+block       parameter                         value  class target moment                    source / note
+--------------------------------------------------------------------------------------------------------------------------------------------
+household   sigma (CRRA)                     2.0000  EXT   -                                conventional; not re-estimated here
+household   beta (one-asset)                 0.9267  CAL   debt / income = 1.10             calibrate_beta
+household   abar (borrowing limit)           0.0000  NORM  -                                zero-borrowing normalization
+household   rho (income AR1)                 0.9000  EXT   -                                standard annual persistence; replicator benchmark
+household   sig_eps                          0.2000  EXT   -                                standard annual innovation s.d.; replicator benchmark
+household   ne (income states)               7.0000  NUM   -                                Rouwenhorst discretization
+household   E[e]                             1.0000  NORM  -                                mean endowment normalization
+policy      Bnom                             1.0000  NORM  -                                nominal debt normalization
+policy      i_ss                             0.0400  EXT   -                                nominal rate; policy choice
+policy      mu = pi_ss                       0.0200  EXT   -                                nominal growth equals inflation
+policy      r_ss (implied)                   0.0196  NORM  -                                Fisher identity; not free
+policy      Gg / income                      0.0200  DECL  -                                program size: an experiment scale, not an estimate
+climate     D0 (damages)                     0.1000  EXT   -                                swept 0.02 / 0.06 / 0.20 = DICE / DJO-BHM / Bilal-Kaenzig
+climate     theta_g (abatement)              1.2000  DECL  -                                ILLUSTRATIVE; no external target. Swept in theta_sweep
+climate     delta_g                          0.1000  DECL  -                                ILLUSTRATIVE green-capital depreciation
+climate     phi_D (risk channel)             0.5000  DECL  -                                ILLUSTRATIVE; 0 switches the channel off
+climate     psi_inc (incidence)              0.0000  DECL  -                                default 0 = uniform damages; swept in the extended runs
+climate     scale_floor                      0.0500  DECL  -                                economic bound on the damage share; prevents an unbounded tail
+............................................................................................................................................
+  [UNCERTIFIED BLOCK -- has not cleared Gate 11; see section D]
+two-asset   lambda_adj                       0.1500  EXT   -                                adjustment frequency; KV 2014 counterpart in section C
+two-asset   zeta_b (conv. curvature)         2.0000  EXT   KVJ demand-curve elasticity      dln(spr)/dln(b) ~ -zeta; see verdict V3
+two-asset   chi_b (conv. level)              0.0022  CAL   S_b = 0.30 in the FRICTIONLESS economy transplanted; see verdict V6
+two-asset   beta (two-asset)                 0.8740  CAL   S_b = 0.30 in the KV economy     calib_beta on the KV household
+two-asset   bbar_liq (Stone-Geary)           0.0300  DECL  -                                NO external target. Set so v-prime(0) is finite; see verdict V2
+two-asset   div_payout phi                   1.0000  DECL  -                                NO external target. R12 names it quantitatively decisive
+two-asset   iota_H                           0.2727  NORM  -                                algebraic: 0.30 / 1.10. NOT a free parameter, NOT a second moment
+two-asset   d (tree dividend)                0.1200  NORM  -                                tree normalization
+two-asset   Kbar                             1.0000  NORM  -                                tree supply normalization
+superstar   mult                            12.0000  CAL   top-1 pct wealth share           grid search; see verdict V1
+superstar   p_in                           2.00e-04  CAL   top-1 pct wealth share           grid search over the SAME single moment
+superstar   p_out                            0.0600  DECL  -                                HELD FIXED in the fit; no external target
+
+===== B. COUNTS AND THE ORDER CONDITION =====
+
+                                      one-asset  two-asset
+normalizations (NORM)                         4          3
+externally set (EXT)                          6          2
+internally calibrated (CAL)                   1          4
+declared, NO target (DECL)                    6          3
+targeted moments                              1          2
+
+The two-asset column counts only what that block ADDS: the household,
+policy and climate blocks are shared, so the preferred-model totals are
+the sums. CAL 5, DECL 9, targeted moments 3.
+
+targeted moments, one-asset:
+  debt / income = 1.10
+targeted moments added by the two-asset block:
+  direct liquid holding S_b = 0.30
+  top-1 pct wealth share
+
+ORDER CONDITION: FAILS. 5 internally solved parameters against 3
+targeted moments. The calibration is UNDER-IDENTIFIED: a family of
+parameter vectors reproduces the same targets, and which point on it
+the driver selects is a property of the search, not of the data.
+This is the A-PRIORI count. Section D asks, per block, whether the
+slack is real: V1 measures it for the superstar pair, V6 for the
+(beta, chi) pair. A count can overstate the slack; it cannot
+understate it, so a failing count still has to be answered.
+
+===== C. UNTARGETED VALIDATION MOMENTS =====
+Every model value below comes from the two-asset block, which is
+UNCERTIFIED. Data slots are NaN until transcribed from the cited
+source; an empty slot reports PENDING and never a pass.
+
+moment                                 model       data        gap  verdict  note
+--------------------------------------------------------------------------------------------------------------------------------------------
+liquid wealth / income                0.2985          -          -  PENDING  TARGETED (S_b = 0.30) -- census row, not a validation
+total wealth / income                 1.8160          -          -  PENDING  untargeted under the one-instrument calibration
+illiquid wealth / income              1.5175          -          -  PENDING  untargeted; equals q x Kbar
+top-10 pct wealth share               0.6601          -          -  PENDING  untargeted; only the top-1 pct share is targeted
+top-1 pct wealth share                0.3246          -          -  PENDING  TARGETED via the superstar fit -- census row
+household DIRECT share of debt        0.2727          -          -  PENDING  TARGETED by construction (0.30 / 1.10) -- census row
+INDIRECT share of debt                0.7273          -          -  PENDING  implied residual; the intermediated slice
+mean years between adjustments        6.6667          -          -  PENDING  SET, not calibrated: 1 / lambda_adj
+hand-to-mouth share                   0.0670          -          -  PENDING  untargeted
+WEALTHY hand-to-mouth share           0.0000          -          -  PENDING  untargeted; see verdict V2
+tree-bond spread (pp)                 5.9472          -          -  PENDING  IS the convenience yield AND the equity premium at once; see V7
+demand-curve log-elasticity          -1.8174    -1.0274    -0.7900     FLAG  -zeta*b/(b+bbar) at the calibrated position; KVJ-comparable
+real safe rate                        0.0196          -          -  PENDING  implied by the Fisher identity at i and mu; not free
+
+0 ok, 1 flagged, 12 pending transcription, 0 with no model value.
+
+Wealth-mobility moments are NOT duplicated here. main_validation_mobility
+computes them with its own data slots and four definition-robust
+stylized-fact gates; this ledger points at that table rather than
+restating it, so there is exactly one place to fill in.
+
+===== D. STRUCTURAL VERDICTS =====
+
+V1  IS THE SUPERSTAR STATE IDENTIFIED BY ITS SINGLE MOMENT?
+    wealth_concentration_fit searches (mult, p_in) over a 3 x 3 grid
+    with p_out held fixed at 0.0600 and selects the cell whose top-1 pct
+    share is closest to a SINGLE target (0.3300). Two free parameters
+    against one moment is an a-priori count, and section B counts it
+    that way. Whether the direction is actually FLAT is a different
+    question, and it is measurable: beta is recalibrated to the debt
+    target inside every config, which constrains the pair, so the
+    counting argument alone does not settle it.
+    MEASURED by that driver:
+      9 configs solved; 3 tie on the top-1 pct target within 0.0200.
+      among the ties, the top-10 pct share spans 0.0137 and the
+      gini spans 0.0065.
+      => NOT the binding problem. The tied configs agree on
+         the untargeted moments to within the tie band, so on
+         this grid the single moment is locally sufficient and
+         the a-priori count OVERSTATES the slack here.
+         Two limits, both real: a 3 x 3 grid is coarse enough
+         that ties are scarce, and local sufficiency at one
+         point is not global identification. It does mean the
+         slack in section B sits elsewhere -- see V6 and V2.
+      selection rule in force: single-moment (top-1% only) -- TOP10_TARGET not transcribed
+
+V2  THE WEALTHY-HAND-TO-MOUTH SHARE IS A STRUCTURAL ZERO.
+    Model value: 0.0000.
+    This does not need a data slot in order to fail. With phi = 1 the
+    whole dividend d*k arrives as LIQUID income, so a household rich in
+    the tree never runs its liquid buffer down, at any beta, lambda or
+    bbar. The share is zero BY CONSTRUCTION rather than by calibration,
+    and any positive external value therefore rejects it. The two
+    parameters governing this margin -- phi and bbar_liq -- are exactly
+    the two carrying the DECL class in the two-asset block. That is not
+    a coincidence: the margin the model cannot reproduce is governed by
+    the parameters nothing external pins down.
+
+V3  ZETA IS DISCIPLINED AT THE EDGE OF ITS RANGE, NOT AT ITS CENTRE.
+    The KVJ mapping dln(spr)/dln(b) ~ -zeta puts the point estimate
+    near zeta = 1 and the range near [0.55, 2.05]. The benchmark uses
+    zeta = 2.0000. What matters is not zeta itself but the elasticity it
+    implies AT the calibrated liquid position, which is damped by the
+    Stone-Geary shift: -zeta*b/(b+bbar) = -1.8174.
+    KVJ counterpart, as transcribed in calibrate_convenience_kvj: -1.0274.
+    Model minus KVJ point estimate: -0.7900.
+    Either way the paper should report the ZETA = 1.0 rerun alongside
+    the benchmark, not instead of it, and say which it prefers and why:
+    the sensitivity is what a reader needs, and it is cheap.
+
+V4  THE CLIMATE BLOCK IS ENTIRELY DECLARED.
+    Only D0 is tied to an external source, and then only as a
+    three-point sweep across damage literatures; theta_g, delta_g,
+    phi_D, psi_inc and scale_floor have no external target at all.
+    Every abatement-effectiveness statement is conditional on theta_g,
+    which is why the damage-dividend term should be read as an
+    elasticity with respect to a declared parameter rather than as a
+    measured magnitude.
+
+V5  IDENTIFICATION AND DISCRETIZATION ARE SEPARATE FAILURES.
+    Section B measures the first; Gate 11 measures the second. Passing
+    Gate 11 would not add a single external target, and a parameter
+    with no external target has no external target at any resolution.
+    Neither result can be used to excuse the other.
+
+V6  CHI IS CALIBRATED IN A DIFFERENT ECONOMY FROM THE ONE IT IS USED IN.
+    chi_b is fitted in main_twoasset_ownership -- the FRICTIONLESS
+    companion, lambda = 1 -- to S_b = 0.30, and then transplanted into
+    the infrequent-adjustment economy, where beta is refitted to the
+    same moment. Two instruments therefore chase ONE target across two
+    economies. The transplant is defensible -- the driver states the
+    reason, that the friction roughly doubles precautionary wealth and
+    puts the level out of chi's reach -- but it is a modelling choice,
+    not an identification, and section B counts the moment once.
+    The WTARGET option adds total wealth as a second moment and makes
+    the pair (beta, chi) genuinely two-instrument; it is not what the
+    shipped benchmark runs, and the paper should say which it reports.
+
+V7  THE CONVENIENCE YIELD AND THE EQUITY PREMIUM ARE ONE NUMBER.
+    The liquid FOC in this economy is
+        chi_b v'(b') = u'(c) [1 - (1+r_b) q/(q+d)],
+    so the tree's excess return over bonds IS the convenience yield:
+    the tree is the only alternative asset, and nothing else can absorb
+    a return gap. The manuscript says as much in the two-asset section.
+    Model value: 5.9472 pp -- the same number under both names. The two
+    ways of writing it agree to the digit, which is the point:
+      100*[(q+d)/q - (1+r_b)] = 5.9472      (called a convenience yield)
+      100*[ d/q  -  r_b     ] = 5.9472      (called an equity premium)
+    The consequence is a restriction, not a calibration choice. The
+    Treasury-premium literature and the equity-premium literature
+    measure objects that differ by roughly an order of magnitude, and
+    this model has ONE number to offer both. It cannot sit in both
+    ranges, so a reader is entitled to know which one the paper is
+    claiming to match and to see the other named as a cost.
+    Neither data slot is transcribed yet, so the SIZE of the tension
+    is not measured here. The identity above holds regardless, and
+    it is the identity -- not the gap -- that the paper must own.
+    Transcribing DATA.convenience_pp and DATA.equity_premium turns
+    this verdict into a number; it will not turn it into a pass.
+

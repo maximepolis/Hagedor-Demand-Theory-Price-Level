@@ -1,0 +1,69 @@
+TAX TIMING vs TERMINAL DEBT: THE THREE-PATH DECOMPOSITION
+
+consolidation start T_c = 10 yr; consolidation half-life H_c = 10 yr
+(these are DIFFERENT parameters; the baseline happens to set both to 10)
+phase-in speed rho_bar = 0.900 (tax half-life 6.58 yr)
+terminal-debt tolerance eps_kappa = 1e-08
+
+These parameters were fixed in DEFICIT_DECOMPOSITION_R10.md before this run.
+
+WHY THERE IS NO FOURTH CASE
+  Under the contemporaneous service rule tau_t = rbar*b_t + g_t the
+  primary balance is zero at every date, so
+      B_t = (1 + i^ss) B_{t-1}   =>   detrended B is CONSTANT.
+  Contemporaneous taxation therefore PINS terminal detrended debt at its
+  initial value. "Contemporaneous tax + permanently higher terminal debt"
+  is not a hard cell to compute; it is an empty one. A fully independent
+  factorial interaction is NOT identified here and is not reported.
+
+STEP 0  legacy dilution, recorded as a reference value
+  kappa^legacy = B_inf^legacy / B_inf^baseline = 1.1931893761 / 1.0000000000 = 1.1931893761
+  cumulative tax shortfall (undiscounted) : 0.1904581946
+  discounted primary-balance gap          : 0.1592629762
+  impact price response vs baseline       : +0.182088 log points
+  ROLE: reference only. NOT a target for any case.
+
+CASE SPECIFICATIONS (all built by kv_fiscal_spec; the solver sees only these)
+  C1  timing=contemporaneous  debt=baseline (pinned by the rule) kappa_mode=free
+  C2  timing=delayed          debt=matched to C1 via a_xi       kappa_mode=target
+  C4  timing=delayed          debt=ratcheted (outcome, not imposed) kappa_mode=free
+
+  tau_t = rbar*b_t + phi_t*g_t + xi_t,   xi_t = a_xi * h_t
+  h_t = 0 for t < T_c, then 2^(-(t-T_c)/H_c);  h(T_c) = 1
+  a_xi is solved ONLY for C2, by kv_solve_consolidation, so that C2's
+  REALIZED terminal debt equals C1's. The terminal price is never
+  overridden and the debt recursion is never replaced.
+
+C3 correctly refused by the builder (kv_fiscal_spec:C3withdrawn).
+
+STEP 1  solving C1 and C4 (kappa FREE in both; nothing is targeted)
+  parameters: beta*=0.926699  D0=0.060  Gg_nom=0.018182  T=80  (legacy setup)
+  C1  converged=1 horizon_ok=1  kappa_inf=1.0000000000  dlnP1=-0.039622
+  C4  converged=1 horizon_ok=1  kappa_inf=1.1931592040  dlnP1=+0.142100
+
+STEP 2  solving C2's consolidation amplitude a_xi so that C2's REALIZED
+        terminal debt equals C1's. kappa is FREE at every evaluation.
+  consolidation: a_xi = 0.01321210285, kappa_inf = 0.9999775168, gap 2.25e-05 (NOT_CONVERGED)
+  status=NOT_CONVERGED  a_xi=0.0132121028  kappa_inf=0.9999775168  gap=2.248e-05  hit=0  (38 iters)
+
+STEP 3  PARITY: C4's realized dilution against the legacy reference
+  kappa_inf^C4 = 1.1931592040   kappa^legacy = 1.1931893761   rel gap = 2.529e-05
+  gate: rel gap < 2.0e-02 (10x the transition tolerance; two separate
+        solves of the same experiment cannot agree more closely)
+  PARITY OK: C4 reproduces the manuscript experiment
+
+STEP 4  budget identities (V1-V7). Period residual is normalized by
+        program expenditure, present-value residual by initial debt.
+  case max|V4 period|    V5 PV resid    V4 gate    V5 gate
+  C1       0.000e+00      1.608e-15       PASS       PASS
+  C2       4.196e-14      8.039e-16       PASS       PASS
+  C4       0.000e+00      2.010e-15       PASS       PASS
+  thresholds: V4 < 1e-09, V5 < 1e-07
+
+STEP 5  ESTIMANDS
+  WITHHELD. A gate failed, and a decomposition of a path that does not
+  satisfy the government budget identity at every date is not a
+  decomposition of anything. Gates: parity=1 budget=1 converged=1
+  consolidation-hit=0
+
+[main_deficit_decomposition] wrote C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\deficit_decomposition.txt (4974.6 s)

@@ -1,0 +1,61 @@
+TAX TIMING vs TERMINAL DEBT -- ESTIMANDS FROM THE SAVED RUN
+pipeline R11.35  |  main_deficit_estimands.m  (modified 2026-08-07 12:04)  [!! MIXED EXTRACT: the .m files are R11.35 but CODE_VERSION.txt says (CODE_VERSION.txt not found). The .m files are authoritative -- your unpacker is not overwriting the text file. Delete CODE_VERSION.txt and extract again.]
+read-only over output/deficit_decomposition.mat; nothing is solved here.
+
+GATES
+  converged            C1=1 C2=1 C4=1
+  horizon_ok           C1=1 C2=1 C4=1
+  parity C4 vs legacy  kappa 1.1931592040 vs 1.1931893761, rel gap 2.529e-05  PASS
+  budget C1           V4 0.000e+00  V5 1.608e-15  PASS
+  budget C2           V4 4.196e-14  V5 8.039e-16  PASS
+  budget C4           V4 0.000e+00  V5 2.010e-15  PASS
+  consolidation        terminal-debt miss 2.248e-05
+                       ratchet decomposed 0.193159
+                       miss / ratchet     1.164e-04  (gate < 1e-03)  PASS
+
+  ALL GATES: PASS
+
+IMPACT RESPONSE dlnP_1 = log(phat_1 / P_0)
+  C1  contemporaneous service rule            -0.039622
+  C2  delayed tax, CONSOLIDATED to C1's debt  +0.022093
+  C4  delayed tax, no recovery (manuscript)   +0.142100
+
+ESTIMANDS
+  tax timing at MATCHED terminal debt   (C2-C1) = +0.061715
+  failure to consolidate, same delay    (C4-C2) = +0.120007
+  total legacy joint effect             (C4-C1) = +0.181722
+  share of the joint effect due to TIMING       = 0.3396
+  share due to the FAILURE TO CONSOLIDATE       = 0.6604
+
+  CROSS-CHECK: C4-C1 = +0.181722 against the independently computed
+  legacy impact response +0.182088 (kv_kappa_legacy). These are two
+  separate routes to the same object; they agree to 3.7e-04.
+
+SIGN TEST (the referee's decision rule for Major Comment 6)
+  C1 -0.039622   C2 +0.022093   C4 +0.142100
+  sign reverses C1 -> C2 (timing at MATCHED terminal debt) : YES
+  sign reverses C1 -> C4 (the joint manuscript experiment) : YES
+  => A TAX-TIMING CLAIM IS LICENSED. Holding terminal debt at C1's,
+     delaying the tax alone flips the impact price response from
+     -0.0396 to +0.0221. The reversal is not an artifact of the
+     unrecovered revenue: it survives full consolidation.
+     BUT the MAGNITUDE remains predominantly the ratchet (see the
+     shares above), so the manuscript's reported joint number
+     overstates the timing effect by roughly 2.9x.
+
+  WHAT THIS DOES NOT ESTABLISH. This is one phase-in speed
+  (rho_bar as set in the run), not a frontier. The manuscript reports a
+  CRITICAL SPEED, and that object is still the joint one: re-locating it
+  as a timing threshold requires sweeping rho under the C2 rule, with the
+  consolidation amplitude re-solved at each speed.
+
+READING
+  Both channels are material. Neither a pure timing claim nor a pure
+  ratchet claim is supported; report the split.
+
+  NO INTERACTION TERM. With three feasible paths and two margins a fully
+  independent factorial interaction is NOT identified. C3 -- the cell that
+  would identify it -- is infeasible under the contemporaneous service
+  rule, which permits no primary deficit at any date.
+
+[main_deficit_estimands] wrote C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\deficit_estimands.txt

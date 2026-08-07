@@ -1,0 +1,23 @@
+OWNERSHIP + INFREQUENT ADJUSTMENT. nb=40 nk=22 nx=100 ne=8 lambda=0.15 FAST=1
+iota_H=0.273 (direct target 0.30 of income); superstar mult=12.0 p_in=0.000
+liquidity: zeta_b=2.00, Stone-Geary shift bbar=0.030 (0 => Inada at b=0 => HtM==0)
+dividend payout phi=1.00 (1 => full d*k paid LIQUID => wealthy never run down => WHtM==0)
+
+----- (0) diagnostic single equilibrium (chi=0.0022) -----
+  diagnostic OK: S_b=0.9228 q=6.0069 P=0.2955 min_c=0.1829 n_infeas=0
+----- (1) baseline (2D: beta -> W=3.00, chi -> omega=0.100) -----
+beta=0.91153 chi_b=0.00012 S_b=0.3614 (target 0.30) q=2.3155 P=0.7547 omega=0.135 div=0.1389
+wealth: total 2.677 x income (illiquid 2.316, liquid 0.361); tree yield d/q=0.052
+feasibility: min consumption 0.2226, infeasible states 0, k-grid top mass 0.0012
+HtM (b<0.02): total 0.157 | WEALTHY (qk>0.50): 0.000 | poor: 0.157
+wealth shares: top10 0.62 top1 0.29
+
+----- (2) financing incidence (lump-sum vs levy) -----
+lump-sum P=0.5595 dlnP=-0.2993 q=3.5892
+levy     P=0.7739 dlnP=+0.0251 q=2.2843
+sign contrast survives: 1
+
+Reading: does the ADJUSTMENT FRICTION on top of the ownership wedge
+finally deliver WEALTHY hand-to-mouth households (WHtM > 0)? If so this
+is the calibration for the covariance-on-realistic-bond-ownership
+exercise and the disciplined welfare incidence.

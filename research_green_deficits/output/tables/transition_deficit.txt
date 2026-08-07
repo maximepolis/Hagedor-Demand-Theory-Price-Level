@@ -1,0 +1,22 @@
+DEFICIT-FINANCED DTPL ANNOUNCEMENT. na=500 T=80 rho_d=0.90 FAST=0
+indexed real program; taxes phase in as 1-rho_d^t; debt is the residual
+
+balanced anchor: loaded saved indexed path (T=80)
+
+--- deficit financing, rho_d = 0.90 ---
+  tier2 indexed/deficit: fixed point CONVERGED (interior max 0.00043 @t=4), horizon OK (terminal resid 0.00011) in 61 iters; impact phat_1/P0 = 1.1529 (surprise inflation), terminal P = 1.0249
+  kappa_inf (terminal stock dilution) = 1.1932 (analytic seed 1.1636)
+  cumulative primary gap = 0.1905 of annual income; peak-year gap = 0.0190
+
+----- results -----
+impact d ln P: balanced -0.0398 | deficit +0.1423 | wedge +0.1821
+terminal dilution ln kappa_inf = +0.1766
+capitalization ratio (impact wedge / ln kappa_inf) = 1.031
+  1.0 => the announcement prices the entire future issuance at once;
+  0.0 => the deficit is priced only as issued; <0 => timing deepens
+  the disinflation. The ratio is the finding.
+announcement disinflation under deficit finance: OVERTURNED (impact +0.1423)
+front-loading share: balanced 0.767 | deficit 1.154 (vs own terminal)
+bondholder revaluation at t=1 (share of program PV): balanced -0.053 | deficit +0.172
+
+[main_transition_deficit] wrote C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\transition_deficit.txt (102.6 s)
