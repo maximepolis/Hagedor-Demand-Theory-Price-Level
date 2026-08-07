@@ -1,4 +1,4 @@
-R11.37
+R11.38
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,27 @@ R11.37
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.38 check_output_staleness's extract guard was wrong, and its own first
+#        run disproved it. All fourteen flagged writers carried the identical
+#        stamp 2026-08-07 12:04 -- one unpack event, not fourteen edits --
+#        yet the guard announced "the .m stamps span 116.1 hours, so the
+#        comparison above is meaningful". It had compared the OLDEST and
+#        NEWEST source in the tree, a span kept wide by files left from
+#        earlier extracts, when the question is whether THIS writer's stamp
+#        dates an edit. False reassurance is worse than no check: the reader
+#        stops looking.
+#        The guard is now per-row and measures CLUSTERING -- how many other
+#        sources share this writer's timestamp to the minute. Files are edited
+#        singly and unpacked in batches, so a shared stamp dates an unpack.
+#        Those rows report cannot-tell, never STALE, and the summary says
+#        plainly that a tree assembled entirely by extraction yields no stale
+#        verdicts as a LIMIT OF THE EVIDENCE rather than a clean bill of
+#        health.
+#        What the audit cannot see, and is true: identification_ledger.mat is
+#        stamped 2026-08-06 22:25, before R11.30 collapsed the duplicated
+#        convenience-yield row, added verdict V7 and switched the
+#        log-elasticity to interval grading. That artifact is genuinely out of
+#        date with its driver, and only the run log knows it.
 # R11.37 the regenerated PFig18 exposed two defects, one of them mine.
 #        (a) I wired its third path to regime_style('reversal') on the
 #        assumption that it was a policy-reversal path. The argument doc one
