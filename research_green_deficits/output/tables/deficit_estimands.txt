@@ -1,5 +1,5 @@
 TAX TIMING vs TERMINAL DEBT -- ESTIMANDS FROM THE SAVED RUN
-pipeline R11.35  |  main_deficit_estimands.m  (modified 2026-08-07 12:04)  [!! MIXED EXTRACT: the .m files are R11.35 but CODE_VERSION.txt says (CODE_VERSION.txt not found). The .m files are authoritative -- your unpacker is not overwriting the text file. Delete CODE_VERSION.txt and extract again.]
+pipeline R11.37  |  main_deficit_estimands.m  (modified 2026-08-07 14:31)  [!! MIXED EXTRACT: the .m files are R11.37 but CODE_VERSION.txt says (CODE_VERSION.txt not found). The .m files are authoritative -- your unpacker is not overwriting the text file. Delete CODE_VERSION.txt and extract again.]
 read-only over output/deficit_decomposition.mat; nothing is solved here.
 
 GATES
@@ -45,9 +45,13 @@ SIGN TEST (the referee's decision rule for Major Comment 6)
 
   WHAT THIS DOES NOT ESTABLISH. This is one phase-in speed
   (rho_bar as set in the run), not a frontier. The manuscript reports a
-  CRITICAL SPEED, and that object is still the joint one: re-locating it
-  as a timing threshold requires sweeping rho under the C2 rule, with the
-  consolidation amplitude re-solved at each speed.
+  CRITICAL SPEED, which is a different object.
+
+  THAT SWEEP HAS RUN (main_timing_frontier):
+    JOINT  frontier  rho* = 0.6121   tax half-life 1.41 yr
+    TIMING frontier  rho* = 0.7977   tax half-life 3.07 yr
+    Flipping the sign on timing ALONE takes a delay 2.2x
+    slower. The manuscript quotes the joint number.
 
 READING
   Both channels are material. Neither a pure timing claim nor a pure
