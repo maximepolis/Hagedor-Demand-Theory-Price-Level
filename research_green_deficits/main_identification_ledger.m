@@ -471,11 +471,25 @@ if isfinite(kvj_data), DATA.convenience_logel = kvj_data; end
 if ~isfield(DATA, 'convenience_logel'), DATA.convenience_logel = NaN; end
 % The same .mat that transcribes the point estimate transcribes the range.
 % Use the range when it is there; fall back on the symmetric half-width only
-% when it is not, and say which rule was applied.
+% when it is not, and SAY SO -- loudly, because the two rules disagree here.
+%
+% A SILENT FALLBACK PRODUCED A VERDICT THAT CONTRADICTED ITS OWN SOURCE. This
+% block reads kvj_log_lo/kvj_log_hi, and until R11.40 calibrate_convenience_kvj
+% computed those, printed "the benchmark zeta = 2 lies INSIDE the KVJ range",
+% and then omitted them from its save list. The ledger found no range, quietly
+% took the symmetric branch, and reported FLAG -- flatly against the sentence
+% the source driver had just printed. The fallback itself is right; taking it
+% without a word is not, so it now announces the demotion next to the row.
+logel_rule_note = '';
 if isfinite(kvj_lo) && isfinite(kvj_hi)
     IVAL.convenience_logel = sort([kvj_lo, kvj_hi]);
-else
+elseif isfinite(kvj_data)
     BAND.convenience_logel = 0.75;   % half the KVJ log-elasticity range
+    logel_rule_note = ['the KVJ RANGE is absent from the stored .mat, so this ' ...
+        'row is graded against a symmetric half-width around the point ' ...
+        'estimate. That approximation is known to reject values lying INSIDE ' ...
+        'the published range -- re-run calibrate_convenience_kvj (R11.40 or ' ...
+        'later) to restore the range and regrade.'];
 end
 
 % ONE NUMBER, NOT TWO ROWS. An earlier version of this table carried both a
@@ -574,6 +588,10 @@ if ~isempty(ivrows)
     tee('\nrows graded against a published RANGE rather than a symmetric band:\n');
     for i = 1:numel(ivrows), tee('%s', ivrows{i}); end
 end
+if ~isempty(logel_rule_note)
+    tee(['\n*** GRADING RULE DEMOTED for the demand-curve log-elasticity:\n' ...
+         '*** %s\n'], logel_rule_note);
+end
 tee('\n');
 tee('Wealth-mobility moments are NOT duplicated here. main_validation_mobility\n');
 tee('computes them with its own data slots and four definition-robust\n');
@@ -669,6 +687,13 @@ end
 % is not symmetric about the point estimate, so the distance printed above
 % does not settle whether the model is consistent with the paper it cites.
 % Say where the model sits in the interval and let the reader see it.
+if ~isempty(logel_rule_note)
+    tee(['    THE RANGE IS NOT IN THE STORED .mat, so section C graded this\n' ...
+         '    row against a symmetric half-width and reported FLAG. Do not\n' ...
+         '    read that as a rejection: calibrate_convenience_kvj computes the\n' ...
+         '    range and its own console says the benchmark lies inside it.\n' ...
+         '    Re-run that driver (R11.40 or later) and this verdict regrades.\n']);
+end
 if isfinite(logel_model) && isfinite(kvj_lo) && isfinite(kvj_hi)
     iv = sort([kvj_lo, kvj_hi]);
     tee('    KVJ RANGE, from the same transcription: [%s, %s].\n', ...

@@ -144,8 +144,18 @@ tee(['  => the benchmark zeta = 2 lies INSIDE the KVJ range (log-elasticity ~ -1
      '  => referee-critical follow-up: rerun the ownership-KV benchmark with\n' ...
      '     ZETA = 1.0 and check the restoration (dlnP lump-sum < 0) survives.\n']);
 
+% PERSIST THE LOG RANGE, NOT ONLY THE POINT. kvj_lo/kvj_hi are the raw pp
+% SEMI-elasticity bounds (-1.5, -0.4 pp per log point); the comment above
+% explains why those are not comparable to a model whose spread sits at
+% equity scale. The comparable objects are the LOG-elasticities computed on
+% the line above, and until now they were printed and then discarded. The
+% identification ledger consequently found no range to grade against, fell
+% back to a symmetric half-width around the point estimate, and reported the
+% benchmark as a FLAG -- contradicting the sentence this very driver prints,
+% that zeta = 2 lies inside the KVJ range. Save what the console claims.
 save(fullfile(projdir,'output','convenience_kvj.mat'), 'Z', 'zeta_star', ...
-     'kvj_target', 'kvj_lo', 'kvj_hi', 'kvj_logel', 'hK', 'p');
+     'kvj_target', 'kvj_lo', 'kvj_hi', 'kvj_logel', ...
+     'kvj_log_lo', 'kvj_log_hi', 'hK', 'p');
 fclose(fid);
 fprintf('[calibrate_convenience_kvj] wrote %s (%.1f s)\n', sf, toc(t0));
 
