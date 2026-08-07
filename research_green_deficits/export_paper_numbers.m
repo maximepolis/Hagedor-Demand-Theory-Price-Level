@@ -323,5 +323,51 @@ if exist(wff, 'file') == 2
     end                                              % NO-FIT skip
 end
 
+% ---- deficit decomposition C1/C2/C4 (main_deficit_decomposition) ----
+% Guarded twice: on the file, and on EST.reportable -- the driver itself
+% withholds the estimands when any budget or consolidation gate fails, and
+% a withheld estimand must not reach the paper through a side door here.
+ddf = fullfile(projdir, 'output', 'deficit_decomposition.mat');
+if exist(ddf, 'file') == 2
+    DD = load(ddf, 'EST');
+    if isfield(DD, 'EST') && isfield(DD.EST, 'reportable') && DD.EST.reportable
+        mac('DefDecCOne',  sprintf('%+.3f', DD.EST.dlnP1.C1));
+        mac('DefDecCTwo',  sprintf('%+.3f', DD.EST.dlnP1.C2));
+        mac('DefDecCFour', sprintf('%+.3f', DD.EST.dlnP1.C4));
+        shr = abs(DD.EST.timing_matched_debt) / max(abs(DD.EST.legacy_joint), eps);
+        mac('DefDecTimingShare',  sprintf('%.0f', 100*shr));
+        mac('DefDecRatchetShare', sprintf('%.0f', 100*(1 - shr)));
+    end
+end
+
+% ---- timing vs joint frontier (main_timing_frontier) ----
+% The joint macro is emitted whenever that crossing is bracketed with no
+% requested speed missing inside the bracket. The TIMING macros are gated
+% the same way, and that gate is the point: while the sweep's C2 bracket
+% still contains a failed speed, the crossing printed by the driver is a
+% wide-bracket interpolation of a convex curve -- biased, and destined to
+% move when the hole is filled. Withholding the macro leaves \pendingnum
+% in the text, which is the correct rendering of a number that is not
+% final. The manuscript's own \DefHalfStarRatchet (numbers_manual.tex)
+% stays hand-maintained: it comes from the ladder bisection, a tighter
+% instrument than this sweep, which merely cross-validates it.
+tff = fullfile(projdir, 'output', 'timing_frontier.mat');
+if exist(tff, 'file') == 2
+    TF = load(tff, 'FR');
+    if isfield(TF, 'FR')
+        F = TF.FR;
+        if F.ok_joint && ~F.wide_joint
+            mac('DefHalfStarJointSweep', sprintf('%.2f', F.hl_joint));
+        end
+        if F.ok_timing && ~F.wide_timing
+            mac('DefRhoStarTiming',  sprintf('%.2f', F.r_timing));
+            mac('DefHalfStarTiming', sprintf('%.1f', F.hl_timing));
+            if F.ok_joint && ~F.wide_joint
+                mac('DefTimingJointRatio', sprintf('%.1f', F.hl_timing / F.hl_joint));
+            end
+        end
+    end
+end
+
 fclose(fid);
 fprintf('[export_paper_numbers] wrote %s\n', outf);

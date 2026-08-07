@@ -167,6 +167,16 @@
 \providecommand{\DefRhoStarRatchetLo}{\pendingnum}\providecommand{\DefRhoStarRatchetHi}{\pendingnum}
 \providecommand{\DefRhoStarRatchet}{\pendingnum}\providecommand{\DefHalfStarRatchet}{\pendingnum}
 \providecommand{\DefCumStar}{\pendingnum}
+% Matched-terminal-debt (C2) decomposition and pure-timing frontier: emitted
+% by export_paper_numbers from deficit_decomposition.mat / timing_frontier.mat.
+% The timing-frontier macros stay \pendingnum until the sweep's bracket is
+% gap-free -- the exporter itself enforces that, so a provisional crossing
+% cannot reach the text as a number.
+\providecommand{\DefDecCOne}{\pendingnum}\providecommand{\DefDecCTwo}{\pendingnum}
+\providecommand{\DefDecCFour}{\pendingnum}
+\providecommand{\DefDecTimingShare}{\pendingnum}\providecommand{\DefDecRatchetShare}{\pendingnum}
+\providecommand{\DefRhoStarTiming}{\pendingnum}\providecommand{\DefHalfStarTiming}{\pendingnum}
+\providecommand{\DefTimingJointRatio}{\pendingnum}\providecommand{\DefHalfStarJointSweep}{\pendingnum}
 \providecommand{\TwoTrT}{\pendingnum}\providecommand{\TwoTrResid}{\pendingnum}
 \providecommand{\TwoTrTermGap}{\pendingnum}\providecommand{\TwoTrIdent}{\pendingnum}
 \providecommand{\TwoTrImpP}{\pendingnum}\providecommand{\TwoTrLongP}{\pendingnum}
@@ -463,8 +473,12 @@ together, and the sign reversal we locate across phase-in speeds is a
 property of that joint experiment --- a combined tax-delay and debt-ratchet
 path --- and not of tax timing alone. We report the crossing speed only where
 the joint experiment is tabulated (Section~\ref{subsec:tier2},
-Table~\ref{tab:deficitladder}), and defer
-the matched-terminal-debt decomposition that would separate the two. Household by household, the announced path is
+Table~\ref{tab:deficitladder}). The matched-terminal-debt decomposition that
+separates the two --- the same delayed tax path with a consolidation
+surcharge returning terminal debt to the contemporaneous benchmark ---
+shows that delaying the tax alone still reverses the announcement sign,
+while roughly two thirds of the headline magnitude is the terminal-debt
+ratchet rather than timing (Section~\ref{subsec:tier2}). Household by household, the announced path is
 more regressive than the steady-state comparison suggests --- the
 windfall accrues at the top while front-loaded taxes bite at the constrained
 bottom --- whereas the rebate design, solved along the same path, keeps the
@@ -1428,8 +1442,9 @@ of the predetermined nominal stock, not a primary deficit
 (Section~\ref{subsec:tier2} makes the accounting explicit, and then solves
 the deficit-financed path separately, and finds that the announcement
 prices the future issuance immediately and more than one-for-one, so the
-disinflation can be overturned when phase-in is slow enough that the
-terminal nominal stock is left permanently higher).
+disinflation can be overturned when phase-in is slow enough, under a rule
+that never recovers the delayed revenue and so leaves the terminal nominal
+stock permanently higher --- a joint timing-and-ratchet effect).
 
 We recast the
 determinacy conditions in $b$ accordingly: $\varepsilon_S(P)<-1$ is
@@ -3009,7 +3024,9 @@ Section~\ref{sec:conclusion}. One scope condition on that contrast follows
 from the deficit-financed path solved below: the matching is done at
 \emph{balanced} financing, which is what isolates price determination,
 and the DTPL side prices the announcement positive too once financing is
-slow enough (Section~\ref{subsec:tier2}). The sign contrast is therefore a
+slow enough under the no-recovery rule solved there --- a joint tax-delay
+and debt-ratchet path, not slow timing alone
+(Section~\ref{subsec:tier2}). The sign contrast is therefore a
 statement about the two price-determination blocks \emph{at a common
 financing schedule}, not a claim that the classes disagree at every
 schedule; the complete object is the $2\times2$ of price determination
@@ -3094,7 +3111,9 @@ answer it next.
 \paragraph{Deficit financing: the announcement prices the whole issuance
 path at once.} We solve the same transition with taxes phased in rather
 than levied contemporaneously, holding the real program identical so that
-\emph{only timing} differs: $\tau_t = r^{ss}b_t + (1-\rho_d^{\,t})g_{g}$,
+only the financing rule differs: $\tau_t = r^{ss}b_t + (1-\rho_d^{\,t})g_{g}$
+--- the delayed revenue is never recovered under this rule, so the terminal
+nominal stock differs too; see the caveat below ---
 so a share $\rho_d^{\,t}$ of date-$t$ spending is debt-financed and
 \eqref{eq:nombudget} issues above trend. Real debt is then the residual of
 the exact recursion, and by Lemma~\ref{lem:neutrality} the terminal price
@@ -3119,8 +3138,13 @@ flips from $\DefRevalBal\%$ of program present value to $\DefRevalDef\%$
 into a bondholder levy.
 
 \begin{table}[htbp]\centering
-\caption{The financing-timing frontier. Same economy, same real program;
-only the tax phase-in speed $\rho_d$ varies. The $\rho_d=0$ row is a
+\caption{The financing-timing ladder (joint tax-delay and debt-ratchet
+experiment). Same economy, same real program; the tax phase-in speed
+$\rho_d$ varies, and because the delayed revenue is never recovered each
+row also carries a permanently larger terminal nominal stock
+($\kappa_\infty$ column) --- the frontier the ladder traces is the joint
+one of eq.~(\ref{eq:deficitfrontier}), not a pure tax-timing threshold.
+The $\rho_d=0$ row is a
 regression test: $\phi_t\equiv1$ collapses the deficit recursion to the
 service rule analytically, and it reproduces the balanced benchmark to
 five decimals. The last column is the chord
@@ -3169,11 +3193,17 @@ anchor. The experiment is therefore a \emph{joint} change in tax timing and
 in the terminal debt stock --- a permanent debt ratchet --- and not a
 tax-timing experiment. Separating the two requires a matched-terminal-debt
 path, the same early relief followed by a consolidation surcharge returning
-$\kappa_\infty$ to one, which we do not compute here. Accordingly we report
-what follows as an \emph{illustrative joint result}: it establishes that the
-sign of the announcement-year price response is not a property of green
-investment as such but of the financing path attached to it, and it does not
-establish a threshold on tax timing. Nor do we claim that observed financing
+$\kappa_\infty$ to one, and we compute it: at the phase-in speed reported
+above, the announcement-year response moves from $\DefDecCOne$ log points
+under contemporaneous service to $\DefDecCTwo$ at matched terminal debt ---
+the sign reverses on timing alone --- while the further move to
+$\DefDecCFour$ under the no-recovery rule is the ratchet. Of the joint
+effect, $\DefDecTimingShare\%$ is timing and $\DefDecRatchetShare\%$ is the
+terminal-debt ratchet. Accordingly the \emph{sign} of the announcement-year
+price response is a tax-timing result in kind, while the reported
+\emph{magnitude} remains a joint object dominated by the ratchet, and the
+headline number that follows retains its joint label. Nor do we claim that
+observed financing
 schedules lie on either side of it; that would require a documented sample of
 schedules we do not have.
 
@@ -3193,7 +3223,16 @@ $\rho_d^{*}\in[\DefRhoStarRatchetLo,\DefRhoStarRatchetHi]$: a tax-financing
 half-life of $\DefHalfStarRatchet$ years along that ratcheted path,
 cumulatively $\DefCumStar$ years of
 program cost debt-financed, a terminal dilution of about $\DefKapStar\%$ of
-the outstanding nominal stock.
+the outstanding nominal stock (an independent sweep of the same rule over a
+grid of phase-in speeds reproduces the crossing at
+$\DefHalfStarJointSweep$ years). The matched-terminal-debt experiment has
+its own, slower frontier: sweeping the phase-in speed under the
+consolidation rule locates the pure-timing crossing at
+$\rho_d^{*}=\DefRhoStarTiming$ ---
+a tax half-life of $\DefHalfStarTiming$ years, roughly
+$\DefTimingJointRatio$ times the joint figure. Delaying the tax flips the
+announcement sign far sooner when the delayed revenue is never paid back
+than when it is; the ratchet buys most of the speed.
 
 The computational problem is a fixed point on the log
 price path: excess asset demand at date $t$ lowers $\hat P_t$, raising the
@@ -3376,7 +3415,7 @@ the policy choice rather than about the distant future.
 Three distinct objects in this section share one signature, and it is
 worth naming because it is the mechanism's fingerprint. The program's own
 disinflation is $\OneTrShare$ realized in the announcement year; the
-instrument ordering, $\OrdOne\%$; the financing-timing dilution,
+instrument ordering, $\OrdOne\%$; the deficit-financing dilution,
 $\DefCD$ times its terminal value. Each is capitalized immediately and
 each slightly \emph{overshoots} before settling back. This is what it
 means for the price level to be an asset price: it moves on news, by the
@@ -3499,13 +3538,14 @@ untested prediction --- a credible green announcement is disinflationary on
 impact under lump-sum finance, provided the financing is scheduled to
 arrive quickly. When taxes are phased in instead, the announcement prices
 the future issuance immediately and more than one-for-one, and the sign can
-flip. We do not quantify the crossing here: the experiment that locates it
-also leaves the delayed revenue permanently unrecovered, so it combines tax
-timing with a higher terminal nominal anchor, and the matched-terminal-debt
-path that would separate the two is not computed
-(Section~\ref{subsec:tier2}). The current calculation is conditional on both
-the announced tax path and the associated consolidation or terminal-debt
-rule. The matched
+flip. The crossing depends on which experiment locates it: the headline
+frontier leaves the delayed revenue permanently unrecovered, so it combines
+tax timing with a higher terminal nominal anchor, while the
+matched-terminal-debt decomposition shows the sign flip surviving on timing
+alone, at a substantially slower crossing
+(Section~\ref{subsec:tier2}). Either way the calculation is conditional on
+both the announced tax path and the associated consolidation or
+terminal-debt rule. The matched
 heterogeneous-agent New
 Keynesian economy prices the same announcement with the opposite sign
 (\matchedNKimpact\% against \matchedDTPLimpact\% annualized), though the

@@ -164,7 +164,12 @@ figure budget below (§6.4).
   **Keep — this is the "one principal contribution".**
 - 436–447 — the capitalization result. **Keep — this is the "one secondary
   dynamic contribution".** Trim 447–459 (the deficit-ratchet paragraph) to
-  **two sentences**, since the ladder itself moves out of §7.
+  **two sentences**, since the ladder itself moves out of §7 — and make them
+  the decomposition's: (i) at matched terminal debt, delaying the tax alone
+  reverses the announcement sign; (ii) roughly two-thirds of the headline
+  magnitude is the terminal-debt ratchet, and the 1.4-year frontier is the
+  *joint* frontier. Do not quote a timing-alone half-life in the intro while
+  the C2 frontier is provisional (`CLAIM_STATUS_R13.md` item 18).
 - 489–510 — "Contributions, in order of robustness", first half. Keep.
 - 548–554 — the one-thread paragraph. Keep.
 
@@ -565,10 +570,14 @@ pending Gate 11 (`WP`). **Do not upgrade any two-asset number.**
   "What the following number is, and is not"; **2999–3013** the frontier
   `eq:deficitfrontier` and ρ_d\*. That is 100 lines ≈ 2.0pp. Replace with a
   **6-line summary** in the body: taxes phased in rather than levied
-  contemporaneously overturn the announcement sign; the experiment is a joint
-  tax-timing-and-terminal-debt change, not a tax-timing experiment; the
-  matched-terminal-debt path is not computed. **The caveat must travel with
-  the summary, not stay behind with the table** — `CLAIM_STATUS_R13.md`
+  contemporaneously overturn the announcement sign, and the reversal survives
+  full consolidation — at matched terminal debt the sign flips
+  (C1 −0.040 → C2 +0.022), so it is a tax-timing effect *in kind*; the
+  reported *magnitude* is a joint object, roughly one-third timing and
+  two-thirds terminal-debt ratchet; the 1.4-year frontier is the *joint*
+  frontier (validated, ρ* = 0.6121 → 1.41 y); the timing-alone frontier is
+  slower and enters only through its exporter-gated macro. **The caveat must
+  travel with the summary, not stay behind with the table** — `CLAIM_STATUS_R13.md`
   item 18 records that "caveat precedes the number" is an applied edit and must
   not be undone by this move.
 - **3015–3023** and **3025–3040** the computational-fixed-point and
@@ -773,9 +782,14 @@ places where "move it" is a lie are:
    (393–412, 428–434, 465–473, 475–487) are clean excisions, but the
    surrounding argument then has to carry the weight the literature section
    used to carry, because that section leaves too.
-3. **The §7 deficit summary.** Compressing 100 lines to 6 while keeping the
-   "joint tax-timing-and-terminal-debt" caveat *in front of* the number is the
-   single easiest place in this plan to accidentally strengthen a claim.
+3. **The §7 deficit summary.** The decomposition run changes what the 6
+   lines may say: the *sign* claim may now be strengthened (it survives
+   consolidation), the *magnitude* may not (two-thirds ratchet), and the
+   timing-alone half-life may not be quoted beyond its exporter-gated macro
+   while its bracket is provisional. The easiest mistake is no longer
+   accidental strengthening but drawing the licensed/unlicensed line in the
+   wrong place — check the summary against `CLAIM_STATUS_R13.md` item 18
+   before committing it.
 
 ---
 
