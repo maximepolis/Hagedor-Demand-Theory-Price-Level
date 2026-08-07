@@ -29,7 +29,7 @@ function s = kv_code_version(callerpath)
     % the .m files are the ones the extraction updates, so if this string and
     % the text file disagree, they came from different revisions. That is a
     % fact, not an inference, and it is worth the two-line bump discipline.
-    EXPECTED = 'R11.38';
+    EXPECTED = 'R11.39';
 
     if nargin < 1 || isempty(callerpath), callerpath = ''; end
 
@@ -104,8 +104,22 @@ function s = kv_code_version(callerpath)
 
     % The source tree's own claim wins the headline when the two disagree,
     % because it travels with the code that is actually executing.
+    %
+    % ABSENT IS NOT THE SAME AS DISAGREEING, and conflating them produced a
+    % false alarm on every run for two days. When the text file is missing
+    % there is no second opinion to conflict with -- the .m constant is simply
+    % the only source, which is a complete answer -- yet the old code compared
+    % the not-found placeholder against EXPECTED, declared MIXED EXTRACT, and
+    % advised "delete CODE_VERSION.txt and extract again", which is advice to
+    % delete a file that is not there. Two genuinely different conditions:
+    % a file that is present and says something else (a real mixed extract,
+    % worth shouting about), and a file that is absent (worth one quiet word).
     disagree = '';
-    if ~strcmp(tag, EXPECTED)
+    if exist(vf, 'file') ~= 2
+        disagree = '  [CODE_VERSION.txt absent; revision read from the source]';
+        tag = EXPECTED;
+        mix = '';
+    elseif ~strcmp(tag, EXPECTED)
         disagree = sprintf(['  [!! MIXED EXTRACT: the .m files are %s but ' ...
                             'CODE_VERSION.txt says %s. The .m files are ' ...
                             'authoritative -- your unpacker is not ' ...

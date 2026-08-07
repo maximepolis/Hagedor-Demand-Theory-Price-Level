@@ -1,5 +1,12 @@
 # What to run, and what to push back — round 6
 
+> **BEFORE ANY EXTRACT, read `EXTRACT_RULE.md`.** Unpacking the archive over
+> the working folder overwrites `output/` with the repository's older committed
+> results — it has silently reverted a completed `wealth_concentration_fit` and
+> a completed `calibrate_convenience_kvj` more than once, each time making the
+> ledger re-issue a run instruction for work that had already been done.
+> Extract the code; never extract `output/` or `paper/numbers_auto.tex`.
+
 ## 1. What to run (MATLAB, from `research_green_deficits/`)
 
 Everything in this round is either a text/proof fix (no run needed) or is
