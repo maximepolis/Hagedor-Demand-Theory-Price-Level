@@ -114,9 +114,16 @@ if isempty(eq0), diary off; error('No baseline equilibrium: %s', out0.msg); end
 fprintf('  %s\n', out0.msg);
 
 % ----- solve each regime + nu + welfare incidence -----
+% .hh carries the equilibrium household block (stationary distribution,
+% consumption and savings policies, value function) that the regime solver
+% has just computed at the root. It costs no extra solve -- see the caching
+% note in solve_regime_equilibrium -- and it is what main_hank_heterogeneity
+% plots. Without it the only record of who holds the debt, and of which
+% households move when the instrument changes, is discarded the moment the
+% aggregate is taken.
 RREG = struct('name',{},'P',{},'D',{},'tau_ls',{},'vartheta',{},'nu',{}, ...
               'nu_reval',{},'nu_damage',{},'W',{},'lam_b50',{},'lam_t10',{}, ...
-              'lam_agg',{});
+              'lam_agg',{},'hh',{});
 for k = 1:numel(REG)
     fprintf('\n--- %s ---\n', REG{k}.name);
     [eqk, outk] = solve_regime_equilibrium(pgc, REG{k}, r_cal, [0.5, 1.3]);
@@ -134,7 +141,8 @@ for k = 1:numel(REG)
         'W',eqk.W, ...
         'lam_b50', ternary(wg.ok, wg.lambda_bot50, NaN), ...
         'lam_t10', ternary(wg.ok, wg.lambda_top10, NaN), ...
-        'lam_agg', ternary(wg.ok, wg.lambda_agg, NaN)); %#ok<SAGROW>
+        'lam_agg', ternary(wg.ok, wg.lambda_agg, NaN), ...
+        'hh', eqk.hh); %#ok<SAGROW>
     if wg.ok, fprintf('  welfare: %s\n', wg.msg); end
 end
 

@@ -1,4 +1,4 @@
-R11.43
+R11.44
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,44 @@ R11.43
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.44 OPTION A adopted. The two-asset specifications now report the
+#        financing ORDERING and explicitly decline the level, in the abstract,
+#        the section that used to be titled "Ownership plus illiquidity
+#        restores the one-asset sign" (now "preserves the financing
+#        ordering"), the two-by-two ladder reading, the Schur status line, the
+#        transition scope paragraph, the wealth-matched robustness note and
+#        the zeta appendix title. The scope restriction is stated once, up
+#        front, in the section's own opening rather than as a footnote to each
+#        number: on the discretizations we can solve, the two-asset level
+#        response is NOT RESOLVED and a reader should not weigh it against the
+#        one-asset magnitudes at all.
+#        Two efficiency findings, one of which was also blocking the figures.
+#        (a) solve_regime_equilibrium discarded the household block on every
+#        one of the ~19 solves in its bisection, keeping two scalars. S_green
+#        already returns the stationary distribution, both policies and the
+#        value function on every call. The closure now caches the last
+#        feasible one and the root exposes it as eq.hh -- no extra solve, one
+#        struct assignment -- so the distribution the paper is about survives
+#        the aggregation. main_project_regimes stores it per regime.
+#        (b) solve_household_vfi rebuilt the na x na consumption matrix and
+#        called utility() on it, once per income state, on EVERY sweep. None
+#        of r, tau, the grids or sigma changes during a solve, so those were
+#        two million power evaluations per state per iteration producing the
+#        same numbers each time. Hoisted to a precompute: ~16 MB at na = 500,
+#        ne = 8, and the dominant per-iteration cost removed from both the
+#        Bellman step and the Howard sweeps. Bit-identical by construction --
+#        same expression, same inputs, evaluated once -- and D10/D11 parity is
+#        the check that this holds in fact and not only in argument.
+#        New main_hank_heterogeneity + PFig23 answers one question: when the
+#        same real program is financed lump-sum rather than by a levy, WHICH
+#        households change their demand for nominal debt. Four panels: the
+#        ergodic wealth distribution by regime; the cumulative decomposition
+#        of dS across the wealth distribution, whose endpoint is the aggregate
+#        change and whose shape says who supplies it; the MPC by wealth and
+#        income state, with the raw range reported so a clipped axis cannot
+#        hide a bad policy; and the Lorenz curve of bond holdings, which in a
+#        one-asset economy IS the ownership distribution the incidence claim
+#        is about. It solves nothing -- it reads what the regime run now keeps.
 # R11.43 the widened Track A ran and its FIRST cell settled the question the
 #        whole matrix was for. Widening fixed the ILLIQUID truncation (gates
 #        8 and 9.1 now pass, having failed on the narrow family) and did NOT
