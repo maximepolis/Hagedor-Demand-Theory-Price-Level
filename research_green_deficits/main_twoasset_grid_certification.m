@@ -201,18 +201,38 @@ if isfield(eq0, 'dist') && ~isempty(eq0.dist)
     tee('  gate 8  illiquid top-two-node mass %.5f  (need <%.0e)\n', ks0, Tf.boundary);
     tee('  gate 9  occupied support, liquid   %.4f  (need <%.2f)\n', bo0, Tf.occupancy);
     tee('  gate 9.1 occupied support, illiquid %.4f  (need <%.2f)\n', ko0, Tf.occupancy);
-    if famfail
+    if famfail && WIDEN
+        % THE WIDENED RUN IS THE ANSWER TO THIS FAILURE, NOT A VICTIM OF IT.
+        % The message below used to say, unconditionally, that every cell
+        % would fail these gates identically and that no cell could be
+        % certified. That was written before WIDEN existed and is FALSE here:
+        % gates 7-9 are re-measured per cell by kv_gate_report on the CELL's
+        % own grid (CTX.p.bGrid / CTX.p.kGrid), and this run has just
+        % multiplied the extent by 8 and 6. Telling the operator that a
+        % four-hour run cannot certify anything, while it is running exactly
+        % the experiment that decides whether it can, is the worst kind of
+        % wrong: it invites killing the job that would have answered the
+        % question.
+        tee('  *** These are the NARROW-family values, and they are the REASON\n');
+        tee('  *** this run is widened -- not a forecast of its result. Gates\n');
+        tee('  *** 7-9 are properties of the grid EXTENT, and the extent below\n');
+        tee('  *** is 8x wider in b and 6x in k. Each cell re-measures them on\n');
+        tee('  *** its OWN grid. Whether the widening moves the mass off the\n');
+        tee('  *** wall is precisely what the cells decide; read their gate\n');
+        tee('  *** blocks, not this one.\n');
+    elseif famfail
         tee('  *** THE GRID FAMILY FAILS THESE BEFORE ANY REFINEMENT.\n');
         tee('  *** Gates 7-9 are properties of the grid EXTENT (bhi, khi), which\n');
-        tee('  *** Track A holds FIXED. Every cell below will fail them with the\n');
-        tee('  *** same values, and no cell can be certified, so Gate 11 will\n');
-        tee('  *** report "fewer than two certified cells" regardless of how\n');
-        tee('  *** well the residuals and the convergence norms behave.\n');
+        tee('  *** this run holds FIXED (WIDEN = false). Every cell below will\n');
+        tee('  *** fail them with the same values, and no cell can be certified,\n');
+        tee('  *** so Gate 11 will report "fewer than two certified cells"\n');
+        tee('  *** regardless of how well the residuals and the convergence\n');
+        tee('  *** norms behave.\n');
         tee('  *** This is a PROTOCOL question, not a solver failure: either the\n');
-        tee('  *** frozen family is widened (and the calibration re-validated on\n');
-        tee('  *** it, which is Track B), or gates 7-9 are scored once for the\n');
-        tee('  *** family rather than per cell. Neither is decided here, and no\n');
-        tee('  *** threshold is changed here.\n');
+        tee('  *** frozen family is widened (WIDEN = true, the default, and the\n');
+        tee('  *** calibration re-validated on it, which is Track B), or gates\n');
+        tee('  *** 7-9 are scored once for the family rather than per cell.\n');
+        tee('  *** Neither is decided here, and no threshold is changed here.\n');
     else
         tee('  family clears the boundary gates; per-cell failures are genuine.\n');
     end

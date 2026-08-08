@@ -1,4 +1,4 @@
-R11.41
+R11.42
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,22 @@ R11.41
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.42 the widened Track A run printed a warning saying it could not
+#        certify anything -- while running the experiment that decides
+#        whether it can. The pre-flight famfail block was written before
+#        WIDEN existed and asserts unconditionally that "Gates 7-9 are
+#        properties of the grid EXTENT, which Track A holds FIXED. Every
+#        cell below will fail them with the same values, and no cell can be
+#        certified." Under WIDEN that is false in every clause: the extent
+#        was just multiplied by 8 in b and 6 in k, and kv_gate_report
+#        re-measures gates 7-9 per cell on the CELL's own grid
+#        (CTX.p.bGrid / CTX.p.kGrid), not on the frozen benchmark's. The
+#        message now branches: under WIDEN it says these are the narrow-family
+#        values and the REASON for widening, and points the reader at the
+#        per-cell gate blocks; the old text is kept verbatim for WIDEN =
+#        false, where it is exactly right. Telling an operator four hours in
+#        that the job is futile, when it is not, is the one kind of wrong
+#        that destroys the result rather than merely misreporting it.
 # R11.41 the clean ledger exposed a claim the manuscript could not support.
 #        Five sites said the financing ordering holds "at BOTH ENDS of the
 #        disciplined convenience-yield curvature". The disciplined range is
