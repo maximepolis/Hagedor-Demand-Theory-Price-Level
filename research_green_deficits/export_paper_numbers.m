@@ -383,5 +383,48 @@ if exist(tff, 'file') == 2
     end
 end
 
+% ---- KVJ demand-curve elasticity: model value and published range ----
+% The manuscript used to hard-type -0.75, 0.73, [-2.05, -0.55] and describe
+% the benchmark as sitting "at the steep edge" of that range. Every one of
+% those is machine-derivable, and the identification ledger derives them:
+% the model counterpart is the log-elasticity implied by the liquid FOC AT
+% the calibrated liquid position, -zeta*b/(b+bbar), which the Stone-Geary
+% shift damps below -zeta -- so quoting -zeta itself overstates the model's
+% curvature. The position INSIDE the range is what the ledger grades on,
+% because the published range is asymmetric about its point estimate and a
+% symmetric band around that estimate rejects values lying inside the range.
+%
+% Guarded on both files: the model value needs the KV economy, the range
+% needs the transcription. Either missing leaves the macros undefined and
+% the preamble's \pendingnum guard renders a placeholder.
+kvf = fullfile(projdir, 'output', 'convenience_kvj.mat');
+kvo = fullfile(projdir, 'output', 'twoasset_ownership_kv.mat');
+if exist(kvf, 'file') == 2 && exist(kvo, 'file') == 2
+    KJ = load(kvf); KO = load(kvo);
+    have_range = isfield(KJ,'kvj_logel') && isfield(KJ,'kvj_log_lo') && ...
+                 isfield(KJ,'kvj_log_hi');
+    el_model = NaN;
+    if isfield(KO,'p') && isfield(KO,'eq0') && isfield(KO.p,'zeta_b') && ...
+            isfield(KO.p,'bbar_liq') && isfield(KO.eq0,'Sb')
+        bb = KO.eq0.Sb; bs = KO.p.bbar_liq;
+        if (bb + bs) > 0, el_model = -KO.p.zeta_b * bb / (bb + bs); end
+    end
+    if have_range && isfinite(el_model)
+        lo = min(KJ.kvj_log_lo, KJ.kvj_log_hi);
+        hi = max(KJ.kvj_log_lo, KJ.kvj_log_hi);
+        mac('KvjElModel', sprintf('%.2f', el_model));
+        mac('KvjElPoint', sprintf('%.2f', KJ.kvj_logel));
+        mac('KvjElLo',    sprintf('%.2f', lo));
+        mac('KvjElHi',    sprintf('%.2f', hi));
+        % Position inside the range, measured from the ELASTIC (steep) end.
+        % Emitted only when the model value is actually inside: outside, a
+        % "percent of the way through" number would be nonsense, and the
+        % claim the manuscript makes with it would be false anyway.
+        if el_model >= lo && el_model <= hi
+            mac('KvjElPct', sprintf('%.0f', 100*(el_model - lo)/max(hi - lo, eps)));
+        end
+    end
+end
+
 fclose(fid);
 fprintf('[export_paper_numbers] wrote %s\n', outf);

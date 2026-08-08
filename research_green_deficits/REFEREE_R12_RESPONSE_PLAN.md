@@ -222,6 +222,40 @@ verdict that the numbers are wrong.
 
 ---
 
+## 2b. Major 2 (identification) — the ledger is complete, 2026-08-08
+
+`main_identification_ledger` now runs clean: all four source calibrations
+load, section C reports 1 ok / 0 flagged / 12 pending, and section D carries
+seven verdicts. Sub-request status, with the register rows at
+`CLAIM_STATUS_R13.md` 13a–13c:
+
+- **item 1, parameter table — DISCHARGED.** 30 parameters classified
+  NORM/EXT/CAL/DECL/NUM with value, target and source. It also exposes
+  $\iota_H$ as algebraic rather than free, so the table cannot be read as
+  manufacturing identification out of arithmetic.
+- **item 2, order condition — DISCHARGED**, and answered past the ask. The
+  count fails a priori (5 solved against 3 targeted) and the ledger then
+  measures, per block, whether the slack is real. V1 measures it AWAY for the
+  superstar pair. The slack that survives sits in V6 (the $\chi$ transplant)
+  and V2 (the structural whtm zero), both governed by DECL parameters.
+- **item 3, untargeted-moment census — SET UP, NOT PERFORMED.** The census is
+  complete on the model side (13 rows, none missing a model value) and 12 of
+  13 data slots are untranscribed. The single graded row is favourable and is
+  the only external check the two-asset block has passed: the demand-curve
+  log-elasticity lies inside the published KVJ range, 16% of its width from
+  the elastic end.
+- **item 4, Schur decomposition** — unchanged, row 13: implemented, not
+  certified, downstream of Gate 11.
+
+Two things the response paragraph must carry together, or it misleads. The
+count FAILS; and the per-block diagnostics disagree with the count in one
+place and confirm it in two. A referee told only the 5-against-3 count learns
+less than the ledger knows, and a referee told only V1 learns something
+false. New verdict **V7** is the item to lead with under "what we cannot fix":
+the liquid FOC makes the convenience yield and the tree-bond excess return the
+same number, 5.9472 pp, so one quantity answers to two literatures an order of
+magnitude apart. Transcription sizes that tension; nothing removes it.
+
 ## 3. Triage of the eleven major comments
 
 | # | comment | verdict | disposition |
