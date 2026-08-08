@@ -13,6 +13,14 @@ mult   p_in     p_out    beta        top1%  top10%    gini    topnode
 16     4e-04    0.06     0.90149      48.4    80.3   0.880   5.65e-03
 
 SELECTED: mult 12, p_in 2e-04 -> top1 32.8%, beta 0.91658
+Selection rule: single-moment (top-1% only) -- TOP10_TARGET not transcribed
+IDENTIFICATION (ledger V1): 9 configs solved, 3 within 0.02 of the
+top-1% target.
+Among the tied configs the top-10% share spans 0.014 and the gini spans
+0.006. The tied configs agree on the untargeted moments, so the single
+moment is locally sufficient on THIS grid. That is not a general result.
+The top-10% share is therefore an UNTARGETED prediction of this fit
+and belongs in the validation census, not in the targeted-moment count.
 
 Medium-column decomposition under the fit:
   nu 0.589 = nu_reval -0.048 + nu_damage 0.637   (P0 0.9090 -> P1 0.8685)

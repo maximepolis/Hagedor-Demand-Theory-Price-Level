@@ -2,9 +2,22 @@ TWO-ASSET CERTIFICATION, TRACK A  (fixed parameters: DISCRETIZATION error)
 QUARANTINED OUTPUT. Nothing here may enter the manuscript until the
 protocol passes in full.
 
+*** FAMILY WIDENED for Track A: bmax 12 -> 96 (x8), kmax 60 -> 360 (x6)
+*** Parameters stay FROZEN, so this remains a discretization
+*** measurement -- but the frozen calibration was fitted on the
+*** NARROW family and will not sit at its targets here. The
+*** distance is reported per cell as target_drift, not assumed.
+*** Set WIDEN = false to reproduce the pre-widening matrix.
+*** node counts scaled to hold density below a fixed level:
+***   nb [30 38 48] -> [72 91 115]  (x2.38)
+***   nk [17 22 28] -> [36 47 60]  (x2.11)
+*** This is why a widened FAST run is not fast. Set
+*** NB_SCALED = false to keep the small counts, knowing what it
+*** costs, or pass NB_LIST / NK_LIST explicitly.
+
 frozen calibration: beta=0.873963 chi_b=0.002234 lambda=0.150 iota_H=0.2727
-grid family: b in [0.0001, 12] curvature 2.400; k in [0, 60] curvature 2.400
-matrix: nb [30 38 48] x nk [17 22 28]
+grid family: b in [0.0001, 96] curvature 2.400; k in [0, 360] curvature 2.400
+matrix: nb [72 91 115] x nk [36 47 60]
 
 pre-flight, FAMILY gates on the frozen benchmark distribution.
 These are measured on the NARROW family the benchmark was solved on;
@@ -30,35 +43,12 @@ below do. Read them as the reason for widening, not as its result.
 no parallel pool: nothing in the Track A chain uses parfor, so a pool
 would idle for the whole run. Implicit multithreading is unaffected.
 
-RESUMED from checkpoint: 9 of 9 cells already solved.
-  signature matched (parameters, extents, curvatures, node lists).
+--- cell nb=72 nk=36 ---
+    MULTIPLE_ROOTS: q spread 2.45e-06 / 9.84e-11, P spread 4.78e-06 / 2.48e-09
+    gates alpha=0  FAIL: 1 bond residual / S_b=4.8e-06 (need <1e-06); 2 tree residual / Kbar=0.000131 (need <1e-06); 3 max residual / tax revenue=0.0025 (need <1e-05); 3.1 max residual / debt service=0.00402 (need <1e-05); 7 liquid top-two-node mass=0.000246 (need <0.0001); 9 occupied support, liquid=1 (need <0.9)
+    gates alpha=1  FAIL: 1 bond residual / S_b=0.000183 (need <1e-06); 3 max residual / tax revenue=0.00154 (need <1e-05); 3.1 max residual / debt service=0.00247 (need <1e-05); 7 liquid top-two-node mass=0.000234 (need <0.0001); 9 occupied support, liquid=1 (need <0.9)
+    S_b at alpha=0 = 0.4537 (calibration target 0.30, drift +0.1537)
+    P^LS=0.601167  P^LEV=0.620129  dP=+0.018962  dlnP=+0.031054  cell FAIL
+    [checkpoint] 1 of 9 cells stored
 
---- cell nb=30 nk=17 : from checkpoint ---
---- cell nb=30 nk=22 : from checkpoint ---
---- cell nb=30 nk=28 : from checkpoint ---
---- cell nb=38 nk=17 : from checkpoint ---
---- cell nb=38 nk=22 : from checkpoint ---
---- cell nb=38 nk=28 : from checkpoint ---
---- cell nb=48 nk=17 : from checkpoint ---
---- cell nb=48 nk=22 : from checkpoint ---
---- cell nb=48 nk=28 : from checkpoint ---
-===== ACROSS-MATRIX GATES =====
-
-  --- PROVISIONAL, over cells that SOLVED (certified or not) ---
-  cells with a finite dP     : 9 of 9
-  dP                         : [+0.020961, +0.042625], median +0.028821
-  spread / |median|          : 0.7517   (Gate 11 would need <0.10)
-  s.d. / |mean|              : 0.2252
-  ORDERING                   : STABLE -- dP keeps one sign in
-                               all 9 cells. The levy and the
-                               lump-sum tax are ranked the same
-                               way at every discretization.
-  These numbers are PROVISIONAL and uncertified. They bound what
-  the discretization can support; they do not license a claim.
-
-  fewer than two certified cells: Gate 11 not computable.
-  This is a FAILURE of the protocol, not an absence of evidence.
-  The provisional block above is what the run DID establish.
-
-[main_twoasset_grid_certification] wrote C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\twoasset_certification_A.txt (4.2 s)
-Output is QUARANTINED in C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\quarantine
+--- cell nb=72 nk=47 ---

@@ -1,20 +1,20 @@
 D11 THREE-WAY TRANSITION PARITY
 ============================================================
 
-pipeline R11.6  |  main_parity_d11_deficit.m  (modified 2026-08-03 15:08)
+pipeline R11.44  |  main_parity_d11_deficit.m  (modified 2026-08-08 16:52)  [CODE_VERSION.txt absent; revision read from the source]
 
-baseline   C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\baseline\baseline_d11_fast.mat
+baseline   C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\baseline\baseline_d11_bench.mat
   commit   bf0a4e8a4444f9d5b2c9d865a39b7de2136f67ec
   MATLAB   25.2.0.3042426 (R2025b) Update 1 on PCWIN64
-  FAST     1 (this run: 1)
-  T        60, rho_bar 0.9000
+  FAST     0 (this run: 0)
+  T        80, rho_bar 0.9000
 
 LEG 2: current solver, legacy branch (no opts.fiscal) ...
-  legacy setup from the baseline: na=100, T=60, beta*=0.928750, Gg=0.018182
-  done (10.6 s)
+  legacy setup from the baseline: na=500, T=80, beta*=0.926699, Gg=0.018182
+  done (249.3 s)
 
 LEG 3: current solver, legacy path passed explicitly ...
-  done (3.9 s)
+  done (118.1 s)
 
 ============================================================
 COMPARISON A -- BASELINE (bf0a4e8) vs CURRENT LEGACY BRANCH
@@ -205,21 +205,15 @@ neutrality_gap                   0.0000e+00   0.0000e+00          0  EXACT
 ----------------------------------------------------------------------------------
   50 exact, 0 within ulps, 0 within tolerance, 0 FAIL
 
-ITERATION COUNTS  baseline 80 / legacy 80 / explicit 80
-BEST ITER         baseline 65 / legacy 65 / explicit 65
-RESIDUAL sup-norm baseline 9.654e-03 / legacy 9.654e-03 / explicit 9.654e-03
+ITERATION COUNTS  baseline 61 / legacy 61 / explicit 61
+BEST ITER         baseline 61 / legacy 61 / explicit 61
+RESIDUAL sup-norm baseline 4.303e-04 / legacy 4.303e-04 / explicit 4.303e-04
 
 CONVERGENCE (a separate question from parity)
-  deficit path converged  : NO
-  balanced path converged : NO
-  deficit  : tier2 indexed/deficit: fixed point NOT CONVERGED (interior max 0.00965 @t=48), horizon OK (terminal resid 0.00398) in 80 iters; impact phat_1/P0 = 1.1432 (surprise inflation), terminal P = 1.0338
-  balanced : tier2 indexed/lumpsum: fixed point NOT CONVERGED (interior max 0.00418 @t=34), horizon TOO SHORT (raise T) (terminal resid 0.00685) in 80 iters; impact phat_1/P0 = 0.9639 (surprise DISINFLATION), terminal P = 0.8686
-
-  *** NOT CONVERGED. Parity may still be ESTABLISHED below and that
-  *** conclusion is valid -- the legs reproduce each other exactly. But
-  *** NO ECONOMIC NUMBER from this run may be quoted: not kappa, not
-  *** dlnP0, not the front-loading statistics. Re-run at the benchmark
-  *** setting (T=80, maxit=120) before reading anything off it.
+  deficit path converged  : YES
+  balanced path converged : YES
+  deficit  : tier2 indexed/deficit: fixed point CONVERGED (interior max 0.00043 @t=4), horizon OK (terminal resid 0.00011) in 61 iters; impact phat_1/P0 = 1.1529 (surprise inflation), terminal P = 1.0249
+  balanced : tier2 indexed/lumpsum: fixed point CONVERGED (interior max 0.00041 @t=20), horizon OK (terminal resid 0.00016) in 72 iters; impact phat_1/P0 = 0.9609 (surprise DISINFLATION), terminal P = 0.8590
 
 NOMINAL NEUTRALITY  P_inf^d / P_inf^b  vs  kappa_inf
   relative gap +0.000e+00   consistent

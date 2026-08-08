@@ -1,4 +1,4 @@
-R11.45
+R11.46
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,35 @@ R11.45
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.46 PARITY CLEAN ON THE VFI HOIST, by measurement. D10 reports 40/32/32
+#        exact, 0 within ulps, 0 within tolerance, 0 FAIL, and leg A compares
+#        against the FROZEN pre-hoist solver in baseline_bf0a4e8; D11 passes
+#        all three legs with nominal neutrality at exactly 0.000e+00. The
+#        R11.44 precompute is therefore bit-identical in fact and not only in
+#        argument, and the speedup stands.
+#        The first PFig23 run is internally consistent: market clearing holds
+#        (S vs B/P within 1.4e-04, the bisection's own P tolerance) in all
+#        three regimes, and panel (b)'s endpoint reproduces the aggregate dS
+#        to 6e-05 (levy -0.09236 against -0.09230; rebate -0.16631 against
+#        -0.16630). MPCs are textbook: 1.000 at the constraint in the lowest
+#        income state falling to 0.081 in the highest, no value outside [0,1].
+#        A FINDING AND ITS LIMIT, both now printed by the driver. The rebate
+#        is the only regime whose bottom half GAINS in welfare terms, and it
+#        produces the MOST concentrated bond ownership of the three (bottom
+#        50% 4.0% against 5.2% lump-sum; top 10% 46.9% against 44.7%). The
+#        mechanism is precautionary: a transfer to the constrained reduces
+#        their self-insurance motive, so they hold less of the nominal stock,
+#        and the revaluation the incidence formula prices accrues along a
+#        curve that has become steeper. An instrument progressive in FLOW can
+#        concentrate the STOCK through which the price level redistributes.
+#        The limit: this economy runs with superstar.active = false, so its
+#        top-1% share is 8.1% against the 33% the project's own
+#        wealth_concentration_fit targets. Panel (d) is ABOUT concentration,
+#        so understating it by a factor of four is not a footnote. The driver
+#        now measures the model share against TOP1_TARGET, reports whether the
+#        superstar state was active, and refuses to let the panel be read as
+#        calibrated when it is not. Panels (a)-(c) carry the mechanism and do
+#        not depend on the tail; panel (d) does.
 # R11.45 the D10 parity refused to run for want of output/baseline, which is
 #        correct behaviour and which I had set the operator up to hit: the
 #        R11.44 run list named the parity drivers without their prerequisite.
