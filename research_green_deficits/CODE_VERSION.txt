@@ -1,4 +1,4 @@
-R11.44
+R11.45
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,27 @@ R11.44
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.45 the D10 parity refused to run for want of output/baseline, which is
+#        correct behaviour and which I had set the operator up to hit: the
+#        R11.44 run list named the parity drivers without their prerequisite.
+#        No code was wrong. What was missing was that output/baseline is a
+#        LOCAL artifact -- untracked, and by EXTRACT_RULE.md's own principle it
+#        must stay that way, since results flow machine -> repo and never back
+#        -- so a fresh extract never has it and the refusal recurs every time.
+#        Both parity drivers now say that in the refusal itself: expected after
+#        a download rather than a defect, one main_baseline_capture writes BOTH
+#        legs, and add FAST to match. EXTRACT_RULE.md gains the section.
+#        Verified while diagnosing, because the answer decides whether the
+#        R11.44 VFI hoist is testable at all: baseline_bf0a4e8/src/
+#        solve_household_vfi.m carries NO precompute, and main_baseline_capture
+#        puts that frozen tree first on the path with addpath(genpath(BSRC),
+#        '-begin'). So the baseline is produced by the PRE-hoist solver and the
+#        comparison by the current one, and building the baseline fresh today
+#        cannot contaminate the test. Also checked the failure mode that would
+#        have wasted the run: the baseline filename is FAST-tagged and the
+#        driver asserts BASE.env.fast == FAST, so a settings mismatch reports
+#        as "not found" or as an explicit assert, never as a spurious field
+#        difference that would read as a refactor failure.
 # R11.44 OPTION A adopted. The two-asset specifications now report the
 #        financing ORDERING and explicitly decline the level, in the abstract,
 #        the section that used to be titled "Ownership plus illiquidity

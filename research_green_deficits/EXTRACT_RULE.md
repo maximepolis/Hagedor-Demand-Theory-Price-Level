@@ -56,6 +56,27 @@ If your unpacker cannot exclude a folder, unpack to a **scratch directory**
 and copy only the code across. Do not unpack over a folder holding results you
 have not yet pushed.
 
+## What you must rebuild after every extract
+
+`output/baseline/` holds the pre-refactor parity baseline. It is **not**
+tracked, so no extract restores it, and by the rule above it never should be:
+it is a result, and results flow this machine to the repository rather than
+back. Rebuilding it is one command and it writes both parity legs at once:
+
+```matlab
+clear; main_baseline_capture          % add FAST = true first if the run is FAST
+```
+
+This is not slow-and-mysterious: the snapshot it runs, `baseline_bf0a4e8/`,
+ships with the project and is content-verified by its own SHA manifest, so no
+repository history and no `git` are involved. `main_baseline_capture` puts
+that frozen tree first on the MATLAB path, which is exactly what makes the
+comparison meaningful --- the baseline is produced by the OLD solver and the
+comparison by the current one. Building it fresh cannot contaminate the test.
+
+The parity drivers refuse to run without it and say so; that refusal after a
+fresh download is expected behaviour and not a defect.
+
 ## Two things this does not fix
 
 **`CODE_VERSION.txt` going missing.** Separate problem, same unpacker. As of
