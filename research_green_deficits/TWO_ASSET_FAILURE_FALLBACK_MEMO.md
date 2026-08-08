@@ -179,6 +179,78 @@ here forces that choice, but it is no longer a choice made in ignorance.
 
 ---
 
+## 1.3 THE WIDENED FAMILY HAS NOW RUN. The last defence is measured and fails.
+
+Track A's narrow-family verdict rested on one open question: its refinement
+held the grid BOUNDS fixed and varied only node counts, so it could not
+distinguish a *density* problem from a *boundary* problem. The widened
+family authorised 2026-08-04 — bmax 12 → 96 (x8), kmax 60 → 360 (x6), node
+counts scaled x2.38 / x2.11 to hold density constant — tests that directly.
+Run 2026-08-08. **The first cell settles it, and the remaining eight cannot
+overturn it.**
+
+Cell nb=72 nk=36, against the narrow-family pre-flight:
+
+| gate | narrow | widened | verdict |
+|---|---|---|---|
+| 7 liquid top-two-node mass | 0.00275 | 0.000246 | still FAILS 1e-4, improved 11x |
+| 8 illiquid top-two-node mass | 0.00143 | — | **PASSES** |
+| 9 liquid highest occupied node | 1.0000 | **1.0000** | still FAILS, *unchanged* |
+| 9.1 illiquid highest occupied node | 1.0000 | — | **PASSES** |
+
+**The illiquid truncation was an extent problem and widening fixed it. The
+liquid truncation is not, and widening did not.** The gate pair was built to
+tell those apart and it did: `kv_boundary_mass`'s own header warns that
+"widening a grid mechanically shrinks the top-two-node mass, so a small ks on
+its own proves nothing; ks small AND ko well below 1 is a distribution with
+interior support, while ks small and ko ~ 1 is a distribution still leaning on
+the wall through a thinner slice of it." Gate 7's 11x improvement is exactly
+the mechanical shrinkage; gate 9 unchanged at 1.0000 means there is still mass
+above 1e-8 at b = 96, eight times the original ceiling. With the superstar
+state (ergodic mass ~0.003, multiplier 12) the liquid tail is genuinely long,
+not clipped — this is not a ceiling you can afford to raise.
+
+Two further findings, either of which would disqualify the widened matrix on
+its own:
+
+- **Target drift +0.1537 on a 0.30 target.** S_b at alpha=0 is 0.4537: the
+  widened economy holds 45% of income in liquid assets, not 30%. On the narrow
+  family the drift was at most 4.6%. The frozen calibration does not sit at its
+  targets here, so the cell's dP is not the calibrated economy's dP and a
+  spread across cells would not be a discretization measurement. The driver
+  reports this rather than assuming it small, which is why it is visible.
+- **The residual gates fail too**, by one to two orders of magnitude: bond
+  residual/S_b = 4.8e-06 against 1e-06, tree residual/Kbar = 1.31e-04,
+  max residual/tax revenue = 2.5e-03 against 1e-05. Setting truncation aside
+  entirely, this grid does not clear markets to tolerance.
+
+### What this settles, and what it does not
+
+It closes the question §6 said nothing should be chosen before: the ordering
+certifies on the narrow family while the level does not, and the one remaining
+explanation for the level failure — that 0.752 was a boundary artifact rather
+than a resolution limit — is now tested and rejected. **Option A is supported
+by two independent measurements rather than one.**
+
+It does NOT reject Option B in general. What it rejects is Option B's cheapest
+form: buy certification with a bigger grid. Anything else under that heading
+is a change of method, not a change of parameters, and is a research programme
+rather than a revision.
+
+### A resolution that must NOT be taken
+
+The pre-flight offers a second way out: score gates 7-9 once for the family
+rather than per cell, on the ground that they are properties of the extent and
+Track A holds extent fixed. As bookkeeping that is defensible. As a route to
+certification it is not, and it should be refused explicitly so nobody
+rediscovers it as a shortcut: the liquid distribution genuinely leans on the
+wall at eight times the ceiling, and scoring the gate once does not move the
+mass. It would convert a demonstrated truncation failure into a passed
+certification by redefinition. No threshold and no scoring rule may change on
+the strength of a run that failed.
+
+---
+
 ## 2. Option A — narrow to the certified one-asset economy
 
 **The paper becomes:** financing incidence in a one-asset DTPL economy, with

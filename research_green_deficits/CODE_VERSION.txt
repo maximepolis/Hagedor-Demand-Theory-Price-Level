@@ -1,4 +1,4 @@
-R11.42
+R11.43
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,36 @@ R11.42
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.43 the widened Track A ran and its FIRST cell settled the question the
+#        whole matrix was for. Widening fixed the ILLIQUID truncation (gates
+#        8 and 9.1 now pass, having failed on the narrow family) and did NOT
+#        fix the LIQUID one: gate 7 improved 11x, from 0.00275 to 0.000246,
+#        and still fails 1e-4, while gate 9 -- the highest OCCUPIED node as a
+#        fraction of the ceiling -- is unchanged at exactly 1.0000. There is
+#        still mass above 1e-8 at b = 96, eight times the original ceiling.
+#        That contrast is precisely what the gate pair was built to detect:
+#        kv_boundary_mass's header says a small top-two-node mass "on its own
+#        proves nothing" because widening shrinks it mechanically, and that
+#        ks small with ko ~ 1 is "a distribution still leaning on the wall
+#        through a thinner slice of it". With the superstar state the liquid
+#        tail is genuinely long, not clipped -- not a ceiling one can afford
+#        to raise.
+#        Two independent disqualifications in the same cell: target drift
+#        +0.1537 on a 0.30 target (S_b = 0.4537, against at most 4.6% drift
+#        on the narrow family), so the widened economy is not the calibrated
+#        one and its dP spread would not be a discretization measurement; and
+#        the residual gates fail by one to two orders of magnitude.
+#        Recorded in TWO_ASSET_FAILURE_FALLBACK_MEMO.md section 1.3. This
+#        closes the question section 6 said nothing should be chosen before.
+#        Option A now rests on two independent measurements. It does NOT
+#        reject Option B in general -- only its cheapest form, buying
+#        certification with a bigger grid.
+#        The memo also refuses, explicitly and in writing, the shortcut the
+#        pre-flight offers: scoring gates 7-9 once per family rather than per
+#        cell. Defensible as bookkeeping, inadmissible as a route to
+#        certification -- the mass is really at the wall, and scoring the
+#        gate once does not move it. No threshold or scoring rule changes on
+#        the strength of a run that failed.
 # R11.42 the widened Track A run printed a warning saying it could not
 #        certify anything -- while running the experiment that decides
 #        whether it can. The pre-flight famfail block was written before
