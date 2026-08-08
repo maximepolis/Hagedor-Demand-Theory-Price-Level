@@ -1,12 +1,12 @@
 PARAMETER-IDENTIFICATION LEDGER (referee R12, Major 2, items 1-3)
-pipeline R11.39  |  main_identification_ledger.m  (modified 2026-08-07 12:04)  [CODE_VERSION.txt absent; revision read from the source]
+pipeline R11.40  |  main_identification_ledger.m  (modified 2026-08-07 23:47)  [CODE_VERSION.txt absent; revision read from the source]
 read-only over stored calibrations; nothing is solved here.
 
 source                   state     file stamp         written by
 one-asset calibration    loaded    2026-08-07 12:04   main_project_calibrated
 two-asset ownership+KV   loaded    2026-08-07 12:04   main_twoasset_ownership_kv
 superstar wealth fit     loaded    2026-08-07 17:47   wealth_concentration_fit
-convenience curvature    loaded    2026-08-07 18:33   calibrate_convenience_kvj
+convenience curvature    loaded    2026-08-08 00:31   calibrate_convenience_kvj
 
 two-asset input grid: nb=60 nk=34 nx=150   (production sizes)
 
@@ -95,10 +95,13 @@ mean years between adjustments        6.6667          -          -  PENDING  SET
 hand-to-mouth share                   0.0670          -          -  PENDING  untargeted
 WEALTHY hand-to-mouth share           0.0000          -          -  PENDING  untargeted; see verdict V2
 tree-bond spread (pp)                 5.9472          -          -  PENDING  IS the convenience yield AND the equity premium at once; see V7
-demand-curve log-elasticity          -1.8174    -1.0274    -0.7900     FLAG  -zeta*b/(b+bbar) at the calibrated position; KVJ-comparable
+demand-curve log-elasticity          -1.8174    -1.0274    -0.7900       ok  -zeta*b/(b+bbar) at the calibrated position; KVJ-comparable
 real safe rate                        0.0196          -          -  PENDING  implied by the Fisher identity at i and mu; not free
 
-0 ok, 1 flagged, 12 pending transcription, 0 with no model value.
+1 ok, 0 flagged, 12 pending transcription, 0 with no model value.
+
+rows graded against a published RANGE rather than a symmetric band:
+  demand-curve log-elasticity: model -1.8174 against the published range [-2.0548, -0.5479] -> ok
 
 Wealth-mobility moments are NOT duplicated here. main_validation_mobility
 computes them with its own data slots and four definition-robust
@@ -150,6 +153,15 @@ V3  ZETA IS DISCIPLINED AT THE EDGE OF ITS RANGE, NOT AT ITS CENTRE.
     Stone-Geary shift: -zeta*b/(b+bbar) = -1.8174.
     KVJ counterpart, as transcribed in calibrate_convenience_kvj: -1.0274.
     Model minus KVJ point estimate: -0.7900.
+    KVJ RANGE, from the same transcription: [-2.0548, -0.5479].
+    The model elasticity is INSIDE that range, 16% of the way
+    up from the elastic end. So the benchmark is not rejected by
+    the KVJ evidence; it is disciplined at the ELASTIC edge of it,
+    which is a claim about where in the range the paper sits and
+    not a claim that the paper is outside it. Note that the point
+    estimate alone, graded against half the range WIDTH, would
+    have called this a failure -- the range is asymmetric and the
+    symmetric approximation manufactures the rejection.
     Either way the paper should report the ZETA = 1.0 rerun alongside
     the benchmark, not instead of it, and say which it prefers and why:
     the sensitivity is what a reader needs, and it is cheap.
