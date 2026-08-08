@@ -258,6 +258,49 @@ tee(['\nRead panel (d) with the incidence formula: the revaluation of the\n' ...
      'nominal stock accrues along this curve, so the concentration reported\n' ...
      'here is the distribution of the transfer, not a descriptive aside.\n']);
 
+% HOW CONCENTRATED IS THIS ECONOMY, AGAINST THE TARGET THE PROJECT USES?
+% Panel (d) is ABOUT concentration, and the incidence claim is about who
+% holds the debt, so an economy that understates concentration understates
+% the very thing the panel is for. The superstar state exists to hit the
+% top-1% share and it is OFF by default in setup_params_green, so this must
+% be measured and stated rather than left for a reader to assume.
+ss_on = false;
+pgs = pg; if isfield(L,'pgc') && isstruct(L.pgc), pgs = L.pgc; end
+if isfield(pgs,'superstar') && isstruct(pgs.superstar) && ...
+        isfield(pgs.superstar,'active')
+    ss_on = logical(pgs.superstar.active);
+end
+t1_target = NaN;
+wf = fullfile(projdir, 'output', 'wealth_fit_results.mat');
+if exist(wf, 'file') == 2
+    WF = load(wf, 'TOP1_TARGET');
+    if isfield(WF, 'TOP1_TARGET'), t1_target = WF.TOP1_TARGET; end
+end
+i1 = find(keep, 1, 'first');
+w1 = WA(:, i1); pc1 = cumsum(w1);
+vc1 = cumsum(aG .* w1); vc1 = vc1 / max(vc1(end), eps);
+[pu1, iu1] = unique(pc1, 'last');
+t1_model = 1 - interp1(pu1, vc1(iu1), 0.99, 'linear', 'extrap');
+
+tee('\nHOW CONCENTRATED IS THIS ECONOMY?\n');
+tee('  superstar income state active in this run : %d\n', ss_on);
+tee('  model top-1%% wealth share                 : %.1f%%\n', 100*t1_model);
+if isfinite(t1_target)
+    tee('  target used by wealth_concentration_fit   : %.1f%%\n', 100*t1_target);
+    if t1_model < 0.5 * t1_target
+        tee(['  *** THE PANEL UNDERSTATES CONCENTRATION BY MORE THAN HALF.\n' ...
+             '  *** This economy carries no superstar state, so its top tail is\n' ...
+             '  *** the Rouwenhorst tail and nothing else. The ORDERING and the\n' ...
+             '  *** MECHANISM in panels (a)-(c) do not depend on that; panel (d)\n' ...
+             '  *** does. Quote panel (d) as the model''s ownership curve, never\n' ...
+             '  *** as a calibrated one, and do not compare its shares to data.\n' ...
+             '  *** To close the gap the regime run needs the superstar state\n' ...
+             '  *** switched on, which is a recalibration and not a re-plot.\n']);
+    end
+else
+    tee('  no TOP1_TARGET on disk; run wealth_concentration_fit to compare.\n');
+end
+
 tee('\n[main_hank_heterogeneity] wrote %s\n', sf);
 fclose(fid);
 fprintf('[main_hank_heterogeneity] wrote PFig23 and %s\n', sf);
