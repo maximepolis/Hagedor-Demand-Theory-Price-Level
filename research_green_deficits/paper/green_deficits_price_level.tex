@@ -175,6 +175,13 @@
 \providecommand{\DefDecCOne}{\pendingnum}\providecommand{\DefDecCTwo}{\pendingnum}
 \providecommand{\DefDecCFour}{\pendingnum}
 \providecommand{\DefDecTimingShare}{\pendingnum}\providecommand{\DefDecRatchetShare}{\pendingnum}
+% KVJ demand-curve elasticity: model value at the calibrated liquid
+% position, the published point estimate and range, and the model's
+% position inside that range. Emitted by export_paper_numbers only when
+% the model value actually lies inside -- see that file.
+\providecommand{\KvjElModel}{\pendingnum}\providecommand{\KvjElPoint}{\pendingnum}
+\providecommand{\KvjElLo}{\pendingnum}\providecommand{\KvjElHi}{\pendingnum}
+\providecommand{\KvjElPct}{\pendingnum}
 \providecommand{\DefRhoStarTiming}{\pendingnum}\providecommand{\DefHalfStarTiming}{\pendingnum}
 \providecommand{\DefTimingJointRatio}{\pendingnum}\providecommand{\DefHalfStarJointSweep}{\pendingnum}
 \providecommand{\TwoTrT}{\pendingnum}\providecommand{\TwoTrResid}{\pendingnum}
@@ -2575,7 +2582,8 @@ single result.
 lump-sum finance of the same appropriation, because financing incidence
 changes demand for nominal government liabilities. This ordering holds in
 the one-asset economy, in both uniform-ownership two-asset variants, at
-both ends of the disciplined convenience-yield curvature, and in the
+both the benchmark convenience-yield curvature and the \citeauthor{krishnamurthy2012}
+point estimate, and in the
 preferred calibration.
 
 \smallskip
@@ -2615,12 +2623,17 @@ discipline on $\zeta$: what it establishes is the existence and approximate
 magnitude of a convenience yield on Treasury debt. Along the liquid
 first-order condition of \emph{this} preference specification the
 demand-curve log-elasticity is
-$d\ln(\text{spread})/d\ln b = -\zeta\, b/(b+\underline{b}) \approx -\zeta$, so
-reading their semi-elasticity ($-0.75$\,pp per log point on a mean spread of
-$\approx 0.73$\,pp) through that mapping gives a log-elasticity near $-1$,
-with the reported range spanning roughly $[-2.05, -0.55]$, so $\zeta \approx
-1$ at the point estimate and the benchmark $\zeta = 2$ inside the admissible
-range at its steep edge. The identification is therefore model-mediated:
+$d\ln(\text{spread})/d\ln b = -\zeta\, b/(b+\underline{b})$, which at the
+calibrated liquid position is $\KvjElModel$ under the benchmark $\zeta = 2$ ---
+damped below $-\zeta$ by the Stone--Geary shift, so the benchmark curvature is
+less steep in elasticity terms than the value of $\zeta$ alone suggests.
+Reading their semi-elasticity ($-0.75$\,pp per log point on a mean spread of
+$\approx 0.73$\,pp) through the same mapping gives a point estimate of
+$\KvjElPoint$ and a range of $[\KvjElLo, \KvjElHi]$, so $\zeta \approx 1$ at
+the point estimate, while the benchmark lies inside the range, $\KvjElPct\%$
+of its width from the elastic end. That range is asymmetric about its point
+estimate, so distance from the point estimate is not the relevant test of
+consistency; position inside the range is. The identification is therefore model-mediated:
 their regressions do not estimate a household curvature parameter, and a
 different specification of $v$ would map the same evidence into a different
 $\zeta$. With frictionless rebalancing the household
@@ -2675,7 +2688,7 @@ An infrequent-rebalancing variant under uniform ownership, and the wealthy-hand-
 
 Welfare incidence in the uniform-ownership two-asset variants is reported in Appendix~\ref{subsec:twoasset}.
 
-Specification checks on the ownership calibration --- the convenience-yield curvature at both ends of the disciplined range, the Stone--Geary shift, and the grid --- are in Appendix~\ref{subsec:zten}.
+Specification checks on the ownership calibration: the Stone--Geary shift and the grid are reported with the restoration result below, and the convenience-yield curvature at the \citeauthor{krishnamurthy2012} point estimate is in Appendix~\ref{subsec:zten}.
 
 \subsection{Ownership plus illiquidity restores the one-asset sign}
 \noindent
@@ -2746,8 +2759,9 @@ in $v$ that the benchmark carries (which removes the marginal-utility
 divergence at zero balances) moves the pair to $\OwnKVDlnPLSb$ against
 $\OwnKVDlnPLevyb$; halving every grid dimension moves it to
 $\OwnKVDlnPLSf$ against $\OwnKVDlnPLevyf$. Most importantly, the
-restoration holds at the \emph{opposite end of the disciplined curvature
-range}: at the \citeauthor{krishnamurthy2012} point estimate $\zeta = 1$,
+restoration holds at the \citeauthor{krishnamurthy2012} \emph{point estimate} of the
+curvature, and not only at the benchmark value near the elastic edge of the
+admissible range: at $\zeta = 1$,
 with the liquidity weight rescaled so that only the curvature of liquidity
 demand changes (the rotation their elasticity identifies;
 Appendix~\ref{subsec:zten}), the same experiment gives $\ZtenLS$ against
@@ -3490,8 +3504,8 @@ The paper makes two claims and keeps them separate. The robust one is the
 \emph{ordering}, not the level. Across
 the portfolio specifications we report --- one asset, two assets under uniform
 ownership, two assets with bond ownership and portfolio illiquidity
-calibrated to the data, and at both ends of the disciplined convenience-yield
-curvature --- a levy is more inflationary than a lump-sum tax financing the
+calibrated to the data, and at both the benchmark convenience-yield curvature
+and the \citeauthor{krishnamurthy2012} point estimate --- a levy is more inflationary than a lump-sum tax financing the
 same appropriation, and the incidence ordering that answers the title
 question is unchanged. It is also operative immediately rather than
 asymptotically: along the announced path, $\OrdOne\%$ of the long-run gap
@@ -5928,9 +5942,9 @@ bound what this section claims. First, $\chi_b$ and $\zeta$ are jointly
 identified only up to the marginal value of liquidity at the calibrated
 position, so curvature experiments rescale the weight to rotate the
 liquidity demand curve through that point
-(Appendix~\ref{subsec:zten}); the restoration holds at both ends of the
-admissible range, with magnitudes that differ by a factor of five between
-them. Second, the announcement path is solved in both portfolio
+(Appendix~\ref{subsec:zten}); the restoration holds at the benchmark
+curvature and at the point estimate, with magnitudes that differ by a factor
+of five between them. The flat end of the admissible range is not solved. Second, the announcement path is solved in both portfolio
 environments --- the frictionless economy and, by the value-function
 recursion described above, the ownership-and-illiquidity economy --- but
 the latter holds damages fixed, so it prices the financing announcement

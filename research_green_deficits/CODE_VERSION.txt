@@ -1,4 +1,4 @@
-R11.40
+R11.41
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,45 @@ R11.40
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.41 the clean ledger exposed a claim the manuscript could not support.
+#        Five sites said the financing ordering holds "at BOTH ENDS of the
+#        disciplined convenience-yield curvature". The disciplined range is
+#        an elasticity range [-2.05, -0.55]; the two curvatures actually
+#        solved are the benchmark zeta = 2 (implied elasticity -1.82, 16% of
+#        the range width from the ELASTIC end) and zeta = 1, the KVJ POINT
+#        ESTIMATE, which is interior. The flat end near zeta = 0.55 was never
+#        solved, so "both ends" claimed coverage of an endpoint that does not
+#        exist in the computed set -- and it did so inside the ROBUST-claim
+#        display quote, its verbatim restatement in the conclusion, and the
+#        paragraph whose whole function is to bound what the section claims.
+#        Corrected at all five sites in one pass: a single-site rewrite would
+#        have desynchronised the display quote from its own conclusion.
+#        Line 2678 was wrong twice -- it also pointed at Appendix subsec:zten
+#        for the Stone-Geary and grid checks, which that appendix does not
+#        contain; they are reported in the body beside the restoration result.
+#        The manuscript's primary mapping statement hard-typed -0.75, 0.73 and
+#        [-2.05, -0.55] and hedged the benchmark as "at its steep edge". Those
+#        are all machine-derivable, so export_paper_numbers now emits
+#        \KvjElModel, \KvjElPoint, \KvjElLo, \KvjElHi and \KvjElPct from
+#        convenience_kvj.mat and twoasset_ownership_kv.mat, guarded on both
+#        files and -- for the position -- on the model value actually lying
+#        inside the range, since "percent of the way through" is nonsense
+#        outside it. The prose now states the measured position and says why
+#        position beats distance: the range is asymmetric about its point
+#        estimate, which is exactly the approximation that manufactured the
+#        FLAG fixed in R11.40.
+#        An adversarial pass rejected the first draft of five of these edits
+#        for spending macros that did not exist yet -- LaTeX that would not
+#        have compiled. The macros were built first.
+#        Recorded in the register: new rows 13a-13c for Major 2 items 1-3
+#        (item 1 DISCHARGED, item 2 DISCHARGED and answered past the ask,
+#        item 3 SET UP but not performed while 12 of 13 data slots are
+#        empty). Item 8's two-asset leg is deliberately HELD at WP rather
+#        than moved to RO: Track A's ordering certification held the grid
+#        BOUNDS fixed and varied only node counts, so it cannot separate a
+#        density problem from a boundary problem, and the widened family
+#        authorised on 2026-08-04 has never produced a Gate 11 verdict --
+#        the completed matrix ran with WIDEN = false.
 # R11.40 the ledger's one FLAG was manufactured by a field name I got wrong.
 #        Section C graded the demand-curve log-elasticity against a symmetric
 #        half-width and reported FLAG at -1.8174 vs -1.0274 -- while
