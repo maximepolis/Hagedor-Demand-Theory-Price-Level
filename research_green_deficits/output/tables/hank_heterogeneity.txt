@@ -1,0 +1,26 @@
+HANK HETEROGENEITY: WHO HOLDS THE DEBT, AND WHOSE DEMAND MOVES
+pipeline R11.44  |  main_hank_heterogeneity.m  (modified 2026-08-08 16:48)  [CODE_VERSION.txt absent; revision read from the source]
+read-only over output/regimes_results.mat; nothing is solved here.
+
+regime                          P S (assets) gini(wealth)
+lump-sum                   0.8553     1.1691       0.6589
+proportional levy          0.9288     1.0768       0.6710
+levy plus rebate           0.9973     1.0028       0.6810
+
+cumulative dS at the top of the grid, proportional levy minus lump-sum: -0.09236
+cumulative dS at the top of the grid, levy plus rebate minus lump-sum: -0.16631
+MPC range, lowest income  : [+0.051, +1.000]
+MPC range, median income  : [+0.050, +0.239]
+MPC range, highest income : [+0.050, +0.081]
+
+OWNERSHIP CONCENTRATION (panel d), by financing regime
+regime                   bottom 50%      top 10%       top 1%
+lump-sum                       5.2%        44.7%         8.1%
+proportional levy              4.6%        45.9%         8.4%
+levy plus rebate               4.0%        46.9%         8.7%
+
+Read panel (d) with the incidence formula: the revaluation of the
+nominal stock accrues along this curve, so the concentration reported
+here is the distribution of the transfer, not a descriptive aside.
+
+[main_hank_heterogeneity] wrote C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\tables\hank_heterogeneity.txt

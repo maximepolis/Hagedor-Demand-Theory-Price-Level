@@ -1,13 +1,13 @@
 D10 THREE-WAY CALIBRATION PARITY
 ============================================================
 
-pipeline R11.12  |  main_parity_d10_calibration.m  (modified 2026-08-04 08:18)
+pipeline R11.44  |  main_parity_d10_calibration.m  (modified 2026-08-08 16:52)  [CODE_VERSION.txt absent; revision read from the source]
 
-provenance audit: 47 names checked, 1 shadowed
-baseline        C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\baseline\baseline_d10_fast.mat
+provenance audit: 47 names checked, 2 shadowed
+baseline        C:\Users\up24706\Downloads\Hagedor Demand Theory Replication\research_green_deficits\output\baseline\baseline_d10_bench.mat
   commit        bf0a4e8a4444f9d5b2c9d865a39b7de2136f67ec
   MATLAB        25.2.0.3042426 (R2025b) Update 1 on PCWIN64
-  FAST          1 (this run: 1)
+  FAST          0 (this run: 0)
 
 cached inputs (must match the baseline capture):
   calibrated_results.mat       match
@@ -20,15 +20,17 @@ tolerances: prices/aggregates 1e-10, distribution 1e-12, default 1e-12
  these is a real defect, not a numerical difference)
 
 LEG 2: current script entry point (main_twoasset_ownership_kv) ...
-  done (724.5 s)
+  benchmark artifacts backed up; they are restored after the load.
+  benchmark artifacts restored (leg 2 was captured in memory first).
+  done (1180.0 s)
 
 LEG 3: kv_calibrate_on_grid with identical inputs ...
   inputs recovered from the script's own workspace:
     beta0  = 0.926699   (the value its calibration STARTED from)
     q_ref  = 2.985973   (its tree-price bracket anchor)
     chi_b  = 0.002234   (script) vs 0.002234 (chi_ref)   consistent
-    the script CONVERGED to beta = 0.874038, which is NOT the starting point
-  done (356.8 s)
+    the script CONVERGED to beta = 0.873960, which is NOT the starting point
+  done (852.7 s)
 
 ============================================================
 COMPARISON A -- BASELINE (bf0a4e8) vs CURRENT SCRIPT

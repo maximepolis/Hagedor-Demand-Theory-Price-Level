@@ -1,5 +1,5 @@
 ==============================================================
- FINANCING REGIMES (U4): deficit vs carbon-levy vs rebate vs mixed
+ FINANCING REGIMES (U4): lump-sum vs levy vs rebate vs mixed
  medium damage column, calibrated scale, na=500
 ==============================================================
 loaded calibrated inputs: beta*=0.9267, Gg=0.01818
@@ -7,8 +7,8 @@ loaded calibrated inputs: beta*=0.9267, Gg=0.01818
 --- no-program baseline ---
   regime BASELINE     P*=0.9033  D=0.0600  tau_ls=+0.0217  vartheta=0.0000  |Phi|=1.1e-04  gbc=0.0e+00
 
---- R1-DEFICIT ---
-  regime R1-DEFICIT   P*=0.8553  D=0.0465  tau_ls=+0.0442  vartheta=0.0000  |Phi|=5.9e-06  gbc=0.0e+00
+--- R1-LUMPSUM ---
+  regime R1-LUMPSUM   P*=0.8553  D=0.0465  tau_ls=+0.0442  vartheta=0.0000  |Phi|=5.9e-06  gbc=0.0e+00
   welfare: CE gains by wealth quintile (%): [-2.63 -1.93 -1.68 -1.44 -1.13] | top10 -1.03, bottom50 -2.17, aggregate -1.77
 
 --- R2-PROP-LEVY ---
@@ -28,9 +28,9 @@ loaded calibrated inputs: beta*=0.9267, Gg=0.01818
 
 ================ REGIMES SUMMARY ================
  baseline P0=0.9033 (no program, lump-sum)
- R1-DEFICIT             P*=0.8553  nu=0.578  bottom50 -2.17%  top10 -1.03%
+ R1-LUMPSUM             P*=0.8553  nu=0.578  bottom50 -2.17%  top10 -1.03%
  R2-PROP-LEVY           P*=0.9288  nu=0.672  bottom50 -0.36%  top10 -0.52%
  R3-PROP-LEVY-REBATE    P*=0.9973  nu=0.759  bottom50 +1.13%  top10 -0.12%
  R4-MIXED-DEFICIT-LEVY  P*=0.8928  nu=0.626  bottom50 -1.22%  top10 -0.76%
- Elapsed: 16.1 s
+ Elapsed: 37.3 s
 =================================================
