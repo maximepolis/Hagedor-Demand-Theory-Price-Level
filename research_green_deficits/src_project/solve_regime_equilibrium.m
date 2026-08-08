@@ -31,12 +31,23 @@ function [eq, out] = solve_regime_equilibrium(pg, regime, r_ss, Pspan)
     B = regime.Bnom;
     n_evals = 0;
 
+    % KEEP THE HOUSEHOLD OBJECT FROM THE LAST EVALUATION. S_green already
+    % returns the stationary distribution, the value function and both policy
+    % functions on every call, and this closure was discarding all of it and
+    % keeping two scalars. The final PhiOf(Pstar) below therefore recomputed
+    % the equilibrium household problem and threw away the only copy of the
+    % heterogeneity the paper is about. Caching it costs nothing -- no extra
+    % solve, one struct assignment -- and lets a caller plot the ergodic
+    % distribution, the consumption policy and the savings policy AT the
+    % equilibrium without solving the model a second time.
+    hh_last = [];
     function [phi, S, Wv, gini] = PhiOf(P)
         pgl = pg;
         pgl.vartheta = regime.vartheta(P);
         [S, o] = S_green(r_ss, regime.tau_ls(P), regime.D(P), pgl);
         n_evals = n_evals + 1;
         if isfinite(S), phi = S - B/P; else, phi = NaN; end
+        if isfinite(S), hh_last = o; end     % the last FEASIBLE household solve
         if nargout > 2, Wv = o.W; gini = o.gini_a; end
     end
 
@@ -82,6 +93,10 @@ function [eq, out] = solve_regime_equilibrium(pg, regime, r_ss, Pspan)
     eq.W        = Ws;
     eq.gini_a   = gini;
     eq.resid    = phis;
+    % The equilibrium household block, free: PhiOf(Pstar) has just run.
+    % Fields used downstream: .dist (na x ne), .polC, .polA, .V,
+    % .eGrid_eff, .Pi_eff. See main_hank_heterogeneity.
+    eq.hh       = hh_last;
     % interface compatibility with welfare_by_group (expects .tau, .D)
     eq.tau      = eq.tau_ls;
 

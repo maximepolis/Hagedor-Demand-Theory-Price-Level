@@ -56,6 +56,29 @@ function [V, polA_idx, polA, polC, hhdiag] = solve_household_vfi(r, tau, params)
     err = Inf;
     it  = 0;
 
+    % ----- PRECOMPUTE THE PERIOD-UTILITY MATRICES -----
+    % U{j}(i,k) = u( (1+r)a_i + e_j - tau - a_k ) depends on r, tau, the
+    % grids and sigma. Every one of those is fixed for the whole solve, yet
+    % the iteration below used to rebuild the na x na consumption matrix AND
+    % call utility() on it once per income state PER SWEEP. At na = 500 and
+    % ne = 8 that is two million power evaluations repeated on every one of
+    % what can be hundreds of iterations, to produce the same numbers each
+    % time. Hoisting it costs 8 x 500 x 500 doubles (~16 MB) and removes the
+    % dominant per-iteration cost from both the Bellman step and, below, the
+    % Howard sweeps.
+    %
+    % BIT-IDENTICAL BY CONSTRUCTION: the same expression is evaluated on the
+    % same inputs, once instead of many times, and floating-point arithmetic
+    % is deterministic. Nothing about the fixed point changes. The D10/D11
+    % parity harnesses are the check that this is true in fact and not only
+    % in argument.
+    COH = cell(1, ne);
+    UMAT = cell(1, ne);
+    for j = 1:ne
+        COH{j}  = (1+r) * aGrid + eGrid(j) - tau;   % na x 1
+        UMAT{j} = utility(COH{j} - aGrid', sigma);  % na x na, -Inf where c<=0
+    end
+
     % Forced-consumption floor for states with NO feasible choice (c <= 0 even
     % at a' = amin, e.g. when tau exceeds the lowest income at the constraint).
     % Such states get a' = amin and utility u(c_floor): a very negative but
@@ -75,11 +98,9 @@ function [V, polA_idx, polA, polC, hhdiag] = solve_household_vfi(r, tau, params)
         Vnew = zeros(na, ne);
         n_forced = 0;
         for j = 1:ne
-            coh = (1+r) * aGrid + eGrid(j) - tau;  % na x 1 cash-on-hand
-            % consumption matrix C(i,k) = coh(i) - aGrid(k)
-            C = coh - aGrid';                      % na x na
-            U = utility(C, sigma);                 % -Inf where C <= 0
-            M = U + EV(:, j)';                     % add EV(k,j) across columns
+            % coh and the period-utility matrix are loop-invariant; see the
+            % precompute above.
+            M = UMAT{j} + EV(:, j)';               % add EV(k,j) across columns
             [Vj, kidx] = max(M, [], 2);
             % states where EVERY choice is infeasible: force a'=amin, c=c_floor
             forced = ~isfinite(Vj);
@@ -105,9 +126,8 @@ function [V, polA_idx, polA, polC, hhdiag] = solve_household_vfi(r, tau, params)
         for h = 1:n_howard
             EVh = beta * (V * Pi');
             for j = 1:ne
-                coh  = (1+r) * aGrid + eGrid(j) - tau;
                 idx  = polA_idx(:, j);
-                cH   = max(coh - aGrid(idx), c_floor);
+                cH   = max(COH{j} - aGrid(idx), c_floor);
                 V(:, j) = utility(cH, sigma) + EVh(idx, j);
             end
         end
@@ -117,7 +137,7 @@ function [V, polA_idx, polA, polC, hhdiag] = solve_household_vfi(r, tau, params)
     polA = aGrid(polA_idx);
     polC = zeros(na, ne);
     for j = 1:ne
-        polC(:, j) = (1+r) * aGrid + eGrid(j) - tau - polA(:, j);
+        polC(:, j) = COH{j} - polA(:, j);
     end
     if any(polC(:) <= 0)
         anyInfeasible = true;
