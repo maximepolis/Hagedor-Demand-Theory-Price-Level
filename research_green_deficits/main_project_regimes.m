@@ -34,7 +34,9 @@
 %
 % STATUS: machinery IMPLEMENTED; numbers are results only once run.
 
-clearvars -except FAST; close all; clc;
+% SUPERSTAR must survive the clear, or setting it before the call would be
+% silently discarded and the run would quietly solve the wrong economy.
+clearvars -except FAST SUPERSTAR; close all; clc;
 rng(20260105, 'twister');
 t0 = tic;
 
@@ -68,6 +70,43 @@ fprintf('==============================================================\n');
 
 % ----- calibrated inputs: load if available, else recalibrate -----
 D0_med = 0.06;
+% ---- SUPERSTAR VARIANT (opt-in) ----------------------------------------
+% SUPERSTAR = true solves this economy with the superstar income state ON,
+% using the (mult, p_in, p_out) that wealth_concentration_fit selected against
+% the top-1% wealth-share target. Without it the top tail is the Rouwenhorst
+% tail alone and the model's top-1% share is about 8% against a 33% target,
+% which matters wherever a result turns on WHO HOLDS THE DEBT rather than on
+% how much is held in aggregate.
+%
+% WHY THIS IS OPT-IN AND NOT THE DEFAULT, which is a deliberate refusal and
+% not caution for its own sake. The D10/D11 parity harness compares this code
+% against a FROZEN pre-refactor snapshot, baseline_bf0a4e8, whose own
+% setup_params_green carries superstar.active = false and can never be
+% changed -- it is content-verified by a SHA manifest. Flipping the shipped
+% default would therefore make every calibration field differ and the harness
+% FAIL permanently, by design, destroying the one instrument that can detect
+% an UNINTENDED change. It would also move every one-asset number in the
+% paper at once, silently. The variant writes to its own output file so the
+% certified results are not overwritten, and promoting it to the benchmark is
+% a separate decision that needs the number refresh done deliberately.
+if ~exist('SUPERSTAR','var') || isempty(SUPERSTAR), SUPERSTAR = false; end
+if SUPERSTAR
+    wf = fullfile(projdir, 'output', 'wealth_fit_results.mat');
+    assert(exist(wf,'file') == 2, ...
+        ['SUPERSTAR = true needs the fitted state: run wealth_concentration_fit ' ...
+         'first (it selects mult and p_in against the top-1%% share).']);
+    WF = load(wf, 'best');
+    assert(isfield(WF,'best') && isfield(WF.best,'mult'), ...
+        'wealth_fit_results.mat carries no fitted "best"; re-run wealth_concentration_fit.');
+    pg.superstar = struct('active', true, 'mult', WF.best.mult, ...
+                          'p_in', WF.best.p_in, 'p_out', WF.best.p_out);
+    fprintf(['[regimes] SUPERSTAR ON: mult=%g p_in=%.3g p_out=%.3g ' ...
+             '(from wealth_concentration_fit)\n'], ...
+            pg.superstar.mult, pg.superstar.p_in, pg.superstar.p_out);
+    fprintf(['[regimes] beta is recalibrated below to the SAME debt target, so\n' ...
+             '          this is a re-solved economy and not a re-weighted one.\n']);
+end
+
 r_cal  = (1 + pg.i_ss)/(1 + pg.mu) - 1;
 calfile = fullfile(projdir, 'output', 'calibrated_results.mat');
 if exist(calfile, 'file') == 2
@@ -186,7 +225,13 @@ if ~isempty(RREG)
 end
 
 % ----- summary -----
-save(fullfile(projdir,'output','regimes_results.mat'), 'RREG', 'eq0', 'pgc');
+% The superstar variant must not overwrite the certified benchmark results:
+% every downstream consumer of regimes_results.mat -- export_paper_numbers
+% among them -- would silently start reading a different economy.
+outname = 'regimes_results.mat';
+if SUPERSTAR, outname = 'regimes_results_superstar.mat'; end
+save(fullfile(projdir,'output',outname), 'RREG', 'eq0', 'pgc', 'SUPERSTAR');
+fprintf('[regimes] wrote output/%s\n', outname);
 sf = fullfile(pg.tabdir, 'regimes_summary.txt');
 fid = fopen(sf, 'w');
 if fid > 0

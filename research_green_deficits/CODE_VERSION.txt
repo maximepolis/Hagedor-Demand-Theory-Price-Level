@@ -1,4 +1,4 @@
-R11.46
+R11.47
 # One line, above, is the pipeline revision. Everything below is a comment.
 #
 # Bump this whenever a driver's INTERFACE or required inputs change, so that a
@@ -9,6 +9,35 @@ R11.46
 # that the current file does not mention. The revision is now printed by every
 # driver in the parity sequence, next to that file's own modification date.
 #
+# R11.47 the superstar state is switched on, as an OPT-IN VARIANT rather than
+#        a new default, and the difference is not caution -- it is the only
+#        form in which the switch can be had at all.
+#        The D10/D11 harness compares this code against baseline_bf0a4e8,
+#        whose own setup_params_green carries superstar.active = false and
+#        which can never be changed: it is the pre-refactor snapshot, verified
+#        by a SHA manifest. Flipping the shipped default would make every
+#        calibration field differ from the baseline and the harness would FAIL
+#        permanently, by design -- destroying the one instrument that can
+#        detect an unintended change, three revisions after it proved the VFI
+#        hoist bit-identical. It would also move every one-asset number in the
+#        paper at once, silently, at the moment Option A has made that economy
+#        carry the whole argument.
+#        So: SUPERSTAR = true on main_project_regimes solves the economy with
+#        the fitted (mult, p_in, p_out) from wealth_concentration_fit, asserts
+#        that fit exists rather than inventing a tail, recalibrates beta to the
+#        SAME debt target (a re-solved economy, not a re-weighted one), and
+#        writes regimes_results_superstar.mat -- so no downstream consumer of
+#        regimes_results.mat silently starts reading a different economy.
+#        main_hank_heterogeneity takes the same flag and writes
+#        PFig23_hank_heterogeneity_superstar. Both are compared, not swapped.
+#        Two traps closed while wiring it. main_project_regimes begins
+#        clearvars -except FAST, which would have discarded a SUPERSTAR set at
+#        the prompt and quietly solved the benchmark economy while reporting
+#        the variant; the flag is now in the -except list. And the variant's
+#        table and figure carry their own names, so a run of one cannot
+#        overwrite the exhibit of the other.
+#        Promoting the variant to the benchmark remains a separate decision,
+#        and it needs the parity baseline question answered first.
 # R11.46 PARITY CLEAN ON THE VFI HOIST, by measurement. D10 reports 40/32/32
 #        exact, 0 within ulps, 0 within tolerance, 0 FAIL, and leg A compares
 #        against the FROZEN pre-hoist solver in baseline_bf0a4e8; D11 passes

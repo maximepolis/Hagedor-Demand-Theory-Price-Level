@@ -51,7 +51,8 @@
 % USAGE   >> clear; main_hank_heterogeneity
 % COST    seconds. Nothing is solved here.
 
-clear; close all; clc;
+clearvars -except SUPERSTAR; close all; clc;
+if ~exist('SUPERSTAR','var') || isempty(SUPERSTAR), SUPERSTAR = false; end
 projdir = fileparts(mfilename('fullpath'));
 if isempty(projdir), projdir = pwd; end
 cd(projdir);
@@ -61,7 +62,8 @@ pg = setup_params_green();
 pg.figdir = fullfile(projdir, 'output', 'figures');
 if ~isfolder(pg.figdir), mkdir(pg.figdir); end
 if ~isfolder(pg.tabdir), mkdir(pg.tabdir); end
-sf = fullfile(pg.tabdir, 'hank_heterogeneity.txt');
+tagS = ''; if SUPERSTAR, tagS = '_superstar'; end
+sf = fullfile(pg.tabdir, ['hank_heterogeneity' tagS '.txt']);
 fid = fopen(sf, 'w'); assert(fid > 0, 'cannot open %s', sf);
 tee = @(varargin) tee2(fid, varargin{:});
 
@@ -69,11 +71,18 @@ tee('HANK HETEROGENEITY: WHO HOLDS THE DEBT, AND WHOSE DEMAND MOVES\n');
 tee('%s\n', kv_code_version(mfilename('fullpath')));
 tee('read-only over output/regimes_results.mat; nothing is solved here.\n\n');
 
-f = fullfile(projdir, 'output', 'regimes_results.mat');
+% SUPERSTAR = true reads the superstar variant written by
+% main_project_regimes with the same flag. The two economies are kept in
+% separate files on purpose; see the refusal note in that driver.
+srcname = 'regimes_results.mat';
+if SUPERSTAR, srcname = 'regimes_results_superstar.mat'; end
+f = fullfile(projdir, 'output', srcname);
 if exist(f, 'file') ~= 2
-    tee('regimes_results.mat not found. Run: clear; main_project_regimes\n');
+    tee('%s not found. Run: clear; SUPERSTAR = %d; main_project_regimes\n', ...
+        srcname, SUPERSTAR);
     fclose(fid); return;
 end
+tee('source: %s   (SUPERSTAR = %d)\n', srcname, SUPERSTAR);
 L = load(f);
 if ~isfield(L, 'RREG') || isempty(L.RREG)
     tee('regimes_results.mat has no RREG. Re-run main_project_regimes.\n');
@@ -235,7 +244,7 @@ xlabel('cumulative share of households');
 ylabel('cumulative share of bonds held');
 title('(d) who holds the nominal debt');
 
-save_all_figs(fh, 'PFig23_hank_heterogeneity', pg);
+save_all_figs(fh, ['PFig23_hank_heterogeneity' tagS], pg);
 
 % ---- the numbers behind the picture ------------------------------------
 tee('\nOWNERSHIP CONCENTRATION (panel d), by financing regime\n');
